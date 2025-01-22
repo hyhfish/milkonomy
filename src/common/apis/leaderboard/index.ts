@@ -1,19 +1,12 @@
 import type * as Leaderboard from "./type"
-import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "../game"
+import * as Format from "@@/utils/format"
 
-function formatNumber(value: number) {
-  value = Math.floor(value)
-  return value && value.toLocaleString("en-US")
-}
+import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "../game"
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   const profitList = await calcTransmuteProfit()
   profitList.sort((a, b) => b.profitPD - a.profitPD)
-  profitList.forEach((item) => {
-    item.profitPH = formatNumber(item.profitPH)
-    item.profitPD = formatNumber(item.profitPD)
-    item.costPH = formatNumber(item.costPH)
-  })
+
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
@@ -41,32 +34,56 @@ async function calcTransmuteProfit() {
     }
 
     // todo 计算效率
+    const playerLevel = 100
     const level = item.itemLevel
-    const efficiency = 1
-    const speed = 1
+    const equipmentEfficiency = 0.129
+    const houseEfficiency = 0.06
+    const efficiency = 1 + Math.max(0, (playerLevel - level) * 0.01) + equipmentEfficiency + houseEfficiency
+    const equipmentSpeed = 1.161
+    const speed = 1 + equipmentSpeed
     // todo 催化茶、催化剂
     const catalystTeaRate = 1
     const timeCost = (await getTransmuteTimeCost()) / speed
     const actionsPH = ((60 * 60 * 1000000000) / timeCost) * efficiency
 
+    const consumePH = actionsPH * item.alchemyDetail.bulkMultiplier
+    const gainPH = actionsPH
+
     // 单次收益
     income = income * item.alchemyDetail.transmuteSuccessRate * catalystTeaRate
 
-    // 计算每小时成本
-    const cost = (await getPriceOf(item.hrid)).ask
+    let cost = (await getPriceOf(item.hrid)).ask
     if (cost === -1) {
       // 跳过没有价格的物品
       continue
     }
-    const costPH = cost * actionsPH * item.alchemyDetail.bulkMultiplier
-    const incomePH = income * actionsPH
+    // 计算每小时成本
+    const coinCost = 50
+    cost += coinCost
+    const costPH = cost * consumePH
+    const coinCostPH = coinCost * consumePH
+    const incomePH = income * gainPH
     const profitPH = incomePH - costPH
-
-    const profitRate = `${Math.floor((profitPH / costPH) * 10000) / 100}%`
 
     // 一天收益
     const profitPD = profitPH * 24
-    profitList.push({ hrid: item.hrid, name: item.name, profitPH, profitPD, profitRate, costPH, project: "重组" })
+    profitList.push({
+      hrid: item.hrid,
+      name: item.name,
+      project: "重组",
+      profitPD,
+      profitPH,
+      gainPH,
+      profitPHFormat: Format.number(profitPH),
+      profitPDFormat: Format.number(profitPD),
+      profitRateFormat: Format.percent(profitPH / costPH),
+      costPHFormat: Format.number(costPH),
+      incomePHFormat: Format.number(incomePH),
+      efficiencyFormat: Format.percent(efficiency - 1),
+      timeCostFormat: Format.costTime(timeCost),
+      coinCostPHFormat: Format.number(coinCostPH),
+      consumePHFormat: Format.number(consumePH)
+    })
   }
 
   return profitList

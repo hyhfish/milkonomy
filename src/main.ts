@@ -12,6 +12,7 @@ import "element-plus/theme-chalk/dark/css-vars.css"
 import "vxe-table/lib/style.css"
 import "@@/assets/styles/index.scss"
 import "virtual:uno.css"
+import { useGameStore } from "./pinia/stores/game"
 
 // 创建应用实例
 const app = createApp(App)
@@ -21,6 +22,13 @@ installPlugins(app)
 
 // 安装 pinia 和 router
 app.use(pinia).use(router)
+
+// 定时获取数据
+console.log("set interval: useGameStore().fetchData()")
+setInterval(() => {
+  useGameStore().fetchData()
+}, 120 * 1000)
+useGameStore().fetchData()
 
 // router 准备就绪后挂载应用
 router.isReady().then(() => {

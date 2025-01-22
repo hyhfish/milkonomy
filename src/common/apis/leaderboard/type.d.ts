@@ -16,8 +16,16 @@ export interface LeaderboardData {
   hrid: string
   name: string
   project: string
+  profitPHFormat: string
+  profitPDFormat: string
+  profitRateFormat: string
+  costPHFormat: string
+  coinCostPHFormat: string
+  incomePHFormat: string
+  efficiencyFormat: string
+  timeCostFormat: string
   profitPH: number
   profitPD: number
-  profitRate: string
-  costPH: number
+  gainPH: number
+  consumePHFormat: string
 }

@@ -26,6 +26,7 @@ export const useGameStore = defineStore("data", {
       this.gameData = await response[0].json()
       this.marketData = await response[1].json()
       this.lastUpdated = now
+      // TODO 触发数据更新时要通知所有相关页面更新
 
       return { gameData: this.gameData, marketData: this.marketData }
     }

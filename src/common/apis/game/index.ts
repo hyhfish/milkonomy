@@ -1,26 +1,23 @@
 import { useGameStore } from "@/pinia/stores/game"
 
-async function loadData() {
-  return await useGameStore().fetchData()
-}
 /** 查 */
-export async function getGameDataApi() {
-  const res = await loadData()
-  return res.gameData!
+export function getGameDataApi() {
+  const res = useGameStore().gameData
+  return res!
 }
-export async function getMarketDataApi() {
-  const res = await loadData()
-  return res.marketData!
+export function getMarketDataApi() {
+  const res = useGameStore().marketData
+  return res!
 }
-export async function getPriceOf(hrid: string) {
-  const item = (await getGameDataApi()).itemDetailMap[hrid]
-  return (await getMarketDataApi()).market[item.name]
-}
-
-export async function getItemDetailOf(hrid: string) {
-  return (await getGameDataApi()).itemDetailMap[hrid]
+export function getPriceOf(hrid: string) {
+  const item = getGameDataApi().itemDetailMap[hrid]
+  return getMarketDataApi().market[item.name]
 }
 
-export async function getTransmuteTimeCost() {
-  return (await getGameDataApi()).actionDetailMap["/actions/alchemy/transmute"].baseTimeCost
+export function getItemDetailOf(hrid: string) {
+  return getGameDataApi().itemDetailMap[hrid]
+}
+
+export function getTransmuteTimeCost() {
+  return getGameDataApi().actionDetailMap["/actions/alchemy/transmute"].baseTimeCost
 }
