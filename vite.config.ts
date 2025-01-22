@@ -144,6 +144,9 @@ export default defineConfig(({ mode }) => {
           inline: ["element-plus"]
         }
       }
+    },
+    define: {
+      __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
     }
   }
 })

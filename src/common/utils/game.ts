@@ -3,5 +3,5 @@ export function getKeyOf(hrid?: string) {
 }
 export function getIconOf(hrid?: string) {
   const key = getKeyOf(hrid)
-  return `${import.meta.env.BASE_URL}/sprites/milky.svg#${key}`
+  return `${import.meta.env.BASE_URL}sprites/milky.svg#${key}`
 }

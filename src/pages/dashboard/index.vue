@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import type { LeaderboardData } from "@/common/apis/leaderboard/type"
 import type { FormInstance } from "element-plus"
-import type { DropTableItem, Item, ItemDetail } from "~/game"
-import { getItemDetailOf, getPriceOf } from "@/common/apis/game"
+import type { DropTableItem, ItemDetail } from "~/game"
+import { getGameDataApi, getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import * as Format from "@/common/utils/format"
-import { getIconOf } from "@/common/utils/game"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
-import { Plus, Refresh, Search } from "@element-plus/icons-vue"
+import { Refresh, Search } from "@element-plus/icons-vue"
 
 // #region 查
 const loading = ref<boolean>(false)
@@ -76,11 +75,19 @@ function handleSelfSelect() {
 
 <template>
   <div class="app-container">
+    <div class="game-info">
+      <div>MWI版本：{{ getGameDataApi().gameVersion }}</div>
+      <div
+        :class="{
+          error: getMarketDataApi().time < Date.now() - 1000 * 60 * 60,
+          success: getMarketDataApi().time > Date.now() - 1000 * 60 * 60,
+        }"
+      >
+        市场数据更新时间:{{ new Date(getMarketDataApi().time * 1000).toLocaleString() }}
+      </div>
+    </div>
     <el-card v-loading="loading">
       <template #header>
-        <!-- <div class="card-header">
-          <span>Card name</span>
-        </div> -->
         <el-form class="rank-card" ref="searchFormRef" :inline="true" :model="searchData">
           <div class="title">
             扫单填单利润排行
@@ -185,6 +192,20 @@ function handleSelfSelect() {
 </template>
 
 <style lang="scss" scoped>
+.game-info {
+  display: flex;
+  margin-bottom: 20px;
+  font-size: 14px;
+  * {
+    margin-right: 20px;
+  }
+  .error {
+    color: #f56c6c;
+  }
+  .success {
+    color: #67c23a;
+  }
+}
 .rank-card {
   display: flex;
   align-items: baseline;

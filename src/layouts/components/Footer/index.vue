@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 const VITE_APP_TITLE = import.meta.env.VITE_APP_TITLE
+const version = __APP_VERSION__
 </script>
 
 <template>
   <footer class="layout-footer">
-    MIT © 2025 {{ VITE_APP_TITLE }}
+    MIT © 2025 {{ VITE_APP_TITLE }} v{{ version }}
   </footer>
 </template>
 
