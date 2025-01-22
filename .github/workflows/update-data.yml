@@ -39,3 +39,14 @@ jobs:
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update game data" && git push)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用默认的 GITHUB_TOKEN 而不是自定义 token
+
+      # 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          keep_files: true # 保留已有文件
+          user_name: "github-actions[bot]"
+          user_email: "41898282+github-actions[bot]@users.noreply.github.com"
+          commit_message: Deploy game data to GitHub Pages
