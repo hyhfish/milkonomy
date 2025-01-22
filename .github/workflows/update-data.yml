@@ -10,9 +10,13 @@ on:
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # 添加写入权限
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3 # 更新到 v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # 使用默认的 GITHUB_TOKEN
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -29,9 +33,9 @@ jobs:
 
       - name: Commit and push if changed
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add public/data/
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update game data" && git push)
         env:
-          GITHUB_TOKEN: ${{ secrets.MILKONOMY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用默认的 GITHUB_TOKEN 而不是自定义 token
