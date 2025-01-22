@@ -27,6 +27,10 @@ jobs:
       - name: Build
         run: pnpm install && pnpm build
 
+        # fix https://github.com/vitejs/vite/issues/9119
+      - name: Create .nojekyll
+        run: touch dist/.nojekyll
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
