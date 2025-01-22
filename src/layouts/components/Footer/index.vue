@@ -4,7 +4,7 @@ const VITE_APP_TITLE = import.meta.env.VITE_APP_TITLE
 
 <template>
   <footer class="layout-footer">
-    MIT © 2021-PRESENT {{ VITE_APP_TITLE }}
+    MIT © 2025 {{ VITE_APP_TITLE }}
   </footer>
 </template>
 

@@ -40,13 +40,6 @@ export const constantRoutes: RouteRecordRaw[] = [
     alias: "/:pathMatch(.*)*"
   },
   {
-    path: "/login",
-    component: () => import("@/pages/login/index.vue"),
-    meta: {
-      hidden: true
-    }
-  },
-  {
     path: "/",
     component: Layouts,
     redirect: "/dashboard",
@@ -70,7 +63,8 @@ export const constantRoutes: RouteRecordRaw[] = [
     name: "Demo",
     meta: {
       title: "示例集合",
-      elIcon: "DataBoard"
+      elIcon: "DataBoard",
+      hidden: true
     },
     children: [
       {
@@ -79,24 +73,6 @@ export const constantRoutes: RouteRecordRaw[] = [
         name: "UnoCSS",
         meta: {
           title: "UnoCSS"
-        }
-      },
-      {
-        path: "element-plus",
-        component: () => import("@/pages/demo/element-plus/index.vue"),
-        name: "ElementPlus",
-        meta: {
-          title: "Element Plus",
-          keepAlive: true
-        }
-      },
-      {
-        path: "vxe-table",
-        component: () => import("@/pages/demo/vxe-table/index.vue"),
-        name: "VxeTable",
-        meta: {
-          title: "Vxe Table",
-          keepAlive: true
         }
       },
       {
@@ -159,24 +135,32 @@ export const constantRoutes: RouteRecordRaw[] = [
   {
     path: "/link",
     meta: {
-      title: "文档链接",
+      title: "相关链接",
       elIcon: "Link"
     },
     children: [
       {
-        path: "https://juejin.cn/post/7445151895121543209",
+        path: "https://www.milkywayidle.com/",
         component: () => {},
         name: "Link1",
         meta: {
-          title: "中文文档"
+          title: "Milky Way Idle"
         }
       },
       {
-        path: "https://juejin.cn/column/7207659644487139387",
+        path: "https://github.com/holychikenz/MWIApi",
         component: () => {},
         name: "Link2",
         meta: {
-          title: "新手教程"
+          title: "MWI Api"
+        }
+      },
+      {
+        path: "https://docs.google.com/spreadsheets/d/13yBy3oQkH5N4y7UJ0Pkux2A8O5xM1ZsVTNAg6qgLEcM/edit?gid=2017655058#gid=2017655058",
+        component: () => {},
+        name: "Link3",
+        meta: {
+          title: "MWI Data"
         }
       }
     ]
@@ -188,43 +172,7 @@ export const constantRoutes: RouteRecordRaw[] = [
  * @description 用来放置有权限 (Roles 属性) 的路由
  * @description 必须带有唯一的 Name 属性
  */
-export const dynamicRoutes: RouteRecordRaw[] = [
-  {
-    path: "/permission",
-    component: Layouts,
-    redirect: "/permission/page-level",
-    name: "Permission",
-    meta: {
-      title: "权限演示",
-      elIcon: "Lock",
-      // 可以在根路由中设置角色
-      roles: ["admin", "editor"],
-      alwaysShow: true
-    },
-    children: [
-      {
-        path: "page-level",
-        component: () => import("@/pages/demo/permission/page-level.vue"),
-        name: "PermissionPageLevel",
-        meta: {
-          title: "页面级",
-          // 或者在子路由中设置角色
-          roles: ["admin"]
-        }
-      },
-      {
-        path: "button-level",
-        component: () => import("@/pages/demo/permission/button-level.vue"),
-        name: "PermissionButtonLevel",
-        meta: {
-          title: "按钮级",
-          // 如果未设置角色，则表示：该页面不需要权限，但会继承根路由的角色
-          roles: undefined
-        }
-      }
-    ]
-  }
-]
+export const dynamicRoutes: RouteRecordRaw[] = []
 
 /** 路由实例 */
 export const router = createRouter({
