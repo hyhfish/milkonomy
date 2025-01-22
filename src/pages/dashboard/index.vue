@@ -150,7 +150,10 @@ function handleSelfSelect() {
           <div class="item-wrapper">
             <ItemIcon :hrid="sourceItem?.hrid" />
             <div>{{ sourceItem?.name }}</div>
-            <div>消耗：{{ currentRow?.consumePHFormat }} / h</div>
+            <div>
+              {{ sourceItem && Format.money(getPriceOf(sourceItem.hrid).ask) }}
+            </div>
+            <div>{{ currentRow?.consumePHFormat }} / h</div>
           </div>
           <div>
             成本：{{ currentRow?.costPHFormat }} / h
