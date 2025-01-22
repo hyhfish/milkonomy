@@ -2,5 +2,6 @@ export function getKeyOf(hrid?: string) {
   return hrid?.split("/").pop()
 }
 export function getIconOf(hrid?: string) {
-  return `src/common/assets/icons/preserve-color/milky.svg#${getKeyOf(hrid)}`
+  const key = getKeyOf(hrid)
+  return `${import.meta.env.BASE_URL}/sprites/milky.svg#${key}`
 }
