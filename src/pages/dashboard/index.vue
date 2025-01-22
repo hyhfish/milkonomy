@@ -85,8 +85,8 @@ function handleSelfSelect() {
           <div class="title">
             扫单填单利润排行
           </div>
-          <el-form-item prop="username" label="项目">
-            <el-input v-model="searchData.username" placeholder="请输入" />
+          <el-form-item prop="name" label="物品">
+            <el-input v-model="searchData.name" placeholder="请输入" />
           </el-form-item>
           <!-- <el-form-item prop="phone" label="物品">
             <el-input v-model="searchData.name" placeholder="请输入" />

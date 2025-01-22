@@ -1,4 +1,4 @@
-name: Build And Deploy v3-admin-vite
+name: Build And Deploy milkonomy
 
 on:
   push:
@@ -30,6 +30,6 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
-          ACCESS_TOKEN: ${{ secrets.V3_ADMIN_VITE }}
+          ACCESS_TOKEN: ${{ secrets.MILKONOMY }}
           BRANCH: gh-pages
           FOLDER: dist
