@@ -44,17 +44,22 @@ def load_existing_json(file_path: str) -> Dict[str, Any] | None:
 def deploy_to_gh_pages() -> None:
     """部署 public/data 到 gh-pages 分支"""
     github_repository = os.environ.get("GITHUB_REPOSITORY")
-    if not github_repository:
-        raise ValueError("GITHUB_REPOSITORY environment variable is not set")
+    github_token = os.environ.get("GITHUB_TOKEN")  # 获取 GITHUB_TOKEN
+
+    if not github_repository or not github_token:
+        raise ValueError("Missing environment variables")
 
     temp_dir = "gh-pages-temp"
     try:
-        # 克隆 gh-pages 分支（使用 GITHUB_TOKEN 认证）
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        # 使用 GITHUB_TOKEN 认证的 URL
         subprocess.run([
             "git", "clone",
             "--branch", "gh-pages",
             "--single-branch",
-            f"https://github.com/{github_repository}.git",
+            f"https://{github_token}@github.com/{github_repository}.git",
             temp_dir
         ], check=True)
 
