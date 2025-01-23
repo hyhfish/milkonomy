@@ -2,8 +2,8 @@ name: Update Game Data
 
 on:
   schedule:
-    # 每小时整点触发
-    - cron: "0 * * * *"
+    # 每10分钟触发一次
+    - cron: "*/10 * * * *"
   # 允许手动触发
   workflow_dispatch:
 
@@ -26,18 +26,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install requests ghp-import
 
-      - name: Fetch game data
+      - name: Fetch and deploy data
         run: python scripts/fetch_game_data.py
-
-      # 直接部署到 GitHub Pages，不提交到主分支
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
-          keep_files: true # 保留已有文件
-          user_name: "github-actions[bot]"
-          user_email: "41898282+github-actions[bot]@users.noreply.github.com"
-          commit_message: Deploy game data to GitHub Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
