@@ -1,5 +1,6 @@
 name: Update Game Data
-
+env:
+  GITHUB_REPOSITORY: ${{ github.repository }}
 on:
   schedule:
     # 每20分钟触发一次

@@ -53,6 +53,9 @@ def deploy_to_gh_pages() -> None:
     """
     部署到 GitHub Pages，仅更新 public 文件夹
     """
+    github_repository = os.environ.get("GITHUB_REPOSITORY")
+    if not github_repository:
+        raise ValueError("GITHUB_REPOSITORY environment variable is not set")
     try:
         # 克隆 gh-pages 分支到临时目录
         subprocess.run([
@@ -60,7 +63,7 @@ def deploy_to_gh_pages() -> None:
             "--branch", "gh-pages",
             "--single-branch",
             "--depth", "1",
-            "https://github.com/${{ github.repository }}",
+            "https://github.com/{github_repository}}",
             "gh-pages-temp"
         ], check=True)
 
