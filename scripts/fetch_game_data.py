@@ -77,6 +77,7 @@ def deploy_to_gh_pages() -> None:
             text=True,
             check=True
         )
+        print('test:', result.stdout)
         if not result.stdout.strip():
             print("⚠️ No changes to commit, skipping deployment")
             return
