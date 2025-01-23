@@ -110,10 +110,8 @@ def main() -> None:
                 has_changes = True
                 print(f"Updated file: {output_file}")
 
-                new_data_json = json.loads(new_data)
-                print(f"New Time: {new_data_json['time']}")
-                output_file_json = json.loads(output_file)
-                print(f"Old Time: {output_file_json['time']}")
+                print(f"New Time: {new_data['time']}")
+                print(f"Old Time: {existing_data['time']}")
 
 
             else:
