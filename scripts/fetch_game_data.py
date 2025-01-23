@@ -16,7 +16,7 @@ DATA_URL = [
 OUTPUT_DIR = "./public/data"
 OUTPUT_JSON = [f"{OUTPUT_DIR}/data.json", f"{OUTPUT_DIR}/market.json"]
 
-DEPLOY_DIR = "./data"
+DEPLOY_DIR = "data"
 
 
 def get_file_hash(data: Dict[str, Any]) -> str:
