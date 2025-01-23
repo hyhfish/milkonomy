@@ -69,15 +69,27 @@ def deploy_to_gh_pages() -> None:
             shutil.rmtree(target_data_dir)
         shutil.copytree(OUTPUT_DIR, target_data_dir)
 
+        # 检查是否有变更
+        result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=temp_dir,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        if not result.stdout.strip():
+            print("⚠️ No changes to commit, skipping deployment")
+            return
+
         # 提交并推送变更
         subprocess.run(["git", "config", "user.name", "GitHub Actions"], cwd=temp_dir, check=True)
         subprocess.run(["git", "config", "user.email", "actions@github.com"], cwd=temp_dir, check=True)
         subprocess.run(["git", "add", "."], cwd=temp_dir, check=True)
         subprocess.run(["git", "commit", "-m", "Update data files via GitHub Actions"], cwd=temp_dir, check=True)
         subprocess.run(["git", "push"], cwd=temp_dir, check=True)
-        print("Successfully deployed data to gh-pages branch")
+        print("✅ Successfully deployed data to gh-pages branch")
     except subprocess.CalledProcessError as e:
-        print(f"Deployment failed: {e}")
+        print(f"❌ Deployment failed: {e}")
         raise
     finally:
         if os.path.exists(temp_dir):
