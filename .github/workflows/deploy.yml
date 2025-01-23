@@ -7,8 +7,6 @@ on:
     paths:
       - "public/**"
       - "src/**"
-    paths-ignore:
-      - "public/data/**"
 
 jobs:
   build-and-deploy:
