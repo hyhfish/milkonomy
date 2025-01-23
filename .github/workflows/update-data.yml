@@ -7,6 +7,12 @@ on:
     - cron: "*/10 * * * *"
   # 允许手动触发
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      force:
+        type: boolean
+        default: false
+        description: 是否强制更新数据
 
 jobs:
   update-data:

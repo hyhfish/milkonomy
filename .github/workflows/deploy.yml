@@ -1,5 +1,5 @@
 name: Build And Deploy milkonomy
-
+# 允许手动触发
 on:
   push:
     branches:
@@ -7,6 +7,13 @@ on:
     paths:
       - "public/**"
       - "src/**"
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      force:
+        type: boolean
+        default: false
+        description: 是否强制打包部署
 
 jobs:
   build-and-deploy:
