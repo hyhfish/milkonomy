@@ -31,16 +31,7 @@ jobs:
       - name: Fetch game data
         run: python scripts/fetch_game_data.py
 
-      - name: Commit and push if changed
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add public/data/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update game data" && git push)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用默认的 GITHUB_TOKEN 而不是自定义 token
-
-      # 部署到 GitHub Pages
+      # 直接部署到 GitHub Pages，不提交到主分支
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
