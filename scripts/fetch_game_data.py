@@ -17,32 +17,24 @@ OUTPUT_DIR = "./public/data"
 OUTPUT_JSON = [f"{OUTPUT_DIR}/data.json", f"{OUTPUT_DIR}/market.json"]
 
 def get_file_hash(data: Dict[str, Any]) -> str:
-    """
-    计算数据的 MD5 哈希值
-    """
+    """计算数据的 MD5 哈希值"""
     json_str = json.dumps(data, sort_keys=True)
     return hashlib.md5(json_str.encode()).hexdigest()
 
 def fetch_data(url: str) -> Dict[str, Any]:
-    """
-    从远程获取 JSON 数据
-    """
+    """从远程获取 JSON 数据"""
     response = requests.get(url)
     response.raise_for_status()
     return response.json()
 
 def save_as_json(data: Dict[str, Any], output_file: str) -> None:
-    """
-    保存数据为 JSON 文件
-    """
+    """保存数据为 JSON 文件"""
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 def load_existing_json(file_path: str) -> Dict[str, Any] | None:
-    """
-    加载现有的 JSON 文件
-    """
+    """加载本地的 JSON 文件（main 分支的数据）"""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -50,78 +42,77 @@ def load_existing_json(file_path: str) -> Dict[str, Any] | None:
         return None
 
 def deploy_to_gh_pages() -> None:
-    """
-    部署到 GitHub Pages，仅更新 public 文件夹
-    """
+    """部署 public/data 到 gh-pages 分支"""
     github_repository = os.environ.get("GITHUB_REPOSITORY")
     if not github_repository:
         raise ValueError("GITHUB_REPOSITORY environment variable is not set")
+
+    temp_dir = "gh-pages-temp"
     try:
-        # 克隆 gh-pages 分支到临时目录
+        # 克隆 gh-pages 分支（使用 GITHUB_TOKEN 认证）
         subprocess.run([
             "git", "clone",
             "--branch", "gh-pages",
             "--single-branch",
-            "--depth", "1",
-            "https://github.com/{github_repository}}",
-            "gh-pages-temp"
+            f"https://github.com/{github_repository}.git",
+            temp_dir
         ], check=True)
 
-        # 替换 public 文件夹
-        temp_public_dir = "./gh-pages-temp/public"
-        if os.path.exists(temp_public_dir):
-            shutil.rmtree(temp_public_dir)  # 删除旧的 public 文件夹
-        shutil.copytree("./public", temp_public_dir)  # 复制新的 public 文件夹
+        # 替换 public/data 目录
+        target_data_dir = os.path.join(temp_dir, "public/data")
+        if os.path.exists(target_data_dir):
+            shutil.rmtree(target_data_dir)
+        shutil.copytree(OUTPUT_DIR, target_data_dir)
 
-        # 提交更改
-        subprocess.run(["git", "add", "public"], cwd="gh-pages-temp", check=True)
-        subprocess.run(["git", "commit", "-m", "Update public folder via GitHub Actions"], cwd="gh-pages-temp", check=True)
-        subprocess.run(["git", "push"], cwd="gh-pages-temp", check=True)
-
-        print("Successfully updated public/ on GitHub Pages")
+        # 提交并推送变更
+        subprocess.run(["git", "config", "user.name", "GitHub Actions"], cwd=temp_dir, check=True)
+        subprocess.run(["git", "config", "user.email", "actions@github.com"], cwd=temp_dir, check=True)
+        subprocess.run(["git", "add", "."], cwd=temp_dir, check=True)
+        subprocess.run(["git", "commit", "-m", "Update data files via GitHub Actions"], cwd=temp_dir, check=True)
+        subprocess.run(["git", "push"], cwd=temp_dir, check=True)
+        print("Successfully deployed data to gh-pages branch")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to deploy: {e}")
+        print(f"Deployment failed: {e}")
         raise
     finally:
-        # 清理临时目录
-        if os.path.exists("gh-pages-temp"):
-            shutil.rmtree("gh-pages-temp")
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
 
 def main() -> None:
     has_changes = False
 
-    # 获取并比较每个数据源
+    # 检查并更新数据
     for url, output_file in zip(DATA_URL, OUTPUT_JSON):
-        # 获取远程数据
         new_data = fetch_data(url)
-        # 获取现有数据
         existing_data = load_existing_json(output_file)
 
         if existing_data is None:
-            # 如果文件不存在，直接保存
             save_as_json(new_data, output_file)
             has_changes = True
             print(f"Created new file: {output_file}")
         else:
-            # 比较哈希值
             new_hash = get_file_hash(new_data)
             existing_hash = get_file_hash(existing_data)
-
             if new_hash != existing_hash:
-                # 数据有变化，保存新数据
                 save_as_json(new_data, output_file)
                 has_changes = True
                 print(f"Updated file: {output_file}")
-
-                print(f"New Time: {new_data['time']}")
-                print(f"Old Time: {existing_data['time']}")
-
-
+                print(f"New Time: {new_data.get('time')}")
+                print(f"Old Time: {existing_data.get('time')}")
             else:
                 print(f"No changes in: {output_file}")
 
-    # 如果有变化，部署到 GitHub Pages
+    # 若有变更，提交到 main 分支并部署到 gh-pages
     if has_changes:
+        # 提交到 main 分支
+        subprocess.run(["git", "config", "--global", "user.name", "GitHub Actions"], check=True)
+        subprocess.run(["git", "config", "--global", "user.email", "actions@github.com"], check=True)
+        subprocess.run(["git", "add", "."], check=True)
+        subprocess.run(["git", "commit", "-m", "Update data files"], check=True)
+        subprocess.run(["git", "push"], check=True)
+        print("Committed changes to main branch")
+
+        # 部署到 gh-pages
         deploy_to_gh_pages()
     else:
         print("No changes detected, skipping deployment")
