@@ -3,6 +3,7 @@ import json
 import requests
 import hashlib
 import subprocess
+import shutil
 from typing import Dict, Any
 
 # 数据源 URL
@@ -50,21 +51,38 @@ def load_existing_json(file_path: str) -> Dict[str, Any] | None:
 
 def deploy_to_gh_pages() -> None:
     """
-    部署到 GitHub Pages
+    部署到 GitHub Pages，仅更新 public 文件夹
     """
     try:
+        # 克隆 gh-pages 分支到临时目录
         subprocess.run([
-            "ghp-import",
-            "-n",  # 创建 .nojekyll 文件
-            "-m", "Deploy game data to GitHub Pages",  # commit 信息
-            "-p",  # 推送到远程
-            "-f",  # 强制覆盖
-            "./public"  # 要部署的目录
+            "git", "clone",
+            "--branch", "gh-pages",
+            "--single-branch",
+            "--depth", "1",
+            "https://github.com/${{ github.repository }}",
+            "gh-pages-temp"
         ], check=True)
-        print("Successfully deployed to GitHub Pages")
+
+        # 替换 public 文件夹
+        temp_public_dir = "./gh-pages-temp/public"
+        if os.path.exists(temp_public_dir):
+            shutil.rmtree(temp_public_dir)  # 删除旧的 public 文件夹
+        shutil.copytree("./public", temp_public_dir)  # 复制新的 public 文件夹
+
+        # 提交更改
+        subprocess.run(["git", "add", "public"], cwd="gh-pages-temp", check=True)
+        subprocess.run(["git", "commit", "-m", "Update public folder via GitHub Actions"], cwd="gh-pages-temp", check=True)
+        subprocess.run(["git", "push"], cwd="gh-pages-temp", check=True)
+
+        print("Successfully updated public/ on GitHub Pages")
     except subprocess.CalledProcessError as e:
         print(f"Failed to deploy: {e}")
         raise
+    finally:
+        # 清理临时目录
+        if os.path.exists("gh-pages-temp"):
+            shutil.rmtree("gh-pages-temp")
 
 def main() -> None:
     has_changes = False
@@ -91,6 +109,13 @@ def main() -> None:
                 save_as_json(new_data, output_file)
                 has_changes = True
                 print(f"Updated file: {output_file}")
+
+                new_data_json = json.loads(new_data)
+                print(f"New Time: {new_data_json['time']}")
+                output_file_json = json.loads(output_file)
+                print(f"Old Time: {output_file_json['time']}")
+
+
             else:
                 print(f"No changes in: {output_file}")
 
