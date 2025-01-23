@@ -16,6 +16,9 @@ DATA_URL = [
 OUTPUT_DIR = "./public/data"
 OUTPUT_JSON = [f"{OUTPUT_DIR}/data.json", f"{OUTPUT_DIR}/market.json"]
 
+DEPLOY_DIR = "./data"
+
+
 def get_file_hash(data: Dict[str, Any]) -> str:
     """计算数据的 MD5 哈希值"""
     json_str = json.dumps(data, sort_keys=True)
@@ -64,10 +67,10 @@ def deploy_to_gh_pages() -> None:
         ], check=True)
 
         # 替换 public/data 目录
-        target_data_dir = os.path.join(temp_dir, "public/data")
+        target_data_dir = os.path.join(temp_dir, DEPLOY_DIR)
         if os.path.exists(target_data_dir):
             shutil.rmtree(target_data_dir)
-        shutil.copytree(OUTPUT_DIR, target_data_dir)
+        shutil.copytree(DEPLOY_DIR, target_data_dir)
 
         # 检查是否有变更
         result = subprocess.run(
@@ -77,7 +80,6 @@ def deploy_to_gh_pages() -> None:
             text=True,
             check=True
         )
-        print('test:', result.stdout)
         if not result.stdout.strip():
             print("⚠️ No changes to commit, skipping deployment")
             return
