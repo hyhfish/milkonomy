@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "public/**"
+      - "src/**"
+    paths-ignore:
+      - "public/data/**"
 
 jobs:
   build-and-deploy:
@@ -27,9 +32,13 @@ jobs:
       - name: Build
         run: pnpm install && pnpm build
 
-        # fix https://github.com/vitejs/vite/issues/9119
+      # fix https://github.com/vitejs/vite/issues/9119
       - name: Create .nojekyll
         run: touch dist/.nojekyll
+
+      # 删除本地dist/public/data目录，防止覆盖线上最新数据
+      - name: Remove dist/public/data
+        run: rm -rf dist/public/data
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
@@ -37,3 +46,4 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.MILKONOMY }}
           BRANCH: gh-pages
           FOLDER: dist
+          CLEAN: false # 不清除dist/public/data的内容
