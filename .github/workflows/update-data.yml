@@ -25,12 +25,13 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git remote set-url origin https://${{ secrets.MILKONOMY }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git fetch --all  # 拉取所有远程分支
 
       # 3. 从 main 分支获取 fetch_game_data.py 脚本
       - name: Fetch script from main branch
         run: |
-          git fetch origin main   # 获取 main 分支
+          git fetch origin main:main  # 将远程 main 分支拉取到本地 main 分支
           git checkout main -- scripts/fetch_game_data.py  # 从 main 分支提取脚本
         shell: bash
 
