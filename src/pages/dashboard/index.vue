@@ -79,8 +79,8 @@ function handleSelfSelect() {
       <div>MWI版本：{{ getGameDataApi()?.gameVersion }}</div>
       <div
         :class="{
-          error: getMarketDataApi()?.time < Date.now() - 1000 * 60 * 120,
-          success: getMarketDataApi()?.time > Date.now() - 1000 * 60 * 120,
+          error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
+          success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
         }"
       >
         市场数据更新时间:{{ new Date(getMarketDataApi()?.time * 1000).toLocaleString() }}

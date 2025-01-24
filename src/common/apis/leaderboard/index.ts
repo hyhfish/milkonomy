@@ -4,15 +4,18 @@ import * as Format from "@@/utils/format"
 import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "../game"
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
-  const profitList = await calcTransmuteProfit()
+  let profitList = calcTransmuteProfit()
   profitList.sort((a, b) => b.profitPD - a.profitPD)
+
+  // params.name 忽略大小写
+  params.name && (profitList = profitList.filter(item => item.name.toLowerCase().includes(params.name!.toLowerCase())))
 
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
 
-async function calcTransmuteProfit() {
-  const gameData = await getGameDataApi()
+function calcTransmuteProfit() {
+  const gameData = getGameDataApi()
 
   // 所有可重组的物品
   const transmuteList = Object.values(gameData.itemDetailMap).filter(item => item.alchemyDetail && item.alchemyDetail.transmuteDropTable)
@@ -29,7 +32,7 @@ async function calcTransmuteProfit() {
     // 单次收益
     for (let j = 0; j < dropTable.length; j++) {
       const drop = dropTable[j]
-      const price = await getPriceOf(drop.itemHrid)
+      const price = getPriceOf(drop.itemHrid)
       income += drop.dropRate * drop.maxCount * price.bid
     }
 
@@ -43,7 +46,7 @@ async function calcTransmuteProfit() {
     const speed = 1 + equipmentSpeed
     // todo 催化茶、催化剂
     const catalystTeaRate = 1
-    const timeCost = (await getTransmuteTimeCost()) / speed
+    const timeCost = (getTransmuteTimeCost()) / speed
     const actionsPH = ((60 * 60 * 1000000000) / timeCost) * efficiency
 
     const consumePH = actionsPH * item.alchemyDetail.bulkMultiplier
@@ -52,7 +55,7 @@ async function calcTransmuteProfit() {
     // 单次收益
     income = income * item.alchemyDetail.transmuteSuccessRate * catalystTeaRate
 
-    let cost = (await getPriceOf(item.hrid)).ask
+    let cost = (getPriceOf(item.hrid)).ask
     if (cost === -1) {
       // 跳过没有价格的物品
       continue

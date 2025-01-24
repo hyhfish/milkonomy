@@ -24,13 +24,12 @@ installPlugins(app)
 app.use(pinia).use(router)
 
 // 定时获取数据
-console.log("set interval: useGameStore().fetchData()")
 setInterval(() => {
   useGameStore().fetchData()
 }, 120 * 1000)
-useGameStore().fetchData()
 
-// router 准备就绪后挂载应用
-router.isReady().then(() => {
-  app.mount("#app")
+useGameStore().fetchData().then(() => {
+  router.isReady().then(() => {
+    app.mount("#app")
+  })
 })
