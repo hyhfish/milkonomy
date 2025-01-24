@@ -23,7 +23,7 @@ jobs:
       # 2. 从 main 分支获取 fetch_game_data.py 脚本
       - name: Fetch script from main branch
         run: |
-          git fetch origin main   # 获取 main 分支
+          git fetch --all   # 获取所有远程分支
           git checkout main -- scripts/fetch_game_data.py  # 从 main 分支提取脚本
         shell: bash
 
