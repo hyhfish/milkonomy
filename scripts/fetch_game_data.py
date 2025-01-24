@@ -6,16 +6,13 @@ import subprocess
 import shutil
 from typing import Dict, Any
 
-# 数据源 URL
 DATA_URL = [
     "https://raw.githubusercontent.com/silent1b/MWIData/main/init_client_info.json",
     "https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
 ]
 
-# 输出文件路径
 OUTPUT_DIR = "./public/data"
 OUTPUT_JSON = [f"{OUTPUT_DIR}/data.json", f"{OUTPUT_DIR}/market.json"]
-
 
 def get_file_hash(data: Dict[str, Any]) -> str:
     """计算数据的 MD5 哈希值"""
@@ -35,7 +32,7 @@ def save_as_json(data: Dict[str, Any], output_file: str) -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 def load_existing_json(file_path: str) -> Dict[str, Any] | None:
-    """加载本地的 JSON 文件（main 分支的数据）"""
+    """加载本地（gh-pages 分支）的 JSON 文件"""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -45,7 +42,7 @@ def load_existing_json(file_path: str) -> Dict[str, Any] | None:
 def deploy_to_gh_pages() -> None:
     """部署 public/data 到 gh-pages 分支"""
     github_repository = os.environ.get("GITHUB_REPOSITORY")
-    github_token = os.environ.get("GITHUB_TOKEN")  # 获取 GITHUB_TOKEN
+    github_token = os.environ.get("GITHUB_TOKEN")
 
     if not github_repository or not github_token:
         raise ValueError("Missing environment variables")
@@ -55,7 +52,6 @@ def deploy_to_gh_pages() -> None:
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)
 
-        # 使用 GITHUB_TOKEN 认证的 URL
         subprocess.run([
             "git", "clone",
             "--branch", "gh-pages",
@@ -64,13 +60,11 @@ def deploy_to_gh_pages() -> None:
             temp_dir
         ], check=True)
 
-        # 替换 public/data 目录
         target_data_dir = os.path.join(temp_dir, "data")
         if os.path.exists(target_data_dir):
             shutil.rmtree(target_data_dir)
         shutil.copytree(OUTPUT_DIR, target_data_dir)
 
-        # 检查是否有变更
         result = subprocess.run(
             ["git", "status", "--porcelain"],
             cwd=temp_dir,
@@ -82,7 +76,6 @@ def deploy_to_gh_pages() -> None:
             print("⚠️ No changes to commit, skipping deployment")
             return
 
-        # 提交并推送变更
         subprocess.run(["git", "config", "user.name", "GitHub Actions"], cwd=temp_dir, check=True)
         subprocess.run(["git", "config", "user.email", "actions@github.com"], cwd=temp_dir, check=True)
         subprocess.run(["git", "add", "."], cwd=temp_dir, check=True)
@@ -102,7 +95,7 @@ def main() -> None:
     # 检查并更新数据
     for url, output_file in zip(DATA_URL, OUTPUT_JSON):
         new_data = fetch_data(url)
-        existing_data = load_existing_json(output_file)
+        existing_data = load_existing_json(output_file)  # 从 gh-pages 分支加载
 
         if existing_data is None:
             save_as_json(new_data, output_file)
@@ -120,17 +113,8 @@ def main() -> None:
             else:
                 print(f"No changes in: {output_file}")
 
-    # 若有变更，提交到 main 分支并部署到 gh-pages
+    # 若有变更，直接部署到 gh-pages
     if has_changes:
-        # 提交到 main 分支
-        subprocess.run(["git", "config", "--global", "user.name", "GitHub Actions"], check=True)
-        subprocess.run(["git", "config", "--global", "user.email", "actions@github.com"], check=True)
-        subprocess.run(["git", "add", "."], check=True)
-        subprocess.run(["git", "commit", "-m", "Update data files"], check=True)
-        subprocess.run(["git", "push"], check=True)
-        print("Committed changes to main branch")
-
-        # 部署到 gh-pages
         deploy_to_gh_pages()
     else:
         print("No changes detected, skipping deployment")
