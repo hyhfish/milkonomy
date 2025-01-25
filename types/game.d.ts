@@ -65,7 +65,7 @@ export interface DropTableItem {
 export interface AlchemyDetail {
   bulkMultiplier: number
   isCoinifiable: boolean
-  decomposeItems?: Item[]
+  decomposeItems: Item[]
   transmuteSuccessRate: number
   transmuteDropTable: DropTableItem[]
 }

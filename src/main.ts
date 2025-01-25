@@ -26,7 +26,7 @@ app.use(pinia).use(router)
 // 定时获取数据
 setInterval(() => {
   useGameStore().fetchData()
-}, 120 * 1000)
+}, 60 * 1000)
 
 useGameStore().fetchData().then(() => {
   router.isReady().then(() => {

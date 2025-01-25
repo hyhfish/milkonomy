@@ -1,3 +1,5 @@
+import type Calculator from "@/calculator"
+
 export interface RequestData {
   /** 当前页码 */
   currentPage: number
@@ -5,6 +7,8 @@ export interface RequestData {
   size: number
   /** 查询参数：名称 */
   name?: string
+  /** 查询参数：项目 */
+  project?: string
 }
 
 export type ResponseData = ApiResponseData<{
@@ -13,19 +17,24 @@ export type ResponseData = ApiResponseData<{
 }>
 
 export interface LeaderboardData {
+  calculator: Calculator
   hrid: string
   name: string
   project: string
+  successRate: number
+  costPH: number
+  consumePH: number
+  gainPH: number
+  incomePH: number
+  profitPH: number
+
+  costPHFormat: string
+  incomePHFormat: string
   profitPHFormat: string
   profitPDFormat: string
   profitRateFormat: string
-  costPHFormat: string
-  coinCostPHFormat: string
-  incomePHFormat: string
   efficiencyFormat: string
   timeCostFormat: string
-  profitPH: number
-  profitPD: number
-  gainPH: number
-  consumePHFormat: string
+  successRateFormat: string
+
 }
