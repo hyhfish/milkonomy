@@ -11,6 +11,8 @@ export interface RequestData {
   project?: string
   /** 查询参数：利润率% */
   profitRate?: number
+  /** 查询参数：排除装备 */
+  banEquipment?: boolean
 }
 
 export type ResponseData = ApiResponseData<{

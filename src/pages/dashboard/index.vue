@@ -17,7 +17,8 @@ const searchFormRef = ref<FormInstance | null>(null)
 const searchData = reactive({
   name: "",
   project: "",
-  profitRate: 10
+  profitRate: 10,
+  banEquipment: true
 })
 function getLeaderboardData() {
   loading.value = true
@@ -96,6 +97,11 @@ function handleSelfSelect() {
 
           <el-form-item prop="name" label="利润率 >">
             <el-input style="width:60px" v-model="searchData.profitRate" placeholder="请输入" clearable @input="handleSearch" />&nbsp;%
+          </el-form-item>
+          <el-form-item>
+            <el-checkbox v-model="searchData.banEquipment" @change="handleSearch">
+              排除装备
+            </el-checkbox>
           </el-form-item>
         </el-form>
         <div style="font-size:12px;color:#999">

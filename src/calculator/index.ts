@@ -27,6 +27,10 @@ export default abstract class Calculator {
     return 1 + this.equipmentSpeed
   }
 
+  get isEquipment(): boolean {
+    return this.item.categoryHrid === "/item_categories/equipment"
+  }
+
   /**
    * 单次成本
    * - 原料+消耗硬币
