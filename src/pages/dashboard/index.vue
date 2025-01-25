@@ -7,7 +7,7 @@ import * as Format from "@/common/utils/format"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
-import { Refresh, Search } from "@element-plus/icons-vue"
+import { Search } from "@element-plus/icons-vue"
 
 // #region 查
 const loading = ref<boolean>(false)
@@ -37,10 +37,6 @@ function getLeaderboardData() {
 }
 function handleSearch() {
   paginationData.currentPage === 1 ? getLeaderboardData() : (paginationData.currentPage = 1)
-}
-function resetSearch() {
-  searchFormRef.value?.resetFields()
-  handleSearch()
 }
 // 监听分页参数的变化
 watch([() => paginationData.currentPage, () => paginationData.pageSize, () => getGameDataApi()], getLeaderboardData, { immediate: true })
@@ -84,10 +80,10 @@ function handleSelfSelect() {
             扫单填单利润排行
           </div>
           <el-form-item prop="name" label="物品">
-            <el-input style="width:100px" v-model="searchData.name" placeholder="请输入" clearable />
+            <el-input style="width:100px" v-model="searchData.name" placeholder="请输入" clearable @input="handleSearch" />
           </el-form-item>
           <el-form-item prop="phone" label="项目">
-            <el-select v-model="searchData.project" placeholder="请选择" style="width:100px" clearable>
+            <el-select v-model="searchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearch">
               <el-option label="锻造" value="锻造" />
               <el-option label="制造" value="制造" />
               <el-option label="裁缝" value="裁缝" />
@@ -99,15 +95,7 @@ function handleSelfSelect() {
           </el-form-item>
 
           <el-form-item prop="name" label="利润率 >">
-            <el-input style="width:50px" v-model="searchData.profitRate" placeholder="请输入" clearable />&nbsp;%
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" :icon="Search" @click="handleSearch">
-              查询
-            </el-button>
-            <el-button :icon="Refresh" @click="resetSearch">
-              重置
-            </el-button>
+            <el-input style="width:60px" v-model="searchData.profitRate" placeholder="请输入" clearable @input="handleSearch" />&nbsp;%
           </el-form-item>
         </el-form>
         <div style="font-size:12px;color:#999">

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import logoText1 from "@@/assets/images/layouts/logo-text-1.png?url"
-import logoText2 from "@@/assets/images/layouts/logo-text-2.png?url"
-import logo from "@@/assets/images/layouts/logo.png?url"
+import logoText1 from "@@/assets/images/layouts/logo-text-1.jpeg?url"
+import logoText2 from "@@/assets/images/layouts/logo-text-2.jpeg?url"
+import logo from "@@/assets/images/layouts/logo.jpg?url"
 import { useLayoutMode } from "@@/composables/useLayoutMode"
 
 interface Props {
@@ -41,7 +41,6 @@ const { isLeft, isTop } = useLayoutMode()
   }
   .layout-logo-text {
     height: 100%;
-    vertical-align: middle;
   }
 }
 
@@ -52,8 +51,9 @@ const { isLeft, isTop } = useLayoutMode()
 
 .collapse {
   .layout-logo {
-    width: 32px;
-    height: 32px;
+    width: 150%;
+    margin-left: -20%;
+    // height: 32px;
     vertical-align: middle;
     display: inline-block;
   }
