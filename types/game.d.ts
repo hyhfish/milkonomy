@@ -19,6 +19,7 @@ export interface ItemDetail {
   enhancementCosts?: Item[]
   protectionItemHrids?: string[]
   alchemyDetail: AlchemyDetail
+  consumableDetail: ConsumableDetail
   sortIndex: number
 }
 export interface ActionDetail {
@@ -59,6 +60,18 @@ export interface DropTableItem {
   maxCount: number
   minEliteTier: number
 }
+
+export interface ConsumableDetail {
+  cooldownDuration: number
+  usableInActionTypeMap: Record<ActionType, boolean>
+  hitpointRestore: number
+  manapointRestore: number
+  recoveryDuration: number
+  buffs: PROP_TODO
+  defaultCombatTriggers: PROP_TODO
+}
+type Action = "crafting" | "cooking" | "tailoring" | "cheesesmithing" | "brewing" | "alchemy"
+type ActionType = `/action_types/${Action}`
 // #endregion
 
 // #region Alchemy

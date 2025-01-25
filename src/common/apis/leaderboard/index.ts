@@ -1,5 +1,6 @@
 import type * as Leaderboard from "./type"
 
+import type { Action } from "~/game"
 import { DecomposeCalculator, TrunsmuteCalculator } from "@/calculator/alchemy"
 import { ManufactureCalculator } from "@/calculator/manufature"
 import { getGameDataApi } from "../game"
@@ -25,7 +26,7 @@ function calcProfit() {
 
     c1.available && profitList.push({ ...c1.result, calculator: c1 })
     c2.available && profitList.push({ ...c2.result, calculator: c2 })
-    const projects = [
+    const projects: [string, Action][] = [
       ["锻造", "cheesesmithing"],
       ["制造", "crafting"],
       ["裁缝", "tailoring"],

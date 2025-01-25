@@ -5,7 +5,7 @@ import Calculator from "."
 
 export class TrunsmuteCalculator extends Calculator {
   constructor(item: ItemDetail) {
-    super(item, "重组")
+    super(item, "重组", "alchemy")
   }
 
   get available(): boolean {
@@ -62,7 +62,7 @@ export class TrunsmuteCalculator extends Calculator {
 }
 export class DecomposeCalculator extends Calculator {
   constructor(item: ItemDetail) {
-    super(item, "分解")
+    super(item, "分解", "alchemy")
   }
 
   get available(): boolean {

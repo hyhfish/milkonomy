@@ -183,10 +183,10 @@ function handleSelfSelect() {
             <div v-if="currentCalculator?.successRate! < 1">
               成功率：{{ currentRow?.successRateFormat }}
             </div>
-            <div v-if="currentCalculator?.artisan">
+            <div v-if="currentCalculator?.artisanTea">
               工匠茶
             </div>
-            <div v-if="currentCalculator?.gourmet">
+            <div v-if="currentCalculator?.gourmetTea">
               双倍茶
             </div>
             <div>效率：{{ currentRow?.efficiencyFormat }}</div>

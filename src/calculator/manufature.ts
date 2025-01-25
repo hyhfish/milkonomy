@@ -1,12 +1,11 @@
 import type { Ingredient, Product } from "."
-import type { ItemDetail } from "~/game"
+import type { Action, ItemDetail } from "~/game"
 import { getActionDetailOf, getPriceOf } from "@/common/apis/game"
 import Calculator from "."
 
 export class ManufactureCalculator extends Calculator {
-  action: string
   get actionLevel(): number {
-    return this.actionItem.levelRequirement.level + (this.artisan ? 5 : 0)
+    return this.actionItem.levelRequirement.level + (this.artisanTea ? 5 : 0)
   }
 
   get available(): boolean {
@@ -21,9 +20,8 @@ export class ManufactureCalculator extends Calculator {
     return true
   }
 
-  constructor(item: ItemDetail, project: string, action: string) {
-    super(item, project)
-    this.action = action
+  constructor(item: ItemDetail, project: string, action: Action) {
+    super(item, project, action)
   }
 
   get actionItem() {
@@ -32,14 +30,6 @@ export class ManufactureCalculator extends Calculator {
 
   get timeCost(): number {
     return this.actionItem.baseTimeCost / this.speed
-  }
-
-  get artisan(): boolean {
-    return true
-  }
-
-  get gourmet(): boolean {
-    return true
   }
 
   get ingredientList(): Ingredient[] {

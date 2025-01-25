@@ -1,13 +1,16 @@
-import type { ItemDetail } from "~/game"
+import type { Action, ItemDetail } from "~/game"
+import { getItemDetailOf } from "@/common/apis/game"
 import * as Format from "@@/utils/format"
 
 export default abstract class Calculator {
   static COIN_HRID = "/items/coin"
   item: ItemDetail
   project: string
-  constructor(item: ItemDetail, project: string) {
+  action: Action
+  constructor(item: ItemDetail, project: string, action: Action) {
     this.item = item
     this.project = project
+    this.action = action
   }
 
   // #region 固定继承属性
@@ -17,7 +20,7 @@ export default abstract class Calculator {
   }
 
   get efficiency(): number {
-    return 1 + Math.max(0, (this.playerLevel - this.actionLevel) * 0.01) + this.equipementEfficiency + this.houseEfficiency + this.efficiencyTea
+    return 1 + Math.max(0, (this.playerLevel - this.actionLevel) * 0.01) + this.equipementEfficiency + this.houseEfficiency + (this.efficiencyTea ? 0.1 : 0)
   }
 
   get speed(): number {
@@ -48,9 +51,9 @@ export default abstract class Calculator {
 
   get result() {
     const actionsPH = ((60 * 60 * 1000000000) / this.timeCost) * this.efficiency
-    const consumePH = actionsPH * (this.artisan ? 0.9 : 1)
+    const consumePH = actionsPH * (this.artisanTea ? 0.9 : 1)
     const costPH = this.cost * consumePH
-    const gainPH = actionsPH * this.successRate * (this.gourmet ? 1.12 : 1)
+    const gainPH = actionsPH * this.successRate * (this.gourmetTea ? 1.12 : 1)
     const incomePH = this.income * gainPH
     const profitPH = incomePH - costPH
     const profitRate = profitPH / costPH
@@ -92,10 +95,6 @@ export default abstract class Calculator {
     return 0.06
   }
 
-  get efficiencyTea(): number {
-    return 0.1
-  }
-
   // +10神圣工具
   get equipmentSpeed(): number {
     return 1.161
@@ -121,12 +120,16 @@ export default abstract class Calculator {
     return 1
   }
 
-  get artisan(): boolean {
-    return false
+  get efficiencyTea(): boolean {
+    return getItemDetailOf("/items/efficiency_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
   }
 
-  get gourmet(): boolean {
-    return false
+  get artisanTea(): boolean {
+    return getItemDetailOf("/items/artisan_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
+  }
+
+  get gourmetTea(): boolean {
+    return getItemDetailOf("/items/gourmet_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
   }
   /**
    * 数据是否可用
