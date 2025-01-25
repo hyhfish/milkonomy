@@ -9,6 +9,18 @@ export class ManufactureCalculator extends Calculator {
     return this.actionItem.levelRequirement.level + (this.artisan ? 5 : 0)
   }
 
+  get available(): boolean {
+    if (!getActionDetailOf(`/actions/${this.action}/${this.key}`)) {
+      return false
+    }
+    for (const ingredient of this.ingredientList) {
+      if (ingredient.price === -1) {
+        return false
+      }
+    }
+    return true
+  }
+
   constructor(item: ItemDetail, project: string, action: string) {
     super(item, project)
     this.action = action

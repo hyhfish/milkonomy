@@ -126,6 +126,10 @@ export default abstract class Calculator {
   get gourmet(): boolean {
     return false
   }
+  /**
+   * 数据是否可用
+   */
+  abstract get available(): boolean
 
   abstract get actionLevel(): number
   // #endregion

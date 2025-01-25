@@ -8,6 +8,10 @@ export class TrunsmuteCalculator extends Calculator {
     super(item, "重组")
   }
 
+  get available(): boolean {
+    return this.item.alchemyDetail?.transmuteDropTable != null && getPriceOf(this.item.hrid).ask !== -1
+  }
+
   get actionLevel(): number {
     return this.item.itemLevel
   }
@@ -59,6 +63,10 @@ export class TrunsmuteCalculator extends Calculator {
 export class DecomposeCalculator extends Calculator {
   constructor(item: ItemDetail) {
     super(item, "分解")
+  }
+
+  get available(): boolean {
+    return this.item.alchemyDetail?.decomposeItems != null && getPriceOf(this.item.hrid).ask !== -1
   }
 
   get actionLevel(): number {
