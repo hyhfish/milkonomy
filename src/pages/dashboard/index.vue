@@ -16,7 +16,8 @@ const leaderboardData = ref<LeaderboardData[]>([])
 const searchFormRef = ref<FormInstance | null>(null)
 const searchData = reactive({
   name: "",
-  project: ""
+  project: "",
+  profitRate: 10
 })
 function getLeaderboardData() {
   loading.value = true
@@ -96,6 +97,10 @@ function handleSelfSelect() {
               <el-option label="分解" value="分解" />
             </el-select>
           </el-form-item>
+
+          <el-form-item prop="name" label="利润率 >">
+            <el-input style="width:50px" v-model="searchData.profitRate" placeholder="请输入" clearable />&nbsp;%
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" :icon="Search" @click="handleSearch">
               查询
@@ -106,7 +111,7 @@ function handleSelfSelect() {
           </el-form-item>
         </el-form>
         <div style="font-size:12px;color:#999">
-          默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算精华、稀有掉落
+          默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及精华、稀有掉落
         </div>
       </template>
       <template #default>

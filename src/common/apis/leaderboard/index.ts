@@ -9,7 +9,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   profitList.sort((a, b) => b.profitPH - a.profitPH)
   params.name && (profitList = profitList.filter(item => item.name.toLowerCase().includes(params.name!.toLowerCase())))
   params.project && (profitList = profitList.filter(item => item.project === params.project))
-
+  params.profitRate && (profitList = profitList.filter(item => item.profitRate >= params.profitRate! / 100))
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }

@@ -9,6 +9,8 @@ export interface RequestData {
   name?: string
   /** 查询参数：项目 */
   project?: string
+  /** 查询参数：利润率% */
+  profitRate?: number
 }
 
 export type ResponseData = ApiResponseData<{
@@ -27,6 +29,7 @@ export interface LeaderboardData {
   gainPH: number
   incomePH: number
   profitPH: number
+  profitRate: number
 
   costPHFormat: string
   incomePHFormat: string

@@ -53,6 +53,7 @@ export default abstract class Calculator {
     const gainPH = actionsPH * this.successRate * (this.gourmet ? 1.12 : 1)
     const incomePH = this.income * gainPH
     const profitPH = incomePH - costPH
+    const profitRate = profitPH / costPH
     return {
       hrid: this.item.hrid,
       name: this.item.name,
@@ -63,11 +64,12 @@ export default abstract class Calculator {
       gainPH,
       incomePH,
       profitPH,
+      profitRate,
       costPHFormat: Format.number(costPH),
       incomePHFormat: Format.number(incomePH),
       profitPHFormat: Format.number(profitPH),
       profitPDFormat: Format.number(profitPH * 24),
-      profitRateFormat: Format.percent(profitPH / costPH),
+      profitRateFormat: Format.percent(profitRate),
       efficiencyFormat: Format.percent(this.efficiency - 1),
       timeCostFormat: Format.costTime(this.timeCost),
       successRateFormat: Format.percent(this.successRate)
