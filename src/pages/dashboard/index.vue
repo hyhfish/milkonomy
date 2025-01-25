@@ -123,6 +123,7 @@ function handleSelfSelect() {
           </el-table-column>
           <el-table-column prop="name" label="物品" />
           <el-table-column prop="project" label="项目" />
+          <el-table-column prop="calculator.actionLevel" label="等级" />
           <el-table-column prop="profitPDFormat" label="利润 / 天" />
           <el-table-column prop="profitRateFormat" label="利润率" />
           <el-table-column label="详情">
