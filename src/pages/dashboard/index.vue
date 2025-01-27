@@ -180,7 +180,7 @@ function handleSetPrice() {
               </el-form-item>
             </el-form>
             <div style="font-size:12px;color:#999">
-              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及精华、稀有掉落
+              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及稀有掉落
             </div>
           </template>
           <template #default>
@@ -251,7 +251,7 @@ function handleSetPrice() {
               </el-form-item>
             </el-form>
             <div style="font-size:12px;color:#999">
-              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及精华、稀有掉落
+              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及稀有掉落
             </div>
           </template>
           <template #default>

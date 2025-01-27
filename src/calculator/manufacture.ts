@@ -53,10 +53,24 @@ export class ManufactureCalculator extends Calculator {
   }
 
   get productList(): Product[] {
-    return this.actionItem.outputItems.map(output => ({
+    let list = this.actionItem.outputItems.map(output => ({
       hrid: output.itemHrid,
       count: output.count,
       marketPrice: getPriceOf(output.itemHrid).bid
     }))
+    list = list.concat(this.actionItem.essenceDropTable?.map(essence => ({
+      hrid: essence.itemHrid,
+      count: essence.maxCount,
+      rate: essence.dropRate,
+      marketPrice: getPriceOf(essence.itemHrid).bid
+    })) || [])
+    list = list.concat(this.actionItem.rareDropTable?.map(rare => ({
+      hrid: rare.itemHrid,
+      count: rare.maxCount,
+      rate: rare.dropRate,
+      marketPrice: Math.max(getPriceOf(rare.itemHrid).bid, 0)
+    })) || []
+    )
+    return list
   }
 }
