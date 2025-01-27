@@ -57,6 +57,23 @@ export const constantRoutes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: "/",
+    component: Layouts,
+    redirect: "/sponsor",
+    children: [
+      {
+        path: "sponsor",
+        component: () => import("@/pages/sponsor/index.vue"),
+        name: "Sponsor",
+        meta: {
+          title: "赞助",
+          svgIcon: "dashboard",
+          affix: true
+        }
+      }
+    ]
+  },
+  {
     path: "/demo",
     component: Layouts,
     redirect: "/demo/unocss",
