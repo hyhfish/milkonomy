@@ -3,6 +3,10 @@ import { getActionDetailOf, getPriceOf } from "@/common/apis/game"
 import Calculator from "."
 
 export class ManufactureCalculator extends Calculator {
+  get className() {
+    return "ManufactureCalculator"
+  }
+
   get actionLevel(): number {
     return this.actionItem.levelRequirement.level + (this.artisanTea ? 5 : 0)
   }

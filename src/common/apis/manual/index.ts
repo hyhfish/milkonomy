@@ -45,8 +45,7 @@ function profitConstructor(cal: Calculator) {
 /** 增 */
 export function addManualApi(row: LeaderboardData) {
   const { calculator } = row
-  const className = calculator.constructor.name
-  const storageItem = { className, id: calculator.id, hrid: calculator.item.hrid, project: calculator.project, action: calculator.action }
+  const storageItem = { className: calculator.className, id: calculator.id, hrid: calculator.item.hrid, project: calculator.project, action: calculator.action }
   useManualStore().addManual(storageItem)
 }
 /** 删 */

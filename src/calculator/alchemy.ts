@@ -3,6 +3,10 @@ import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "@/common/apis/
 import Calculator from "."
 
 export class TransmuteCalculator extends Calculator {
+  get className() {
+    return "TransmuteCalculator"
+  }
+
   constructor(config: CalculatorConfig) {
     super({ ...config, project: "重组", action: "alchemy" })
   }
@@ -60,6 +64,10 @@ export class TransmuteCalculator extends Calculator {
   // #endregion
 }
 export class DecomposeCalculator extends Calculator {
+  get className() {
+    return "DecomposeCalculator"
+  }
+
   constructor(config: CalculatorConfig) {
     super({ ...config, project: "分解", action: "alchemy" })
   }

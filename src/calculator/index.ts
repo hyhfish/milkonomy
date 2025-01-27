@@ -180,6 +180,8 @@ export default abstract class Calculator {
   abstract get available(): boolean
 
   abstract get actionLevel(): number
+
+  abstract get className(): string
   // #endregion
 }
 

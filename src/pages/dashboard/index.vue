@@ -108,10 +108,11 @@ function deleteManual(row: LeaderboardData) {
 }
 
 const priceVisible = ref<boolean>(false)
+const currentPriceRow = ref<LeaderboardData>()
 const currentIngredientPriceConfigList = ref<IngredientPriceConfig[]>([])
 const currentProductPriceConfigList = ref<IngredientPriceConfig[]>([])
 function setPrice(row: LeaderboardData) {
-  currentRow.value = row
+  currentPriceRow.value = row
   currentIngredientPriceConfigList.value = row.calculator.ingredientListWithPrice.map((_, i) => ({
     manualPrice: row.calculator.ingredientPriceConfigList[i]?.manualPrice,
     manual: row.calculator.ingredientPriceConfigList[i]?.manual
@@ -125,7 +126,7 @@ function setPrice(row: LeaderboardData) {
 
 function handleSetPrice() {
   try {
-    setPriceApi(currentRow.value!, currentIngredientPriceConfigList.value, currentProductPriceConfigList.value)
+    setPriceApi(currentPriceRow.value!, currentIngredientPriceConfigList.value, currentProductPriceConfigList.value)
     priceVisible.value = false
   } catch (e: any) {
     ElMessage.error(e.message)
@@ -308,6 +309,9 @@ function handleSetPrice() {
     <el-dialog v-model="detailVisible" :show-close="false" width="80%">
       <el-row :gutter="10" style="padding: 0 20px">
         <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
+          <div style="font-size:12px;color:#999;margin-bottom:10px">
+            如果当前市场价格 ≤ 显示价格，则价格为<span class="green">绿色</span>，否则为<span class="red">红色</span>
+          </div>
           <el-card>
             <div v-for="item in currentCalculator?.ingredientListWithPrice" :key="item.hrid" class="item-wrapper">
               <div class="item-name">
@@ -319,7 +323,7 @@ function handleSetPrice() {
               <div style="min-width:60px">
                 {{ item.count }}个
               </div>
-              <div style="min-width:80px">
+              <div style="min-width:80px" :class="item.price < item.marketPrice ? 'red' : 'green'">
                 {{ Format.money(item.price) }}
               </div>
               <div style="min-width:60px">
@@ -355,6 +359,9 @@ function handleSetPrice() {
         </el-col>
 
         <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
+          <div style="font-size:12px;color:#999;margin-bottom:10px">
+            如果当前市场价格 ≥ 显示价格，则价格为<span class="green">绿色</span>，否则为<span class="red">红色</span>
+          </div>
           <el-card>
             <div v-for="(item) in currentCalculator?.productListWithPrice" :key="item.hrid" class="item-wrapper">
               <div class="item-name">
@@ -368,7 +375,7 @@ function handleSetPrice() {
               <div style="min-width:60px" v-if="item.rate">
                 {{ Math.floor(item.rate * 1000000) / 10000 }}%
               </div>
-              <div style="min-width:80px">
+              <div style="min-width:80px" :class="item.price > item.marketPrice ? 'red' : 'green'">
                 {{ Format.money(item.price) }}
               </div>
               <div style="min-width:60px">
@@ -384,7 +391,7 @@ function handleSetPrice() {
       <el-row :gutter="20">
         <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
           <el-card>
-            <el-table :data="currentRow?.calculator.ingredientListWithPrice">
+            <el-table :data="currentPriceRow?.calculator.ingredientListWithPrice">
               <el-table-column label="物品" width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
@@ -397,7 +404,7 @@ function handleSetPrice() {
               </el-table-column>
               <el-table-column prop="price" label="市场价格">
                 <template #default="{ row }">
-                  {{ Format.money(row.price) }}
+                  {{ Format.money(row.marketPrice) }}
                 </template>
               </el-table-column>
 
@@ -412,7 +419,7 @@ function handleSetPrice() {
         </el-col>
         <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
           <el-card>
-            <el-table :data="currentRow?.calculator.productListWithPrice">
+            <el-table :data="currentPriceRow?.calculator.productListWithPrice">
               <el-table-column prop="name" label="物品" width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
@@ -425,7 +432,7 @@ function handleSetPrice() {
               </el-table-column>
               <el-table-column prop="price" label="市场价格">
                 <template #default="{ row }">
-                  {{ Format.money(row.price) }}
+                  {{ Format.money(row.marketPrice) }}
                 </template>
               </el-table-column>
               <el-table-column label="自定义价格">
@@ -500,5 +507,12 @@ function handleSetPrice() {
       margin-right: 10px;
     }
   }
+}
+
+.red {
+  color: #f56c6c;
+}
+.green {
+  color: #67c23a;
 }
 </style>
