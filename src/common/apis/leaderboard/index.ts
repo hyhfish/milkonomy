@@ -1,12 +1,18 @@
-import type * as Leaderboard from "./type"
+import type Calculator from "@/calculator"
 
+import type * as Leaderboard from "./type"
 import type { Action } from "~/game"
-import { DecomposeCalculator, TrunsmuteCalculator } from "@/calculator/alchemy"
-import { ManufactureCalculator } from "@/calculator/manufature"
+import { DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
+import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getGameDataApi } from "../game"
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
-  let profitList = calcProfit()
+  let profitList: Leaderboard.LeaderboardData[] = []
+  try {
+    profitList = calcProfit()
+  } catch (e: any) {
+    console.error(e)
+  }
   profitList.sort((a, b) => b.profitPH - a.profitPH)
   params.name && (profitList = profitList.filter(item => item.name.toLowerCase().includes(params.name!.toLowerCase())))
   params.project && (profitList = profitList.filter(item => item.project === params.project))
@@ -22,11 +28,11 @@ function calcProfit() {
   const list = Object.values(gameData.itemDetailMap)
   const profitList: Leaderboard.LeaderboardData[] = []
   list.forEach((item) => {
-    const c1 = new TrunsmuteCalculator(item)
-    const c2 = new DecomposeCalculator(item)
+    const c1 = new TransmuteCalculator({ hrid: item.hrid })
+    const c2 = new DecomposeCalculator({ hrid: item.hrid })
 
-    c1.available && profitList.push({ ...c1.result, calculator: c1 })
-    c2.available && profitList.push({ ...c2.result, calculator: c2 })
+    c1.available && profitList.push(profitConstructor(c1))
+    c2.available && profitList.push(profitConstructor(c2))
     const projects: [string, Action][] = [
       ["锻造", "cheesesmithing"],
       ["制造", "crafting"],
@@ -35,9 +41,13 @@ function calcProfit() {
       ["冲泡", "brewing"]
     ]
     for (const [project, action] of projects) {
-      const c3 = new ManufactureCalculator(item, project, action)
-      c3.available && profitList.push({ ...c3.result, calculator: c3 })
+      const c3 = new ManufactureCalculator({ hrid: item.hrid, project, action })
+      c3.available && profitList.push(profitConstructor(c3))
     }
   })
   return profitList
+}
+
+function profitConstructor(cal: Calculator) {
+  return { ...cal.result, calculator: cal }
 }

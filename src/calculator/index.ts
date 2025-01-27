@@ -1,19 +1,38 @@
-import type { Action, ItemDetail } from "~/game"
+import type { Action } from "~/game"
 import { getItemDetailOf } from "@/common/apis/game"
 import * as Format from "@@/utils/format"
 
+export interface CalculatorConfig {
+  hrid: string
+  project?: string
+  action?: Action
+  ingredientPriceConfigList?: IngredientPriceConfig[]
+  productPriceConfigList?: ProductPriceConfig[]
+}
 export default abstract class Calculator {
   static COIN_HRID = "/items/coin"
-  item: ItemDetail
+  hrid: string
   project: string
   action: Action
-  constructor(item: ItemDetail, project: string, action: Action) {
-    this.item = item
-    this.project = project
-    this.action = action
+  ingredientPriceConfigList: IngredientPriceConfig[]
+  productPriceConfigList: ProductPriceConfig[]
+  constructor({ hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [] }: CalculatorConfig) {
+    this.hrid = hrid
+    this.project = project!
+    this.action = action!
+    this.ingredientPriceConfigList = ingredientPriceConfigList
+    this.productPriceConfigList = productPriceConfigList
   }
 
   // #region 固定继承属性
+
+  get item() {
+    return getItemDetailOf(this.hrid)
+  }
+
+  get id(): `${string}-${string}-${Action}` {
+    return `${this.hrid}-${this.project}-${this.action}`
+  }
 
   get key() {
     return this.item.hrid.split("/").pop()
@@ -31,13 +50,32 @@ export default abstract class Calculator {
     return this.item.categoryHrid === "/item_categories/equipment"
   }
 
+  handlePrice(list: Ingredient[], priceConfigList: IngredientPriceConfig[]) {
+    return list.map((item, i) => {
+      const priceConfig = priceConfigList[i] || {}
+      const price = priceConfig.manual ? priceConfig.manualPrice! : item.marketPrice
+      return {
+        ...item,
+        price
+      }
+    })
+  }
+
+  get ingredientListWithPrice(): IngredientWithPrice[] {
+    return this.handlePrice(this.ingredientList, this.ingredientPriceConfigList)
+  }
+
+  get productListWithPrice(): ProductWithPrice[] {
+    return this.handlePrice(this.productList, this.productPriceConfigList)
+  }
+
   /**
    * 单次成本
    * - 原料+消耗硬币
    * - 不包括一切 buff
    */
   get cost(): number {
-    return this.ingredientList.reduce((acc, ingredient) => {
+    return this.ingredientListWithPrice.reduce((acc, ingredient) => {
       return acc + ingredient.count * ingredient.price
     }, 0)
   }
@@ -47,7 +85,7 @@ export default abstract class Calculator {
    * - 不包括一切 buff
    */
   get income(): number {
-    const income = this.productList.reduce((acc, product) => {
+    const income = this.productListWithPrice.reduce((acc, product) => {
       return acc + product.count * (product.rate || 1) * product.price
     }, 0)
     return income * 0.98
@@ -61,6 +99,7 @@ export default abstract class Calculator {
     const incomePH = this.income * gainPH
     const profitPH = incomePH - costPH
     const profitRate = profitPH / costPH
+
     return {
       hrid: this.item.hrid,
       name: this.item.name,
@@ -147,8 +186,18 @@ export default abstract class Calculator {
 export interface Ingredient {
   hrid: string
   count: number
+  marketPrice: number
+}
+export interface IngredientWithPrice extends Ingredient {
   price: number
 }
 export interface Product extends Ingredient {
   rate?: number
 }
+export interface ProductWithPrice extends Product, IngredientWithPrice {}
+
+export interface IngredientPriceConfig {
+  manual: boolean
+  manualPrice?: number
+}
+export interface ProductPriceConfig extends IngredientPriceConfig {}

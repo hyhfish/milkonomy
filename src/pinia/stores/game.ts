@@ -2,14 +2,13 @@ import type { GameData } from "~/game"
 import type { MarketData } from "~/market"
 import { defineStore } from "pinia"
 
-export const useGameStore = defineStore("data", {
+export const useGameStore = defineStore("game", {
   state: () => ({
     gameData: null as GameData | null,
     marketData: null as MarketData | null
   }),
   actions: {
     async fetchData() {
-      console.log("env", import.meta.env.MODE)
       const url = import.meta.env.MODE === "development" ? "https://luyh7.github.io/milkonomy/" : "./"
       const response = await Promise.all([fetch(`${url}data/data.json`), fetch(`${url}data/market.json`)])
       if (!response[0].ok || !response[1].ok) {

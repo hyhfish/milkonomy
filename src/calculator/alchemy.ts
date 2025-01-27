@@ -1,11 +1,10 @@
-import type { Ingredient, Product } from "."
-import type { ItemDetail } from "~/game"
+import type { CalculatorConfig, Ingredient, Product } from "."
 import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
 import Calculator from "."
 
-export class TrunsmuteCalculator extends Calculator {
-  constructor(item: ItemDetail) {
-    super(item, "重组", "alchemy")
+export class TransmuteCalculator extends Calculator {
+  constructor(config: CalculatorConfig) {
+    super({ ...config, project: "重组", action: "alchemy" })
   }
 
   get available(): boolean {
@@ -30,12 +29,12 @@ export class TrunsmuteCalculator extends Calculator {
       {
         hrid: this.item.hrid,
         count: this.item.alchemyDetail.bulkMultiplier,
-        price: getPriceOf(this.item.hrid).ask
+        marketPrice: getPriceOf(this.item.hrid).ask
       },
       {
         hrid: Calculator.COIN_HRID,
         count: this.item.alchemyDetail.bulkMultiplier,
-        price: Math.max(this.item.sellPrice / 5, 50)
+        marketPrice: Math.max(this.item.sellPrice / 5, 50)
       }
 
     ]
@@ -49,7 +48,7 @@ export class TrunsmuteCalculator extends Calculator {
         hrid: drop.itemHrid,
         count: drop.maxCount * this.item.alchemyDetail.bulkMultiplier,
         rate: drop.dropRate,
-        price: price.bid
+        marketPrice: price.bid
       }
     })
   }
@@ -61,8 +60,8 @@ export class TrunsmuteCalculator extends Calculator {
   // #endregion
 }
 export class DecomposeCalculator extends Calculator {
-  constructor(item: ItemDetail) {
-    super(item, "分解", "alchemy")
+  constructor(config: CalculatorConfig) {
+    super({ ...config, project: "分解", action: "alchemy" })
   }
 
   get available(): boolean {
@@ -87,12 +86,12 @@ export class DecomposeCalculator extends Calculator {
       {
         hrid: this.item.hrid,
         count: this.item.alchemyDetail.bulkMultiplier,
-        price: getPriceOf(this.item.hrid).ask
+        marketPrice: getPriceOf(this.item.hrid).ask
       },
       {
         hrid: Calculator.COIN_HRID,
         count: this.item.alchemyDetail.bulkMultiplier,
-        price: 50 + 5 * this.item.itemLevel
+        marketPrice: 50 + 5 * this.item.itemLevel
       }
 
     ]
@@ -105,7 +104,7 @@ export class DecomposeCalculator extends Calculator {
       return {
         hrid: drop.itemHrid,
         count: drop.count * this.item.alchemyDetail.bulkMultiplier,
-        price: price.bid
+        marketPrice: price.bid
       }
     })
   }

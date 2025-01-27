@@ -1,53 +1,86 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
+import type { IngredientPriceConfig } from "@/calculator"
 import type { LeaderboardData } from "@/common/apis/leaderboard/type"
 import type { FormInstance } from "element-plus"
+import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getGameDataApi, getItemDetailOf, getMarketDataApi } from "@/common/apis/game"
+import { addManualApi, deleteManualApi, getManualDataApi, setPriceApi } from "@/common/apis/manual"
 import * as Format from "@/common/utils/format"
+import { useManualStore } from "@/pinia/stores/manual"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
-import { Search } from "@element-plus/icons-vue"
+import { Delete, Edit, Plus, Search } from "@element-plus/icons-vue"
 
 // #region 查
-const loading = ref<boolean>(false)
-const { paginationData, handleCurrentChange, handleSizeChange } = usePagination()
+const manualStore = useManualStore()
+const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination()
 const leaderboardData = ref<LeaderboardData[]>([])
-const searchFormRef = ref<FormInstance | null>(null)
-const searchData = reactive({
+const ldSearchFormRef = ref<FormInstance | null>(null)
+const ldSearchData = reactive({
   name: "",
   project: "",
   profitRate: 10,
   banEquipment: true
 })
+
 function getLeaderboardData() {
-  loading.value = true
   getLeaderboardDataApi({
-    currentPage: paginationData.currentPage,
-    size: paginationData.pageSize,
-    ...searchData
+    currentPage: paginationDataLD.currentPage,
+    size: paginationDataLD.pageSize,
+    ...ldSearchData
   }).then((data) => {
-    paginationData.total = data.total
+    paginationDataLD.total = data.total
     leaderboardData.value = data.list
     console.log("getLeaderboardData", data)
   }).catch(() => {
     leaderboardData.value = []
   }).finally(() => {
-    loading.value = false
   })
 }
-function handleSearch() {
-  paginationData.currentPage === 1 ? getLeaderboardData() : (paginationData.currentPage = 1)
+function handleSearchLD() {
+  paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
 }
 // 监听分页参数的变化
-watch([() => paginationData.currentPage, () => paginationData.pageSize, () => getGameDataApi()], getLeaderboardData, { immediate: true })
+watch([() => paginationDataLD.currentPage, () => paginationDataLD.pageSize, () => getGameDataApi()], getLeaderboardData, { immediate: true })
 
+const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeMN, handleSizeChange: handleSizeChangeMN } = usePagination()
+const manualData = ref<LeaderboardData[]>([])
+const mnSearchFormRef = ref<FormInstance | null>(null)
+const mnSearchData = reactive({
+  name: "",
+  project: ""
+})
+
+function getManualData() {
+  getManualDataApi({
+    currentPage: paginationDataMN.currentPage,
+    size: paginationDataMN.pageSize,
+    ...mnSearchData
+  }).then((data) => {
+    paginationDataMN.total = data.total
+    manualData.value = data.list
+    console.log("getManualData", data)
+  }).catch(() => {
+    manualData.value = []
+  })
+}
+
+function handleSearchMN() {
+  paginationDataMN.currentPage === 1 ? getManualData() : (paginationDataMN.currentPage = 1)
+}
+// 监听分页参数的变化
+watch([() => paginationDataMN.currentPage, () => paginationDataMN.pageSize, () => getGameDataApi()], getManualData, { immediate: true })
+
+watch(() => manualStore, () => {
+  getManualData()
+}, { deep: true })
 // #endregion
 
 const currentRow = ref<LeaderboardData>()
 const currentCalculator = ref<Calculator>()
 const detailVisible = ref<boolean>(false)
-const detailLoading = ref<boolean>(false)
 async function getDetail(row: LeaderboardData) {
   currentRow.value = row
   currentCalculator.value = row.calculator
@@ -56,8 +89,47 @@ async function showDetail(row: LeaderboardData) {
   detailVisible.value = true
   getDetail(row)
 }
-function handleSelfSelect() {
-  console.log("加入自选")
+function addManual(row: LeaderboardData) {
+  const r = row || currentRow.value!
+  try {
+    addManualApi(r)
+    detailVisible.value = false
+  } catch (e: any) {
+    ElMessage.error(e.message)
+  }
+}
+
+function deleteManual(row: LeaderboardData) {
+  try {
+    deleteManualApi(row)
+  } catch (e: any) {
+    ElMessage.error(e.message)
+  }
+}
+
+const priceVisible = ref<boolean>(false)
+const currentIngredientPriceConfigList = ref<IngredientPriceConfig[]>([])
+const currentProductPriceConfigList = ref<IngredientPriceConfig[]>([])
+function setPrice(row: LeaderboardData) {
+  currentRow.value = row
+  currentIngredientPriceConfigList.value = row.calculator.ingredientListWithPrice.map((_, i) => ({
+    manualPrice: row.calculator.ingredientPriceConfigList[i]?.manualPrice,
+    manual: row.calculator.ingredientPriceConfigList[i]?.manual
+  }))
+  currentProductPriceConfigList.value = row.calculator.productListWithPrice.map((_, i) => ({
+    manualPrice: row.calculator.productPriceConfigList[i]?.manualPrice,
+    manual: row.calculator.productPriceConfigList[i]?.manual
+  }))
+  priceVisible.value = true
+}
+
+function handleSetPrice() {
+  try {
+    setPriceApi(currentRow.value!, currentIngredientPriceConfigList.value, currentProductPriceConfigList.value)
+    priceVisible.value = false
+  } catch (e: any) {
+    ElMessage.error(e.message)
+  }
 }
 </script>
 
@@ -74,82 +146,170 @@ function handleSelfSelect() {
         市场数据更新时间:{{ new Date(getMarketDataApi()?.time * 1000).toLocaleString() }}
       </div>
     </div>
-    <el-card v-loading="loading">
-      <template #header>
-        <el-form class="rank-card" ref="searchFormRef" :inline="true" :model="searchData">
-          <div class="title">
-            扫单填单利润排行
-          </div>
-          <el-form-item prop="name" label="物品">
-            <el-input style="width:100px" v-model="searchData.name" placeholder="请输入" clearable @input="handleSearch" />
-          </el-form-item>
-          <el-form-item prop="phone" label="项目">
-            <el-select v-model="searchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearch">
-              <el-option label="锻造" value="锻造" />
-              <el-option label="制造" value="制造" />
-              <el-option label="裁缝" value="裁缝" />
-              <el-option label="烹饪" value="烹饪" />
-              <el-option label="冲泡" value="冲泡" />
-              <el-option label="重组" value="重组" />
-              <el-option label="分解" value="分解" />
-            </el-select>
-          </el-form-item>
+    <el-row :gutter="20">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+        <el-card>
+          <template #header>
+            <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
+              <div class="title">
+                扫单填单利润排行
+              </div>
+              <el-form-item prop="name" label="物品">
+                <el-input style="width:100px" v-model="ldSearchData.name" placeholder="请输入" clearable @input="handleSearchLD" />
+              </el-form-item>
+              <el-form-item prop="phone" label="项目">
+                <el-select v-model="ldSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchLD">
+                  <el-option label="锻造" value="锻造" />
+                  <el-option label="制造" value="制造" />
+                  <el-option label="裁缝" value="裁缝" />
+                  <el-option label="烹饪" value="烹饪" />
+                  <el-option label="冲泡" value="冲泡" />
+                  <el-option label="重组" value="重组" />
+                  <el-option label="分解" value="分解" />
+                </el-select>
+              </el-form-item>
 
-          <el-form-item prop="name" label="利润率 >">
-            <el-input style="width:60px" v-model="searchData.profitRate" placeholder="请输入" clearable @input="handleSearch" />&nbsp;%
-          </el-form-item>
-          <el-form-item>
-            <el-checkbox v-model="searchData.banEquipment" @change="handleSearch">
-              排除装备
-            </el-checkbox>
-          </el-form-item>
-        </el-form>
-        <div style="font-size:12px;color:#999">
-          默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及精华、稀有掉落
-        </div>
-      </template>
-      <template #default>
-        <el-table :data="leaderboardData">
-          <el-table-column prop="name" width="54">
-            <template #default="{ row }">
-              <ItemIcon :hrid="row.hrid" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="name" label="物品" />
-          <el-table-column prop="project" label="项目" />
-          <el-table-column prop="calculator.actionLevel" label="等级" />
-          <el-table-column prop="profitPDFormat" label="利润 / 天" />
-          <el-table-column prop="profitRateFormat" label="利润率" />
-          <el-table-column label="详情">
-            <template #default="{ row }">
-              <el-link type="primary" :icon="Search" @click="showDetail(row)">
-                查看
-              </el-link>
-            </template>
-          </el-table-column>
-        </el-table>
-      </template>
-      <template #footer>
-        <div class="pager-wrapper">
-          <el-pagination
-            background
-            :layout="paginationData.layout"
-            :page-sizes="paginationData.pageSizes"
-            :total="paginationData.total"
-            :page-size="paginationData.pageSize"
-            :current-page="paginationData.currentPage"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div>
-      </template>
-    </el-card>
+              <el-form-item prop="name" label="利润率 >">
+                <el-input style="width:60px" v-model="ldSearchData.profitRate" placeholder="请输入" clearable @input="handleSearchLD" />&nbsp;%
+              </el-form-item>
+              <el-form-item>
+                <el-checkbox v-model="ldSearchData.banEquipment" @change="handleSearchLD">
+                  排除装备
+                </el-checkbox>
+              </el-form-item>
+            </el-form>
+            <div style="font-size:12px;color:#999">
+              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及精华、稀有掉落
+            </div>
+          </template>
+          <template #default>
+            <el-table :data="leaderboardData">
+              <el-table-column prop="name" width="54">
+                <template #default="{ row }">
+                  <ItemIcon :hrid="row.hrid" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" label="物品" />
+
+              <el-table-column prop="project" label="项目" />
+              <el-table-column prop="calculator.actionLevel" label="等级" />
+              <el-table-column prop="profitPDFormat" label="利润 / 天" />
+              <el-table-column prop="profitRateFormat" label="利润率" />
+              <el-table-column label="详情">
+                <template #default="{ row }">
+                  <el-link type="primary" :icon="Search" @click="showDetail(row)">
+                    查看
+                  </el-link>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作">
+                <template #default="{ row }">
+                  <el-link v-if="!manualStore.hasManual(row.calculator)" type="success" :icon="Plus" @click="addManual(row)">
+                    自选
+                  </el-link>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+          <template #footer>
+            <div class="pager-wrapper">
+              <el-pagination
+                background
+                :layout="paginationDataLD.layout"
+                :page-sizes="paginationDataLD.pageSizes"
+                :total="paginationDataLD.total"
+                :page-size="paginationDataLD.pageSize"
+                :current-page="paginationDataLD.currentPage"
+                @size-change="handleSizeChangeLD"
+                @current-change="handleCurrentChangeLD"
+              />
+            </div>
+          </template>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+        <el-card>
+          <template #header>
+            <el-form class="rank-card" ref="mnSearchFormRef" :inline="true" :model="mnSearchData">
+              <div class="title">
+                自选利润排行
+              </div>
+              <el-form-item prop="name" label="物品">
+                <el-input style="width:100px" v-model="mnSearchData.name" placeholder="请输入" clearable @input="handleSearchMN" />
+              </el-form-item>
+              <el-form-item prop="phone" label="项目">
+                <el-select v-model="mnSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchMN">
+                  <el-option label="锻造" value="锻造" />
+                  <el-option label="制造" value="制造" />
+                  <el-option label="裁缝" value="裁缝" />
+                  <el-option label="烹饪" value="烹饪" />
+                  <el-option label="冲泡" value="冲泡" />
+                  <el-option label="重组" value="重组" />
+                  <el-option label="分解" value="分解" />
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <div style="font-size:12px;color:#999">
+              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及精华、稀有掉落
+            </div>
+          </template>
+          <template #default>
+            <el-table :data="manualData">
+              <el-table-column prop="name" width="54">
+                <template #default="{ row }">
+                  <ItemIcon :hrid="row.hrid" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" label="物品" />
+              <el-table-column prop="project" label="项目" />
+              <el-table-column prop="profitPDFormat" label="利润 / 天">
+                <template #default="{ row }">
+                  {{ row.profitPDFormat }}&nbsp;
+                  <el-link type="primary" :icon="Edit" @click="setPrice(row)">
+                    自定义
+                  </el-link>
+                </template>
+              </el-table-column>
+              <el-table-column prop="profitRateFormat" label="利润率" />
+              <el-table-column label="详情">
+                <template #default="{ row }">
+                  <el-link type="primary" :icon="Search" @click="showDetail(row)">
+                    查看
+                  </el-link>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作">
+                <template #default="{ row }">
+                  <el-link type="danger" :icon=" Delete" @click="deleteManual(row)">
+                    删除
+                  </el-link>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+          <template #footer>
+            <div class="pager-wrapper">
+              <el-pagination
+                background
+                :layout="paginationDataMN.layout"
+                :page-sizes="paginationDataMN.pageSizes"
+                :total="paginationDataMN.total"
+                :page-size="paginationDataMN.pageSize"
+                :current-page="paginationDataMN.currentPage"
+                @size-change="handleSizeChangeMN"
+                @current-change="handleCurrentChangeMN"
+              />
+            </div>
+          </template>
+        </el-card>
+      </el-col>
+    </el-row>
     <!-- 去掉关闭按钮 -->
     <el-dialog v-model="detailVisible" :show-close="false" width="80%">
       <el-row :gutter="10" style="padding: 0 20px">
         <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
-          <el-card v-loading="detailLoading">
-            <div v-for="item in currentCalculator?.ingredientList" :key="item.hrid" class="item-wrapper">
+          <el-card>
+            <div v-for="item in currentCalculator?.ingredientListWithPrice" :key="item.hrid" class="item-wrapper">
               <div class="item-name">
                 <div style="width:30px">
                   <ItemIcon :hrid="item.hrid" />
@@ -174,9 +334,6 @@ function handleSelfSelect() {
 
         <el-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4">
           <div class="param-wrapper">
-            <div v-if="currentCalculator?.successRate! < 1">
-              成功率：{{ currentRow?.successRateFormat }}
-            </div>
             <div v-if="currentCalculator?.efficiencyTea">
               效率茶
             </div>
@@ -185,6 +342,9 @@ function handleSelfSelect() {
             </div>
             <div v-if="currentCalculator?.gourmetTea">
               双倍茶
+            </div>
+            <div v-if="currentCalculator?.successRate! < 1">
+              成功率：{{ currentRow?.successRateFormat }}
             </div>
             <div>效率：{{ currentRow?.efficiencyFormat }}</div>
             <div>时间：{{ currentRow?.timeCostFormat }}</div>
@@ -195,8 +355,8 @@ function handleSelfSelect() {
         </el-col>
 
         <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
-          <el-card v-loading="detailLoading">
-            <div v-for="(item) in currentCalculator?.productList" :key="item.hrid" class="item-wrapper">
+          <el-card>
+            <div v-for="(item) in currentCalculator?.productListWithPrice" :key="item.hrid" class="item-wrapper">
               <div class="item-name">
                 <div style="width:30px">
                   <ItemIcon :hrid="item.hrid" />
@@ -219,11 +379,69 @@ function handleSelfSelect() {
           </el-card>
         </el-col>
       </el-row>
+    </el-dialog>
+    <el-dialog v-model="priceVisible" :show-close="false" width="80%">
+      <el-row :gutter="20">
+        <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+          <el-card>
+            <el-table :data="currentRow?.calculator.ingredientListWithPrice">
+              <el-table-column label="物品" width="54">
+                <template #default="{ row }">
+                  <ItemIcon :hrid="row.hrid" />
+                </template>
+              </el-table-column>
+              <el-table-column label="物品">
+                <template #default="{ row }">
+                  {{ getItemDetailOf(row.hrid).name }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="price" label="市场价格">
+                <template #default="{ row }">
+                  {{ Format.money(row.price) }}
+                </template>
+              </el-table-column>
 
+              <el-table-column label="自定义价格">
+                <template #default="{ row, $index }">
+                  <el-checkbox style="margin-right: 10px;" v-if="row.hrid !== ManufactureCalculator.COIN_HRID" v-model="currentIngredientPriceConfigList[$index].manual" />
+                  <el-input-number v-if="currentIngredientPriceConfigList[$index].manual" v-model="currentIngredientPriceConfigList[$index].manualPrice" :controls="false" />
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </el-col>
+        <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+          <el-card>
+            <el-table :data="currentRow?.calculator.productListWithPrice">
+              <el-table-column prop="name" label="物品" width="54">
+                <template #default="{ row }">
+                  <ItemIcon :hrid="row.hrid" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" label="物品">
+                <template #default="{ row }">
+                  {{ getItemDetailOf(row.hrid).name }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="price" label="市场价格">
+                <template #default="{ row }">
+                  {{ Format.money(row.price) }}
+                </template>
+              </el-table-column>
+              <el-table-column label="自定义价格">
+                <template #default="{ row, $index }">
+                  <el-checkbox style="margin-right: 10px;" v-if="row.hrid !== ManufactureCalculator.COIN_HRID" v-model="currentProductPriceConfigList[$index].manual" />
+                  <el-input-number v-if="currentProductPriceConfigList[$index].manual" v-model="currentProductPriceConfigList[$index].manualPrice" :controls="false" />
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </el-col>
+      </el-row>
       <template #footer>
         <div style="text-align: center;">
-          <el-button type="primary" @click="handleSelfSelect">
-            加入自选
+          <el-button type="primary" @click="handleSetPrice">
+            保存
           </el-button>
         </div>
       </template>

@@ -1,5 +1,4 @@
-import type { Ingredient, Product } from "."
-import type { Action, ItemDetail } from "~/game"
+import type { CalculatorConfig, Ingredient, Product } from "."
 import { getActionDetailOf, getPriceOf } from "@/common/apis/game"
 import Calculator from "."
 
@@ -13,15 +12,15 @@ export class ManufactureCalculator extends Calculator {
       return false
     }
     for (const ingredient of this.ingredientList) {
-      if (ingredient.price === -1) {
+      if (ingredient.marketPrice === -1) {
         return false
       }
     }
     return true
   }
 
-  constructor(item: ItemDetail, project: string, action: Action) {
-    super(item, project, action)
+  constructor(config: CalculatorConfig) {
+    super(config)
   }
 
   get actionItem() {
@@ -38,13 +37,13 @@ export class ManufactureCalculator extends Calculator {
       list.push({
         hrid: this.actionItem.upgradeItemHrid,
         count: 1,
-        price: getPriceOf(this.actionItem.upgradeItemHrid).ask
+        marketPrice: getPriceOf(this.actionItem.upgradeItemHrid).ask
       })
     }
     list = list.concat(this.actionItem.inputItems.map(input => ({
       hrid: input.itemHrid,
       count: input.count,
-      price: getPriceOf(input.itemHrid).ask
+      marketPrice: getPriceOf(input.itemHrid).ask
     })))
     return list
   }
@@ -53,7 +52,7 @@ export class ManufactureCalculator extends Calculator {
     return this.actionItem.outputItems.map(output => ({
       hrid: output.itemHrid,
       count: output.count,
-      price: getPriceOf(output.itemHrid).bid
+      marketPrice: getPriceOf(output.itemHrid).bid
     }))
   }
 }
