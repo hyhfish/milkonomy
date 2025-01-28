@@ -310,7 +310,7 @@ function handleSetPrice() {
       <el-row :gutter="10" style="padding: 0 20px">
         <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
           <div style="font-size:12px;color:#999;margin-bottom:10px">
-            如果当前市场价格 ≤ 显示价格，则价格为<span class="green">绿色</span>，否则为<span class="red">红色</span>
+            如果当前市场价格 {{ '<' }} 显示价格，则价格为<span class="green">绿色</span>，反之为<span class="red">红色</span>
           </div>
           <el-card>
             <div v-for="item in currentCalculator?.ingredientListWithPrice" :key="item.hrid" class="item-wrapper">
@@ -323,7 +323,7 @@ function handleSetPrice() {
               <div style="min-width:60px">
                 {{ item.count }}个
               </div>
-              <div style="min-width:80px" :class="item.price < item.marketPrice ? 'red' : 'green'">
+              <div style="min-width:80px" :class="item.price < item.marketPrice ? item.price > item.marketPrice ? 'green' : 'red' : ''">
                 {{ Format.money(item.price) }}
               </div>
               <div style="min-width:60px">
@@ -360,7 +360,7 @@ function handleSetPrice() {
 
         <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
           <div style="font-size:12px;color:#999;margin-bottom:10px">
-            如果当前市场价格 ≥ 显示价格，则价格为<span class="green">绿色</span>，否则为<span class="red">红色</span>
+            如果当前市场价格 > 显示价格，则价格为<span class="green">绿色</span>，反之为<span class="red">红色</span>
           </div>
           <el-card>
             <div v-for="(item) in currentCalculator?.productListWithPrice" :key="item.hrid" class="item-wrapper">
@@ -375,7 +375,7 @@ function handleSetPrice() {
               <div style="min-width:60px" v-if="item.rate">
                 {{ Math.floor(item.rate * 1000000) / 10000 }}%
               </div>
-              <div style="min-width:80px" :class="item.price > item.marketPrice ? 'red' : 'green'">
+              <div style="min-width:80px" :class="item.price > item.marketPrice ? item.price < item.marketPrice ? 'green' : 'red' : ''">
                 {{ Format.money(item.price) }}
               </div>
               <div style="min-width:60px">
