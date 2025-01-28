@@ -8,7 +8,7 @@ import { useManualStore } from "@/pinia/stores/manual"
 export async function getManualDataApi(params: RequestData) {
   let profitList: LeaderboardData[] = []
   try {
-    profitList = calcProfit()
+    profitList = calcProfit(params)
   } catch (e: any) {
     console.error(e)
   }
@@ -26,12 +26,19 @@ const CLASS_MAP: { [key: string]: any } = {
   TransmuteCalculator,
   ManufactureCalculator
 }
-function calcProfit() {
+function calcProfit(params: RequestData) {
   // 所有物品列表
   const list = useManualStore().list
   const profitList: LeaderboardData[] = []
   list.filter(item => CLASS_MAP[item.className!]).forEach((item) => {
     const constructor = CLASS_MAP[item.className!]
+    if (params.catalystRank && constructor === TransmuteCalculator) {
+      item.catalyst = params.catalystRank === 2 ? "prime_catalyst" : "catalyst_of_transmutation"
+    } else if (params.catalystRank && constructor === DecomposeCalculator) {
+      item.catalyst = params.catalystRank === 2 ? "prime_catalyst" : "catalyst_of_decomposition"
+    } else {
+      item.catalyst = undefined
+    }
     const instance = new constructor(item) as Calculator
     instance.available && profitList.push(profitConstructor(instance))
   })

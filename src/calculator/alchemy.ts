@@ -2,13 +2,18 @@ import type { CalculatorConfig, Ingredient, Product } from "."
 import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
 import Calculator from "."
 
+export interface AlchemyCalculatorConfig extends CalculatorConfig {
+  catalyst?: "prime_catalyst" | "catalyst_of_transmutation" | "catalyst_of_decomposition"
+}
 export class TransmuteCalculator extends Calculator {
+  catalyst?: AlchemyCalculatorConfig["catalyst"]
   get className() {
     return "TransmuteCalculator"
   }
 
-  constructor(config: CalculatorConfig) {
+  constructor(config: AlchemyCalculatorConfig) {
     super({ ...config, project: "重组", action: "alchemy" })
+    this.catalyst = config.catalyst
   }
 
   get available(): boolean {
@@ -25,11 +30,11 @@ export class TransmuteCalculator extends Calculator {
 
   // todo 暂未找到成功率下降公式
   get successRate(): number {
-    return this.item.alchemyDetail.transmuteSuccessRate * this.catalystTeaRate
+    return Math.min(1, this.item.alchemyDetail.transmuteSuccessRate * this.catalystRate)
   }
 
   get ingredientList(): Ingredient[] {
-    return [
+    const list = [
       {
         hrid: this.item.hrid,
         count: this.item.alchemyDetail.bulkMultiplier,
@@ -40,8 +45,15 @@ export class TransmuteCalculator extends Calculator {
         count: this.item.alchemyDetail.bulkMultiplier,
         marketPrice: Math.max(this.item.sellPrice / 5, 50)
       }
-
     ]
+    this.catalyst && list.push({
+      hrid: `/items/${this.catalyst}`,
+      // 成功才会消耗
+      count: this.successRate,
+      marketPrice: getPriceOf(`/items/${this.catalyst}`).ask
+    })
+
+    return list
   }
 
   get productList(): Product[] {
@@ -61,6 +73,17 @@ export class TransmuteCalculator extends Calculator {
   get catalystTeaRate(): number {
     return 1.05
   }
+
+  get catalystRate(): number {
+    let rate = this.catalystTeaRate
+    if (this.catalyst === "prime_catalyst") {
+      rate += 0.25
+    }
+    if (this.catalyst === "catalyst_of_transmutation") {
+      rate += 0.15
+    }
+    return rate
+  }
   // #endregion
 }
 export class DecomposeCalculator extends Calculator {
@@ -68,8 +91,10 @@ export class DecomposeCalculator extends Calculator {
     return "DecomposeCalculator"
   }
 
-  constructor(config: CalculatorConfig) {
+  catalyst?: AlchemyCalculatorConfig["catalyst"]
+  constructor(config: AlchemyCalculatorConfig) {
     super({ ...config, project: "分解", action: "alchemy" })
+    this.catalyst = config.catalyst
   }
 
   get available(): boolean {
@@ -86,11 +111,11 @@ export class DecomposeCalculator extends Calculator {
 
   // todo 暂未找到分解成功率的来源及成功率下降公式
   get successRate(): number {
-    return 0.6 * this.catalystTeaRate
+    return Math.min(1, 0.6 * this.catalystRate)
   }
 
   get ingredientList(): Ingredient[] {
-    return [
+    const list = [
       {
         hrid: this.item.hrid,
         count: this.item.alchemyDetail.bulkMultiplier,
@@ -103,6 +128,15 @@ export class DecomposeCalculator extends Calculator {
       }
 
     ]
+    if (this.catalyst) {
+      list.push({
+        hrid: `/items/${this.catalyst}`,
+        // 成功才会消耗
+        count: this.successRate,
+        marketPrice: getPriceOf(`/items/${this.catalyst}`).ask
+      })
+    }
+    return list
   }
 
   get productList(): Product[] {
@@ -120,6 +154,17 @@ export class DecomposeCalculator extends Calculator {
   // #region 项目特有属性
   get catalystTeaRate(): number {
     return 1.05
+  }
+
+  get catalystRate(): number {
+    let rate = this.catalystTeaRate
+    if (this.catalyst === "prime_catalyst") {
+      rate += 0.25
+    }
+    if (this.catalyst === "catalyst_of_decomposition") {
+      rate += 0.15
+    }
+    return rate
   }
   // #endregion
 }

@@ -9,7 +9,7 @@ import { getGameDataApi } from "../game"
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   let profitList: Leaderboard.LeaderboardData[] = []
   try {
-    profitList = calcProfit()
+    profitList = calcProfit(params)
   } catch (e: any) {
     console.error(e)
   }
@@ -18,19 +18,25 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   params.project && (profitList = profitList.filter(item => item.project === params.project))
   params.profitRate && (profitList = profitList.filter(item => item.profitRate >= params.profitRate! / 100))
   params.banEquipment && (profitList = profitList.filter(item => !item.calculator.isEquipment))
+
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
 
-function calcProfit() {
+function calcProfit(params: Leaderboard.RequestData) {
   const gameData = getGameDataApi()
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
   const profitList: Leaderboard.LeaderboardData[] = []
   list.forEach((item) => {
-    const c1 = new TransmuteCalculator({ hrid: item.hrid })
-    const c2 = new DecomposeCalculator({ hrid: item.hrid })
-
+    const c1 = new TransmuteCalculator({
+      hrid: item.hrid,
+      catalyst: params.catalystRank === 2 ? "prime_catalyst" : params.catalystRank === 1 ? "catalyst_of_transmutation" : undefined
+    })
+    const c2 = new DecomposeCalculator({
+      hrid: item.hrid,
+      catalyst: params.catalystRank === 2 ? "prime_catalyst" : params.catalystRank === 1 ? "catalyst_of_decomposition" : undefined
+    })
     c1.available && profitList.push(profitConstructor(c1))
     c2.available && profitList.push(profitConstructor(c2))
     const projects: [string, Action][] = [
