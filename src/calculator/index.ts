@@ -50,10 +50,10 @@ export default abstract class Calculator {
     return this.item.categoryHrid === "/item_categories/equipment"
   }
 
-  handlePrice(list: Ingredient[], priceConfigList: IngredientPriceConfig[], func: typeof Math.max) {
+  handlePrice(list: Ingredient[], priceConfigList: IngredientPriceConfig[]) {
     return list.map((item, i) => {
       const priceConfig = priceConfigList[i] || {}
-      const price = priceConfig.manual ? func(priceConfig.manualPrice!, item.marketPrice) : item.marketPrice
+      const price = priceConfig.manual ? priceConfig.manualPrice! : item.marketPrice
       return {
         ...item,
         price
@@ -62,11 +62,11 @@ export default abstract class Calculator {
   }
 
   get ingredientListWithPrice(): IngredientWithPrice[] {
-    return this.handlePrice(this.ingredientList, this.ingredientPriceConfigList, Math.min)
+    return this.handlePrice(this.ingredientList, this.ingredientPriceConfigList)
   }
 
   get productListWithPrice(): ProductWithPrice[] {
-    return this.handlePrice(this.productList, this.productPriceConfigList, Math.max)
+    return this.handlePrice(this.productList, this.productPriceConfigList)
   }
 
   /**
