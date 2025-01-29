@@ -41,8 +41,8 @@ jobs:
         run: touch dist/.nojekyll
 
       # 删除本地dist/public/data目录，防止覆盖线上最新数据
-      - name: Remove dist/public/data
-        run: rm -rf dist/public/data
+      - name: Remove dist/data
+        run: rm -rf dist/data
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@releases/v3
