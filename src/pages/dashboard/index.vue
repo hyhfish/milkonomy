@@ -165,6 +165,7 @@ function handleSetPrice() {
                   <el-option label="裁缝" value="裁缝" />
                   <el-option label="烹饪" value="烹饪" />
                   <el-option label="冲泡" value="冲泡" />
+                  <el-option label="点金" value="点金" />
                   <el-option label="重组" value="重组" />
                   <el-option label="分解" value="分解" />
                 </el-select>

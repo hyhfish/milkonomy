@@ -1,7 +1,7 @@
 import type Calculator from "@/calculator"
 import type { IngredientPriceConfig, ProductPriceConfig } from "@/calculator"
 import type { LeaderboardData, RequestData } from "../leaderboard/type"
-import { DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
+import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { useManualStore } from "@/pinia/stores/manual"
 /** 查 */
@@ -24,7 +24,8 @@ export async function getManualDataApi(params: RequestData) {
 const CLASS_MAP: { [key: string]: any } = {
   DecomposeCalculator,
   TransmuteCalculator,
-  ManufactureCalculator
+  ManufactureCalculator,
+  CoinifyCalculator
 }
 function calcProfit(params: RequestData) {
   // 所有物品列表

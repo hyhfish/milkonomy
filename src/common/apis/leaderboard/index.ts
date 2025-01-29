@@ -2,7 +2,7 @@ import type Calculator from "@/calculator"
 
 import type * as Leaderboard from "./type"
 import type { Action } from "~/game"
-import { DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
+import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getGameDataApi } from "../game"
 /** 查 */
@@ -37,8 +37,13 @@ function calcProfit(params: Leaderboard.RequestData) {
       hrid: item.hrid,
       catalyst: params.catalystRank === 2 ? "prime_catalyst" : params.catalystRank === 1 ? "catalyst_of_decomposition" : undefined
     })
+    const c3 = new CoinifyCalculator({
+      hrid: item.hrid,
+      catalyst: params.catalystRank === 2 ? "prime_catalyst" : params.catalystRank === 1 ? "catalyst_of_coinification" : undefined
+    })
     c1.available && profitList.push(profitConstructor(c1))
     c2.available && profitList.push(profitConstructor(c2))
+    c3.available && profitList.push(profitConstructor(c3))
     const projects: [string, Action][] = [
       ["锻造", "cheesesmithing"],
       ["制造", "crafting"],
@@ -47,8 +52,8 @@ function calcProfit(params: Leaderboard.RequestData) {
       ["冲泡", "brewing"]
     ]
     for (const [project, action] of projects) {
-      const c3 = new ManufactureCalculator({ hrid: item.hrid, project, action })
-      c3.available && profitList.push(profitConstructor(c3))
+      const c = new ManufactureCalculator({ hrid: item.hrid, project, action })
+      c.available && profitList.push(profitConstructor(c))
     }
   })
   return profitList

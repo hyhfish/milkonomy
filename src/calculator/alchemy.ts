@@ -3,7 +3,7 @@ import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "@/common/apis/
 import Calculator from "."
 
 export interface AlchemyCalculatorConfig extends CalculatorConfig {
-  catalyst?: "prime_catalyst" | "catalyst_of_transmutation" | "catalyst_of_decomposition"
+  catalyst?: "prime_catalyst" | "catalyst_of_transmutation" | "catalyst_of_decomposition" | "catalyst_of_coinification"
 }
 export class TransmuteCalculator extends Calculator {
   catalyst?: AlchemyCalculatorConfig["catalyst"]
@@ -162,6 +162,80 @@ export class DecomposeCalculator extends Calculator {
       rate += 0.25
     }
     if (this.catalyst === "catalyst_of_decomposition") {
+      rate += 0.15
+    }
+    return rate
+  }
+  // #endregion
+}
+
+export class CoinifyCalculator extends Calculator {
+  catalyst?: AlchemyCalculatorConfig["catalyst"]
+  get className() {
+    return "CoinifyCalculator"
+  }
+
+  constructor(config: AlchemyCalculatorConfig) {
+    super({ ...config, project: "点金", action: "alchemy" })
+    this.catalyst = config.catalyst
+  }
+
+  get available(): boolean {
+    return this.item.alchemyDetail?.isCoinifiable && getPriceOf(this.item.hrid).ask !== -1
+  }
+
+  get actionLevel(): number {
+    return this.item.itemLevel
+  }
+
+  get timeCost(): number {
+    return getGameDataApi().actionDetailMap["/actions/alchemy/coinify"].baseTimeCost / this.speed
+  }
+
+  // todo 暂未找到成功率下降公式
+  get successRate(): number {
+    return Math.min(1, 0.7 * this.catalystRate)
+  }
+
+  get ingredientList(): Ingredient[] {
+    const list = [
+      {
+        hrid: this.item.hrid,
+        count: this.item.alchemyDetail.bulkMultiplier,
+        marketPrice: getPriceOf(this.item.hrid).ask
+      }
+    ]
+    this.catalyst && list.push({
+      hrid: `/items/${this.catalyst}`,
+      // 成功才会消耗
+      count: this.successRate,
+      marketPrice: getPriceOf(`/items/${this.catalyst}`).ask
+    })
+
+    return list
+  }
+
+  get productList(): Product[] {
+    return [
+      {
+        hrid: Calculator.COIN_HRID,
+        count: 1,
+        marketPrice: this.item.sellPrice * 5 * this.item.alchemyDetail.bulkMultiplier
+      }
+    ]
+  }
+
+  // #region 项目特有属性
+  get catalystTeaRate(): number {
+    return 1.05
+  }
+
+  get catalystRate(): number {
+    let rate = this.catalystTeaRate
+    if (this.catalyst === "prime_catalyst") {
+      rate += 0.25
+    }
+    if (this.catalyst === "catalyst_of_coinification") {
       rate += 0.15
     }
     return rate
