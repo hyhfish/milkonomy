@@ -8,6 +8,14 @@ export interface GameData {
   versionTimestamp: string
   itemDetailMap: Record<string, ItemDetail>
   actionDetailMap: Record<string, ActionDetail>
+  shopItemDetailMap: Record<string, ShopItemDetail>
+}
+export interface ShopItemDetail {
+  hrid: string
+  category: string
+  itemHrid: string
+  costs: Item[]
+  sortIndex: number
 }
 export interface ItemDetail {
   hrid: string

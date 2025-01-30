@@ -15,7 +15,12 @@ export function getPriceOf(hrid: string) {
     return { ask: 1, bid: 1 }
   }
   const item = getGameDataApi().itemDetailMap[hrid]
-  return getMarketDataApi().market[item.name]
+  const shopItem = getGameDataApi().shopItemDetailMap[`/shop_items/${item.hrid.split("/").pop()}`]
+  const price = getMarketDataApi().market[item.name]
+  if (shopItem && shopItem.costs[0].itemHrid === Calculator.COIN_HRID) {
+    price.ask = shopItem.costs[0].count
+  }
+  return price
 }
 
 export function getItemDetailOf(hrid: string) {
