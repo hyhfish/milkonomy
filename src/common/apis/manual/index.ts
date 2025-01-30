@@ -59,6 +59,7 @@ export function setPriceApi(row: LeaderboardData, ingredientPriceConfigList: Ing
     hrid: row.calculator.item.hrid,
     project: row.calculator.project,
     action: row.calculator.action,
+    catalystRank: row.calculator.catalystRank,
     ingredientPriceConfigList,
     productPriceConfigList
   })
