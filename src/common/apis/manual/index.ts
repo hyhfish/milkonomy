@@ -1,14 +1,13 @@
 import type Calculator from "@/calculator"
 import type { IngredientPriceConfig, ProductPriceConfig } from "@/calculator"
 import type { LeaderboardData, RequestData } from "../leaderboard/type"
-import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
-import { ManufactureCalculator } from "@/calculator/manufacture"
+import { calculatorConstructable, catalystable, getCalculatorInstance, getStorageManualItem } from "@/calculator/utils"
 import { useManualStore } from "@/pinia/stores/manual"
 /** 查 */
 export async function getManualDataApi(params: RequestData) {
   let profitList: LeaderboardData[] = []
   try {
-    profitList = calcProfit(params)
+    profitList = calcProfit()
   } catch (e: any) {
     console.error(e)
   }
@@ -21,26 +20,13 @@ export async function getManualDataApi(params: RequestData) {
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
 
-const CLASS_MAP: { [key: string]: any } = {
-  DecomposeCalculator,
-  TransmuteCalculator,
-  ManufactureCalculator,
-  CoinifyCalculator
-}
-function calcProfit(params: RequestData) {
+function calcProfit() {
   // 所有物品列表
   const list = useManualStore().list
   const profitList: LeaderboardData[] = []
-  list.filter(item => CLASS_MAP[item.className!]).forEach((item) => {
-    const constructor = CLASS_MAP[item.className!]
-    if (params.catalystRank && constructor === TransmuteCalculator) {
-      item.catalyst = params.catalystRank === 2 ? "prime_catalyst" : "catalyst_of_transmutation"
-    } else if (params.catalystRank && constructor === DecomposeCalculator) {
-      item.catalyst = params.catalystRank === 2 ? "prime_catalyst" : "catalyst_of_decomposition"
-    } else {
-      item.catalyst = undefined
-    }
-    const instance = new constructor(item) as Calculator
+  list.filter(item => calculatorConstructable(item.className!)).forEach((item) => {
+    const instance = getCalculatorInstance(item)
+    catalystable(item)
     instance.available && profitList.push(profitConstructor(instance))
   })
   return profitList
@@ -53,7 +39,7 @@ function profitConstructor(cal: Calculator) {
 /** 增 */
 export function addManualApi(row: LeaderboardData) {
   const { calculator } = row
-  const storageItem = { className: calculator.className, id: calculator.id, hrid: calculator.item.hrid, project: calculator.project, action: calculator.action }
+  const storageItem = getStorageManualItem(calculator)
   useManualStore().addManual(storageItem)
 }
 /** 删 */

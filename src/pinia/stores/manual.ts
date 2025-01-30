@@ -38,7 +38,7 @@ export const useManualStore = defineStore("manual", {
       return this.findManual(row) !== undefined
     },
     findManual(row: StorageManualItem) {
-      return find(this.list, item => item.id === row.id)
+      return find(this.list, item => item.id === row.id && item.catalystRank === row.catalystRank)
     }
   }
 })

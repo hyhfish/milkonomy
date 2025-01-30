@@ -13,8 +13,7 @@ export interface RequestData {
   profitRate?: number
   /** 查询参数：排除装备 */
   banEquipment?: boolean
-  /** 催化剂 1普通 2主要催化剂 */
-  catalystRank?: number
+  degenerator?: boolean
 }
 
 export type ResponseData = ApiResponseData<{

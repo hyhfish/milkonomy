@@ -29,21 +29,43 @@ function calcProfit(params: Leaderboard.RequestData) {
   const list = Object.values(gameData.itemDetailMap)
   const profitList: Leaderboard.LeaderboardData[] = []
   list.forEach((item) => {
-    const c1 = new TransmuteCalculator({
-      hrid: item.hrid,
-      catalyst: params.catalystRank === 2 ? "prime_catalyst" : params.catalystRank === 1 ? "catalyst_of_transmutation" : undefined
-    })
-    const c2 = new DecomposeCalculator({
-      hrid: item.hrid,
-      catalyst: params.catalystRank === 2 ? "prime_catalyst" : params.catalystRank === 1 ? "catalyst_of_decomposition" : undefined
-    })
-    const c3 = new CoinifyCalculator({
-      hrid: item.hrid,
-      catalyst: params.catalystRank === 2 ? "prime_catalyst" : params.catalystRank === 1 ? "catalyst_of_coinification" : undefined
-    })
-    c1.available && profitList.push(profitConstructor(c1))
-    c2.available && profitList.push(profitConstructor(c2))
-    c3.available && profitList.push(profitConstructor(c3))
+    const cList = []
+    cList.push(new TransmuteCalculator({
+      hrid: item.hrid
+    }))
+    cList.push(new DecomposeCalculator({
+      hrid: item.hrid
+    }))
+    cList.push(new CoinifyCalculator({
+      hrid: item.hrid
+    }))
+    if (params.degenerator) {
+      cList.push(new TransmuteCalculator({
+        hrid: item.hrid,
+        catalystRank: 1
+      }))
+      cList.push(new TransmuteCalculator({
+        hrid: item.hrid,
+        catalystRank: 2
+      }))
+      cList.push(new DecomposeCalculator({
+        hrid: item.hrid,
+        catalystRank: 1
+      }))
+      cList.push(new DecomposeCalculator({
+        hrid: item.hrid,
+        catalystRank: 2
+      }))
+      cList.push(new CoinifyCalculator({
+        hrid: item.hrid,
+        catalystRank: 1
+      }))
+      cList.push(new CoinifyCalculator({
+        hrid: item.hrid,
+        catalystRank: 2
+      }))
+    }
+    cList.forEach(c => c.available && profitList.push(profitConstructor(c)))
     const projects: [string, Action][] = [
       ["锻造", "cheesesmithing"],
       ["制造", "crafting"],

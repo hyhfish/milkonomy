@@ -3,17 +3,27 @@ import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "@/common/apis/
 import Calculator from "."
 
 export interface AlchemyCalculatorConfig extends CalculatorConfig {
-  catalyst?: "prime_catalyst" | "catalyst_of_transmutation" | "catalyst_of_decomposition" | "catalyst_of_coinification"
+  /** 催化剂 1普通 2主要催化剂 */
+  catalystRank?: number
 }
+
+export type AlchemyCatalyst = "prime_catalyst" | "catalyst_of_transmutation" | "catalyst_of_decomposition" | "catalyst_of_coinification"
 export class TransmuteCalculator extends Calculator {
-  catalyst?: AlchemyCalculatorConfig["catalyst"]
   get className() {
     return "TransmuteCalculator"
   }
 
   constructor(config: AlchemyCalculatorConfig) {
     super({ ...config, project: "重组", action: "alchemy" })
-    this.catalyst = config.catalyst
+  }
+
+  get catalyst(): AlchemyCatalyst | undefined {
+    if (this.catalystRank === 1) {
+      return "catalyst_of_transmutation"
+    } else if (this.catalystRank === 2) {
+      return "prime_catalyst"
+    }
+    return undefined
   }
 
   get available(): boolean {
@@ -76,12 +86,7 @@ export class TransmuteCalculator extends Calculator {
 
   get catalystRate(): number {
     let rate = this.catalystTeaRate
-    if (this.catalyst === "prime_catalyst") {
-      rate += 0.25
-    }
-    if (this.catalyst === "catalyst_of_transmutation") {
-      rate += 0.15
-    }
+    rate += (this.catalystRank ? this.catalystRank * 0.1 + 0.05 : 0)
     return rate
   }
   // #endregion
@@ -91,10 +96,17 @@ export class DecomposeCalculator extends Calculator {
     return "DecomposeCalculator"
   }
 
-  catalyst?: AlchemyCalculatorConfig["catalyst"]
   constructor(config: AlchemyCalculatorConfig) {
     super({ ...config, project: "分解", action: "alchemy" })
-    this.catalyst = config.catalyst
+  }
+
+  get catalyst(): AlchemyCatalyst | undefined {
+    if (this.catalystRank === 1) {
+      return "catalyst_of_transmutation"
+    } else if (this.catalystRank === 2) {
+      return "prime_catalyst"
+    }
+    return undefined
   }
 
   get available(): boolean {
@@ -158,26 +170,28 @@ export class DecomposeCalculator extends Calculator {
 
   get catalystRate(): number {
     let rate = this.catalystTeaRate
-    if (this.catalyst === "prime_catalyst") {
-      rate += 0.25
-    }
-    if (this.catalyst === "catalyst_of_decomposition") {
-      rate += 0.15
-    }
+    rate += (this.catalystRank ? this.catalystRank * 0.1 + 0.05 : 0)
     return rate
   }
   // #endregion
 }
 
 export class CoinifyCalculator extends Calculator {
-  catalyst?: AlchemyCalculatorConfig["catalyst"]
   get className() {
     return "CoinifyCalculator"
   }
 
   constructor(config: AlchemyCalculatorConfig) {
     super({ ...config, project: "点金", action: "alchemy" })
-    this.catalyst = config.catalyst
+  }
+
+  get catalyst(): AlchemyCatalyst | undefined {
+    if (this.catalystRank === 1) {
+      return "catalyst_of_transmutation"
+    } else if (this.catalystRank === 2) {
+      return "prime_catalyst"
+    }
+    return undefined
   }
 
   get available(): boolean {
@@ -232,12 +246,7 @@ export class CoinifyCalculator extends Calculator {
 
   get catalystRate(): number {
     let rate = this.catalystTeaRate
-    if (this.catalyst === "prime_catalyst") {
-      rate += 0.25
-    }
-    if (this.catalyst === "catalyst_of_coinification") {
-      rate += 0.15
-    }
+    rate += (this.catalystRank ? this.catalystRank * 0.1 + 0.05 : 0)
     return rate
   }
   // #endregion

@@ -8,6 +8,8 @@ export interface CalculatorConfig {
   action?: Action
   ingredientPriceConfigList?: IngredientPriceConfig[]
   productPriceConfigList?: ProductPriceConfig[]
+  /** 催化剂 1普通 2主要催化剂 */
+  catalystRank?: number
 }
 export default abstract class Calculator {
   static COIN_HRID = "/items/coin"
@@ -16,12 +18,15 @@ export default abstract class Calculator {
   action: Action
   ingredientPriceConfigList: IngredientPriceConfig[]
   productPriceConfigList: ProductPriceConfig[]
-  constructor({ hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [] }: CalculatorConfig) {
+  /** 催化剂 1普通 2主要催化剂 */
+  catalystRank?: number
+  constructor({ hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [], catalystRank }: CalculatorConfig) {
     this.hrid = hrid
     this.project = project!
     this.action = action!
     this.ingredientPriceConfigList = ingredientPriceConfigList
     this.productPriceConfigList = productPriceConfigList
+    this.catalystRank = catalystRank
   }
 
   // #region 固定继承属性

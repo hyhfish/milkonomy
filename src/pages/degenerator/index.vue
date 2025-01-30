@@ -23,7 +23,7 @@ const ldSearchData = reactive({
   project: "",
   profitRate: 1,
   banEquipment: false,
-  catalystRank: 0
+  degenerator: true
 })
 
 function getLeaderboardData() {
@@ -181,14 +181,6 @@ function handleSetPrice() {
                   排除装备
                 </el-checkbox>
               </el-form-item>
-              <el-form-item>
-                <el-checkbox v-model="ldSearchData.catalystRank" :true-value="1" :false-value="0" @change="handleSearchLD">
-                  催化剂
-                </el-checkbox>
-                <el-checkbox v-model="ldSearchData.catalystRank" :true-value="2" :false-value="0" @change="handleSearchLD">
-                  主要催化剂
-                </el-checkbox>
-              </el-form-item>
             </el-form>
             <div style="font-size:12px;color:#999">
               默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及稀有掉落
@@ -202,8 +194,14 @@ function handleSetPrice() {
                 </template>
               </el-table-column>
               <el-table-column prop="name" label="物品" />
+              <el-table-column width="54">
+                <template #default="{ row }">
+                  <ItemIcon v-if="row.calculator.catalyst" :hrid="`/items/${row.calculator.catalyst}`" />
+                </template>
+              </el-table-column>
 
               <el-table-column prop="project" label="项目" />
+
               <el-table-column prop="calculator.actionLevel" label="等级" />
               <el-table-column prop="profitPDFormat" label="利润 / 天" />
               <el-table-column prop="profitRateFormat" label="利润率" />
@@ -261,12 +259,6 @@ function handleSetPrice() {
                   <el-option label="分解" value="分解" />
                 </el-select>
               </el-form-item>
-              <el-checkbox v-model="mnSearchData.catalystRank" :true-value="1" :false-value="0" @change="handleSearchMN">
-                催化剂
-              </el-checkbox>
-              <el-checkbox v-model="mnSearchData.catalystRank" :true-value="2" :false-value="0" @change="handleSearchMN">
-                主要催化剂
-              </el-checkbox>
             </el-form>
             <div style="font-size:12px;color:#999">
               默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶，未计算喝茶价格及稀有掉落
@@ -280,6 +272,11 @@ function handleSetPrice() {
                 </template>
               </el-table-column>
               <el-table-column prop="name" label="物品" />
+              <el-table-column width="54">
+                <template #default="{ row }">
+                  <ItemIcon v-if="row.calculator.catalyst" :hrid="`/items/${row.calculator.catalyst}`" />
+                </template>
+              </el-table-column>
               <el-table-column prop="project" label="项目" />
               <el-table-column prop="profitPDFormat" label="利润 / 天">
                 <template #default="{ row }">
