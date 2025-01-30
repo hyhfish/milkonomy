@@ -102,7 +102,7 @@ export class DecomposeCalculator extends Calculator {
 
   get catalyst(): AlchemyCatalyst | undefined {
     if (this.catalystRank === 1) {
-      return "catalyst_of_transmutation"
+      return "catalyst_of_decomposition"
     } else if (this.catalystRank === 2) {
       return "prime_catalyst"
     }
@@ -187,7 +187,7 @@ export class CoinifyCalculator extends Calculator {
 
   get catalyst(): AlchemyCatalyst | undefined {
     if (this.catalystRank === 1) {
-      return "catalyst_of_transmutation"
+      return "catalyst_of_coinification"
     } else if (this.catalystRank === 2) {
       return "prime_catalyst"
     }
