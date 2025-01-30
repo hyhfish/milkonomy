@@ -48,7 +48,8 @@ export function deleteManualApi(row: LeaderboardData) {
     id: row.calculator.id,
     hrid: row.calculator.item.hrid,
     project: row.calculator.project,
-    action: row.calculator.action
+    action: row.calculator.action,
+    catalystRank: row.calculator.catalystRank
   })
 }
 /** 改 */
