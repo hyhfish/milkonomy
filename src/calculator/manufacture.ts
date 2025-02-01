@@ -47,7 +47,7 @@ export class ManufactureCalculator extends Calculator {
     list = list.concat(this.actionItem.inputItems.map(input => ({
       hrid: input.itemHrid,
       // 工匠茶补正
-      count: input.count * (this.artisanTea ? 0.9 : 1),
+      count: input.count,
       marketPrice: getPriceOf(input.itemHrid).ask
     })))
     return list
