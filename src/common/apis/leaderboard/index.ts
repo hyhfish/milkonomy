@@ -7,22 +7,33 @@ import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/c
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageManualItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
+import { useGameStore } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   let profitList: Calculator[] = []
-  try {
-    profitList = calcProfit(params)
-    profitList = profitList.concat(calcAllFlowProfit(params))
-  } catch (e: any) {
-    console.error(e)
+  if (useGameStore().getLeaderboardCache()) {
+    profitList = useGameStore().getLeaderboardCache()
+  } else {
+    try {
+      profitList = calcProfit()
+      profitList = profitList.concat(calcAllFlowProfit())
+    } catch (e: any) {
+      console.error(e)
+    }
+    profitList.sort((a, b) => b.result.profitPH - a.result.profitPH)
+    useGameStore().setLeaderBoardCache(profitList)
   }
-  profitList.sort((a, b) => b.result.profitPH - a.result.profitPH)
+  params.name && (profitList = profitList.filter(cal => cal.item.name.toLowerCase().includes(params.name!.toLowerCase())))
+  params.project && (profitList = profitList.filter(cal => cal.project.match(params.project!)))
+  params.banEquipment && (profitList = profitList.filter(cal => !cal.isEquipment))
+  params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
+
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
 
-function calcProfit(params: Leaderboard.RequestData) {
+function calcProfit() {
   const gameData = getGameDataApi()
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
@@ -62,7 +73,7 @@ function calcProfit(params: Leaderboard.RequestData) {
       hrid: item.hrid,
       catalystRank: 2
     }))
-    cList.forEach(c => handlePush(profitList, c, params))
+    cList.forEach(c => handlePush(profitList, c))
     const projects: [string, Action][] = [
       ["锻造", "cheesesmithing"],
       ["制造", "crafting"],
@@ -72,13 +83,13 @@ function calcProfit(params: Leaderboard.RequestData) {
     ]
     for (const [project, action] of projects) {
       const c = new ManufactureCalculator({ hrid: item.hrid, project, action })
-      handlePush(profitList, c, params)
+      handlePush(profitList, c)
     }
   })
   return profitList
 }
 
-function calcAllFlowProfit(params: Leaderboard.RequestData) {
+function calcAllFlowProfit() {
   const gameData = getGameDataApi()
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
@@ -102,24 +113,18 @@ function calcAllFlowProfit(params: Leaderboard.RequestData) {
         configs.unshift(getStorageManualItem(c))
         c = new ManufactureCalculator({ hrid: actionItem.upgradeItemHrid, project, action })
         if (configs.length > 1) {
-          handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`), params)
+          handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`))
         }
         actionItem = c.actionItem
       }
       configs.unshift(getStorageManualItem(c))
-      handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`), params)
+      handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`))
     }
   })
   return profitList
 }
 
-function handlePush(profitList: Calculator[], cal: Calculator, params: Leaderboard.RequestData) {
-  // todo 收藏夹的不过滤
+function handlePush(profitList: Calculator[], cal: Calculator) {
   if (!cal.available) return
-  if (params.name && !cal.item.name.toLowerCase().includes(params.name!.toLowerCase())) return
-  if (params.project && !cal.project.match(params.project!)) return
-  if (params.banEquipment && cal.isEquipment) return
-  const c = cal.run()
-  if (params.profitRate && c.result.profitRate < params.profitRate! / 100) return
-  profitList.push(c)
+  profitList.push(cal.run())
 }

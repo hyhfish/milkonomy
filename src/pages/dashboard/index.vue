@@ -11,8 +11,8 @@ import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Plus, Search } from "@element-plus/icons-vue"
-import ActionDetail from "./components/ActionDetail.vue"
 
+import ActionDetail from "./components/ActionDetail.vue"
 // #region 查
 const manualStore = useManualStore()
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination()
@@ -46,6 +46,7 @@ function getLeaderboardData() {
 function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
 }
+
 // 监听分页参数的变化
 watch([() => paginationDataLD.currentPage, () => paginationDataLD.pageSize, () => getGameDataApi()], getLeaderboardData, { immediate: true })
 

@@ -1,3 +1,4 @@
+import type Calculator from "@/calculator"
 import type { GameData } from "~/game"
 import type { MarketData } from "~/market"
 import { defineStore } from "pinia"
@@ -5,7 +6,8 @@ import { defineStore } from "pinia"
 export const useGameStore = defineStore("game", {
   state: () => ({
     gameData: null as GameData | null,
-    marketData: null as MarketData | null
+    marketData: null as MarketData | null,
+    leaderboardCache: {} as { [time: number]: Calculator[] }
   }),
   actions: {
     async fetchData() {
@@ -21,6 +23,16 @@ export const useGameStore = defineStore("game", {
         this.marketData = newMarketData
         ElMessage.success(`已于 ${new Date().toLocaleTimeString()} 更新最新数据`)
       }
+    },
+    getLeaderboardCache() {
+      return this.leaderboardCache[this.marketData!.time]
+    },
+    setLeaderBoardCache(list: Calculator[]) {
+      this.clearLeaderBoardCache()
+      this.leaderboardCache[this.marketData!.time] = list
+    },
+    clearLeaderBoardCache() {
+      this.leaderboardCache = {}
     }
   }
 })
