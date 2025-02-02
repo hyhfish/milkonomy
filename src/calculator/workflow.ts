@@ -139,9 +139,9 @@ export class WorkflowCalculator extends Calculator {
    * 工作流阶段倍率\
    * 以第一阶段为基准，第一阶段产生的产物作为原料，后面的阶段刚好消耗完毕\
    *
-   * 假设三个阶段原料->产品为 a->2b, b->3c, c->5d, 耗时都为 1h\
-   * 那么按照本算法计算出来的单步倍率为 [1, 2, 3], 整体倍率为[1, 1x2, 1x2x3]\
-   * 最终以整个工作流 1h 计算, 三个阶段的耗时为分别为 [1/9h, 2/9h, 6/9h]
+   * 假设四个阶段原料->产品为 a->2b, b->3c, c->5d, d->7e 耗时都为 1h\
+   * 那么按照本算法计算出来的单步倍率为 [1, 2, 3, 5], 整体倍率为[1, 1x2, 1x2x3, 1x2x3x5]\
+   * 最终以整个工作流 1h 计算, 三个阶段的耗时为分别为 [1/39h, 2/39h, 6/39h, 30/39h]\
    */
   get workMultiplier() {
     const singleMultiplier = [1]
@@ -156,9 +156,14 @@ export class WorkflowCalculator extends Calculator {
       const targetOutput = targetProduct.count * (targetProduct.rate || 1) * resultList[i].gainPH
       const targetIngredient = next.ingredientList.find(i => i.hrid === target)!
       const targetInput = targetIngredient.count * resultList[i + 1].consumePH
+
       singleMultiplier.push(targetOutput / targetInput)
     }
-    const multiplier = singleMultiplier.map((m, i) => m * (singleMultiplier[i - 1] || 1))
+
+    const multiplier: number[] = []
+    for (let i = 0; i < singleMultiplier.length; i++) {
+      multiplier[i] = singleMultiplier[i] * (multiplier[i - 1] || 1)
+    }
     const total = multiplier.reduce((prev, curr) => prev + curr, 0)
     return multiplier.map(m => m / total)
   }
