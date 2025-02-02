@@ -53,17 +53,6 @@ export const constantRoutes: RouteRecordRaw[] = [
           svgIcon: "dashboard",
           affix: true
         }
-      },
-      {
-        path: "degenerator",
-        component: () => import("@/pages/degenerator/index.vue"),
-        name: "degenerator",
-        meta: {
-          title: "异次元",
-          svgIcon: "dashboard",
-          affix: true,
-          hidden: true
-        }
       }
     ]
   },

@@ -23,6 +23,11 @@ export type ResponseData = ApiResponseData<{
 
 export interface LeaderboardData {
   calculator: Calculator
+  // todo
+  calculatorList?: Calculator[]
+  resultList?: any[]
+  workMultiplier?: number[]
+
   hrid: string
   name: string
   project: string

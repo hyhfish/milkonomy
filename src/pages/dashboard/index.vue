@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
 import type { IngredientPriceConfig } from "@/calculator"
-import type { LeaderboardData } from "@/common/apis/leaderboard/type"
 import type { FormInstance } from "element-plus"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getGameDataApi, getItemDetailOf, getMarketDataApi } from "@/common/apis/game"
@@ -12,11 +11,12 @@ import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Plus, Search } from "@element-plus/icons-vue"
+import ActionDetail from "./components/ActionDetail.vue"
 
 // #region 查
 const manualStore = useManualStore()
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination()
-const leaderboardData = ref<LeaderboardData[]>([])
+const leaderboardData = ref<Calculator[]>([])
 const ldSearchFormRef = ref<FormInstance | null>(null)
 const ldSearchData = reactive({
   name: "",
@@ -25,7 +25,10 @@ const ldSearchData = reactive({
   banEquipment: true
 })
 
+const loading = ref(false)
+
 function getLeaderboardData() {
+  loading.value = true
   getLeaderboardDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
@@ -37,6 +40,7 @@ function getLeaderboardData() {
   }).catch(() => {
     leaderboardData.value = []
   }).finally(() => {
+    loading.value = false
   })
 }
 function handleSearchLD() {
@@ -46,7 +50,7 @@ function handleSearchLD() {
 watch([() => paginationDataLD.currentPage, () => paginationDataLD.pageSize, () => getGameDataApi()], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeMN, handleSizeChange: handleSizeChangeMN } = usePagination()
-const manualData = ref<LeaderboardData[]>([])
+const manualData = ref<Calculator[]>([])
 const mnSearchFormRef = ref<FormInstance | null>(null)
 const mnSearchData = reactive({
   name: "",
@@ -78,18 +82,13 @@ watch(() => manualStore, () => {
 }, { deep: true })
 // #endregion
 
-const currentRow = ref<LeaderboardData>()
-const currentCalculator = ref<Calculator>()
+const currentRow = ref<Calculator>()
 const detailVisible = ref<boolean>(false)
-async function getDetail(row: LeaderboardData) {
-  currentRow.value = row
-  currentCalculator.value = row.calculator
-}
-async function showDetail(row: LeaderboardData) {
+async function showDetail(row: Calculator) {
   detailVisible.value = true
-  getDetail(row)
+  currentRow.value = row
 }
-function addManual(row: LeaderboardData) {
+function addManual(row: Calculator) {
   const r = row || currentRow.value!
   try {
     addManualApi(r)
@@ -99,7 +98,7 @@ function addManual(row: LeaderboardData) {
   }
 }
 
-function deleteManual(row: LeaderboardData) {
+function deleteManual(row: Calculator) {
   try {
     deleteManualApi(row)
   } catch (e: any) {
@@ -108,18 +107,18 @@ function deleteManual(row: LeaderboardData) {
 }
 
 const priceVisible = ref<boolean>(false)
-const currentPriceRow = ref<LeaderboardData>()
+const currentPriceRow = ref<Calculator>()
 const currentIngredientPriceConfigList = ref<IngredientPriceConfig[]>([])
 const currentProductPriceConfigList = ref<IngredientPriceConfig[]>([])
-function setPrice(row: LeaderboardData) {
+function setPrice(row: Calculator) {
   currentPriceRow.value = row
-  currentIngredientPriceConfigList.value = row.calculator.ingredientListWithPrice.map((_, i) => ({
-    manualPrice: row.calculator.ingredientPriceConfigList[i]?.manualPrice,
-    manual: row.calculator.ingredientPriceConfigList[i]?.manual
+  currentIngredientPriceConfigList.value = row.ingredientListWithPrice.map((_, i) => ({
+    manualPrice: row.ingredientPriceConfigList[i]?.manualPrice,
+    manual: row.ingredientPriceConfigList[i]?.manual
   }))
-  currentProductPriceConfigList.value = row.calculator.productListWithPrice.map((_, i) => ({
-    manualPrice: row.calculator.productPriceConfigList[i]?.manualPrice,
-    manual: row.calculator.productPriceConfigList[i]?.manual
+  currentProductPriceConfigList.value = row.productListWithPrice.map((_, i) => ({
+    manualPrice: row.productPriceConfigList[i]?.manualPrice,
+    manual: row.productPriceConfigList[i]?.manual
   }))
   priceVisible.value = true
 }
@@ -185,18 +184,22 @@ function handleSetPrice() {
             </div>
           </template>
           <template #default>
-            <el-table :data="leaderboardData">
-              <el-table-column prop="name" width="54">
+            <el-table :data="leaderboardData" v-loading="loading">
+              <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" label="物品" />
-
+              <el-table-column prop="item.name" label="物品" />
+              <el-table-column width="54">
+                <template #default="{ row }">
+                  <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
+                </template>
+              </el-table-column>
               <el-table-column prop="project" label="项目" />
-              <el-table-column prop="calculator.actionLevel" label="等级" />
-              <el-table-column prop="profitPDFormat" label="利润 / 天" />
-              <el-table-column prop="profitRateFormat" label="利润率" />
+              <el-table-column prop="actionLevel" label="等级" />
+              <el-table-column prop="result.profitPDFormat" label="利润 / 天" />
+              <el-table-column prop="result.profitRateFormat" label="利润率" />
               <el-table-column label="详情">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
@@ -206,7 +209,7 @@ function handleSetPrice() {
               </el-table-column>
               <el-table-column label="操作">
                 <template #default="{ row }">
-                  <el-link v-if="!manualStore.hasManual(row.calculator)" type="success" :icon="Plus" @click="addManual(row)">
+                  <el-link v-if="!manualStore.hasManual(row)" type="success" :icon="Plus" @click="addManual(row)">
                     自选
                   </el-link>
                 </template>
@@ -257,22 +260,27 @@ function handleSetPrice() {
           </template>
           <template #default>
             <el-table :data="manualData">
-              <el-table-column prop="name" width="54">
+              <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="name" label="物品" />
-              <el-table-column prop="project" label="项目" />
-              <el-table-column prop="profitPDFormat" label="利润 / 天">
+              <el-table-column prop="item.name" label="物品" />
+              <el-table-column width="54">
                 <template #default="{ row }">
-                  {{ row.profitPDFormat }}&nbsp;
+                  <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="project" label="项目" />
+              <el-table-column prop="result.profitPDFormat" label="利润 / 天">
+                <template #default="{ row }">
+                  {{ row.result.profitPDFormat }}&nbsp;
                   <el-link type="primary" :icon="Edit" @click="setPrice(row)">
                     自定义
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="profitRateFormat" label="利润率" />
+              <el-table-column prop="result.profitRateFormat" label="利润率" />
               <el-table-column label="详情">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
@@ -306,93 +314,12 @@ function handleSetPrice() {
         </el-card>
       </el-col>
     </el-row>
-    <!-- 去掉关闭按钮 -->
-    <el-dialog v-model="detailVisible" :show-close="false" width="80%">
-      <el-row :gutter="10" style="padding: 0 20px">
-        <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
-          <div style="font-size:12px;color:#999;margin-bottom:10px">
-            如果当前市场价格 {{ '<' }} 显示价格，则价格为<span class="green">绿色</span>，反之为<span class="red">红色</span>
-          </div>
-          <el-card>
-            <div v-for="item in currentCalculator?.ingredientListWithPrice" :key="item.hrid" class="item-wrapper">
-              <div class="item-name">
-                <div style="width:30px">
-                  <ItemIcon :hrid="item.hrid" />
-                </div>
-                <div>{{ getItemDetailOf(item.hrid).name }}</div>
-              </div>
-              <div style="min-width:60px">
-                {{ item.count }}个
-              </div>
-              <div style="min-width:80px" :class="item.price < item.marketPrice ? item.price > item.marketPrice ? 'green' : 'red' : ''">
-                {{ Format.money(item.price) }}
-              </div>
-              <div style="min-width:60px">
-                {{ Format.number(item.count * currentRow?.consumePH!, 3) }} / h
-              </div>
-            </div>
-            <div>
-              成本：{{ currentRow?.costPHFormat }} / h
-            </div>
-          </el-card>
-        </el-col>
-
-        <el-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4">
-          <div class="param-wrapper">
-            <div v-if="currentCalculator?.efficiencyTea">
-              效率茶
-            </div>
-            <div v-if="currentCalculator?.artisanTea">
-              工匠茶
-            </div>
-            <div v-if="currentCalculator?.gourmetTea">
-              双倍茶
-            </div>
-            <div v-if="currentCalculator?.successRate! < 1">
-              成功率：{{ currentRow?.successRateFormat }}
-            </div>
-            <div>效率：{{ currentRow?.efficiencyFormat }}</div>
-            <div>时间：{{ currentRow?.timeCostFormat }}</div>
-            <el-icon class="transition" :size="36">
-              <DArrowRight />
-            </el-icon>
-          </div>
-        </el-col>
-
-        <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
-          <div style="font-size:12px;color:#999;margin-bottom:10px">
-            如果当前市场价格 > 显示价格，则价格为<span class="green">绿色</span>，反之为<span class="red">红色</span>
-          </div>
-          <el-card>
-            <div v-for="(item) in currentCalculator?.productListWithPrice" :key="item.hrid" class="item-wrapper">
-              <div class="item-name">
-                <div style="width:30px">
-                  <ItemIcon :hrid="item.hrid" />
-                </div>
-                <div>
-                  {{ getItemDetailOf(item.hrid).name }}
-                </div>
-              </div>
-              <div style="min-width:60px" v-if="item.rate">
-                {{ Math.floor(item.rate * 1000000) / 10000 }}%
-              </div>
-              <div style="min-width:80px" :class="item.price > item.marketPrice ? item.price < item.marketPrice ? 'green' : 'red' : ''">
-                {{ Format.money(item.price) }}
-              </div>
-              <div style="min-width:60px">
-                {{ Format.number((item.rate || 1) * item.count * currentRow?.gainPH!, 3) }} / h
-              </div>
-            </div>
-            <div>收入：{{ currentRow?.incomePHFormat }} / h</div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </el-dialog>
+    <ActionDetail v-model="detailVisible" :data="currentRow" />
     <el-dialog v-model="priceVisible" :show-close="false" width="80%">
       <el-row :gutter="20">
         <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
           <el-card>
-            <el-table :data="currentPriceRow?.calculator.ingredientListWithPrice">
+            <el-table :data="currentPriceRow?.ingredientListWithPrice">
               <el-table-column label="物品" width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
@@ -420,7 +347,7 @@ function handleSetPrice() {
         </el-col>
         <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
           <el-card>
-            <el-table :data="currentPriceRow?.calculator.productListWithPrice">
+            <el-table :data="currentPriceRow?.productListWithPrice">
               <el-table-column prop="name" label="物品" width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
@@ -484,36 +411,5 @@ function handleSetPrice() {
 .pager-wrapper {
   display: flex;
   justify-content: center;
-}
-.param-wrapper {
-  margin-top: 10px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  * {
-    margin-bottom: 10px;
-  }
-}
-.item-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  .item-name {
-    display: flex;
-    align-items: center;
-    div {
-      margin-right: 10px;
-    }
-  }
-}
-
-.red {
-  color: #f56c6c;
-}
-.green {
-  color: #67c23a;
 }
 </style>

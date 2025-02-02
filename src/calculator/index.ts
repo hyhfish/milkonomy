@@ -20,6 +20,7 @@ export default abstract class Calculator {
   productPriceConfigList: ProductPriceConfig[]
   /** 催化剂 1普通 2主要催化剂 */
   catalystRank?: number
+  result: any
   constructor({ hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [], catalystRank }: CalculatorConfig) {
     this.hrid = hrid
     this.project = project!
@@ -67,11 +68,25 @@ export default abstract class Calculator {
   }
 
   get ingredientListWithPrice(): IngredientWithPrice[] {
-    return this.handlePrice(this.ingredientList, this.ingredientPriceConfigList)
+    let list = this.ingredientList
+    list = list.map((item) => {
+      return {
+        ...item,
+        countPH: item.count * this.consumePH
+      }
+    })
+    return this.handlePrice(list, this.ingredientPriceConfigList)
   }
 
   get productListWithPrice(): ProductWithPrice[] {
-    return this.handlePrice(this.productList, this.productPriceConfigList)
+    let list = this.productList
+    list = list.map((item) => {
+      return {
+        ...item,
+        countPH: item.count * this.gainPH * (item.rate || 1)
+      }
+    })
+    return this.handlePrice(list, this.productPriceConfigList)
   }
 
   /**
@@ -96,23 +111,32 @@ export default abstract class Calculator {
     return income * 0.98
   }
 
-  get result() {
-    const actionsPH = ((60 * 60 * 1000000000) / this.timeCost) * this.efficiency
-    const consumePH = actionsPH * (this.artisanTea ? 0.9 : 1)
-    const costPH = this.cost * consumePH
-    const gainPH = actionsPH * this.successRate * (this.gourmetTea ? 1.12 : 1)
-    const incomePH = this.income * gainPH
+  get actionsPH(): number {
+    return ((60 * 60 * 1000000000) / this.timeCost) * this.efficiency
+  }
+
+  get consumePH(): number {
+    return this.actionsPH
+  }
+
+  get gainPH(): number {
+    return this.actionsPH * this.successRate
+  }
+
+  run() {
+    const costPH = this.cost * this.consumePH
+    const incomePH = this.income * this.gainPH
     const profitPH = incomePH - costPH
     const profitRate = profitPH / costPH
 
-    return {
+    this.result = {
       hrid: this.item.hrid,
       name: this.item.name,
       project: this.project,
       successRate: this.successRate,
       costPH,
-      consumePH,
-      gainPH,
+      consumePH: this.consumePH,
+      gainPH: this.gainPH,
       incomePH,
       profitPH,
       profitRate,
@@ -125,6 +149,7 @@ export default abstract class Calculator {
       timeCostFormat: Format.costTime(this.timeCost),
       successRateFormat: Format.percent(this.successRate)
     }
+    return this
   }
   // #endregion
 
@@ -196,12 +221,14 @@ export interface Ingredient {
   marketPrice: number
 }
 export interface IngredientWithPrice extends Ingredient {
+  countPH?: number
   price: number
 }
 export interface Product extends Ingredient {
   rate?: number
 }
-export interface ProductWithPrice extends Product, IngredientWithPrice {}
+export interface ProductWithPrice extends Product, IngredientWithPrice {
+}
 
 export interface IngredientPriceConfig {
   manual: boolean

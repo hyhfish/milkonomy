@@ -47,7 +47,7 @@ export class ManufactureCalculator extends Calculator {
     list = list.concat(this.actionItem.inputItems.map(input => ({
       hrid: input.itemHrid,
       // 工匠茶补正
-      count: input.count,
+      count: input.count * (this.artisanTea ? 0.9 : 1),
       marketPrice: getPriceOf(input.itemHrid).ask
     })))
     return list
@@ -56,7 +56,8 @@ export class ManufactureCalculator extends Calculator {
   get productList(): Product[] {
     let list = this.actionItem.outputItems.map(output => ({
       hrid: output.itemHrid,
-      count: output.count,
+      // 双倍茶补正
+      count: output.count * (this.gourmetTea ? 1.12 : 1),
       marketPrice: getPriceOf(output.itemHrid).bid
     }))
     list = list.concat(this.actionItem.essenceDropTable?.map(essence => ({

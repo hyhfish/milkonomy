@@ -1,21 +1,21 @@
 import type Calculator from "@/calculator"
 import type { IngredientPriceConfig, ProductPriceConfig } from "@/calculator"
-import type { LeaderboardData, RequestData } from "../leaderboard/type"
+import type { RequestData } from "../leaderboard/type"
 import { calculatorConstructable, catalystable, getCalculatorInstance, getStorageManualItem } from "@/calculator/utils"
 import { useManualStore } from "@/pinia/stores/manual"
 /** 查 */
 export async function getManualDataApi(params: RequestData) {
-  let profitList: LeaderboardData[] = []
+  let profitList: Calculator[] = []
   try {
     profitList = calcProfit()
   } catch (e: any) {
     console.error(e)
   }
-  profitList.sort((a, b) => b.profitPH - a.profitPH)
-  params.name && (profitList = profitList.filter(item => item.name.toLowerCase().includes(params.name!.toLowerCase())))
+  profitList.sort((a, b) => b.result.profitPH - a.result.profitPH)
+  params.name && (profitList = profitList.filter(item => item.item.name.toLowerCase().includes(params.name!.toLowerCase())))
   params.project && (profitList = profitList.filter(item => item.project === params.project))
-  params.profitRate && (profitList = profitList.filter(item => item.profitRate >= params.profitRate! / 100))
-  params.banEquipment && (profitList = profitList.filter(item => !item.calculator.isEquipment))
+  params.profitRate && (profitList = profitList.filter(item => item.result.profitRate >= params.profitRate! / 100))
+  params.banEquipment && (profitList = profitList.filter(item => !item.isEquipment))
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
@@ -23,43 +23,38 @@ export async function getManualDataApi(params: RequestData) {
 function calcProfit() {
   // 所有物品列表
   const list = useManualStore().list
-  const profitList: LeaderboardData[] = []
+  const profitList: Calculator[] = []
   list.filter(item => calculatorConstructable(item.className!)).forEach((item) => {
     const instance = getCalculatorInstance(item)
     catalystable(item)
-    instance.available && profitList.push(profitConstructor(instance))
+    instance.available && profitList.push(instance.run())
   })
   return profitList
 }
 
-function profitConstructor(cal: Calculator) {
-  return { ...cal.result, calculator: cal }
-}
-
 /** 增 */
-export function addManualApi(row: LeaderboardData) {
-  const { calculator } = row
-  const storageItem = getStorageManualItem(calculator)
+export function addManualApi(row: Calculator) {
+  const storageItem = getStorageManualItem(row)
   useManualStore().addManual(storageItem)
 }
 /** 删 */
-export function deleteManualApi(row: LeaderboardData) {
+export function deleteManualApi(row: Calculator) {
   useManualStore().deleteManual({
-    id: row.calculator.id,
-    hrid: row.calculator.item.hrid,
-    project: row.calculator.project,
-    action: row.calculator.action,
-    catalystRank: row.calculator.catalystRank
+    id: row.id,
+    hrid: row.item.hrid,
+    project: row.project,
+    action: row.action,
+    catalystRank: row.catalystRank
   })
 }
 /** 改 */
-export function setPriceApi(row: LeaderboardData, ingredientPriceConfigList: IngredientPriceConfig[], productPriceConfigList: ProductPriceConfig[]) {
+export function setPriceApi(row: Calculator, ingredientPriceConfigList: IngredientPriceConfig[], productPriceConfigList: ProductPriceConfig[]) {
   useManualStore().setPrice({
-    id: row.calculator.id,
-    hrid: row.calculator.item.hrid,
-    project: row.calculator.project,
-    action: row.calculator.action,
-    catalystRank: row.calculator.catalystRank,
+    id: row.id,
+    hrid: row.item.hrid,
+    project: row.project,
+    action: row.action,
+    catalystRank: row.catalystRank,
     ingredientPriceConfigList,
     productPriceConfigList
   })
