@@ -105,7 +105,6 @@ function deleteManual(row: Calculator) {
     ElMessage.error(e.message)
   }
 }
-
 const priceVisible = ref<boolean>(false)
 const currentPriceRow = ref<Calculator>()
 const currentIngredientPriceConfigList = ref<IngredientPriceConfig[]>([])
