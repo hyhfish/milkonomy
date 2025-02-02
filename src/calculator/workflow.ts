@@ -20,14 +20,14 @@ export class WorkflowCalculator extends Calculator {
   calculatorList: Calculator[] = []
 
   /**
-   * configs为工作流顺叙排列
+   * configs为工作流顺序排列
    * @param configs StorageManualItem[]
    */
-  constructor(configs: StorageManualItem[]) {
+  constructor(configs: StorageManualItem[], project: string) {
     const last = configs[configs.length - 1]
     super({
       hrid: last.hrid,
-      project: `全流程${last.project}`,
+      project,
       action: last.action
     })
     for (let i = 0; i < configs.length; i++) {

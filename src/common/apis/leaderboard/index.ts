@@ -101,11 +101,13 @@ function calcAllFlowProfit(params: Leaderboard.RequestData) {
       while (actionItem.upgradeItemHrid) {
         configs.unshift(getStorageManualItem(c))
         c = new ManufactureCalculator({ hrid: actionItem.upgradeItemHrid, project, action })
+        if (configs.length > 1) {
+          handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`), params)
+        }
         actionItem = c.actionItem
       }
       configs.unshift(getStorageManualItem(c))
-      const workflow = new WorkflowCalculator(configs)
-      handlePush(profitList, workflow, params)
+      handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`), params)
     }
   })
   return profitList

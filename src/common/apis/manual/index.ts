@@ -1,7 +1,7 @@
 import type Calculator from "@/calculator"
 import type { IngredientPriceConfig, ProductPriceConfig } from "@/calculator"
 import type { RequestData } from "../leaderboard/type"
-import { calculatorConstructable, catalystable, getCalculatorInstance, getStorageManualItem } from "@/calculator/utils"
+import { calculatorConstructable, getCalculatorInstance, getStorageManualItem } from "@/calculator/utils"
 import { useManualStore } from "@/pinia/stores/manual"
 /** 查 */
 export async function getManualDataApi(params: RequestData) {
@@ -26,7 +26,6 @@ function calcProfit() {
   const profitList: Calculator[] = []
   list.filter(item => calculatorConstructable(item.className!)).forEach((item) => {
     const instance = getCalculatorInstance(item)
-    catalystable(item)
     instance.available && profitList.push(instance.run())
   })
   return profitList

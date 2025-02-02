@@ -20,12 +20,6 @@ export function getCalculatorInstance(config: StorageManualItem): Calculator {
   return new constructor(config) as Calculator
 }
 
-export function catalystable(config: StorageManualItem) {
-  const className = config.className!
-  const constructor = CLASS_MAP[className]
-  console.log("constructor.prototype.catalyst", constructor.prototype.catalyst)
-}
-
 export function getStorageManualItem(calculator: Calculator): StorageManualItem {
   return { className: calculator.className, id: calculator.id, hrid: calculator.item.hrid, project: calculator.project, action: calculator.action, catalystRank: calculator.catalystRank }
 }
