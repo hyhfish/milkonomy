@@ -43,7 +43,7 @@ function getPriceConfigList(row: Calculator, type: "product" | "ingredient") {
     return {
       hrid: item.hrid,
       price,
-      manual: priceConfig?.manual || hasManualPrice,
+      manual: priceConfig?.manual || hasManualPrice || false,
       immutable: priceConfig?.immutable
     }
   })
