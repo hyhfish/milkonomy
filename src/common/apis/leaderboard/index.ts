@@ -11,11 +11,11 @@ import { useGameStore } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
-  await new Promise(resolve => setTimeout(resolve, 300))
   let profitList: Calculator[] = []
   if (useGameStore().getLeaderboardCache()) {
     profitList = useGameStore().getLeaderboardCache()
   } else {
+    await new Promise(resolve => setTimeout(resolve, 300))
     try {
       profitList = calcProfit()
       profitList = profitList.concat(calcAllFlowProfit())
