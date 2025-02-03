@@ -24,7 +24,8 @@ export default abstract class Calculator {
   /** 催化剂 1普通 2主要催化剂 */
   catalystRank?: number
   result: any
-  hasManual?: boolean
+  favorite?: boolean
+  hasManualPrice: boolean = false
   constructor({ hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [], catalystRank }: CalculatorConfig) {
     this.hrid = hrid
     this.project = project!
@@ -63,8 +64,11 @@ export default abstract class Calculator {
   handlePrice(list: Ingredient[], priceConfigList: IngredientPriceConfig[], type: "ask" | "bid") {
     return list.map((item, i) => {
       const priceConfig = priceConfigList[i]
-      const hasManualPrice = usePriceStore().getPrice(item.hrid)?.[type]?.manual
+      const hasManualPrice = usePriceStore().getPrice(item.hrid)?.[type]?.manual && usePriceStore().activated
       const manualPrice = usePriceStore().getPrice(item.hrid)?.[type]?.manualPrice
+      if (hasManualPrice) {
+        this.hasManualPrice = true
+      }
       const price = priceConfig?.immutable ? priceConfig.price! : hasManualPrice ? manualPrice! : item.marketPrice
       return {
         ...item,

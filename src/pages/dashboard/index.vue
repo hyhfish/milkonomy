@@ -2,11 +2,11 @@
 import type Calculator from "@/calculator"
 import type { FormInstance, Sort } from "element-plus"
 import { WorkflowCalculator } from "@/calculator/workflow"
+import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
 import { getGameDataApi, getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
-import { addManualApi, deleteManualApi, getManualDataApi } from "@/common/apis/manual"
 import { getPriceDataApi } from "@/common/apis/price"
 import * as Format from "@/common/utils/format"
-import { useManualStore } from "@/pinia/stores/manual"
+import { useFavoriteStore } from "@/pinia/stores/favorite"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 
@@ -18,7 +18,7 @@ import ActionDetail from "./components/ActionDetail.vue"
 import ActionPrice from "./components/ActionPrice.vue"
 import SinglePrice from "./components/SinglePrice.vue"
 // #region 查
-const manualStore = useManualStore()
+const favoriteStore = useFavoriteStore()
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination()
 const leaderboardData = ref<Calculator[]>([])
 const ldSearchFormRef = ref<FormInstance | null>(null)
@@ -29,10 +29,9 @@ const ldSearchData = reactive({
   banEquipment: true
 })
 
-const loading = ref(false)
-
+const loadingLD = ref(false)
 function getLeaderboardData() {
-  loading.value = true
+  loadingLD.value = true
   getLeaderboardDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
@@ -41,12 +40,11 @@ function getLeaderboardData() {
   }).then((data) => {
     paginationDataLD.total = data.total
     leaderboardData.value = data.list
-    console.log("getLeaderboardData", data)
   }).catch((e) => {
     console.error(e)
     leaderboardData.value = []
   }).finally(() => {
-    loading.value = false
+    loadingLD.value = false
   })
 }
 function handleSearchLD() {
@@ -64,46 +62,46 @@ watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
   () => getMarketDataApi(),
-  () => useManualStore().list,
-  () => usePriceStore().list
+  () => useFavoriteStore().list,
+  () => usePriceStore()
 ], getLeaderboardData, { immediate: true, deep: true })
 
-const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeMN, handleSizeChange: handleSizeChangeMN } = usePagination()
-const manualData = ref<Calculator[]>([])
-const mnSearchFormRef = ref<FormInstance | null>(null)
-const mnSearchData = reactive({
+const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeFR, handleSizeChange: handleSizeChangeFR } = usePagination()
+const favoriteData = ref<Calculator[]>([])
+const frSearchFormRef = ref<FormInstance | null>(null)
+const frSearchData = reactive({
   name: "",
   project: ""
 })
 
-function getManualData() {
-  getManualDataApi({
+const loadingFR = ref(false)
+function getFavoriteData() {
+  loadingFR.value = true
+  getFavoriteDataApi({
     currentPage: paginationDataMN.currentPage,
     size: paginationDataMN.pageSize,
-    ...mnSearchData
+    ...frSearchData
   }).then((data) => {
     paginationDataMN.total = data.total
-    manualData.value = data.list
-    console.log("getManualData", data)
+    favoriteData.value = data.list
   }).catch(() => {
-    manualData.value = []
+    favoriteData.value = []
+  }).finally(() => {
+    loadingFR.value = false
   })
 }
 
 function handleSearchMN() {
-  paginationDataMN.currentPage === 1 ? getManualData() : (paginationDataMN.currentPage = 1)
+  paginationDataMN.currentPage === 1 ? getFavoriteData() : (paginationDataMN.currentPage = 1)
 }
 // 监听分页参数的变化
 watch([
   () => paginationDataMN.currentPage,
   () => paginationDataMN.pageSize,
   () => getMarketDataApi(),
-  () => usePriceStore().list
-], getManualData, { immediate: true, deep: true })
-
-watch(() => manualStore, () => {
-  getManualData()
-}, { deep: true })
+  () => usePriceStore(),
+  () => favoriteStore
+], getFavoriteData, { immediate: true, deep: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination()
 const priceData = ref<StoragePriceItem[]>([])
@@ -112,7 +110,9 @@ const priceSearchData = reactive({
   name: ""
 })
 
+const loadingPrice = ref(false)
 function getPriceData() {
+  loadingPrice.value = true
   getPriceDataApi({
     currentPage: paginationDataPrice.currentPage,
     size: paginationDataPrice.pageSize,
@@ -123,6 +123,8 @@ function getPriceData() {
     priceData.value = data.list
   }).catch(() => {
     priceData.value = []
+  }).finally(() => {
+    loadingPrice.value = false
   })
 }
 
@@ -133,7 +135,7 @@ function handleSearchPrice() {
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => usePriceStore().list
+  () => usePriceStore()
 ], getPriceData, { immediate: true, deep: true })
 
 // #endregion
@@ -144,19 +146,19 @@ async function showDetail(row: Calculator) {
   currentRow.value = cloneDeep(row)
   detailVisible.value = true
 }
-function addManual(row: Calculator) {
+function addFavorite(row: Calculator) {
   const r = row || currentRow.value!
   try {
-    addManualApi(r)
+    addFavoriteApi(r)
     detailVisible.value = false
   } catch (e: any) {
     ElMessage.error(e.message)
   }
 }
 
-function deleteManual(row: Calculator) {
+function deleteFavorite(row: Calculator) {
   try {
-    deleteManualApi(row)
+    deleteFavoriteApi(row)
   } catch (e: any) {
     ElMessage.error(e.message)
   }
@@ -190,7 +192,7 @@ function deletePrice(row: StoragePriceItem) {
       </div>
     </div>
     <el-row :gutter="20" class="row">
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
@@ -227,7 +229,7 @@ function deletePrice(row: StoragePriceItem) {
             </div>
           </template>
           <template #default>
-            <el-table :data="leaderboardData" v-loading="loading" @sort-change="handleSortLD">
+            <el-table :data="leaderboardData" v-loading="loadingLD" @sort-change="handleSortLD">
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
@@ -241,10 +243,12 @@ function deletePrice(row: StoragePriceItem) {
               </el-table-column>
               <el-table-column prop="project" label="项目" />
               <el-table-column prop="actionLevel" label="等级" align="center" />
-              <el-table-column prop="result.profitPD" label="利润 / 天" align="center">
+              <el-table-column label="利润 / 天" align="center" min-width="120">
                 <template #default="{ row }">
-                  {{ row.result.profitPDFormat }}&nbsp;
-                  <el-link type="primary" :icon="Edit" @click="setPrice(row)">
+                  <span :class="row.hasManualPrice ? 'manual' : ''">
+                    {{ row.result.profitPDFormat }}&nbsp;
+                  </span>
+                  <el-link v-if="usePriceStore().activated" type="primary" :icon="Edit" @click="setPrice(row)">
                     自定义
                   </el-link>
                 </template>
@@ -262,11 +266,11 @@ function deletePrice(row: StoragePriceItem) {
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="hasManual" label="收藏" align="center" sortable="custom" :sort-orders="['descending', null]">
+              <el-table-column prop="favorite" label="收藏" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   <template v-if="!(row instanceof WorkflowCalculator)">
-                    <el-link v-if="!manualStore.hasManual(row)" :underline="false" type="warning" :icon="Star" @click="addManual(row)" style="font-size:24px" />
-                    <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="deleteManual(row)" style="font-size:28px" />
+                    <el-link v-if="!favoriteStore.hasFavorite(row)" :underline="false" type="warning" :icon="Star" @click="addFavorite(row)" style="font-size:24px" />
+                    <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="deleteFavorite(row)" style="font-size:28px" />
                   </template>
                   <template v-else />
                 </template>
@@ -290,42 +294,47 @@ function deletePrice(row: StoragePriceItem) {
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="10">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="priceSearchFormRef" :inline="true" :model="priceSearchData">
               <div class="title">
                 自定义价格
               </div>
+
+              <el-form-item>
+                <el-switch v-model="usePriceStore().activated" @change="usePriceStore().setActivated" active-text="已开启" inactive-text="已关闭" inline-prompt />
+              </el-form-item>
+
               <el-form-item prop="name" label="物品">
                 <el-input style="width:100px" v-model="priceSearchData.name" placeholder="请输入" clearable @input="handleSearchPrice" />
               </el-form-item>
             </el-form>
           </template>
           <template #default>
-            <el-table :data="priceData">
+            <el-table :data="priceData" v-loading="loadingPrice">
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column label="物品">
+              <el-table-column label="物品" min-width="120">
                 <template #default="{ row }">
                   {{ getItemDetailOf(row.hrid).name }}
                 </template>
               </el-table-column>
 
-              <el-table-column label="市场价格">
+              <el-table-column label="市场价格" min-width="120">
                 <template #default="{ row }">
                   {{ Format.price(getPriceOf(row.hrid).ask) }} / {{ Format.price(getPriceOf(row.hrid).bid) }}
                 </template>
               </el-table-column>
-              <el-table-column label="自定义价格">
+              <el-table-column label="自定义价格" min-width="120">
                 <template #default="{ row }">
                   {{ row.ask?.manual ? Format.price(row.ask?.manualPrice) : '-' }} / {{ row.bid?.manual ? Format.price(row.bid?.manualPrice) : '-' }}
                 </template>
               </el-table-column>
-              <el-table-column>
+              <el-table-column min-width="80">
                 <template #default="{ row }">
                   <SinglePrice :data="row">
                     <el-link type="primary" :icon="Edit">
@@ -334,7 +343,7 @@ function deletePrice(row: StoragePriceItem) {
                   </SinglePrice>
                 </template>
               </el-table-column>
-              <el-table-column>
+              <el-table-column min-width="80">
                 <template #default="{ row }">
                   <el-link type="danger" :icon=" Delete" @click="deletePrice(row)">
                     删除
@@ -359,18 +368,18 @@ function deletePrice(row: StoragePriceItem) {
           </template>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
         <el-card>
           <template #header>
-            <el-form class="rank-card" ref="mnSearchFormRef" :inline="true" :model="mnSearchData">
+            <el-form class="rank-card" ref="frSearchFormRef" :inline="true" :model="frSearchData">
               <div class="title">
                 收藏夹
               </div>
               <el-form-item prop="name" label="物品">
-                <el-input style="width:100px" v-model="mnSearchData.name" placeholder="请输入" clearable @input="handleSearchMN" />
+                <el-input style="width:100px" v-model="frSearchData.name" placeholder="请输入" clearable @input="handleSearchMN" />
               </el-form-item>
               <el-form-item prop="phone" label="项目">
-                <el-select v-model="mnSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchMN">
+                <el-select v-model="frSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchMN">
                   <el-option label="锻造" value="锻造" />
                   <el-option label="制造" value="制造" />
                   <el-option label="裁缝" value="裁缝" />
@@ -386,7 +395,7 @@ function deletePrice(row: StoragePriceItem) {
             </div>
           </template>
           <template #default>
-            <el-table :data="manualData">
+            <el-table :data="favoriteData" v-loading="loadingFR">
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
@@ -399,10 +408,12 @@ function deletePrice(row: StoragePriceItem) {
                 </template>
               </el-table-column>
               <el-table-column prop="project" label="项目" />
-              <el-table-column prop="result.profitPDFormat" label="利润 / 天">
+              <el-table-column label="利润 / 天">
                 <template #default="{ row }">
-                  {{ row.result.profitPDFormat }}&nbsp;
-                  <el-link type="primary" :icon="Edit" @click="setPrice(row)">
+                  <span :class="row.hasManualPrice ? 'manual' : ''">
+                    {{ row.result.profitPDFormat }}&nbsp;
+                  </span>
+                  <el-link v-if="usePriceStore().activated" type="primary" :icon="Edit" @click="setPrice(row)">
                     自定义
                   </el-link>
                 </template>
@@ -417,7 +428,7 @@ function deletePrice(row: StoragePriceItem) {
               </el-table-column>
               <el-table-column label="操作">
                 <template #default="{ row }">
-                  <el-link type="danger" :icon=" Delete" @click="deleteManual(row)">
+                  <el-link type="danger" :icon=" Delete" @click="deleteFavorite(row)">
                     删除
                   </el-link>
                 </template>
@@ -433,8 +444,8 @@ function deletePrice(row: StoragePriceItem) {
                 :total="paginationDataMN.total"
                 :page-size="paginationDataMN.pageSize"
                 :current-page="paginationDataMN.currentPage"
-                @size-change="handleSizeChangeMN"
-                @current-change="handleCurrentChangeMN"
+                @size-change="handleSizeChangeFR"
+                @current-change="handleCurrentChangeFR"
               />
             </div>
           </template>
@@ -480,5 +491,9 @@ function deletePrice(row: StoragePriceItem) {
   .el-col {
     margin-bottom: 20px;
   }
+}
+// 蓝色
+.manual {
+  color: #409eff;
 }
 </style>

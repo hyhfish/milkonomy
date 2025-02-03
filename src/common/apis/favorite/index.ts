@@ -1,10 +1,10 @@
 import type Calculator from "@/calculator"
 import type { RequestData } from "../leaderboard/type"
-import { calculatorConstructable, getCalculatorInstance, getStorageManualItem } from "@/calculator/utils"
-import { useManualStore } from "@/pinia/stores/manual"
+import { calculatorConstructable, getCalculatorInstance, getStorageCalculatorItem } from "@/calculator/utils"
+import { useFavoriteStore } from "@/pinia/stores/favorite"
 /** 查 */
-export async function getManualDataApi(params: RequestData) {
-  await new Promise(resolve => setTimeout(resolve, 0))
+export async function getFavoriteDataApi(params: RequestData) {
+  await new Promise(resolve => setTimeout(resolve, 300))
   let profitList: Calculator[] = []
   try {
     profitList = calcProfit()
@@ -22,7 +22,7 @@ export async function getManualDataApi(params: RequestData) {
 
 function calcProfit() {
   // 所有物品列表
-  const list = useManualStore().list
+  const list = useFavoriteStore().list
   const profitList: Calculator[] = []
   list.filter(item => calculatorConstructable(item.className!)).forEach((item) => {
     const instance = getCalculatorInstance(item)
@@ -32,13 +32,13 @@ function calcProfit() {
 }
 
 /** 增 */
-export function addManualApi(row: Calculator) {
-  const storageItem = getStorageManualItem(row)
-  useManualStore().addManual(storageItem)
+export function addFavoriteApi(row: Calculator) {
+  const storageItem = getStorageCalculatorItem(row)
+  useFavoriteStore().addFavorite(storageItem)
 }
 /** 删 */
-export function deleteManualApi(row: Calculator) {
-  useManualStore().deleteManual({
+export function deleteFavoriteApi(row: Calculator) {
+  useFavoriteStore().deleteFavorite({
     id: row.id,
     hrid: row.item.hrid,
     project: row.project,

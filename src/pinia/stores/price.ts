@@ -3,7 +3,8 @@ import { useGameStore } from "./game"
 
 export const usePriceStore = defineStore("price", {
   state: () => ({
-    list: load()
+    list: load(),
+    activated: getActivated()
   }),
   actions: {
     commit() {
@@ -36,6 +37,11 @@ export const usePriceStore = defineStore("price", {
     },
     hasPrice(hrid: string): boolean {
       return !!this.getPrice(hrid)
+    },
+    setActivated(value: boolean) {
+      this.activated = value
+      setActivated(String(value))
+      useGameStore().clearLeaderBoardCache()
     }
   }
 })
@@ -59,4 +65,12 @@ function load(): StoragePriceItem[] {
 
 function save(list: StoragePriceItem[]) {
   localStorage.setItem(KEY, JSON.stringify(list))
+}
+
+const ACTIVATED_KEY = "price-activated"
+function getActivated() {
+  return localStorage.getItem(ACTIVATED_KEY) === "true"
+}
+function setActivated(value: string) {
+  localStorage.setItem(ACTIVATED_KEY, value)
 }

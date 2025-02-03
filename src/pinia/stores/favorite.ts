@@ -3,7 +3,7 @@ import type { Action } from "~/game"
 import { find } from "lodash-es"
 import { defineStore } from "pinia"
 
-export const useManualStore = defineStore("manual", {
+export const useFavoriteStore = defineStore("favorite", {
   state: () => ({
     list: loadList()
   }),
@@ -11,44 +11,36 @@ export const useManualStore = defineStore("manual", {
     setList() {
       saveList(this.list)
     },
-    setPrice(row: StorageManualItem) {
-      const findManual = this.findManual(row)
-      if (!findManual) {
-        throw new Error("未找到该记录")
-      }
-      Object.assign(findManual, row)
-      this.setList()
-    },
-    addManual(row: StorageManualItem) {
+    addFavorite(row: StorageCalculatorItem) {
       // 不允许重复添加
-      if (this.hasManual(row)) {
+      if (this.hasFavorite(row)) {
         throw new Error("请勿重复添加")
       }
       this.list.push(row)
       this.setList()
     },
-    deleteManual(row: StorageManualItem) {
-      const findManual = this.findManual(row)
-      if (!findManual) {
+    deleteFavorite(row: StorageCalculatorItem) {
+      const find = this.findFavorite(row)
+      if (!find) {
         throw new Error("未找到该记录")
       }
-      this.list.splice(this.list.indexOf(findManual), 1)
+      this.list.splice(this.list.indexOf(find), 1)
       this.setList()
     },
-    hasManual(row: StorageManualItem) {
-      return this.findManual(row) !== undefined
+    hasFavorite(row: StorageCalculatorItem) {
+      return this.findFavorite(row) !== undefined
     },
-    findManual(row: StorageManualItem) {
+    findFavorite(row: StorageCalculatorItem) {
       return find(this.list, item => item.id === row.id && item.catalystRank === row.catalystRank)
     }
   }
 })
 const LIST_KEY = "manual-list"
-export interface StorageManualItem extends AlchemyCalculatorConfig {
+export interface StorageCalculatorItem extends AlchemyCalculatorConfig {
   id: `${string}-${string}-${Action}`
   className?: string
 }
-function loadList(): StorageManualItem[] {
+function loadList(): StorageCalculatorItem[] {
   try {
     return JSON.parse(localStorage.getItem(LIST_KEY) || "[]")
   } catch {
@@ -56,6 +48,6 @@ function loadList(): StorageManualItem[] {
   }
 }
 
-function saveList(list: StorageManualItem[]) {
+function saveList(list: StorageCalculatorItem[]) {
   localStorage.setItem(LIST_KEY, JSON.stringify(list))
 }

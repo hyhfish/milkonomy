@@ -4,14 +4,14 @@ import type * as Leaderboard from "./type"
 import type { Action } from "~/game"
 import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
 import { ManufactureCalculator } from "@/calculator/manufacture"
-import { getStorageManualItem } from "@/calculator/utils"
+import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
+import { type StorageCalculatorItem, useFavoriteStore } from "@/pinia/stores/favorite"
 import { useGameStore } from "@/pinia/stores/game"
-import { type StorageManualItem, useManualStore } from "@/pinia/stores/manual"
 import { getGameDataApi } from "../game"
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
-  await new Promise(resolve => setTimeout(resolve, 0))
+  await new Promise(resolve => setTimeout(resolve, 300))
   let profitList: Calculator[] = []
   if (useGameStore().getLeaderboardCache()) {
     profitList = useGameStore().getLeaderboardCache()
@@ -29,7 +29,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   params.banEquipment && (profitList = profitList.filter(cal => !cal.isEquipment))
   params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
 
-  profitList.forEach(item => item.hasManual = useManualStore().hasManual(item))
+  profitList.forEach(item => item.favorite = useFavoriteStore().hasFavorite(item))
   // 首先进行一次利润排序
   profitList.sort((a, b) => b.result.profitPH - a.result.profitPH)
 
@@ -48,8 +48,6 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
       return order === "descending" ? getValue(b) - getValue(a) : getValue(a) - getValue(b)
     })
   }
-  // profitList.sort((a, b) => useManualStore().hasManual(b) as unknown as number - (useManualStore().hasManual(a) as unknown as number))
-
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
@@ -124,21 +122,21 @@ function calcAllFlowProfit() {
       ["冲泡", "brewing"]
     ]
     for (const [project, action] of projects) {
-      const configs: StorageManualItem[] = []
+      const configs: StorageCalculatorItem[] = []
       let c = new ManufactureCalculator({ hrid: item.hrid, project, action })
       let actionItem = c.actionItem
       if (!actionItem?.upgradeItemHrid || actionItem.upgradeItemHrid === "/items/philosophers_stone") {
         continue
       }
       while (actionItem.upgradeItemHrid) {
-        configs.unshift(getStorageManualItem(c))
+        configs.unshift(getStorageCalculatorItem(c))
         c = new ManufactureCalculator({ hrid: actionItem.upgradeItemHrid, project, action })
         if (configs.length > 1) {
           handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`))
         }
         actionItem = c.actionItem
       }
-      configs.unshift(getStorageManualItem(c))
+      configs.unshift(getStorageCalculatorItem(c))
       handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`))
     }
   })

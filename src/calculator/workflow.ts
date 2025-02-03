@@ -1,4 +1,4 @@
-import type { StorageManualItem } from "@/pinia/stores/manual"
+import type { StorageCalculatorItem } from "@/pinia/stores/favorite"
 import type { Ingredient, IngredientWithPrice, Product, ProductWithPrice } from "."
 import * as Format from "@@/utils/format"
 import Calculator from "."
@@ -21,9 +21,8 @@ export class WorkflowCalculator extends Calculator {
 
   /**
    * configs为工作流顺序排列
-   * @param configs StorageManualItem[]
    */
-  constructor(configs: StorageManualItem[], project: string) {
+  constructor(configs: StorageCalculatorItem[], project: string) {
     const last = configs[configs.length - 1]
     super({
       hrid: last.hrid,
@@ -40,6 +39,9 @@ export class WorkflowCalculator extends Calculator {
       }
       const cal = getCalculatorInstance(config)
       cal.run()
+      if (cal.hasManualPrice) {
+        this.hasManualPrice = true
+      }
       this.calculatorList.push(cal)
     }
   }

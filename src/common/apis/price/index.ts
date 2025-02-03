@@ -6,7 +6,7 @@ import { usePriceStore } from "@/pinia/stores/price"
 import { getItemDetailOf } from "../game"
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
-  await new Promise(resolve => setTimeout(resolve, 0))
+  await new Promise(resolve => setTimeout(resolve, 300))
   let list: StoragePriceItem[] = usePriceStore().list
   params.name && (list = list.filter(item => getItemDetailOf(item.hrid).name.toLocaleLowerCase().includes(params.name!.toLowerCase())))
   return { list: list.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: list.length }
@@ -27,12 +27,12 @@ function setPrice(row: Calculator, priceConfigList: IngredientPriceConfig[], typ
   for (let i = 0; i < priceConfigList.length; i++) {
     const hrid = row[`${type}ListWithPrice`][i].hrid
     const hasPrice = usePriceStore().hasPrice(hrid)
-    const hasManual = !!priceConfigList[i].manual
-    if (hasManual || hasPrice) {
+    const hasManualPrice = !!priceConfigList[i].manual
+    if (hasManualPrice || hasPrice) {
       usePriceStore().setPrice({
         hrid,
         [type === "ingredient" ? "ask" : "bid"]: {
-          manual: hasManual,
+          manual: hasManualPrice,
           manualPrice: priceConfigList[i].price!
         }
       })
