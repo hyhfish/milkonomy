@@ -1,18 +1,22 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
-import type { IngredientPriceConfig } from "@/calculator"
-import type { FormInstance } from "element-plus"
-import { ManufactureCalculator } from "@/calculator/manufacture"
-import { getGameDataApi, getItemDetailOf, getMarketDataApi } from "@/common/apis/game"
-import { addManualApi, deleteManualApi, getManualDataApi, setPriceApi } from "@/common/apis/manual"
+import type { FormInstance, Sort } from "element-plus"
+import { WorkflowCalculator } from "@/calculator/workflow"
+import { getGameDataApi, getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
+import { addManualApi, deleteManualApi, getManualDataApi } from "@/common/apis/manual"
+import { getPriceDataApi } from "@/common/apis/price"
 import * as Format from "@/common/utils/format"
 import { useManualStore } from "@/pinia/stores/manual"
+import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
+
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
-import { Delete, Edit, Plus, Search } from "@element-plus/icons-vue"
-
+import { Delete, Edit, Search, Star, StarFilled } from "@element-plus/icons-vue"
+import { cloneDeep } from "lodash-es"
 import ActionDetail from "./components/ActionDetail.vue"
+import ActionPrice from "./components/ActionPrice.vue"
+import SinglePrice from "./components/SinglePrice.vue"
 // #region 查
 const manualStore = useManualStore()
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination()
@@ -32,12 +36,14 @@ function getLeaderboardData() {
   getLeaderboardDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
-    ...ldSearchData
+    ...ldSearchData,
+    sort: sortLD.value
   }).then((data) => {
     paginationDataLD.total = data.total
     leaderboardData.value = data.list
     console.log("getLeaderboardData", data)
-  }).catch(() => {
+  }).catch((e) => {
+    console.error(e)
     leaderboardData.value = []
   }).finally(() => {
     loading.value = false
@@ -47,8 +53,20 @@ function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
 }
 
+const sortLD: Ref<Sort | undefined> = ref()
+function handleSortLD(sort: Sort) {
+  sortLD.value = sort
+  getLeaderboardData()
+}
+
 // 监听分页参数的变化
-watch([() => paginationDataLD.currentPage, () => paginationDataLD.pageSize, () => getGameDataApi()], getLeaderboardData, { immediate: true })
+watch([
+  () => paginationDataLD.currentPage,
+  () => paginationDataLD.pageSize,
+  () => getMarketDataApi(),
+  () => useManualStore().list,
+  () => usePriceStore().list
+], getLeaderboardData, { immediate: true, deep: true })
 
 const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeMN, handleSizeChange: handleSizeChangeMN } = usePagination()
 const manualData = ref<Calculator[]>([])
@@ -76,18 +94,55 @@ function handleSearchMN() {
   paginationDataMN.currentPage === 1 ? getManualData() : (paginationDataMN.currentPage = 1)
 }
 // 监听分页参数的变化
-watch([() => paginationDataMN.currentPage, () => paginationDataMN.pageSize, () => getGameDataApi()], getManualData, { immediate: true })
+watch([
+  () => paginationDataMN.currentPage,
+  () => paginationDataMN.pageSize,
+  () => getMarketDataApi(),
+  () => usePriceStore().list
+], getManualData, { immediate: true, deep: true })
 
 watch(() => manualStore, () => {
   getManualData()
 }, { deep: true })
+
+const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination()
+const priceData = ref<StoragePriceItem[]>([])
+const priceSearchFormRef = ref<FormInstance | null>(null)
+const priceSearchData = reactive({
+  name: ""
+})
+
+function getPriceData() {
+  getPriceDataApi({
+    currentPage: paginationDataPrice.currentPage,
+    size: paginationDataPrice.pageSize,
+    ...priceSearchData
+  }).then((data) => {
+    console.log("getPriceData", data)
+    paginationDataPrice.total = data.total
+    priceData.value = data.list
+  }).catch(() => {
+    priceData.value = []
+  })
+}
+
+function handleSearchPrice() {
+  paginationDataPrice.currentPage === 1 ? getPriceData() : (paginationDataPrice.currentPage = 1)
+}
+// 监听分页参数的变化
+watch([
+  () => paginationDataPrice.currentPage,
+  () => paginationDataPrice.pageSize,
+  () => usePriceStore().list
+], getPriceData, { immediate: true, deep: true })
+
 // #endregion
 
 const currentRow = ref<Calculator>()
 const detailVisible = ref<boolean>(false)
 async function showDetail(row: Calculator) {
+  currentRow.value = cloneDeep(row)
   detailVisible.value = true
-  currentRow.value = row
 }
 function addManual(row: Calculator) {
   const r = row || currentRow.value!
@@ -108,25 +163,13 @@ function deleteManual(row: Calculator) {
 }
 const priceVisible = ref<boolean>(false)
 const currentPriceRow = ref<Calculator>()
-const currentIngredientPriceConfigList = ref<IngredientPriceConfig[]>([])
-const currentProductPriceConfigList = ref<IngredientPriceConfig[]>([])
 function setPrice(row: Calculator) {
-  currentPriceRow.value = row
-  currentIngredientPriceConfigList.value = row.ingredientListWithPrice.map((_, i) => ({
-    manualPrice: row.ingredientPriceConfigList[i]?.manualPrice,
-    manual: row.ingredientPriceConfigList[i]?.manual
-  }))
-  currentProductPriceConfigList.value = row.productListWithPrice.map((_, i) => ({
-    manualPrice: row.productPriceConfigList[i]?.manualPrice,
-    manual: row.productPriceConfigList[i]?.manual
-  }))
+  currentPriceRow.value = cloneDeep(row)
   priceVisible.value = true
 }
-
-function handleSetPrice() {
+function deletePrice(row: StoragePriceItem) {
   try {
-    setPriceApi(currentPriceRow.value!, currentIngredientPriceConfigList.value, currentProductPriceConfigList.value)
-    priceVisible.value = false
+    usePriceStore().deletePrice(row)
   } catch (e: any) {
     ElMessage.error(e.message)
   }
@@ -146,7 +189,7 @@ function handleSetPrice() {
         市场数据更新时间:{{ new Date(getMarketDataApi()?.time * 1000).toLocaleString() }}
       </div>
     </div>
-    <el-row :gutter="20">
+    <el-row :gutter="20" class="row">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
         <el-card>
           <template #header>
@@ -184,7 +227,7 @@ function handleSetPrice() {
             </div>
           </template>
           <template #default>
-            <el-table :data="leaderboardData" v-loading="loading">
+            <el-table :data="leaderboardData" v-loading="loading" @sort-change="handleSortLD">
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
@@ -197,21 +240,35 @@ function handleSetPrice() {
                 </template>
               </el-table-column>
               <el-table-column prop="project" label="项目" />
-              <el-table-column prop="actionLevel" label="等级" />
-              <el-table-column prop="result.profitPDFormat" label="利润 / 天" />
-              <el-table-column prop="result.profitRateFormat" label="利润率" />
-              <el-table-column label="详情">
+              <el-table-column prop="actionLevel" label="等级" align="center" />
+              <el-table-column prop="result.profitPD" label="利润 / 天" align="center">
+                <template #default="{ row }">
+                  {{ row.result.profitPDFormat }}&nbsp;
+                  <el-link type="primary" :icon="Edit" @click="setPrice(row)">
+                    自定义
+                  </el-link>
+                </template>
+              </el-table-column>
+              <el-table-column prop="result.profitRate" label="利润率" align="center" sortable="custom" :sort-orders="['descending', null]">
+                <template #default="{ row }">
+                  {{ row.result.profitRateFormat }}
+                </template>
+              </el-table-column>
+
+              <el-table-column label="详情" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
                     查看
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column label="操作">
+              <el-table-column prop="hasManual" label="收藏" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
-                  <el-link v-if="!manualStore.hasManual(row)" type="success" :icon="Plus" @click="addManual(row)">
-                    自选
-                  </el-link>
+                  <template v-if="!(row instanceof WorkflowCalculator)">
+                    <el-link v-if="!manualStore.hasManual(row)" :underline="false" type="warning" :icon="Star" @click="addManual(row)" style="font-size:24px" />
+                    <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="deleteManual(row)" style="font-size:28px" />
+                  </template>
+                  <template v-else />
                 </template>
               </el-table-column>
             </el-table>
@@ -232,12 +289,82 @@ function handleSetPrice() {
           </template>
         </el-card>
       </el-col>
+
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+        <el-card>
+          <template #header>
+            <el-form class="rank-card" ref="priceSearchFormRef" :inline="true" :model="priceSearchData">
+              <div class="title">
+                自定义价格
+              </div>
+              <el-form-item prop="name" label="物品">
+                <el-input style="width:100px" v-model="priceSearchData.name" placeholder="请输入" clearable @input="handleSearchPrice" />
+              </el-form-item>
+            </el-form>
+          </template>
+          <template #default>
+            <el-table :data="priceData">
+              <el-table-column width="54">
+                <template #default="{ row }">
+                  <ItemIcon :hrid="row.hrid" />
+                </template>
+              </el-table-column>
+              <el-table-column label="物品">
+                <template #default="{ row }">
+                  {{ getItemDetailOf(row.hrid).name }}
+                </template>
+              </el-table-column>
+
+              <el-table-column label="市场价格">
+                <template #default="{ row }">
+                  {{ Format.price(getPriceOf(row.hrid).ask) }} / {{ Format.price(getPriceOf(row.hrid).bid) }}
+                </template>
+              </el-table-column>
+              <el-table-column label="自定义价格">
+                <template #default="{ row }">
+                  {{ row.ask?.manual ? Format.price(row.ask?.manualPrice) : '-' }} / {{ row.bid?.manual ? Format.price(row.bid?.manualPrice) : '-' }}
+                </template>
+              </el-table-column>
+              <el-table-column>
+                <template #default="{ row }">
+                  <SinglePrice :data="row">
+                    <el-link type="primary" :icon="Edit">
+                      修改
+                    </el-link>
+                  </SinglePrice>
+                </template>
+              </el-table-column>
+              <el-table-column>
+                <template #default="{ row }">
+                  <el-link type="danger" :icon=" Delete" @click="deletePrice(row)">
+                    删除
+                  </el-link>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+          <template #footer>
+            <div class="pager-wrapper">
+              <el-pagination
+                background
+                :layout="paginationDataPrice.layout"
+                :page-sizes="paginationDataPrice.pageSizes"
+                :total="paginationDataPrice.total"
+                :page-size="paginationDataPrice.pageSize"
+                :current-page="paginationDataPrice.currentPage"
+                @size-change="handleSizeChangePrice"
+                @current-change="handleCurrentChangePrice"
+              />
+            </div>
+          </template>
+        </el-card>
+      </el-col>
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="mnSearchFormRef" :inline="true" :model="mnSearchData">
               <div class="title">
-                自选利润排行
+                收藏夹
               </div>
               <el-form-item prop="name" label="物品">
                 <el-input style="width:100px" v-model="mnSearchData.name" placeholder="请输入" clearable @input="handleSearchMN" />
@@ -315,72 +442,8 @@ function handleSetPrice() {
       </el-col>
     </el-row>
     <ActionDetail v-model="detailVisible" :data="currentRow" />
-    <el-dialog v-model="priceVisible" :show-close="false" width="80%">
-      <el-row :gutter="20">
-        <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
-          <el-card>
-            <el-table :data="currentPriceRow?.ingredientListWithPrice">
-              <el-table-column label="物品" width="54">
-                <template #default="{ row }">
-                  <ItemIcon :hrid="row.hrid" />
-                </template>
-              </el-table-column>
-              <el-table-column label="物品">
-                <template #default="{ row }">
-                  {{ getItemDetailOf(row.hrid).name }}
-                </template>
-              </el-table-column>
-              <el-table-column prop="price" label="市场价格">
-                <template #default="{ row }">
-                  {{ Format.money(row.marketPrice) }}
-                </template>
-              </el-table-column>
 
-              <el-table-column label="自定义价格">
-                <template #default="{ row, $index }">
-                  <el-checkbox style="margin-right: 10px;" v-if="row.hrid !== ManufactureCalculator.COIN_HRID" v-model="currentIngredientPriceConfigList[$index].manual" />
-                  <el-input-number v-if="currentIngredientPriceConfigList[$index].manual" v-model="currentIngredientPriceConfigList[$index].manualPrice" :controls="false" />
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-card>
-        </el-col>
-        <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
-          <el-card>
-            <el-table :data="currentPriceRow?.productListWithPrice">
-              <el-table-column prop="name" label="物品" width="54">
-                <template #default="{ row }">
-                  <ItemIcon :hrid="row.hrid" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="name" label="物品">
-                <template #default="{ row }">
-                  {{ getItemDetailOf(row.hrid).name }}
-                </template>
-              </el-table-column>
-              <el-table-column prop="price" label="市场价格">
-                <template #default="{ row }">
-                  {{ Format.money(row.marketPrice) }}
-                </template>
-              </el-table-column>
-              <el-table-column label="自定义价格">
-                <template #default="{ row, $index }">
-                  <el-checkbox style="margin-right: 10px;" v-if="row.hrid !== ManufactureCalculator.COIN_HRID" v-model="currentProductPriceConfigList[$index].manual" />
-                  <el-input-number v-if="currentProductPriceConfigList[$index].manual" v-model="currentProductPriceConfigList[$index].manualPrice" :controls="false" />
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-card>
-        </el-col>
-      </el-row>
-      <template #footer>
-        <div style="text-align: center;">
-          <el-button type="primary" @click="handleSetPrice">
-            保存
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <ActionPrice v-model="priceVisible" :data="currentPriceRow" />
   </div>
 </template>
 
@@ -411,5 +474,11 @@ function handleSetPrice() {
 .pager-wrapper {
   display: flex;
   justify-content: center;
+}
+
+.row {
+  .el-col {
+    margin-bottom: 20px;
+  }
 }
 </style>

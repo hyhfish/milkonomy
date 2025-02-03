@@ -1,10 +1,10 @@
 import type Calculator from "@/calculator"
-import type { IngredientPriceConfig, ProductPriceConfig } from "@/calculator"
 import type { RequestData } from "../leaderboard/type"
 import { calculatorConstructable, getCalculatorInstance, getStorageManualItem } from "@/calculator/utils"
 import { useManualStore } from "@/pinia/stores/manual"
 /** 查 */
 export async function getManualDataApi(params: RequestData) {
+  await new Promise(resolve => setTimeout(resolve, 0))
   let profitList: Calculator[] = []
   try {
     profitList = calcProfit()
@@ -44,17 +44,5 @@ export function deleteManualApi(row: Calculator) {
     project: row.project,
     action: row.action,
     catalystRank: row.catalystRank
-  })
-}
-/** 改 */
-export function setPriceApi(row: Calculator, ingredientPriceConfigList: IngredientPriceConfig[], productPriceConfigList: ProductPriceConfig[]) {
-  useManualStore().setPrice({
-    id: row.id,
-    hrid: row.item.hrid,
-    project: row.project,
-    action: row.action,
-    catalystRank: row.catalystRank,
-    ingredientPriceConfigList,
-    productPriceConfigList
   })
 }

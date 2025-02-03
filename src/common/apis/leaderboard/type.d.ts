@@ -1,4 +1,5 @@
 import type Calculator from "@/calculator"
+import type { Sort } from "element-plus"
 
 export interface RequestData {
   /** 当前页码 */
@@ -14,6 +15,7 @@ export interface RequestData {
   /** 查询参数：排除装备 */
   banEquipment?: boolean
   degenerator?: boolean
+  sort?: Sort
 }
 
 export type ResponseData = ApiResponseData<{

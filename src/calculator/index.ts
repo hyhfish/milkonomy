@@ -1,5 +1,6 @@
 import type { Action } from "~/game"
 import { getItemDetailOf } from "@/common/apis/game"
+import { usePriceStore } from "@/pinia/stores/price"
 import * as Format from "@@/utils/format"
 
 export interface CalculatorConfig {
@@ -16,11 +17,14 @@ export default abstract class Calculator {
   hrid: string
   project: string
   action: Action
+  /** 此价格配置优先级大于自定义价格 */
   ingredientPriceConfigList: IngredientPriceConfig[]
+  /** 此价格配置优先级大于自定义价格 */
   productPriceConfigList: ProductPriceConfig[]
   /** 催化剂 1普通 2主要催化剂 */
   catalystRank?: number
   result: any
+  hasManual?: boolean
   constructor({ hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [], catalystRank }: CalculatorConfig) {
     this.hrid = hrid
     this.project = project!
@@ -56,10 +60,12 @@ export default abstract class Calculator {
     return this.item.categoryHrid === "/item_categories/equipment"
   }
 
-  handlePrice(list: Ingredient[], priceConfigList: IngredientPriceConfig[]) {
+  handlePrice(list: Ingredient[], priceConfigList: IngredientPriceConfig[], type: "ask" | "bid") {
     return list.map((item, i) => {
-      const priceConfig = priceConfigList[i] || {}
-      const price = priceConfig.manual ? priceConfig.manualPrice! : item.marketPrice
+      const priceConfig = priceConfigList[i]
+      const hasManualPrice = usePriceStore().getPrice(item.hrid)?.[type]?.manual
+      const manualPrice = usePriceStore().getPrice(item.hrid)?.[type]?.manualPrice
+      const price = priceConfig?.immutable ? priceConfig.price! : hasManualPrice ? manualPrice! : item.marketPrice
       return {
         ...item,
         price
@@ -75,7 +81,7 @@ export default abstract class Calculator {
         countPH: item.count * this.consumePH
       }
     })
-    return this.handlePrice(list, this.ingredientPriceConfigList)
+    return this.handlePrice(list, this.ingredientPriceConfigList, "ask")
   }
 
   get productListWithPrice(): ProductWithPrice[] {
@@ -86,7 +92,7 @@ export default abstract class Calculator {
         countPH: item.count * this.gainPH * (item.rate || 1)
       }
     })
-    return this.handlePrice(list, this.productPriceConfigList)
+    return this.handlePrice(list, this.productPriceConfigList, "bid")
   }
 
   /**
@@ -140,10 +146,10 @@ export default abstract class Calculator {
       incomePH,
       profitPH,
       profitRate,
-      costPHFormat: Format.number(costPH),
-      incomePHFormat: Format.number(incomePH),
-      profitPHFormat: Format.number(profitPH),
-      profitPDFormat: Format.number(profitPH * 24),
+      costPHFormat: Format.money(costPH),
+      incomePHFormat: Format.money(incomePH),
+      profitPHFormat: Format.money(profitPH),
+      profitPDFormat: Format.money(profitPH * 24),
       profitRateFormat: Format.percent(profitRate),
       efficiencyFormat: Format.percent(this.efficiency - 1),
       timeCostFormat: Format.costTime(this.timeCost),
@@ -231,7 +237,9 @@ export interface ProductWithPrice extends Product, IngredientWithPrice {
 }
 
 export interface IngredientPriceConfig {
-  manual: boolean
-  manualPrice?: number
+  hrid: string
+  manual?: boolean
+  immutable?: boolean
+  price?: number
 }
 export interface ProductPriceConfig extends IngredientPriceConfig {}

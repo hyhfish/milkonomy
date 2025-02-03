@@ -1,6 +1,5 @@
 import type { AlchemyCalculatorConfig } from "@/calculator/alchemy"
 import type { Action } from "~/game"
-import { WorkflowCalculator } from "@/calculator/workflow"
 import { find } from "lodash-es"
 import { defineStore } from "pinia"
 
@@ -34,12 +33,9 @@ export const useManualStore = defineStore("manual", {
         throw new Error("未找到该记录")
       }
       this.list.splice(this.list.indexOf(findManual), 1)
+      this.setList()
     },
     hasManual(row: StorageManualItem) {
-      // 自选暂时屏蔽工作流
-      if (row instanceof WorkflowCalculator) {
-        return true
-      }
       return this.findManual(row) !== undefined
     },
     findManual(row: StorageManualItem) {

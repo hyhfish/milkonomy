@@ -33,10 +33,10 @@ export class WorkflowCalculator extends Calculator {
     for (let i = 0; i < configs.length; i++) {
       const config = configs[i]
       if (i > 0) {
-        config.ingredientPriceConfigList = [{ manual: true, manualPrice: 0 }]
+        config.ingredientPriceConfigList = [{ immutable: true, price: 0, hrid: config.hrid }]
       }
       if (i < configs.length - 1) {
-        config.productPriceConfigList = [{ manual: true, manualPrice: 0 }]
+        config.productPriceConfigList = [{ immutable: true, price: 0, hrid: config.hrid }]
       }
       const cal = getCalculatorInstance(config)
       cal.run()
@@ -44,68 +44,86 @@ export class WorkflowCalculator extends Calculator {
     }
   }
 
-  /** 纯展示，不用于计算 */
-  get ingredientListPreprocess(): IngredientWithPrice[] {
-    const list = this.calculatorList.map(cal => cal.ingredientListWithPrice).flatMap(
-      (list, i) => list.map((item) => {
-        return { ...item, countPH: item.countPH! * this.workMultiplier[i] }
-      })
-    )
-    return this.mergeIngredient(list)
+  private _ingredientPreprocess?: { list: IngredientWithPrice[], map: Map<string, number> }
+  private _productPreprocess?: { list: ProductWithPrice[], map: Map<string, number> }
+
+  // 预处理并缓存原料列表及数量映射
+  get ingredientListPreprocess(): { list: IngredientWithPrice[], map: Map<string, number> } {
+    if (!this._ingredientPreprocess) {
+      const list = this.calculatorList.map(cal => cal.ingredientListWithPrice).flatMap(
+        (list, i) => list.map(item => ({
+          ...item,
+          countPH: item.countPH! * this.workMultiplier[i]
+        }))
+      )
+      const merged = this.mergeIngredient(list)
+      const map = new Map<string, number>()
+      merged.forEach(item => map.set(item.hrid, item.countPH!))
+      this._ingredientPreprocess = { list: merged, map }
+    }
+    return this._ingredientPreprocess
   }
 
-  get productListWithPricePreprocess(): ProductWithPrice[] {
-    const list = this.calculatorList.map(cal => cal.productListWithPrice).flatMap(
-      (list, i) => list.map((item) => {
-        return { ...item, countPH: item.countPH! * this.workMultiplier[i] }
-      })
-    )
-    return this.mergeIngredient(list)
+  // 预处理并缓存产品列表及数量映射
+  get productListWithPricePreprocess(): { list: ProductWithPrice[], map: Map<string, number> } {
+    if (!this._productPreprocess) {
+      const list = this.calculatorList.map(cal => cal.productListWithPrice).flatMap(
+        (list, i) => list.map(item => ({
+          ...item,
+          countPH: item.countPH! * this.workMultiplier[i]
+        }))
+      )
+      const merged = this.mergeIngredient(list)
+      const map = new Map<string, number>()
+      merged.forEach(item => map.set(item.hrid, item.countPH!))
+      this._productPreprocess = { list: merged, map }
+    }
+    return this._productPreprocess
   }
 
-  get ingredientListWithPrice(): IngredientWithPrice[] {
-    let list = this.ingredientListPreprocess
-    const sameItemCounterMap = this.sameItemCounterMap
-    list = list.map((item) => {
-      if (sameItemCounterMap.has(item.hrid)) {
-        return { ...item, countPH: item.countPH! - sameItemCounterMap.get(item.hrid)! }
-      }
-      return item
-    })
-    // 数量小于1e-8，可视为计算误差，忽略不计
-    return list.filter(item => item.countPH! > 1e-8)
-  }
-
-  get productListWithPrice(): ProductWithPrice[] {
-    let list = this.productListWithPricePreprocess
-    const sameItemCounterMap = this.sameItemCounterMap
-    list = list.map((item) => {
-      if (sameItemCounterMap.has(item.hrid)) {
-        return { ...item, countPH: item.countPH! - sameItemCounterMap.get(item.hrid)! }
-      }
-      return item
-    })
-    // 数量小于1e-8，可视为计算误差，忽略不计
-    return list.filter(item => item.countPH! > 1e-8)
-  }
-
-  get sameItemCounterMap() {
-    const left = this.ingredientListPreprocess
-    const right = this.productListWithPricePreprocess
-    const leftItemMap = new Map<string, number>()
-    left.forEach(item => leftItemMap.set(item.hrid, item.countPH!))
+  // 优化抵消映射计算
+  get sameItemCounterMap(): Map<string, number> {
+    const { map: leftMap } = this.ingredientListPreprocess
+    const { map: rightMap } = this.productListWithPricePreprocess
     const sameItemMap = new Map<string, number>()
-    right.forEach((item) => {
-      if (leftItemMap.has(item.hrid)) {
-        sameItemMap.set(item.hrid, Math.min(leftItemMap.get(item.hrid)!, item.countPH!))
+
+    rightMap.forEach((rightCount, hrid) => {
+      if (leftMap.has(hrid)) {
+        sameItemMap.set(hrid, Math.min(leftMap.get(hrid)!, rightCount))
       }
     })
     return sameItemMap
   }
 
+  // 优化最终原料列表生成
+  get ingredientListWithPrice(): IngredientWithPrice[] {
+    const { list } = this.ingredientListPreprocess
+    const sameItemMap = this.sameItemCounterMap
+
+    return list
+      .map(item => ({
+        ...item,
+        countPH: item.countPH! - (sameItemMap.get(item.hrid) || 0)
+      }))
+      .filter(item => item.countPH! > 1e-8)
+  }
+
+  // 优化最终产品列表生成
+  get productListWithPrice(): ProductWithPrice[] {
+    const { list } = this.productListWithPricePreprocess
+    const sameItemMap = this.sameItemCounterMap
+
+    return list
+      .map(item => ({
+        ...item,
+        countPH: item.countPH! - (sameItemMap.get(item.hrid) || 0)
+      }))
+      .filter(item => item.countPH! > 1e-8)
+  }
+
+  // 合并逻辑保持不变
   mergeIngredient(list: IngredientWithPrice[]): IngredientWithPrice[] {
-    // 合并相同hrid的产品
-    const map = new Map<string, ProductWithPrice>()
+    const map = new Map<string, IngredientWithPrice>()
     list.forEach((item) => {
       const key = item.hrid
       if (map.has(key)) {
@@ -113,14 +131,17 @@ export class WorkflowCalculator extends Calculator {
         target.count += item.count
         target.countPH! += item.countPH!
       } else {
-        map.set(key, item)
+        map.set(key, { ...item })
       }
     })
     return Array.from(map.values())
   }
 
   get available(): boolean {
-    return this.calculatorList.every(cal => cal.available)
+    // 传统的方式非常慢，之后想办法优化
+    // return this.ingredientListWithPrice.every(item => item.price !== -1)
+    // 只验证首次流程的原料价格
+    return this.calculatorList[0].ingredientListWithPrice[0].price !== -1
   }
 
   get actionLevel(): number {
@@ -187,10 +208,10 @@ export class WorkflowCalculator extends Calculator {
       incomePH,
       profitPH,
       profitRate,
-      costPHFormat: Format.number(costPH),
-      incomePHFormat: Format.number(incomePH),
-      profitPHFormat: Format.number(profitPH),
-      profitPDFormat: Format.number(profitPH * 24),
+      costPHFormat: Format.money(costPH),
+      incomePHFormat: Format.money(incomePH),
+      profitPHFormat: Format.money(profitPH),
+      profitPDFormat: Format.money(profitPH * 24),
       profitRateFormat: Format.percent(profitRate),
       efficiencyFormat: Format.percent(0),
       timeCostFormat: Format.costTime(this.timeCost),
@@ -215,10 +236,10 @@ export class WorkflowCalculator extends Calculator {
         incomePH: result.incomePH * workMultiplier[i],
         profitPH: result.profitPH * workMultiplier[i],
         profitRate: result.profitRate,
-        costPHFormat: Format.number(result.costPH * workMultiplier[i]),
-        incomePHFormat: Format.number(result.incomePH * workMultiplier[i]),
-        profitPHFormat: Format.number(result.profitPH * workMultiplier[i]),
-        profitPDFormat: Format.number(result.profitPH * 24 * workMultiplier[i]),
+        costPHFormat: Format.money(result.costPH * workMultiplier[i]),
+        incomePHFormat: Format.money(result.incomePH * workMultiplier[i]),
+        profitPHFormat: Format.money(result.profitPH * workMultiplier[i]),
+        profitPDFormat: Format.money(result.profitPH * 24 * workMultiplier[i]),
         profitRateFormat: Format.percent(result.profitRate),
         efficiencyFormat: Format.percent(cal.efficiency - 1),
         timeCostFormat: Format.costTime(cal.timeCost),

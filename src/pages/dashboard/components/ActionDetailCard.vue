@@ -43,10 +43,10 @@ defineProps<{
       <el-table-column prop="price" label="价格">
         <template #default="{ row }">
           <span v-if="type === 'ingredient'" :class="row.price < row.marketPrice ? row.price > row.marketPrice ? 'green' : 'red' : ''">
-            {{ Format.money(row.price) }}
+            ¥{{ Format.price(row.price) }}
           </span>
           <span v-else :class="row.price > row.marketPrice ? row.price < row.marketPrice ? 'green' : 'red' : ''">
-            {{ Format.money(row.price) }}
+            ¥{{ Format.price(row.price) }}
           </span>
         </template>
       </el-table-column>
@@ -57,7 +57,7 @@ defineProps<{
       </el-table-column>
     </el-table>
     <div class="footer-wrapper">
-      {{ type === 'ingredient' ? `成本：${data.result.costPHFormat}` : `收入：${data.result.incomePHFormat}` }} / h
+      {{ type === 'ingredient' ? `成本：${Format.money(data.result.costPH * (workMultiplier || 1))}` : `收入：${Format.money(data.result.incomePH * (workMultiplier || 1))}` }} / h
     </div>
   </el-card>
 </template>
