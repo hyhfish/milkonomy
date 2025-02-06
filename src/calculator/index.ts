@@ -82,7 +82,8 @@ export default abstract class Calculator {
     list = list.map((item) => {
       return {
         ...item,
-        countPH: item.count * this.consumePH
+        countPH: item.count * this.consumePH,
+        counterCountPH: item.counterCount ? item.counterCount * this.consumePH : undefined
       }
     })
     return this.handlePrice(list, this.ingredientPriceConfigList, "ask")
@@ -93,7 +94,8 @@ export default abstract class Calculator {
     list = list.map((item) => {
       return {
         ...item,
-        countPH: item.count * this.gainPH * (item.rate || 1)
+        countPH: item.count * this.gainPH * (item.rate || 1),
+        counterCountPH: item.counterCount ? item.counterCount * this.gainPH * (item.rate || 1) : undefined
       }
     })
     return this.handlePrice(list, this.productPriceConfigList, "bid")
@@ -227,11 +229,17 @@ export default abstract class Calculator {
 
 export interface Ingredient {
   hrid: string
+  /** 原料产物抵消后的数量 */
   count: number
+  /** 原料产物抵消的数量 */
+  counterCount?: number
   marketPrice: number
 }
 export interface IngredientWithPrice extends Ingredient {
+  /** 原料产物抵消后的数量 */
   countPH?: number
+  /** 原料产物抵消的数量 */
+  counterCountPH?: number
   price: number
 }
 export interface Product extends Ingredient {

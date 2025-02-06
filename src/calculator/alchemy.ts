@@ -47,7 +47,8 @@ export class TransmuteCalculator extends Calculator {
     const list = [
       {
         hrid: this.item.hrid,
-        count: this.item.alchemyDetail.bulkMultiplier,
+        count: this.item.alchemyDetail.bulkMultiplier * (1 - this.sameItemCounter),
+        counterCount: this.item.alchemyDetail.bulkMultiplier * this.sameItemCounter,
         marketPrice: getPriceOf(this.item.hrid).ask
       },
       {
@@ -70,20 +71,29 @@ export class TransmuteCalculator extends Calculator {
     const dropTable = this.item.alchemyDetail.transmuteDropTable
     return dropTable.map(drop => ({
       hrid: drop.itemHrid,
-      count: drop.maxCount * this.item.alchemyDetail.bulkMultiplier,
+      count: (drop.maxCount - (drop.itemHrid === this.item.hrid ? drop.maxCount : 0)) * this.item.alchemyDetail.bulkMultiplier,
+      counterCount: (drop.itemHrid === this.item.hrid ? drop.maxCount : 0) * this.item.alchemyDetail.bulkMultiplier,
       rate: drop.dropRate,
       marketPrice: getPriceOf(drop.itemHrid).bid
     })).concat(getAlchemyRareDropTable(this.item, getTransmuteTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
       count: (drop.minCount + drop.maxCount) / 2,
+      counterCount: 0,
       rate: drop.dropRate,
       marketPrice: getPriceOf(drop.itemHrid).bid
     }))).concat(getAlchemyEssenceDropTable(this.item, getTransmuteTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
       count: (drop.minCount + drop.maxCount) / 2,
+      counterCount: 0,
       rate: drop.dropRate,
       marketPrice: getPriceOf(drop.itemHrid).bid
     })))
+  }
+
+  get sameItemCounter(): number {
+    const product = this.item.alchemyDetail.transmuteDropTable.find(p => p.itemHrid === this.item.hrid)
+    if (!product) return 0
+    return Math.min(1, product.maxCount * (product.dropRate || 1) * this.successRate)
   }
 
   // #region 项目特有属性

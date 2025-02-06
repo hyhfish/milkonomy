@@ -37,6 +37,9 @@ defineProps<{
       <el-table-column v-if="!simple" prop="count" label="数量">
         <template #default="{ row }">
           <span>{{ Format.number(row.count, 3) }}个</span>
+          &nbsp;<el-text v-if="row.counterCount" style="color:#999;" tag="del">
+            {{ Format.number((row.counterCount + row.count), 3) }}个
+          </el-text>
         </template>
       </el-table-column>
 
@@ -53,6 +56,9 @@ defineProps<{
       <el-table-column prop="countPH" label="数量">
         <template #default="{ row }">
           <span>{{ Format.number(row.countPH! * (workMultiplier || 1), 3) }} / h</span>
+          &nbsp;<el-text v-if="row.counterCountPH" style="color:#999;" tag="del">
+            {{ Format.number((row.counterCountPH + row.countPH) * (workMultiplier || 1), 3) }} / h
+          </el-text>
         </template>
       </el-table-column>
     </el-table>
