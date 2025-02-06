@@ -10,5 +10,5 @@ export interface Market {
 export interface MarketItem {
   ask: number
   bid: number
-  vendor: number
+  vendor?: number
 }

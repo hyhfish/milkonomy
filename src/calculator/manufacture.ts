@@ -70,7 +70,7 @@ export class ManufactureCalculator extends Calculator {
       hrid: rare.itemHrid,
       count: rare.maxCount,
       rate: rare.dropRate,
-      marketPrice: Math.max(getPriceOf(rare.itemHrid).bid, 0)
+      marketPrice: getPriceOf(rare.itemHrid).bid
     })) || []
     )
     return list
