@@ -67,7 +67,7 @@ export interface DropTableItem {
   dropRate: number
   minCount: number
   maxCount: number
-  minEliteTier: number
+  minEliteTier?: number
 }
 
 export interface ConsumableDetail {

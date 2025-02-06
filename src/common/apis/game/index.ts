@@ -1,3 +1,4 @@
+import type { DropTableItem, ItemDetail } from "~/game"
 import type { MarketItem } from "~/market"
 import Calculator from "@/calculator"
 import { useGameStore } from "@/pinia/stores/game"
@@ -63,3 +64,57 @@ export function getActionDetailOf(key: string) {
 export function getTransmuteTimeCost() {
   return getGameDataApi().actionDetailMap["/actions/alchemy/transmute"].baseTimeCost
 }
+
+export function getDecomposeTimeCost() {
+  return getGameDataApi().actionDetailMap["/actions/alchemy/decompose"].baseTimeCost
+}
+
+export function getCoinifyTimeCost() {
+  return getGameDataApi().actionDetailMap["/actions/alchemy/coinify"].baseTimeCost
+}
+
+// #region 游戏内代码
+const TIMEVALUES = {
+  SECOND: 1e9,
+  MINUTE: 6e10,
+  HOUR: 36e11,
+  NANOSECONDS_IN_MILLISECOND: 1e6,
+  NANOSECONDS_IN_SECOND: 1e9,
+  SECONDS_IN_YEAR: 31536e3,
+  SECONDS_IN_DAY: 86400,
+  SECONDS_IN_HOUR: 3600,
+  SECONDS_IN_MINUTE: 60
+}
+
+export function getAlchemyRareDropTable(item: ItemDetail, baseTimeCost: number): DropTableItem[] {
+  let dropHrid = "/items/small_artisans_crate"
+  const i = 1 * baseTimeCost / (8 * TIMEVALUES.HOUR)
+  let s = 0
+  if (item.itemLevel < 35) {
+    dropHrid = "/items/small_artisans_crate"
+    s = (item.itemLevel + 100) / 100
+  } else if (item.itemLevel < 70) {
+    dropHrid = "/items/medium_artisans_crate"
+    s = (item.itemLevel - 35 + 100) / 150
+  } else {
+    dropHrid = "/items/large_artisans_crate"
+    s = (item.itemLevel - 70 + 100) / 200
+  }
+  return [{
+    itemHrid: dropHrid,
+    dropRate: i * s,
+    minCount: 1,
+    maxCount: 1
+  }]
+}
+
+export function getAlchemyEssenceDropTable(item: ItemDetail, timeCost: number): DropTableItem[] {
+  return [{
+    itemHrid: "/items/alchemy_essence",
+    dropRate: 1 * timeCost / (6 * TIMEVALUES.MINUTE) * ((item.itemLevel + 100) / 100),
+    minCount: 1,
+    maxCount: 1
+  }]
+}
+
+// #endregion

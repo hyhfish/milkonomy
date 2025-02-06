@@ -1,5 +1,5 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
-import { getGameDataApi, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
+import { getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
 import Calculator from "."
 
 export interface AlchemyCalculatorConfig extends CalculatorConfig {
@@ -53,7 +53,7 @@ export class TransmuteCalculator extends Calculator {
       {
         hrid: Calculator.COIN_HRID,
         count: this.item.alchemyDetail.bulkMultiplier,
-        marketPrice: Math.max(this.item.sellPrice / 5, 50)
+        marketPrice: Math.max(Math.floor(this.item.sellPrice / 5), 50)
       }
     ]
     this.catalyst && list.push({
@@ -68,18 +68,26 @@ export class TransmuteCalculator extends Calculator {
 
   get productList(): Product[] {
     const dropTable = this.item.alchemyDetail.transmuteDropTable
-    return dropTable.map((drop) => {
-      const price = getPriceOf(drop.itemHrid)
-      return {
-        hrid: drop.itemHrid,
-        count: drop.maxCount * this.item.alchemyDetail.bulkMultiplier,
-        rate: drop.dropRate,
-        marketPrice: price.bid
-      }
-    })
+    return dropTable.map(drop => ({
+      hrid: drop.itemHrid,
+      count: drop.maxCount * this.item.alchemyDetail.bulkMultiplier,
+      rate: drop.dropRate,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    })).concat(getAlchemyRareDropTable(this.item, getTransmuteTimeCost()).map(drop => ({
+      hrid: drop.itemHrid,
+      count: (drop.minCount + drop.maxCount) / 2,
+      rate: drop.dropRate,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    }))).concat(getAlchemyEssenceDropTable(this.item, getTransmuteTimeCost()).map(drop => ({
+      hrid: drop.itemHrid,
+      count: (drop.minCount + drop.maxCount) / 2,
+      rate: drop.dropRate,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    })))
   }
 
   // #region 项目特有属性
+
   get catalystTeaRate(): number {
     return 1.05
   }
@@ -118,7 +126,7 @@ export class DecomposeCalculator extends Calculator {
   }
 
   get timeCost(): number {
-    return getGameDataApi().actionDetailMap["/actions/alchemy/decompose"].baseTimeCost / this.speed
+    return getDecomposeTimeCost() / this.speed
   }
 
   // todo 暂未找到分解成功率的来源及成功率下降公式
@@ -153,14 +161,21 @@ export class DecomposeCalculator extends Calculator {
 
   get productList(): Product[] {
     const dropTable = this.item.alchemyDetail.decomposeItems
-    return dropTable.map((drop) => {
-      const price = getPriceOf(drop.itemHrid)
-      return {
-        hrid: drop.itemHrid,
-        count: drop.count * this.item.alchemyDetail.bulkMultiplier,
-        marketPrice: price.bid
-      }
-    })
+    return dropTable.map(drop => ({
+      hrid: drop.itemHrid,
+      count: drop.count * this.item.alchemyDetail.bulkMultiplier,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    })).concat(getAlchemyRareDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
+      hrid: drop.itemHrid,
+      rate: drop.dropRate,
+      count: (drop.minCount + drop.maxCount) / 2,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    }))).concat(getAlchemyEssenceDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
+      hrid: drop.itemHrid,
+      count: (drop.minCount + drop.maxCount) / 2,
+      rate: drop.dropRate,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    })))
   }
 
   // #region 项目特有属性
@@ -203,7 +218,7 @@ export class CoinifyCalculator extends Calculator {
   }
 
   get timeCost(): number {
-    return getGameDataApi().actionDetailMap["/actions/alchemy/coinify"].baseTimeCost / this.speed
+    return getCoinifyTimeCost() / this.speed
   }
 
   // todo 暂未找到成功率下降公式
@@ -230,13 +245,21 @@ export class CoinifyCalculator extends Calculator {
   }
 
   get productList(): Product[] {
-    return [
-      {
-        hrid: Calculator.COIN_HRID,
-        count: 1,
-        marketPrice: this.item.sellPrice * 5 * this.item.alchemyDetail.bulkMultiplier
-      }
-    ]
+    return [{
+      hrid: Calculator.COIN_HRID,
+      count: 1,
+      marketPrice: this.item.sellPrice * 5 * this.item.alchemyDetail.bulkMultiplier
+    }].concat(getAlchemyRareDropTable(this.item, getCoinifyTimeCost()).map(drop => ({
+      hrid: drop.itemHrid,
+      count: (drop.minCount + drop.maxCount) / 2,
+      rate: drop.dropRate,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    }))).concat(getAlchemyEssenceDropTable(this.item, getCoinifyTimeCost()).map(drop => ({
+      hrid: drop.itemHrid,
+      count: (drop.minCount + drop.maxCount) / 2,
+      rate: drop.dropRate,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    })))
   }
 
   // #region 项目特有属性

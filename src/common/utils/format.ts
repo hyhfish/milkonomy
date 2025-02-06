@@ -1,8 +1,12 @@
 export function number(value: number, decimal = 0) {
   // 如果value~(0,100),保留decimal位小数
   // 否则保留整数
-  if (value >= 0 && value < 100) {
+  if (value >= 0 && value < 2) {
     value = Math.floor(value * (10 ** decimal)) / (10 ** decimal)
+  } else if (value >= 0 && value < 10) {
+    value = Math.floor(value * (10 ** Math.min(decimal, 2))) / (10 ** Math.min(decimal, 2))
+  } else if (value >= 10 && value < 100) {
+    value = Math.floor(value * (10 ** Math.min(decimal, 1))) / (10 ** Math.min(decimal, 1))
   } else {
     value = Math.floor(value)
   }
