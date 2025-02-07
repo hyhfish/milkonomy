@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type Calculator from "@/calculator"
 import { WorkflowCalculator } from "@/calculator/workflow"
+import ItemIcon from "@@/components/ItemIcon/index.vue"
 import * as Format from "@@/utils/format"
 import ActionDetailCard from "./ActionDetailCard.vue"
 
@@ -47,14 +48,11 @@ const simple = ref(true)
 
         <el-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4">
           <div class="param-wrapper">
-            <div v-if="data?.efficiencyTea">
-              效率茶
-            </div>
-            <div v-if="data?.artisanTea">
-              工匠茶
-            </div>
-            <div v-if="data?.gourmetTea">
-              双倍茶
+            <div class="tea">
+              <ItemIcon v-if="data?.gourmetTea" hrid="/items/gourmet_tea" />
+              <ItemIcon v-if="data?.efficiencyTea" hrid="/items/efficiency_tea" />
+              <ItemIcon v-if="data?.artisanTea" hrid="/items/artisan_tea" />
+              <ItemIcon v-if="data.catalyticTea" hrid="/items/catalytic_tea" />
             </div>
             <div v-if="data?.successRate! < 1">
               成功率：{{ data?.result.successRateFormat }}
@@ -81,14 +79,11 @@ const simple = ref(true)
           <el-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4">
             <div class="param-wrapper">
               <template v-if="!simple">
-                <div v-if="calculator?.efficiencyTea">
-                  效率茶
-                </div>
-                <div v-if="calculator?.artisanTea">
-                  工匠茶
-                </div>
-                <div v-if="calculator?.gourmetTea">
-                  双倍茶
+                <div class="tea">
+                  <ItemIcon v-if="data?.gourmetTea" hrid="/items/gourmet_tea" />
+                  <ItemIcon v-if="data?.efficiencyTea" hrid="/items/efficiency_tea" />
+                  <ItemIcon v-if="data?.artisanTea" hrid="/items/artisan_tea" />
+                  <ItemIcon v-if="data.catalyticTea" hrid="/items/catalytic_tea" />
                 </div>
                 <div v-if="calculator?.successRate! < 1">
                   成功率：{{ calculator?.result.successRateFormat }}
@@ -136,6 +131,9 @@ const simple = ref(true)
   align-items: center;
   * {
     margin-bottom: 10px;
+  }
+  .tea {
+    display: flex;
   }
 }
 .item-wrapper {

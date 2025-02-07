@@ -1,6 +1,7 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getActionDetailOf, getPriceOf } from "@/common/apis/game"
 import Calculator from "."
+import { getTeaIngredientList } from "./utils"
 
 export class ManufactureCalculator extends Calculator {
   get className() {
@@ -50,6 +51,8 @@ export class ManufactureCalculator extends Calculator {
       count: input.count * (this.artisanTea ? 0.9 : 1),
       marketPrice: getPriceOf(input.itemHrid).ask
     })))
+
+    list = list.concat(getTeaIngredientList(this))
     return list
   }
 

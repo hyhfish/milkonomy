@@ -1,6 +1,7 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
 import Calculator from "."
+import { getTeaIngredientList } from "./utils"
 
 export interface AlchemyCalculatorConfig extends CalculatorConfig {
   /** 催化剂 1普通 2主要催化剂 */
@@ -44,7 +45,7 @@ export class TransmuteCalculator extends Calculator {
   }
 
   get ingredientList(): Ingredient[] {
-    const list = [
+    let list = [
       {
         hrid: this.item.hrid,
         count: this.item.alchemyDetail.bulkMultiplier * (1 - this.sameItemCounter),
@@ -63,6 +64,8 @@ export class TransmuteCalculator extends Calculator {
       count: this.successRate,
       marketPrice: getPriceOf(`/items/${this.catalyst}`).ask
     })
+
+    list = list.concat(getTeaIngredientList(this))
 
     return list
   }
@@ -97,9 +100,12 @@ export class TransmuteCalculator extends Calculator {
   }
 
   // #region 项目特有属性
+  get catalyticTea() {
+    return true
+  }
 
   get catalystTeaRate(): number {
-    return 1.05
+    return this.catalyticTea ? 1.05 : 1
   }
 
   get catalystRate(): number {
@@ -145,7 +151,7 @@ export class DecomposeCalculator extends Calculator {
   }
 
   get ingredientList(): Ingredient[] {
-    const list = [
+    let list = [
       {
         hrid: this.item.hrid,
         count: this.item.alchemyDetail.bulkMultiplier,
@@ -166,6 +172,8 @@ export class DecomposeCalculator extends Calculator {
         marketPrice: getPriceOf(`/items/${this.catalyst}`).ask
       })
     }
+
+    list = list.concat(getTeaIngredientList(this))
     return list
   }
 
@@ -189,8 +197,13 @@ export class DecomposeCalculator extends Calculator {
   }
 
   // #region 项目特有属性
+
+  get catalyticTea() {
+    return true
+  }
+
   get catalystTeaRate(): number {
-    return 1.05
+    return this.catalyticTea ? 1.05 : 1
   }
 
   get catalystRate(): number {
@@ -237,7 +250,7 @@ export class CoinifyCalculator extends Calculator {
   }
 
   get ingredientList(): Ingredient[] {
-    const list = [
+    let list = [
       {
         hrid: this.item.hrid,
         count: this.item.alchemyDetail.bulkMultiplier,
@@ -250,6 +263,8 @@ export class CoinifyCalculator extends Calculator {
       count: this.successRate,
       marketPrice: getPriceOf(`/items/${this.catalyst}`).ask
     })
+
+    list = list.concat(getTeaIngredientList(this))
 
     return list
   }
@@ -273,8 +288,12 @@ export class CoinifyCalculator extends Calculator {
   }
 
   // #region 项目特有属性
+  get catalyticTea() {
+    return true
+  }
+
   get catalystTeaRate(): number {
-    return 1.05
+    return this.catalyticTea ? 1.05 : 1
   }
 
   get catalystRate(): number {

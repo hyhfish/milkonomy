@@ -191,6 +191,10 @@ export default abstract class Calculator {
 
   abstract get timeCost(): number
 
+  get catalyticTea(): boolean {
+    return false
+  }
+
   /**
    * 单次消耗的原料 + 硬币列表
    */
