@@ -100,9 +100,6 @@ export class TransmuteCalculator extends Calculator {
   }
 
   // #region 项目特有属性
-  get catalyticTea() {
-    return true
-  }
 
   get catalystTeaRate(): number {
     return this.catalyticTea ? 1.05 : 1
@@ -198,10 +195,6 @@ export class DecomposeCalculator extends Calculator {
 
   // #region 项目特有属性
 
-  get catalyticTea() {
-    return true
-  }
-
   get catalystTeaRate(): number {
     return this.catalyticTea ? 1.05 : 1
   }
@@ -288,9 +281,6 @@ export class CoinifyCalculator extends Calculator {
   }
 
   // #region 项目特有属性
-  get catalyticTea() {
-    return true
-  }
 
   get catalystTeaRate(): number {
     return this.catalyticTea ? 1.05 : 1

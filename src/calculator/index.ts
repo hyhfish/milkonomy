@@ -191,10 +191,6 @@ export default abstract class Calculator {
 
   abstract get timeCost(): number
 
-  get catalyticTea(): boolean {
-    return false
-  }
-
   /**
    * 单次消耗的原料 + 硬币列表
    */
@@ -220,6 +216,20 @@ export default abstract class Calculator {
   get gourmetTea(): boolean {
     return getItemDetailOf("/items/gourmet_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
   }
+
+  get catalyticTea(): boolean {
+    return getItemDetailOf("/items/catalytic_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
+  }
+
+  // 给三采预留空间
+  get gatheringTea(): boolean {
+    return getItemDetailOf("/items/gathering_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
+  }
+
+  get processingTea(): boolean {
+    return getItemDetailOf("/items/processing_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
+  }
+
   /**
    * 数据是否可用
    */
