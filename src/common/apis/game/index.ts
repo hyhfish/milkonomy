@@ -73,6 +73,14 @@ export function getCoinifyTimeCost() {
   return getGameDataApi().actionDetailMap["/actions/alchemy/coinify"].baseTimeCost
 }
 
+export function getEnhanceTimeCost() {
+  return getGameDataApi().actionDetailMap["/actions/enhancing/enhance"].baseTimeCost
+}
+
+export function enhancementLevelSuccessRateTable() {
+  return getGameDataApi().enhancementLevelSuccessRateTable
+}
+
 // #region 游戏内代码
 const TIMEVALUES = {
   SECOND: 1e9,
@@ -117,4 +125,48 @@ export function getAlchemyEssenceDropTable(item: ItemDetail, timeCost: number): 
   }]
 }
 
+// 分解强化物品
+export function getAlchemyDecomposeEnhancingEssenceOutput(item: ItemDetail, enhancementLevel: number) {
+  return enhancementLevel === 0
+    ? 0
+    : (item.itemLevel = item.itemLevel || 0,
+      Math.round(2 * (0.5 + 0.1 * 1.05 ** item.itemLevel) * 2 ** enhancementLevel))
+}
+
+export function getAlchemyDecomposeCoinCost(item: ItemDetail) {
+  const itemLevel = item.itemLevel || 0
+  return Math.floor(5 * (10 + itemLevel))
+}
+
+export function getEnhancingEssenceDropTable(item: ItemDetail, timeCost: number) {
+  const a = 1 * timeCost / (2 * TIMEVALUES.MINUTE) * ((item.itemLevel + 100) / 100)
+  return [{
+    itemHrid: "/items/enhancing_essence",
+    dropRate: a,
+    minCount: 1,
+    maxCount: 1
+  }]
+}
+
+export function getEnhancingRareDropTable(item: ItemDetail, timeCost: number) {
+  let dropHird = "/items/small_artisans_crate"
+  const i = 1 * timeCost / (4 * TIMEVALUES.HOUR)
+  let s = 0
+  if (item.itemLevel < 35) {
+    dropHird = "/items/small_artisans_crate"
+    s = (item.itemLevel + 100) / 100
+  } else if (item.itemLevel < 70) {
+    dropHird = "/items/medium_artisans_crate"
+    s = (item.itemLevel - 35 + 100) / 150
+  } else {
+    dropHird = "/items/large_artisans_crate"
+    s = (item.itemLevel - 70 + 100) / 200
+  }
+  return [{
+    itemHrid: dropHird,
+    dropRate: i * s,
+    minCount: 1,
+    maxCount: 1
+  }]
+}
 // #endregion

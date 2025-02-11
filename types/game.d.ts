@@ -10,6 +10,7 @@ export interface GameData {
   actionDetailMap: Record<string, ActionDetail>
   shopItemDetailMap: Record<string, ShopItemDetail>
   openableLootDropMap: Record<string, DropTableItem[]>
+  enhancementLevelSuccessRateTable: number[]
 }
 export interface ShopItemDetail {
   hrid: string
