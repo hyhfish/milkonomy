@@ -5,11 +5,12 @@ import { WorkflowCalculator } from "@/calculator/workflow"
 import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
 import { getGameDataApi, getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getPriceDataApi } from "@/common/apis/price"
+import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
 import { useFavoriteStore } from "@/pinia/stores/favorite"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
-import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 
+import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Search, Star, StarFilled } from "@element-plus/icons-vue"
@@ -19,10 +20,11 @@ import ActionPrice from "./components/ActionPrice.vue"
 import SinglePrice from "./components/SinglePrice.vue"
 // #region 查
 const favoriteStore = useFavoriteStore()
-const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination()
+const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "dashboard-leaderboard-pagination")
 const leaderboardData = ref<Calculator[]>([])
 const ldSearchFormRef = ref<FormInstance | null>(null)
-const ldSearchData = reactive({
+
+const ldSearchData = useMemory("dashboard-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: 10,
@@ -35,7 +37,7 @@ function getLeaderboardData() {
   getLeaderboardDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
-    ...ldSearchData,
+    ...ldSearchData.value,
     sort: sortLD.value
   }).then((data) => {
     paginationDataLD.total = data.total
@@ -66,10 +68,10 @@ watch([
   () => usePriceStore()
 ], getLeaderboardData, { immediate: true, deep: true })
 
-const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeFR, handleSizeChange: handleSizeChangeFR } = usePagination()
+const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeFR, handleSizeChange: handleSizeChangeFR } = usePagination({}, "dashboard-favorite-pagination")
 const favoriteData = ref<Calculator[]>([])
 const frSearchFormRef = ref<FormInstance | null>(null)
-const frSearchData = reactive({
+const frSearchData = useMemory("dashboard-favorite-search-data", {
   name: "",
   project: ""
 })
@@ -80,7 +82,7 @@ function getFavoriteData() {
   getFavoriteDataApi({
     currentPage: paginationDataMN.currentPage,
     size: paginationDataMN.pageSize,
-    ...frSearchData
+    ...frSearchData.value
   }).then((data) => {
     paginationDataMN.total = data.total
     favoriteData.value = data.list
@@ -103,10 +105,10 @@ watch([
   () => favoriteStore
 ], getFavoriteData, { immediate: true, deep: true })
 
-const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination()
+const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "dashboard-price-pagination")
 const priceData = ref<StoragePriceItem[]>([])
 const priceSearchFormRef = ref<FormInstance | null>(null)
-const priceSearchData = reactive({
+const priceSearchData = useMemory("dashboard-price-search-data", {
   name: ""
 })
 
@@ -116,7 +118,7 @@ function getPriceData() {
   getPriceDataApi({
     currentPage: paginationDataPrice.currentPage,
     size: paginationDataPrice.pageSize,
-    ...priceSearchData
+    ...priceSearchData.value
   }).then((data) => {
     console.log("getPriceData", data)
     paginationDataPrice.total = data.total
