@@ -80,7 +80,7 @@ export interface ConsumableDetail {
   buffs: PROP_TODO
   defaultCombatTriggers: PROP_TODO
 }
-type Action = "crafting" | "cooking" | "tailoring" | "cheesesmithing" | "brewing" | "alchemy"
+type Action = "crafting" | "cooking" | "tailoring" | "cheesesmithing" | "brewing" | "alchemy" | "enhancing"
 type ActionType = `/action_types/${Action}`
 // #endregion
 

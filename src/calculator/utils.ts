@@ -3,13 +3,15 @@ import type Calculator from "."
 import type { Ingredient } from "."
 import { getPriceOf } from "@/common/apis/game"
 import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "./alchemy"
+import { EnhanceCalculator } from "./enhance"
 import { ManufactureCalculator } from "./manufacture"
 
 const CLASS_MAP: { [key: string]: any } = {
   DecomposeCalculator,
   TransmuteCalculator,
   ManufactureCalculator,
-  CoinifyCalculator
+  CoinifyCalculator,
+  EnhanceCalculator
 }
 
 export function calculatorConstructable(className: string): boolean {
@@ -23,7 +25,11 @@ export function getCalculatorInstance(config: StorageCalculatorItem): Calculator
 }
 
 export function getStorageCalculatorItem(calculator: Calculator): StorageCalculatorItem {
-  return { className: calculator.className, id: calculator.id, hrid: calculator.item.hrid, project: calculator.project, action: calculator.action, catalystRank: calculator.catalystRank }
+  return {
+    className: calculator.className,
+    id: calculator.id,
+    ...calculator.config
+  }
 }
 
 export function getTeaIngredientList(cal: Calculator) {

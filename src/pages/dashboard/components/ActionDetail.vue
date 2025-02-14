@@ -53,6 +53,7 @@ const simple = ref(true)
               <ItemIcon v-if="data?.efficiencyTea" hrid="/items/efficiency_tea" />
               <ItemIcon v-if="data?.artisanTea" hrid="/items/artisan_tea" />
               <ItemIcon v-if="data.catalyticTea" hrid="/items/catalytic_tea" />
+              <ItemIcon v-if="data.blessedTea" hrid="/items/blessed_tea" />
             </div>
             <div v-if="data?.successRate! < 1">
               成功率：{{ data?.result.successRateFormat }}
@@ -80,10 +81,11 @@ const simple = ref(true)
             <div class="param-wrapper">
               <template v-if="!simple">
                 <div class="tea">
-                  <ItemIcon v-if="data?.gourmetTea" hrid="/items/gourmet_tea" />
-                  <ItemIcon v-if="data?.efficiencyTea" hrid="/items/efficiency_tea" />
-                  <ItemIcon v-if="data?.artisanTea" hrid="/items/artisan_tea" />
-                  <ItemIcon v-if="data.catalyticTea" hrid="/items/catalytic_tea" />
+                  <ItemIcon v-if="calculator?.gourmetTea" hrid="/items/gourmet_tea" />
+                  <ItemIcon v-if="calculator?.efficiencyTea" hrid="/items/efficiency_tea" />
+                  <ItemIcon v-if="calculator?.artisanTea" hrid="/items/artisan_tea" />
+                  <ItemIcon v-if="calculator.catalyticTea" hrid="/items/catalytic_tea" />
+                  <ItemIcon v-if="calculator.blessedTea" hrid="/items/blessed_tea" />
                 </div>
                 <div v-if="calculator?.successRate! < 1">
                   成功率：{{ calculator?.result.successRateFormat }}

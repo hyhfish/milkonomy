@@ -11,6 +11,7 @@ export interface CalculatorConfig {
   productPriceConfigList?: ProductPriceConfig[]
   /** 催化剂 1普通 2主要催化剂 */
   catalystRank?: number
+  enhanceLevel?: number
 }
 export default abstract class Calculator {
   static COIN_HRID = "/items/coin"
@@ -26,7 +27,10 @@ export default abstract class Calculator {
   result: any
   favorite?: boolean
   hasManualPrice: boolean = false
-  constructor({ hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [], catalystRank }: CalculatorConfig) {
+  config: CalculatorConfig
+  constructor(config: CalculatorConfig) {
+    const { hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [], catalystRank } = config
+    this.config = config
     this.hrid = hrid
     this.project = project!
     this.action = action!
@@ -219,6 +223,10 @@ export default abstract class Calculator {
 
   get catalyticTea(): boolean {
     return getItemDetailOf("/items/catalytic_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
+  }
+
+  get blessedTea(): boolean {
+    return getItemDetailOf("/items/blessed_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
   }
 
   // 给三采预留空间

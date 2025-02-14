@@ -59,6 +59,25 @@ export const constantRoutes: RouteRecordRaw[] = [
   {
     path: "/",
     component: Layouts,
+    redirect: "/enhanposer",
+    meta: {
+      hidden: true
+    },
+    children: [
+      {
+        path: "enhanposer",
+        component: () => import("@/pages/enhanposer/index.vue"),
+        name: "Enhanposer",
+        meta: {
+          title: "强化分解",
+          svgIcon: "dashboard"
+        }
+      }
+    ]
+  },
+  {
+    path: "/",
+    component: Layouts,
     redirect: "/sponsor",
     children: [
       {

@@ -1,11 +1,10 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
-import { getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
+import { getAlchemyDecomposeEnhancingEssenceOutput, getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
 import Calculator from "."
 import { getTeaIngredientList } from "./utils"
 
 export interface AlchemyCalculatorConfig extends CalculatorConfig {
-  /** 催化剂 1普通 2主要催化剂 */
-  catalystRank?: number
+
 }
 
 export type AlchemyCatalyst = "prime_catalyst" | "catalyst_of_transmutation" | "catalyst_of_decomposition" | "catalyst_of_coinification"
@@ -117,8 +116,10 @@ export class DecomposeCalculator extends Calculator {
     return "DecomposeCalculator"
   }
 
+  enhanceLevel: number
   constructor(config: AlchemyCalculatorConfig) {
     super({ ...config, project: "分解", action: "alchemy" })
+    this.enhanceLevel = config.enhanceLevel || 0
   }
 
   get catalyst(): AlchemyCatalyst | undefined {
@@ -176,11 +177,22 @@ export class DecomposeCalculator extends Calculator {
 
   get productList(): Product[] {
     const dropTable = this.item.alchemyDetail.decomposeItems
-    return dropTable.map(drop => ({
+
+    let list = dropTable.map(drop => ({
       hrid: drop.itemHrid,
       count: drop.count * this.item.alchemyDetail.bulkMultiplier,
       marketPrice: getPriceOf(drop.itemHrid).bid
-    })).concat(getAlchemyRareDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
+    }))
+
+    if (this.enhanceLevel > 0) {
+      list.push({
+        hrid: `/items/enhancing_essence`,
+        count: getAlchemyDecomposeEnhancingEssenceOutput(this.item, this.enhanceLevel),
+        marketPrice: getPriceOf(`/items/enhancing_essence`).bid
+      })
+    }
+
+    list = list.concat(getAlchemyRareDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
       rate: drop.dropRate,
       count: (drop.minCount + drop.maxCount) / 2,
@@ -191,6 +203,7 @@ export class DecomposeCalculator extends Calculator {
       rate: drop.dropRate,
       marketPrice: getPriceOf(drop.itemHrid).bid
     })))
+    return list
   }
 
   // #region 项目特有属性

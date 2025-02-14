@@ -14,7 +14,7 @@ export interface RequestData {
   profitRate?: number
   /** 查询参数：排除装备 */
   banEquipment?: boolean
-  degenerator?: boolean
+  enhanposer?: boolean
   sort?: Sort
 }
 

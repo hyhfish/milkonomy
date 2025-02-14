@@ -3,6 +3,7 @@ import type Calculator from "@/calculator"
 import type * as Leaderboard from "./type"
 import type { Action } from "~/game"
 import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
+import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
@@ -17,8 +18,12 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   } else {
     await new Promise(resolve => setTimeout(resolve, 300))
     try {
-      profitList = calcProfit()
-      profitList = profitList.concat(calcAllFlowProfit())
+      if (params.enhanposer) {
+        profitList = profitList.concat(calcEnhanceProfit())
+      } else {
+        profitList = calcProfit()
+        profitList = profitList.concat(calcAllFlowProfit())
+      }
     } catch (e: any) {
       console.error(e)
     }
@@ -103,6 +108,26 @@ function calcProfit() {
     for (const [project, action] of projects) {
       const c = new ManufactureCalculator({ hrid: item.hrid, project, action })
       handlePush(profitList, c)
+    }
+  })
+  return profitList
+}
+
+function calcEnhanceProfit() {
+  const gameData = getGameDataApi()
+  // 所有物品列表
+  const list = Object.values(gameData.itemDetailMap)
+  const profitList: Calculator[] = []
+  list.filter(item => item.enhancementCosts).forEach((item) => {
+    for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
+      for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
+        // protectLevel = enhanceLevel 时表示不用垫子
+        const c = new WorkflowCalculator([
+          getStorageCalculatorItem(new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })),
+          getStorageCalculatorItem(new DecomposeCalculator({ enhanceLevel, hrid: item.hrid }))
+        ], `强化分解+${enhanceLevel}`)
+        handlePush(profitList, c)
+      }
     }
   })
   return profitList

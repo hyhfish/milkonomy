@@ -1,4 +1,4 @@
-import type { AlchemyCalculatorConfig } from "@/calculator/alchemy"
+import type { CalculatorConfig } from "@/calculator"
 import type { Action } from "~/game"
 import { find } from "lodash-es"
 import { defineStore } from "pinia"
@@ -36,7 +36,7 @@ export const useFavoriteStore = defineStore("favorite", {
   }
 })
 const LIST_KEY = "manual-list"
-export interface StorageCalculatorItem extends AlchemyCalculatorConfig {
+export interface StorageCalculatorItem extends CalculatorConfig {
   id: `${string}-${string}-${Action}`
   className?: string
 }
