@@ -120,14 +120,26 @@ function calcEnhanceProfit() {
   const profitList: Calculator[] = []
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
+      let bestProfit = -Infinity
+      let bestCal: WorkflowCalculator | undefined
       for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
+        const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
+        // 预筛选，把不可能盈利的去掉
+
         // protectLevel = enhanceLevel 时表示不用垫子
         const c = new WorkflowCalculator([
-          getStorageCalculatorItem(new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })),
+          getStorageCalculatorItem(enhancer),
           getStorageCalculatorItem(new DecomposeCalculator({ enhanceLevel, hrid: item.hrid }))
         ], `强化分解+${enhanceLevel}`)
-        handlePush(profitList, c)
+
+        c.run()
+
+        if (c.result.profitPH > bestProfit) {
+          bestProfit = c.result.profitPH
+          bestCal = c
+        }
       }
+      bestCal && handlePush(profitList, bestCal)
     }
   })
   return profitList
@@ -170,5 +182,8 @@ function calcAllFlowProfit() {
 
 function handlePush(profitList: Calculator[], cal: Calculator) {
   if (!cal.available) return
-  profitList.push(cal.run())
+  if (!cal.result) {
+    cal.run()
+  }
+  profitList.push(cal)
 }
