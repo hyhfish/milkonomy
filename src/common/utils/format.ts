@@ -13,7 +13,23 @@ export function number(value: number, decimal = 0) {
   return value.toLocaleString("en-US")
 }
 export function costTime(value: number) {
-  return `${Math.floor(value / 10000000) / 100}s`
+  // return `${Math.floor(value / 10000000) / 100}s`
+  let result = ""
+  value /= 1000000000
+  const h = Math.floor(value / 3600)
+  const m = Math.floor(value % 3600 / 60)
+  const decimal = h || m ? 0 : 2
+  const s = Math.floor(value % 60 * (10 ** decimal)) / (10 ** decimal)
+  if (h) {
+    result += `${h}h`
+  }
+  if (m) {
+    result += `${m}m`
+  }
+  if (s) {
+    result += `${s}s`
+  }
+  return result
 }
 
 export function percent(value: number, decimal = 2) {

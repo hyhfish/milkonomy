@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type Calculator from "@/calculator"
+import { EnhanceCalculator } from "@/calculator/enhance"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import * as Format from "@@/utils/format"
@@ -93,6 +94,9 @@ const simple = ref(true)
                 <div>效率：{{ calculator?.result.efficiencyFormat }}</div>
                 <div>时间：{{ calculator?.result.timeCostFormat }}</div>
                 <div>时间占比：{{ Format.percent(data.workMultiplier![i]!) }}</div>
+                <div v-if="calculator instanceof EnhanceCalculator">
+                  强化平均耗时：{{ Format.costTime(1 / calculator.ingredientList[0].count * calculator.timeCost) }}
+                </div>
               </template>
 
               <el-icon class="transition" :size="36">
