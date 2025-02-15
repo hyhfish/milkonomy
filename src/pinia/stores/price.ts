@@ -3,12 +3,12 @@ import { useGameStore } from "./game"
 
 export const usePriceStore = defineStore("price", {
   state: () => ({
-    list: load(),
+    map: load(),
     activated: getActivated()
   }),
   actions: {
     commit() {
-      save(this.list)
+      save(this.map)
       useGameStore().clearLeaderBoardCache()
     },
     setPrice(row: StoragePriceItem) {
@@ -19,24 +19,20 @@ export const usePriceStore = defineStore("price", {
           ask: { manual: false, manualPrice: undefined },
           bid: { manual: false, manualPrice: undefined }
         }
-        this.list.push(price)
+        this.map.set(row.hrid, price)
       }
       Object.assign(price.ask!, row.ask)
       Object.assign(price.bid!, row.bid)
     },
     deletePrice(row: StoragePriceItem) {
-      const price = this.getPrice(row.hrid)
-      if (!price) {
-        throw new Error("未找到该记录")
-      }
-      this.list.splice(this.list.indexOf(price), 1)
+      this.map.delete(row.hrid)
       this.commit()
     },
     getPrice(hrid: string): StoragePriceItem | undefined {
-      return this.list.find(item => item.hrid === hrid)
+      return this.map.get(hrid)
     },
     hasPrice(hrid: string): boolean {
-      return !!this.getPrice(hrid)
+      return this.map.has(hrid)
     },
     setActivated(value: boolean) {
       this.activated = value
@@ -55,15 +51,20 @@ export interface StoragePriceItemValue {
   manual: boolean
   manualPrice?: number
 }
-function load(): StoragePriceItem[] {
+function load(): Map<string, StoragePriceItem> {
+  const map = new Map<string, StoragePriceItem>()
   try {
-    return JSON.parse(localStorage.getItem(KEY) || "[]")
+    const data = JSON.parse(localStorage.getItem(KEY) || "[]")
+    for (const item of data) {
+      map.set(item.hrid, item)
+    }
   } catch {
-    return []
   }
+  return map
 }
 
-function save(list: StoragePriceItem[]) {
+function save(map: Map<string, StoragePriceItem>) {
+  const list = Array.from(map.values())
   localStorage.setItem(KEY, JSON.stringify(list))
 }
 
