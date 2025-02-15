@@ -46,7 +46,7 @@ export function getTeaIngredientList(cal: Calculator) {
   if (cal.efficiencyTea) {
     list.push({
       hrid: "/items/efficiency_tea",
-      count: 3600 / 300 * cal.consumePH,
+      count: 3600 / 300 / cal.consumePH,
       marketPrice: getPriceOf("/items/efficiency_tea").ask
     })
   }
