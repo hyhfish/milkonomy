@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import Calculator from "@/calculator"
 import { getItemDetailOf, getPriceOf } from "@/common/apis/game"
-import { setPriceApi } from "@/common/apis/price"
-import { usePriceStore } from "@/pinia/stores/price"
+import { getManualPriceOf, setPriceApi } from "@/common/apis/price"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import * as Format from "@@/utils/format"
 
@@ -36,8 +35,8 @@ watch(() => props.data, (row) => {
 function getPriceConfigList(row: Calculator, type: "product" | "ingredient") {
   return row[`${type}ListWithPrice`].map((item, i) => {
     const priceConfig = row[`${type}PriceConfigList`][i]
-    const hasManualPrice = usePriceStore().getPrice(item.hrid)?.[type === "ingredient" ? "ask" : "bid"]?.manual
-    const manualPrice = usePriceStore().getPrice(item.hrid)?.[type === "ingredient" ? "ask" : "bid"]?.manualPrice
+    const hasManualPrice = getManualPriceOf(item.hrid)?.[type === "ingredient" ? "ask" : "bid"]?.manual
+    const manualPrice = getManualPriceOf(item.hrid)?.[type === "ingredient" ? "ask" : "bid"]?.manualPrice
     const price = priceConfig?.immutable ? priceConfig.price! : hasManualPrice ? manualPrice! : item.marketPrice
 
     return {

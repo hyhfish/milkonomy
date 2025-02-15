@@ -31,9 +31,9 @@ export function getStorageCalculatorItem(calculator: Calculator): StorageCalcula
     ...calculator.config
   }
 }
-
 export function getTeaIngredientList(cal: Calculator) {
   const list: Ingredient[] = []
+
   // 喝茶
   if (cal.gourmetTea) {
     list.push({
@@ -42,10 +42,11 @@ export function getTeaIngredientList(cal: Calculator) {
       marketPrice: getPriceOf("/items/gourmet_tea").ask
     })
   }
+
   if (cal.efficiencyTea) {
     list.push({
       hrid: "/items/efficiency_tea",
-      count: 3600 / 300 / cal.consumePH,
+      count: 3600 / 300 * cal.consumePH,
       marketPrice: getPriceOf("/items/efficiency_tea").ask
     })
   }

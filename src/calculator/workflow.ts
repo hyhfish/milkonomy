@@ -17,6 +17,10 @@ export class WorkflowCalculator extends Calculator {
     return "WorkflowCalculator"
   }
 
+  get catalyst() {
+    return (this.calculatorList[this.calculatorList.length - 1] as any).catalyst
+  }
+
   calculatorList: Calculator[] = []
 
   /**

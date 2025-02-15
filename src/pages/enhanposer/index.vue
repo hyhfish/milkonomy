@@ -204,11 +204,13 @@ function deletePrice(row: StoragePriceItem) {
               <el-table-column prop="item.name" label="物品" />
               <el-table-column width="80">
                 <template #default="{ row }">
-                  <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
-                  <template v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel">
-                    <ItemIcon :hrid="row.calculatorList[0].protectionItem.hrid" />
-                    <div>从{{ row.calculatorList[0].protectLevel }}级保护</div>
-                  </template>
+                  <div style="display:flex;">
+                    <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
+                    <ItemIcon v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel" :hrid="row.calculatorList[0].protectionItem.hrid" />
+                  </div>
+                  <div v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel">
+                    从{{ row.calculatorList[0].protectLevel }}保护
+                  </div>
                 </template>
               </el-table-column>
               <el-table-column prop="project" label="项目" />

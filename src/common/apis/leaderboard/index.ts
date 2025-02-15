@@ -16,7 +16,8 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   if (useGameStore().getLeaderboardCache()) {
     profitList = useGameStore().getLeaderboardCache()
   } else {
-    await new Promise(resolve => setTimeout(resolve, 300))
+    await new Promise(resolve => setTimeout(resolve, 0))
+    const startTime = Date.now()
     try {
       if (params.enhanposer) {
         profitList = profitList.concat(calcEnhanceProfit())
@@ -28,6 +29,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
       console.error(e)
     }
     useGameStore().setLeaderBoardCache(profitList)
+    ElMessage.success(`计算完成，耗时${(Date.now() - startTime) / 1000}秒`)
   }
   params.name && (profitList = profitList.filter(cal => cal.item.name.toLowerCase().includes(params.name!.toLowerCase())))
   params.project && (profitList = profitList.filter(cal => cal.project.match(params.project!)))
@@ -123,20 +125,25 @@ function calcEnhanceProfit() {
       let bestProfit = -Infinity
       let bestCal: WorkflowCalculator | undefined
       for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
-        const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
-        // 预筛选，把不可能盈利的去掉
+        for (let catalystRank = 0; catalystRank <= 2; catalystRank++) {
+          const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
+          // 预筛选，把不可能盈利的去掉
+          if (!enhancer.available) {
+            continue
+          }
 
-        // protectLevel = enhanceLevel 时表示不用垫子
-        const c = new WorkflowCalculator([
-          getStorageCalculatorItem(enhancer),
-          getStorageCalculatorItem(new DecomposeCalculator({ enhanceLevel, hrid: item.hrid }))
-        ], `强化分解+${enhanceLevel}`)
+          // protectLevel = enhanceLevel 时表示不用垫子
+          const c = new WorkflowCalculator([
+            getStorageCalculatorItem(enhancer),
+            getStorageCalculatorItem(new DecomposeCalculator({ enhanceLevel, hrid: item.hrid, catalystRank }))
+          ], `强化分解+${enhanceLevel}`)
 
-        c.run()
+          c.run()
 
-        if (c.result.profitPH > bestProfit) {
-          bestProfit = c.result.profitPH
-          bestCal = c
+          if (c.result.profitPH > bestProfit) {
+            bestProfit = c.result.profitPH
+            bestCal = c
+          }
         }
       }
       bestCal && handlePush(profitList, bestCal)

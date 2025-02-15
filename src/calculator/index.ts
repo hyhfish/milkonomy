@@ -1,6 +1,6 @@
 import type { Action } from "~/game"
 import { getItemDetailOf } from "@/common/apis/game"
-import { usePriceStore } from "@/pinia/stores/price"
+import { getManualPriceActivated, getManualPriceOf } from "@/common/apis/price"
 import * as Format from "@@/utils/format"
 
 export interface CalculatorConfig {
@@ -66,43 +66,54 @@ export default abstract class Calculator {
   }
 
   handlePrice(list: Ingredient[], priceConfigList: IngredientPriceConfig[], type: "ask" | "bid") {
-    return list.map((item, i) => {
+    const result = []
+    for (let i = 0; i < list.length; i++) {
+      const item = list[i]
       const priceConfig = priceConfigList[i]
-      const hasManualPrice = usePriceStore().getPrice(item.hrid)?.[type]?.manual && usePriceStore().activated
-      const manualPrice = usePriceStore().getPrice(item.hrid)?.[type]?.manualPrice
+      const hasManualPrice = getManualPriceOf(item.hrid)?.[type]?.manual && getManualPriceActivated()
+      const manualPrice = getManualPriceOf(item.hrid)?.[type]?.manualPrice
       if (hasManualPrice) {
         this.hasManualPrice = true
       }
       const price = priceConfig?.immutable ? priceConfig.price! : hasManualPrice ? manualPrice! : item.marketPrice
-      return {
+      result.push({
         ...item,
         price
-      }
-    })
+      })
+    }
+    return result
   }
 
+  _ingredientListWithPrice: IngredientWithPrice[] = []
   get ingredientListWithPrice(): IngredientWithPrice[] {
-    let list = this.ingredientList
-    list = list.map((item) => {
-      return {
-        ...item,
-        countPH: item.count * this.consumePH,
-        counterCountPH: item.counterCount ? item.counterCount * this.consumePH : undefined
-      }
-    })
-    return this.handlePrice(list, this.ingredientPriceConfigList, "ask")
+    if (this._ingredientListWithPrice.length === 0) {
+      const list = this.ingredientList.map((item) => {
+        return {
+          ...item,
+          countPH: item.count * this.consumePH,
+          counterCountPH: item.counterCount ? item.counterCount * this.consumePH : undefined
+        }
+      })
+
+      this._ingredientListWithPrice = this.handlePrice(list, this.ingredientPriceConfigList, "ask")
+    }
+
+    return this._ingredientListWithPrice
   }
 
+  _productListWithPrice: ProductWithPrice[] = []
   get productListWithPrice(): ProductWithPrice[] {
-    let list = this.productList
-    list = list.map((item) => {
-      return {
-        ...item,
-        countPH: item.count * this.gainPH * (item.rate || 1),
-        counterCountPH: item.counterCount ? item.counterCount * this.gainPH * (item.rate || 1) : undefined
-      }
-    })
-    return this.handlePrice(list, this.productPriceConfigList, "bid")
+    if (this._productListWithPrice.length === 0) {
+      const list = this.productList.map((item) => {
+        return {
+          ...item,
+          countPH: item.count * this.gainPH * (item.rate || 1),
+          counterCountPH: item.counterCount ? item.counterCount * this.gainPH * (item.rate || 1) : undefined
+        }
+      })
+      this._productListWithPrice = this.handlePrice(list, this.productPriceConfigList, "bid")
+    }
+    return this._productListWithPrice
   }
 
   /**
@@ -127,16 +138,28 @@ export default abstract class Calculator {
     return income * 0.98
   }
 
+  _actionsPH?: number
   get actionsPH(): number {
-    return ((60 * 60 * 1000000000) / this.timeCost) * this.efficiency
+    if (this._actionsPH === undefined) {
+      this._actionsPH = ((60 * 60 * 1000000000) / this.timeCost) * this.efficiency
+    }
+    return this._actionsPH
   }
 
+  _consumePH?: number
   get consumePH(): number {
-    return this.actionsPH
+    if (this._consumePH === undefined) {
+      this._consumePH = this.actionsPH
+    }
+    return this._consumePH
   }
 
+  _gainPH?: number
   get gainPH(): number {
-    return this.actionsPH * this.successRate
+    if (this._gainPH === undefined) {
+      this._gainPH = this.actionsPH * this.successRate
+    }
+    return this._gainPH
   }
 
   run() {

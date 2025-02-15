@@ -1,15 +1,34 @@
-import type { DropTableItem, ItemDetail } from "~/game"
-import type { MarketItem } from "~/market"
+import type { EnhancelateResult } from "@/calculator/enhance"
+import type { DropTableItem, GameData, ItemDetail } from "~/game"
+import type { MarketData, MarketItem } from "~/market"
 import Calculator from "@/calculator"
 import { useGameStore } from "@/pinia/stores/game"
 
+// 把Proxy扒下来，提高性能
+const game = {
+  gameData: null as GameData | null,
+  marketData: null as MarketData | null
+}
+
+let _priceCache = {} as Record<string, MarketItem>
+
+watch(() => useGameStore().gameData, () => {
+  game.gameData = Object.freeze(structuredClone(toRaw(useGameStore().gameData)))
+  _priceCache = {}
+}, { immediate: true })
+watch(() => useGameStore().marketData, () => {
+  console.log("raw marketData changed")
+  game.marketData = Object.freeze(structuredClone(toRaw(useGameStore().marketData)))
+  _priceCache = {}
+}, { immediate: true })
+
 /** 查 */
 export function getGameDataApi() {
-  const res = useGameStore().gameData
+  const res = game.gameData
   return res!
 }
 export function getMarketDataApi() {
-  const res = useGameStore().marketData
+  const res = game.marketData
   return res!
 }
 const SPECIAL_PRICE: Record<string, () => MarketItem> = {
@@ -22,20 +41,29 @@ const SPECIAL_PRICE: Record<string, () => MarketItem> = {
     bid: 1
   })
 }
+
 export function getPriceOf(hrid: string): MarketItem {
+  if (_priceCache[hrid]) {
+    return _priceCache[hrid]
+  }
   if (SPECIAL_PRICE[hrid]) {
-    return SPECIAL_PRICE[hrid]()
+    _priceCache[hrid] = SPECIAL_PRICE[hrid]()
+    return _priceCache[hrid]
   }
   if (isLoot(hrid) && hrid !== "/items/bag_of_10_cowbells") {
-    return getLootPrice(hrid)
+    _priceCache[hrid] = getLootPrice(hrid)
+    return _priceCache[hrid]
   }
+  // todo此处有性能瓶颈，应该是因为itemDetailMap和market的数据量过大
   const item = getGameDataApi().itemDetailMap[hrid]
   const shopItem = getGameDataApi().shopItemDetailMap[`/shop_items/${item.hrid.split("/").pop()}`]
-  const price = getMarketDataApi().market[item.name]
+  const price = getMarketDataApi().market[item.name] || { ask: -1, bid: -1 }
   if (shopItem && shopItem.costs[0].itemHrid === Calculator.COIN_HRID) {
     price.ask = shopItem.costs[0].count
   }
-  return price
+  _priceCache[hrid] = price
+
+  return _priceCache[hrid]
 }
 
 function isLoot(hrid: string) {
@@ -81,6 +109,17 @@ export function enhancementLevelSuccessRateTable() {
   return getGameDataApi().enhancementLevelSuccessRateTable
 }
 
+// #region enhancelate
+let enhancelateCache = {} as Record<string, EnhancelateResult>
+export function getEnhancelateCache(enhanceLevel: number, protectLevel: number, itemLevel: number) {
+  return enhancelateCache[`${enhanceLevel}-${protectLevel}-${itemLevel}`]
+}
+export function setEnhancelateCache(enhanceLevel: number, protectLevel: number, itemLevel: number, result: EnhancelateResult) {
+  enhancelateCache[`${enhanceLevel}-${protectLevel}-${itemLevel}`] = result
+}
+export function clearEnhancelateCache() {
+  enhancelateCache = {}
+}
 // #region 游戏内代码
 const TIMEVALUES = {
   SECOND: 1e9,

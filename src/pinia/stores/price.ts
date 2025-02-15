@@ -12,7 +12,7 @@ export const usePriceStore = defineStore("price", {
       useGameStore().clearLeaderBoardCache()
     },
     setPrice(row: StoragePriceItem) {
-      let price = this.getPrice(row.hrid)
+      let price = this.map.get(row.hrid)
       if (!price) {
         price = {
           hrid: row.hrid,
@@ -27,12 +27,6 @@ export const usePriceStore = defineStore("price", {
     deletePrice(row: StoragePriceItem) {
       this.map.delete(row.hrid)
       this.commit()
-    },
-    getPrice(hrid: string): StoragePriceItem | undefined {
-      return this.map.get(hrid)
-    },
-    hasPrice(hrid: string): boolean {
-      return this.map.has(hrid)
     },
     setActivated(value: boolean) {
       this.activated = value

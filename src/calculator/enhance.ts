@@ -1,8 +1,13 @@
 import type { CalculatorConfig, Ingredient, IngredientWithPrice, Product } from "."
-import { getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getPriceOf } from "@/common/apis/game"
+import { getEnhancelateCache, getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getPriceOf, setEnhancelateCache } from "@/common/apis/game"
 import * as math from "mathjs"
 import Calculator from "."
+import { DecomposeCalculator } from "./alchemy"
 
+export interface EnhancelateResult {
+  actions: number
+  protects: number
+}
 export interface EnhanceCalculatorConfig extends CalculatorConfig {
   protectLevel: number
 }
@@ -68,16 +73,65 @@ export class EnhanceCalculator extends Calculator {
 
   _ingredientList: Ingredient[] = []
   get ingredientList(): Ingredient[] {
+    if (this._ingredientList.length === 0) {
+      // 为了与Calculator的设计理念一致，这里需要将成本和收益转换为单次成本和单次收益
+      const { actions, protects } = this.enhancelate()
+      this._ingredientList = [
+        // 本体
+        {
+          hrid: this.item.hrid,
+          count: 1 / actions,
+          marketPrice: getPriceOf(this.item.hrid).ask
+        },
+        // 垫子
+        {
+          hrid: this.protectionItem.hrid,
+          count: protects / actions,
+          marketPrice: this.protectionItem.marketPrice
+        }
+      ].concat(
+        // 强化材料
+        this.item.enhancementCosts!.map(item => ({
+          hrid: item.itemHrid,
+          count: item.count,
+          marketPrice: getPriceOf(item.itemHrid).ask
+        }))
+      )
+    }
     return this._ingredientList
   }
 
   _productList: Product[] = []
   get productList(): Product[] {
+    if (this._productList.length === 0) {
+      // 为了与Calculator的设计理念一致，这里需要将成本和收益转换为单次成本和单次收益
+      const { actions } = this.enhancelate()
+
+      this._productList = [
+      // 强化后的本体
+      // todo 考虑物品赋予强化等级字段
+        {
+          hrid: this.item.hrid,
+          count: 1 / actions,
+          marketPrice: getPriceOf(this.item.hrid).bid
+        }
+      ].concat(getEnhancingRareDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
+        hrid: drop.itemHrid,
+        rate: drop.dropRate,
+        count: (drop.minCount + drop.maxCount) / 2,
+        marketPrice: getPriceOf(drop.itemHrid).bid
+      }))).concat(getEnhancingEssenceDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
+        hrid: drop.itemHrid,
+        count: (drop.minCount + drop.maxCount) / 2,
+        rate: drop.dropRate,
+        marketPrice: getPriceOf(drop.itemHrid).bid
+      })))
+    }
     return this._productList
   }
 
   get available(): boolean {
-    return !!this.item.enhancementCosts
+    return !!this.item.enhancementCosts && this.maxProfitApproximate > 0
   }
 
   get actionLevel(): number {
@@ -97,60 +151,41 @@ export class EnhanceCalculator extends Calculator {
     return false
   }
 
-  run() {
-    // 期望次数
+  /**
+   * 预估强化->分解最大利润
+   * 最大利润小于0时，不可用
+   */
+  get maxProfitApproximate() {
     const { actions, protects } = this.enhancelate()
-    this._ingredientList = [{
+
+    // 只对比强化材料+垫子 与 分解产生精华的价格
+    const protectCost = this.ingredientListWithPrice[1].price * protects
+    const materialCost = this.ingredientListWithPrice.slice(2).reduce((acc, item) => acc + item.price * item.count * actions, 0)
+    const cost = protectCost + materialCost
+
+    const decomposeCal = new DecomposeCalculator({
       hrid: this.item.hrid,
-      count: 1,
-      marketPrice: getPriceOf(this.item.hrid).ask
-    }, {
-      hrid: this.protectionItem.hrid,
-      count: 1,
-      marketPrice: this.protectionItem.marketPrice
-    }].concat(
-      this.item.enhancementCosts!.map(item => ({
-        hrid: item.itemHrid,
-        count: item.count,
-        marketPrice: getPriceOf(item.itemHrid).ask
-      }))
-    )
+      /** 催化剂 1普通 2主要催化剂 */
+      catalystRank: 2,
+      enhanceLevel: this.enhanceLevel
+    })
 
-    this._productList = [
-      // 第一个产出还是被强化物品
-      // todo 考虑物品赋予强化等级字段
-      {
-        hrid: this.item.hrid,
-        count: 1,
-        marketPrice: getPriceOf(this.item.hrid).bid
-      }
-    ].concat(getEnhancingRareDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
-      hrid: drop.itemHrid,
-      rate: drop.dropRate,
-      count: (drop.minCount + drop.maxCount) / 2,
-      marketPrice: getPriceOf(drop.itemHrid).bid
-    }))).concat(getEnhancingEssenceDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
-      hrid: drop.itemHrid,
-      count: (drop.minCount + drop.maxCount) / 2,
-      rate: drop.dropRate,
-      marketPrice: getPriceOf(drop.itemHrid).bid
-    })))
+    const product = decomposeCal.productListWithPrice[0]
+    // 收益
+    const gain = product.price * product.count * decomposeCal.successRate
 
-    /**
-     * 为了与Calculator的设计理念一致，这里需要将成本和收益转换为单次成本和单次收益
-     */
-    // 每次强化消耗的被强化物品数量
-    this._ingredientList[0].count = 1 / actions
-    this._ingredientList[1].count = protects / actions
-
-    this._productList[0].count = 1 / actions
-    return super.run()
+    return gain - cost
   }
 
   /**
    * 用马尔科夫链计算从0级强化到目标等级的期望次数
    */
-  enhancelate() {
+  enhancelate(): EnhancelateResult {
+    let result = getEnhancelateCache(this.enhanceLevel, this.protectLevel, this.item.itemLevel)
+    if (result) {
+      return result
+    }
+
     const targetLevel = this.enhanceLevel
     const successRateTable = getGameDataApi().enhancementLevelSuccessRateTable
     // 构造20x20的0矩阵
@@ -179,7 +214,9 @@ export class EnhanceCalculator extends Calculator {
 
     const actions = all.get([0, 0])
     const protects = allMat.get([0, 0])
-    return { actions, protects }
+    result = { actions, protects }
+    setEnhancelateCache(this.enhanceLevel, this.protectLevel, this.item.itemLevel, result)
+    return result
   }
 
   successRateEnhance(rate: number): number {

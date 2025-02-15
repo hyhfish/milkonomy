@@ -176,13 +176,7 @@ export class DecomposeCalculator extends Calculator {
   }
 
   get productList(): Product[] {
-    const dropTable = this.item.alchemyDetail.decomposeItems
-
-    let list = dropTable.map(drop => ({
-      hrid: drop.itemHrid,
-      count: drop.count * this.item.alchemyDetail.bulkMultiplier,
-      marketPrice: getPriceOf(drop.itemHrid).bid
-    }))
+    let list = []
 
     if (this.enhanceLevel > 0) {
       list.push({
@@ -192,7 +186,11 @@ export class DecomposeCalculator extends Calculator {
       })
     }
 
-    list = list.concat(getAlchemyRareDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
+    list = list.concat(this.item.alchemyDetail.decomposeItems.map(drop => ({
+      hrid: drop.itemHrid,
+      count: drop.count * this.item.alchemyDetail.bulkMultiplier,
+      marketPrice: getPriceOf(drop.itemHrid).bid
+    }))).concat(getAlchemyRareDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
       rate: drop.dropRate,
       count: (drop.minCount + drop.maxCount) / 2,

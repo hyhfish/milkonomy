@@ -4,6 +4,7 @@ import type { StoragePriceItem } from "@/pinia/stores/price"
 import type { RequestData } from "../leaderboard/type"
 import { usePriceStore } from "@/pinia/stores/price"
 import { getItemDetailOf } from "../game"
+
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
   await new Promise(resolve => setTimeout(resolve, 0))
@@ -26,7 +27,7 @@ export function setPriceApi(row: Calculator, ingredientPriceConfigList: Ingredie
 function setPrice(row: Calculator, priceConfigList: IngredientPriceConfig[], type: "ingredient" | "product") {
   for (let i = 0; i < priceConfigList.length; i++) {
     const hrid = row[`${type}ListWithPrice`][i].hrid
-    const hasPrice = usePriceStore().hasPrice(hrid)
+    const hasPrice = hasManualPriceOf(hrid)
     const hasManualPrice = !!priceConfigList[i].manual
     if (hasManualPrice || hasPrice) {
       usePriceStore().setPrice({
@@ -44,3 +45,30 @@ export function setSinglePriceApi(row: StoragePriceItem) {
   usePriceStore().setPrice(row)
   usePriceStore().commit()
 }
+
+// #region 性能优化
+
+const price = {
+  map: new Map<string, StoragePriceItem>(),
+  activated: false
+}
+
+watch(() => usePriceStore().map, () => {
+  price.map = Object.freeze(structuredClone(toRaw(usePriceStore().map)))
+  console.log("raw priceMap changed")
+}, { immediate: true, deep: true })
+
+watch(() => usePriceStore().activated, () => {
+  price.activated = usePriceStore().activated
+}, { immediate: true })
+
+export function getManualPriceOf(hrid: string) {
+  return price.map.get(hrid)
+}
+export function hasManualPriceOf(hrid: string) {
+  return price.map.has(hrid)
+}
+export function getManualPriceActivated() {
+  return price.activated
+}
+// #endregion
