@@ -1,4 +1,4 @@
-import type { ACTION_LIST } from "@/pinia/stores/game"
+import type { ACTION_LIST, EQUIPMENT_LIST } from "@/pinia/stores/game"
 
 interface PROP_TODO {
   [key: string]: any
@@ -86,6 +86,8 @@ export interface ConsumableDetail {
 
 type Action = typeof ACTION_LIST[number]
 type ActionType = `/action_types/${Action}`
+type Equipment = typeof EQUIPMENT_LIST[number] | `${Action}_tool`
+type EquipmentType = `/equipment_types/${Equipment}`
 // #endregion
 
 // #region Alchemy
@@ -118,7 +120,6 @@ export interface AlchemyDetail {
         }
  */
 
-type EquipmentType = `/equipment_types/${Action}`
 type NoncombatStatsProp = `${Action}Speed` | `${Action}Efficiency` | `${Action}Success`
 
 export interface EquipmentDetail {

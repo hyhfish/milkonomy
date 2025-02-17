@@ -13,7 +13,7 @@ export const ACTION_LIST = [
   "enhancing"
 ] as const
 
-export const EQUIPMENT_TYPE_LIST = [
+export const EQUIPMENT_LIST = [
   "head",
   "neck",
   "earrings",
@@ -21,14 +21,14 @@ export const EQUIPMENT_TYPE_LIST = [
   "legs",
   "feet",
   "hands",
+
   "ring",
   "neck",
   "ring",
   "back",
-  "hands",
-  "offhand"
+  "off_hand"
   // 'pouch'
-]
+] as const
 
 export const useGameStore = defineStore("game", {
   state: () => ({
