@@ -47,20 +47,16 @@ export function setSinglePriceApi(row: StoragePriceItem) {
 }
 
 // #region 性能优化
-
-const price = {
-  map: new Map<string, StoragePriceItem>(),
-  activated: false
-}
+const price = structuredClone(toRaw(usePriceStore().$state))
 
 watch(() => usePriceStore().map, () => {
   price.map = Object.freeze(structuredClone(toRaw(usePriceStore().map)))
   console.log("raw priceMap changed")
-}, { immediate: true, deep: true })
+}, { deep: true })
 
 watch(() => usePriceStore().activated, () => {
   price.activated = usePriceStore().activated
-}, { immediate: true })
+})
 
 export function getManualPriceOf(hrid: string) {
   return price.map.get(hrid)

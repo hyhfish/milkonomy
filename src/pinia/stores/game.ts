@@ -3,6 +3,33 @@ import type { GameData } from "~/game"
 import type { MarketData } from "~/market"
 import { defineStore } from "pinia"
 
+export const ACTION_LIST = [
+  "cheesesmithing",
+  "crafting",
+  "tailoring",
+  "brewing",
+  "cooking",
+  "alchemy",
+  "enhancing"
+] as const
+
+export const EQUIPMENT_TYPE_LIST = [
+  "head",
+  "neck",
+  "earrings",
+  "body",
+  "legs",
+  "feet",
+  "hands",
+  "ring",
+  "neck",
+  "ring",
+  "back",
+  "hands",
+  "offhand"
+  // 'pouch'
+]
+
 export const useGameStore = defineStore("game", {
   state: () => ({
     gameData: null as GameData | null,

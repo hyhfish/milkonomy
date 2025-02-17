@@ -1,3 +1,5 @@
+import type { ACTION_LIST } from "@/pinia/stores/game"
+
 interface PROP_TODO {
   [key: string]: any
 }
@@ -29,6 +31,7 @@ export interface ItemDetail {
   enhancementCosts?: Item[]
   protectionItemHrids?: string[]
   alchemyDetail: AlchemyDetail
+  equipmentDetail?: EquipmentDetail
   consumableDetail: ConsumableDetail
   sortIndex: number
 }
@@ -80,7 +83,8 @@ export interface ConsumableDetail {
   buffs: PROP_TODO
   defaultCombatTriggers: PROP_TODO
 }
-type Action = "crafting" | "cooking" | "tailoring" | "cheesesmithing" | "brewing" | "alchemy" | "enhancing"
+
+type Action = typeof ACTION_LIST[number]
 type ActionType = `/action_types/${Action}`
 // #endregion
 
@@ -93,4 +97,43 @@ export interface AlchemyDetail {
   transmuteDropTable: DropTableItem[]
 }
 
+// #endregion
+
+// #region Equipment
+/**
+ * "type": "/equipment_types/alchemy_tool",
+        "levelRequirements": [
+          {
+            "skillHrid": "/skills/alchemy",
+            "level": 10
+          }
+        ],
+        "combatStats": {},
+        "noncombatStats": {
+          "alchemySpeed": 0.225
+        },
+        "combatEnhancementBonuses": {},
+        "noncombatEnhancementBonuses": {
+          "alchemySpeed": 0.0045000000000000005
+        }
+ */
+
+type EquipmentType = `/equipment_types/${Action}`
+type NoncombatStatsProp = `${Action}Speed` | `${Action}Efficiency` | `${Action}Success`
+
+export interface EquipmentDetail {
+  type: EquipmentType
+  levelRequirements: {
+    skillHrid: string
+    level: number
+  }[]
+  combatStats: PROP_TODO
+  noncombatStats: {
+    [key in NoncombatStatsProp]?: number
+  }
+  combatEnhancementBonuses: PROP_TODO
+  noncombatEnhancementBonuses: {
+    [key in NoncombatStatsProp]?: number
+  }
+}
 // #endregion
