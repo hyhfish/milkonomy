@@ -1,11 +1,9 @@
 import { getActiveThemeName, setActiveThemeName } from "@@/utils/cache/local-storage"
 
-const DEFAULT_THEME_NAME = "normal"
-
-type DefaultThemeName = typeof DEFAULT_THEME_NAME
+const DEFAULT_THEME_NAME = "dark"
 
 /** 注册的主题名称, 其中 DefaultThemeName 是必填的 */
-export type ThemeName = DefaultThemeName | "dark" | "dark-blue"
+export type ThemeName = "normal" | "dark" | "dark-blue"
 
 interface ThemeList {
   title: string
@@ -15,8 +13,8 @@ interface ThemeList {
 /** 主题列表 */
 const themeList: ThemeList[] = [
   {
-    title: "默认",
-    name: DEFAULT_THEME_NAME
+    title: "普通",
+    name: "normal"
   },
   {
     title: "黑暗",
