@@ -64,10 +64,8 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
-  () => getMarketDataApi(),
-  () => useFavoriteStore().list,
-  () => usePriceStore()
-], getLeaderboardData, { immediate: true, deep: true })
+  () => getMarketDataApi()
+], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeFR, handleSizeChange: handleSizeChangeFR } = usePagination({}, "dashboard-favorite-pagination")
 const favoriteData = ref<Calculator[]>([])
@@ -101,10 +99,8 @@ function handleSearchMN() {
 watch([
   () => paginationDataMN.currentPage,
   () => paginationDataMN.pageSize,
-  () => getMarketDataApi(),
-  () => usePriceStore(),
-  () => favoriteStore
-], getFavoriteData, { immediate: true, deep: true })
+  () => getMarketDataApi()
+], getFavoriteData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "dashboard-price-pagination")
 const priceData = ref<StoragePriceItem[]>([])
@@ -134,13 +130,19 @@ function getPriceData() {
 function handleSearchPrice() {
   paginationDataPrice.currentPage === 1 ? getPriceData() : (paginationDataPrice.currentPage = 1)
 }
-// 监听分页参数的变化
-watch([
-  () => paginationDataPrice.currentPage,
-  () => paginationDataPrice.pageSize,
-  () => usePriceStore()
-], getPriceData, { immediate: true, deep: true })
+// #endregion
 
+// #region deepWatch
+watch(() => favoriteStore.list, () => {
+  getLeaderboardData()
+  getFavoriteData()
+}, { deep: true })
+
+watch(() => usePriceStore(), () => {
+  getLeaderboardData()
+  getFavoriteData()
+  getPriceData()
+}, { deep: true })
 // #endregion
 
 const currentRow = ref<Calculator>()

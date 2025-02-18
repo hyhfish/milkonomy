@@ -63,9 +63,8 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
-  () => getMarketDataApi(),
-  () => usePriceStore()
-], getLeaderboardData, { immediate: true, deep: true })
+  () => getMarketDataApi()
+], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "enhanposer-price-pagination")
 const priceData = ref<StoragePriceItem[]>([])
@@ -98,10 +97,17 @@ function handleSearchPrice() {
 // 监听分页参数的变化
 watch([
   () => paginationDataPrice.currentPage,
-  () => paginationDataPrice.pageSize,
-  () => usePriceStore()
-], getPriceData, { immediate: true, deep: true })
+  () => paginationDataPrice.pageSize
+], getPriceData, { immediate: true })
 
+// #endregion
+
+// #region deepWatch
+
+watch(() => usePriceStore(), () => {
+  getLeaderboardData()
+  getPriceData()
+}, { deep: true })
 // #endregion
 
 const currentRow = ref<Calculator>()
