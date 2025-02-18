@@ -1,5 +1,7 @@
 import type { CalculatorConfig, Ingredient, IngredientWithPrice, Product } from "."
 import { getEnhancelateCache, getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getPriceOf, setEnhancelateCache } from "@/common/apis/game"
+import { getEnhanceSuccessRatio } from "@/common/apis/player"
+import * as Format from "@@/utils/format"
 import * as math from "mathjs"
 import Calculator from "."
 import { DecomposeCalculator } from "./alchemy"
@@ -58,13 +60,8 @@ export class EnhanceCalculator extends Calculator {
     return 0.0464
   }
 
-  // 手套
-  get equipmentSpeed(): number {
-    return 0.129
-  }
-
   get speed() {
-    return super.speed + Math.max(0, this.actionLevel - this.item.itemLevel) * 0.01 + this.houseSpeed + (this.ultraEnhancingTea ? 0.06 : 0)
+    return super.speed + Math.max(0, this.playerLevel - this.actionLevel) * 0.01
   }
 
   get efficiency() {
@@ -117,13 +114,13 @@ export class EnhanceCalculator extends Calculator {
         }
       ].concat(getEnhancingRareDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
-        rate: drop.dropRate,
+        rate: drop.dropRate * (1 + this.rareRatio),
         count: (drop.minCount + drop.maxCount) / 2,
         marketPrice: getPriceOf(drop.itemHrid).bid
       }))).concat(getEnhancingEssenceDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
         count: (drop.minCount + drop.maxCount) / 2,
-        rate: drop.dropRate,
+        rate: drop.dropRate * (1 + this.essenceRatio),
         marketPrice: getPriceOf(drop.itemHrid).bid
       })))
     }
@@ -135,20 +132,22 @@ export class EnhanceCalculator extends Calculator {
   }
 
   get actionLevel(): number {
-    return 100 + (this.ultraEnhancingTea ? 8 : 0)
+    return this.item.itemLevel
+  }
+
+  run() {
+    super.run()
+    // 0->1 的成功率显示出来
+    const successRate = this.successRateEnhance(getGameDataApi().enhancementLevelSuccessRateTable[0])
+    this.result.successRate = successRate
+    this.result.successRateFormat = Format.percent(successRate)
+    return this
   }
 
   // #region 项目特有属性
-  get houseSpeed() {
-    return 0.04
-  }
 
   get houseSuccessRate() {
     return 0.0005 * 4
-  }
-
-  get ultraEnhancingTea() {
-    return false
   }
 
   /**
@@ -220,8 +219,7 @@ export class EnhanceCalculator extends Calculator {
   }
 
   successRateEnhance(rate: number): number {
-    const buff = (1 + this.equipmentSuccessRate + this.houseSuccessRate + (this.actionLevel - this.item.itemLevel) * 0.0005)
-    return rate * buff
+    return rate * (1 + getEnhanceSuccessRatio(this.item))
   }
 
   levelUpRate(rate: number): number {

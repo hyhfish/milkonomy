@@ -1,5 +1,6 @@
 import type { Action } from "~/game"
 import { getItemDetailOf } from "@/common/apis/game"
+import { getActionConfigOf, getBuffOf } from "@/common/apis/player"
 import { getManualPriceActivated, getManualPriceOf } from "@/common/apis/price"
 import * as Format from "@@/utils/format"
 
@@ -54,11 +55,11 @@ export default abstract class Calculator {
   }
 
   get efficiency(): number {
-    return 1 + Math.max(0, (this.playerLevel - this.actionLevel) * 0.01) + this.equipementEfficiency + this.houseEfficiency + (this.efficiencyTea ? 0.1 : 0)
+    return 1 + Math.max(0, (this.playerLevel - this.actionLevel) * 0.01) + (this.efficiencyTea ? 0.1 : 0) + getBuffOf(this.action, "Efficiency")
   }
 
   get speed(): number {
-    return 1 + this.equipmentSpeed
+    return 1 + getBuffOf(this.action, "Speed")
   }
 
   get isEquipment(): boolean {
@@ -185,6 +186,7 @@ export default abstract class Calculator {
       profitPDFormat: Format.money(profitPH * 24),
       profitRateFormat: Format.percent(profitRate),
       efficiencyFormat: Format.percent(this.efficiency - 1),
+      speedFormat: Format.percent(this.speed - 1),
       timeCostFormat: Format.costTime(this.timeCost),
       successRateFormat: Format.percent(this.successRate)
     }
@@ -192,24 +194,17 @@ export default abstract class Calculator {
   }
   // #endregion
 
-  // #region 未来用户配置属性
+  // #region 用户配置属性
   get playerLevel(): number {
-    return 100
+    return getActionConfigOf(this.action).playerLevel
   }
 
-  // +10生产装备
-  get equipementEfficiency(): number {
-    return 0.129
+  get essenceRatio(): number {
+    return getBuffOf(this.action, "EssenceFind") || 0
   }
 
-  // 4级房子
-  get houseEfficiency(): number {
-    return 0.06
-  }
-
-  // +10神圣工具
-  get equipmentSpeed(): number {
-    return 1.161
+  get rareRatio(): number {
+    return getBuffOf(this.action, "RareFind") || 0
   }
 
   // #endregion

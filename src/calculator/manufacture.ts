@@ -66,13 +66,13 @@ export class ManufactureCalculator extends Calculator {
     list = list.concat(this.actionItem.essenceDropTable?.map(essence => ({
       hrid: essence.itemHrid,
       count: essence.maxCount,
-      rate: essence.dropRate,
+      rate: essence.dropRate * (1 + this.essenceRatio),
       marketPrice: getPriceOf(essence.itemHrid).bid
     })) || [])
     list = list.concat(this.actionItem.rareDropTable?.map(rare => ({
       hrid: rare.itemHrid,
       count: rare.maxCount,
-      rate: rare.dropRate,
+      rate: rare.dropRate * (1 + this.rareRatio),
       marketPrice: getPriceOf(rare.itemHrid).bid
     })) || []
     )

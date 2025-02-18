@@ -56,10 +56,13 @@ const simple = ref(true)
               <ItemIcon v-if="data.catalyticTea" hrid="/items/catalytic_tea" />
               <ItemIcon v-if="data.blessedTea" hrid="/items/blessed_tea" />
             </div>
-            <div v-if="data?.successRate! < 1">
+            <div v-if="data?.result.successRate! < 1">
               成功率：{{ data?.result.successRateFormat }}
             </div>
-            <div>效率：{{ data?.result.efficiencyFormat }}</div>
+            <div v-if="data?.efficiency > 1">
+              效率：{{ data?.result.efficiencyFormat }}
+            </div>
+            <div>速度：{{ data?.result.speedFormat }}</div>
             <div>时间：{{ data?.result.timeCostFormat }}</div>
             <el-icon class="transition" :size="36">
               <DArrowRight />
@@ -88,10 +91,13 @@ const simple = ref(true)
                   <ItemIcon v-if="calculator.catalyticTea" hrid="/items/catalytic_tea" />
                   <ItemIcon v-if="calculator.blessedTea" hrid="/items/blessed_tea" />
                 </div>
-                <div v-if="calculator?.successRate! < 1">
+                <div v-if="calculator?.result.successRate! < 1">
                   成功率：{{ calculator?.result.successRateFormat }}
                 </div>
-                <div>效率：{{ calculator?.result.efficiencyFormat }}</div>
+                <div v-if="data?.efficiency > 1">
+                  效率：{{ calculator?.result.efficiencyFormat }}
+                </div>
+                <div>速度：{{ calculator?.result.speedFormat }}</div>
                 <div>时间：{{ calculator?.result.timeCostFormat }}</div>
                 <div>时间占比：{{ Format.percent(data.workMultiplier![i]!) }}</div>
                 <div v-if="calculator instanceof EnhanceCalculator">

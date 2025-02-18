@@ -4,12 +4,14 @@ import type { FormInstance, Sort } from "element-plus"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
 import { getGameDataApi, getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
+import { getActionConfigOf } from "@/common/apis/player"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
 import { useFavoriteStore } from "@/pinia/stores/favorite"
-import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 
+import { usePlayerStore } from "@/pinia/stores/player"
+import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
@@ -64,7 +66,9 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
-  () => getMarketDataApi()
+  () => getMarketDataApi(),
+  () => usePlayerStore().config,
+  () => usePlayerStore().actionConfigActivated
 ], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeFR, handleSizeChange: handleSizeChangeFR } = usePagination({}, "dashboard-favorite-pagination")
@@ -99,7 +103,8 @@ function handleSearchMN() {
 watch([
   () => paginationDataMN.currentPage,
   () => paginationDataMN.pageSize,
-  () => getMarketDataApi()
+  () => getMarketDataApi(),
+  () => usePlayerStore().config
 ], getFavoriteData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "dashboard-price-pagination")
@@ -251,7 +256,13 @@ function deletePrice(row: StoragePriceItem) {
                 </template>
               </el-table-column>
               <el-table-column prop="project" label="项目" />
-              <el-table-column prop="actionLevel" label="等级" align="center" />
+              <el-table-column prop="actionLevel" label="等级" align="center">
+                <template #default="{ row }">
+                  <div :class="row.actionLevel > getActionConfigOf(row.action).playerLevel ? 'red' : ''">
+                    {{ row.actionLevel }}
+                  </div>
+                </template>
+              </el-table-column>
               <el-table-column label="利润 / 天" align="center" min-width="120">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
@@ -505,5 +516,12 @@ function deletePrice(row: StoragePriceItem) {
 // 蓝色
 .manual {
   color: #409eff;
+}
+
+.red {
+  color: #f56c6c;
+}
+.green {
+  color: #67c23a;
 }
 </style>

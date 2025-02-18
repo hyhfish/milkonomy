@@ -1,5 +1,6 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getAlchemyDecomposeEnhancingEssenceOutput, getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
+import { getAlchemySuccessRatio } from "@/common/apis/player"
 import Calculator from "."
 import { getTeaIngredientList } from "./utils"
 
@@ -8,13 +9,40 @@ export interface AlchemyCalculatorConfig extends CalculatorConfig {
 }
 
 export type AlchemyCatalyst = "prime_catalyst" | "catalyst_of_transmutation" | "catalyst_of_decomposition" | "catalyst_of_coinification"
-export class TransmuteCalculator extends Calculator {
+
+abstract class AlchemyCalculator extends Calculator {
+  get actionLevel(): number {
+    return this.item.itemLevel
+  }
+
+  constructor(config: AlchemyCalculatorConfig) {
+    super({ ...config, action: "alchemy" })
+  }
+
+  get catalystTeaRatio(): number {
+    return this.catalyticTea ? 0.05 : 0
+  }
+
+  get catalystRatio(): number {
+    let ratio = this.catalystTeaRatio
+    ratio += (this.catalystRank ? this.catalystRank * 0.1 + 0.05 : 0)
+    return ratio
+  }
+
+  abstract get baseSuccessRate(): number
+
+  get successRate(): number {
+    return Math.min(1, this.baseSuccessRate * (1 + getAlchemySuccessRatio(this.item) + this.catalystRatio))
+  }
+}
+
+export class TransmuteCalculator extends AlchemyCalculator {
   get className() {
     return "TransmuteCalculator"
   }
 
   constructor(config: AlchemyCalculatorConfig) {
-    super({ ...config, project: "重组", action: "alchemy" })
+    super({ ...config, project: "重组" })
   }
 
   get catalyst(): AlchemyCatalyst | undefined {
@@ -30,17 +58,12 @@ export class TransmuteCalculator extends Calculator {
     return this.item.alchemyDetail?.transmuteDropTable != null && getPriceOf(this.item.hrid).ask !== -1
   }
 
-  get actionLevel(): number {
-    return this.item.itemLevel
-  }
-
   get timeCost(): number {
     return getTransmuteTimeCost() / this.speed
   }
 
-  // todo 暂未找到成功率下降公式
-  get successRate(): number {
-    return Math.min(1, this.item.alchemyDetail.transmuteSuccessRate * this.catalystRate)
+  get baseSuccessRate(): number {
+    return this.item.alchemyDetail.transmuteSuccessRate
   }
 
   get ingredientList(): Ingredient[] {
@@ -81,13 +104,13 @@ export class TransmuteCalculator extends Calculator {
       hrid: drop.itemHrid,
       count: (drop.minCount + drop.maxCount) / 2,
       counterCount: 0,
-      rate: drop.dropRate,
+      rate: drop.dropRate * (1 + this.rareRatio),
       marketPrice: getPriceOf(drop.itemHrid).bid
     }))).concat(getAlchemyEssenceDropTable(this.item, getTransmuteTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
       count: (drop.minCount + drop.maxCount) / 2,
       counterCount: 0,
-      rate: drop.dropRate,
+      rate: drop.dropRate * (1 + this.essenceRatio),
       marketPrice: getPriceOf(drop.itemHrid).bid
     })))
   }
@@ -97,28 +120,15 @@ export class TransmuteCalculator extends Calculator {
     if (!product) return 0
     return Math.min(1, product.maxCount * (product.dropRate || 1) * this.successRate)
   }
-
-  // #region 项目特有属性
-
-  get catalystTeaRate(): number {
-    return this.catalyticTea ? 1.05 : 1
-  }
-
-  get catalystRate(): number {
-    let rate = this.catalystTeaRate
-    rate += (this.catalystRank ? this.catalystRank * 0.1 + 0.05 : 0)
-    return rate
-  }
-  // #endregion
 }
-export class DecomposeCalculator extends Calculator {
+export class DecomposeCalculator extends AlchemyCalculator {
   get className() {
     return "DecomposeCalculator"
   }
 
   enhanceLevel: number
   constructor(config: AlchemyCalculatorConfig) {
-    super({ ...config, project: "分解", action: "alchemy" })
+    super({ ...config, project: "分解" })
     this.enhanceLevel = config.enhanceLevel || 0
   }
 
@@ -135,17 +145,12 @@ export class DecomposeCalculator extends Calculator {
     return this.item.alchemyDetail?.decomposeItems != null && getPriceOf(this.item.hrid).ask !== -1
   }
 
-  get actionLevel(): number {
-    return this.item.itemLevel
-  }
-
   get timeCost(): number {
     return getDecomposeTimeCost() / this.speed
   }
 
-  // todo 暂未找到分解成功率的来源及成功率下降公式
-  get successRate(): number {
-    return Math.min(1, 0.6 * this.catalystRate)
+  get baseSuccessRate(): number {
+    return 0.6
   }
 
   get ingredientList(): Ingredient[] {
@@ -192,39 +197,26 @@ export class DecomposeCalculator extends Calculator {
       marketPrice: getPriceOf(drop.itemHrid).bid
     }))).concat(getAlchemyRareDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
-      rate: drop.dropRate,
+      rate: drop.dropRate * (1 + this.rareRatio),
       count: (drop.minCount + drop.maxCount) / 2,
       marketPrice: getPriceOf(drop.itemHrid).bid
     }))).concat(getAlchemyEssenceDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
       count: (drop.minCount + drop.maxCount) / 2,
-      rate: drop.dropRate,
+      rate: drop.dropRate * (1 + this.essenceRatio),
       marketPrice: getPriceOf(drop.itemHrid).bid
     })))
     return list
   }
-
-  // #region 项目特有属性
-
-  get catalystTeaRate(): number {
-    return this.catalyticTea ? 1.05 : 1
-  }
-
-  get catalystRate(): number {
-    let rate = this.catalystTeaRate
-    rate += (this.catalystRank ? this.catalystRank * 0.1 + 0.05 : 0)
-    return rate
-  }
-  // #endregion
 }
 
-export class CoinifyCalculator extends Calculator {
+export class CoinifyCalculator extends AlchemyCalculator {
   get className() {
     return "CoinifyCalculator"
   }
 
   constructor(config: AlchemyCalculatorConfig) {
-    super({ ...config, project: "点金", action: "alchemy" })
+    super({ ...config, project: "点金" })
   }
 
   get catalyst(): AlchemyCatalyst | undefined {
@@ -240,17 +232,12 @@ export class CoinifyCalculator extends Calculator {
     return this.item.alchemyDetail?.isCoinifiable && getPriceOf(this.item.hrid).ask !== -1
   }
 
-  get actionLevel(): number {
-    return this.item.itemLevel
-  }
-
   get timeCost(): number {
     return getCoinifyTimeCost() / this.speed
   }
 
-  // todo 暂未找到成功率下降公式
-  get successRate(): number {
-    return Math.min(1, 0.7 * this.catalystRate)
+  get baseSuccessRate(): number {
+    return 0.7
   }
 
   get ingredientList(): Ingredient[] {
@@ -281,26 +268,13 @@ export class CoinifyCalculator extends Calculator {
     }].concat(getAlchemyRareDropTable(this.item, getCoinifyTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
       count: (drop.minCount + drop.maxCount) / 2,
-      rate: drop.dropRate,
+      rate: drop.dropRate * (1 + this.rareRatio),
       marketPrice: getPriceOf(drop.itemHrid).bid
     }))).concat(getAlchemyEssenceDropTable(this.item, getCoinifyTimeCost()).map(drop => ({
       hrid: drop.itemHrid,
       count: (drop.minCount + drop.maxCount) / 2,
-      rate: drop.dropRate,
+      rate: drop.dropRate * (1 + this.essenceRatio),
       marketPrice: getPriceOf(drop.itemHrid).bid
     })))
   }
-
-  // #region 项目特有属性
-
-  get catalystTeaRate(): number {
-    return this.catalyticTea ? 1.05 : 1
-  }
-
-  get catalystRate(): number {
-    let rate = this.catalystTeaRate
-    rate += (this.catalystRank ? this.catalystRank * 0.1 + 0.05 : 0)
-    return rate
-  }
-  // #endregion
 }

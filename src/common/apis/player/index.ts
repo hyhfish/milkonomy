@@ -1,13 +1,13 @@
 import type { ActionConfigItem, PlayerEquipmentItem } from "@/pinia/stores/player"
 import type { StoragePriceItem } from "@/pinia/stores/price"
 import type { RequestData } from "../leaderboard/type"
-import type { Action, Equipment, ItemDetail } from "~/game"
+import type { Action, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
 import { DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
 import { getEquipmentTypeOf } from "@/common/utils/game"
-import { ACTION_LIST, useGameStore } from "@/pinia/stores/game"
+import { ACTION_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { usePriceStore } from "@/pinia/stores/price"
-import { getItemDetailOf } from "../game"
+import { getGameDataApi, getItemDetailOf } from "../game"
 
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
@@ -20,8 +20,7 @@ export async function getPriceDataApi(params: RequestData) {
 /** 改 */
 export function setActionConfigApi(list: ActionConfigItem[], sepecial: PlayerEquipmentItem[], activated: boolean) {
   if (activated) {
-    usePlayerStore().setActionConfig(list)
-    usePlayerStore().setSpecialEquipment(sepecial)
+    usePlayerStore().setActionConfig(list, sepecial)
   }
   usePlayerStore().setActivated(activated)
   usePlayerStore().commit()
@@ -29,9 +28,11 @@ export function setActionConfigApi(list: ActionConfigItem[], sepecial: PlayerEqu
 
 // #region 性能优化
 
-const player = structuredClone(toRaw(usePlayerStore().$state))
-const defaultPlayer = structuredClone(toRaw(usePlayerStore().$state))
+let playerConfig = structuredClone(toRaw(usePlayerStore().config))
+const defaultPlayerConfig = structuredClone(toRaw(usePlayerStore().config))
+let actionConfigActivated = usePlayerStore().actionConfigActivated
 let equipmentList = [] as ItemDetail[]
+let buffs = {} as Record<NoncombatStatsProp, number>
 
 watch (() => useGameStore().gameData, () => {
   if (!useGameStore().gameData) return
@@ -40,20 +41,19 @@ watch (() => useGameStore().gameData, () => {
 
   initDefaultActionConfigMap()
   initDefaultSpecialEquipmentMap()
+  initBuffMap()
   console.log("equipmentList changed")
 }, { immediate: true })
 
 watch(
-  () => usePlayerStore().actionConfigMap
-  , (value) => {
-    player.actionConfigMap = structuredClone(toRaw(value))
+  () => usePlayerStore().config,
+  (value) => {
+    playerConfig = structuredClone(toRaw(value))
+    initBuffMap()
   },
+  // 这里不能用 deep: true，否则在页面中修改数据时，保存前就会触发
   { immediate: true }
 )
-
-watch(() => usePlayerStore().specialEquimentMap, (value) => {
-  player.specialEquimentMap = structuredClone(toRaw(value))
-}, { immediate: true })
 
 /**
  * 获取默认值
@@ -61,9 +61,9 @@ watch(() => usePlayerStore().specialEquimentMap, (value) => {
 function initDefaultActionConfigMap() {
   for (const action of Object.values(ACTION_LIST)) {
     const defaultTool = getToolListOf(action).find(item => item.itemLevel === 80)
-    defaultPlayer.actionConfigMap.set(action, {
+    defaultPlayerConfig.actionConfigMap.set(action, {
       action,
-      actionLevel: 100,
+      playerLevel: 100,
       tool: {
         type: `${action}_tool`,
         hrid: defaultTool?.hrid,
@@ -87,7 +87,7 @@ function initDefaultActionConfigMap() {
 function initDefaultSpecialEquipmentMap() {
   const map = new Map<Equipment, PlayerEquipmentItem>()
   for (const item of Object.values(DEFAULT_SEPCIAL_EQUIPMENT_LIST)) {
-    defaultPlayer.specialEquimentMap.set(item.type, {
+    defaultPlayerConfig.specialEquimentMap.set(item.type, {
       type: item.type,
       hrid: item.hrid,
       enhanceLevel: item.enhanceLevel
@@ -96,23 +96,24 @@ function initDefaultSpecialEquipmentMap() {
   return map
 }
 
-watch(() => usePlayerStore().actionConfigActivated, () => {
-  player.actionConfigActivated = usePlayerStore().actionConfigActivated
+watch(() => usePlayerStore().actionConfigActivated, (value) => {
+  actionConfigActivated = value
+  initBuffMap()
 })
 
 export function getActionConfigActivated() {
-  return player.actionConfigActivated
+  return actionConfigActivated
 }
 /**
  * 获取用户穿戴的action对应的配置
  * @param action
  */
-export function getActionConfigOf(action: Action, activated: boolean) {
+export function getActionConfigOf(action: Action, activated: boolean = actionConfigActivated) {
   return activated
-    ? player.actionConfigMap.size
-      ? player.actionConfigMap.get(action)
-      : defaultPlayer.actionConfigMap.get(action)
-    : defaultPlayer.actionConfigMap.get(action)
+    ? playerConfig.actionConfigMap.size
+      ? playerConfig.actionConfigMap.get(action)!
+      : defaultPlayerConfig.actionConfigMap.get(action)!
+    : defaultPlayerConfig.actionConfigMap.get(action)!
 }
 
 export function getToolListOf(action: Action) {
@@ -149,10 +150,72 @@ export function getSpecialEquipmentListOf(type: string) {
  */
 export function getSpecialEquipmentOf(type: Equipment, activated: boolean) {
   return activated
-    ? player.specialEquimentMap.size
-      ? player.specialEquimentMap.get(type)
-      : defaultPlayer.specialEquimentMap.get(type)
-    : defaultPlayer.specialEquimentMap.get(type)
+    ? playerConfig.specialEquimentMap.size
+      ? playerConfig.specialEquimentMap.get(type)
+      : defaultPlayerConfig.specialEquimentMap.get(type)
+    : defaultPlayerConfig.specialEquimentMap.get(type)
+}
+
+// #endregion
+
+// #region buff计算
+function initBuffMap() {
+  if (!getGameDataApi()) return
+  buffs = {} as Record<NoncombatStatsProp, number>
+  const enhanceMultiplier = getGameDataApi().enhancementLevelTotalBonusMultiplierTable
+  for (const action of ACTION_LIST) {
+    const actionConfig = getActionConfigOf(action)
+    for (const ac of Object.values(actionConfig)) {
+      if (typeof ac === "object" && ac.hrid) {
+        const item = getItemDetailOf(ac.hrid)
+        item.equipmentDetail?.noncombatStats && Object.entries(item.equipmentDetail.noncombatStats).forEach(([key, value]) => {
+          const bonus = item.equipmentDetail?.noncombatEnhancementBonuses[key as NoncombatStatsProp]
+          buffs[key as NoncombatStatsProp] = (buffs[key as NoncombatStatsProp] || 0) + value + ((bonus || 0) * (enhanceMultiplier[ac.enhanceLevel || 0]))
+        })
+      }
+    }
+    Object.keys(HOUSE_MAP[action as Action]).forEach((key) => {
+      let buffAction = action as Action | "skilling"
+      if (key === "RareFind" || key === "Experience") {
+        buffAction = "skilling"
+      }
+      buffs[`${buffAction}${key}` as NoncombatStatsProp] = (buffs[`${buffAction}${key}` as NoncombatStatsProp] || 0) + (HOUSE_MAP[action as Action][key as NoncombatStatsKey] || 0) * (actionConfig.houseLevel || 0)
+    })
+  }
+  for (const equipment of EQUIPMENT_LIST) {
+    const eq = getSpecialEquipmentOf(equipment, actionConfigActivated)
+    if (eq && eq.hrid) {
+      const item = getItemDetailOf(eq.hrid!)
+      item.equipmentDetail?.noncombatStats && Object.entries(item.equipmentDetail.noncombatStats).forEach(([key, value]) => {
+        const bonus = item.equipmentDetail?.noncombatEnhancementBonuses[key as NoncombatStatsProp]
+        buffs[key as NoncombatStatsProp] = (buffs[key as NoncombatStatsProp] || 0) + value + ((bonus || 0) * (enhanceMultiplier[eq.enhanceLevel || 0]))
+      })
+    }
+  }
+  console.log("buffs", buffs)
+}
+
+export function getBuffOf(action: Action, key: NoncombatStatsKey) {
+  return (buffs[`${action}${key}`] || 0) + (buffs[`skilling${key}`] || 0)
+}
+
+export function getAlchemySuccessRatio(item: ItemDetail) {
+  const action = "alchemy"
+  const playerLevel = getActionConfigOf(action).playerLevel
+  const levelRatio = playerLevel >= item.itemLevel
+    ? 0
+    : -0.9 * (1 - playerLevel / item.itemLevel)
+  return levelRatio
+}
+
+export function getEnhanceSuccessRatio(item: ItemDetail) {
+  const action = "enhancing"
+  const playerLevel = getActionConfigOf(action).playerLevel
+  const levelRatio = playerLevel >= item.itemLevel
+    ? (playerLevel - item.itemLevel) * 0.0005
+    : -0.5 * (1 - playerLevel / item.itemLevel)
+  const buff = getBuffOf(action, "Success")
+  return levelRatio + buff
 }
 
 // #endregion

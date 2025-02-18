@@ -13,6 +13,7 @@ export interface GameData {
   shopItemDetailMap: Record<string, ShopItemDetail>
   openableLootDropMap: Record<string, DropTableItem[]>
   enhancementLevelSuccessRateTable: number[]
+  enhancementLevelTotalBonusMultiplierTable: number[]
 }
 export interface ShopItemDetail {
   hrid: string
@@ -102,25 +103,9 @@ export interface AlchemyDetail {
 // #endregion
 
 // #region Equipment
-/**
- * "type": "/equipment_types/alchemy_tool",
-        "levelRequirements": [
-          {
-            "skillHrid": "/skills/alchemy",
-            "level": 10
-          }
-        ],
-        "combatStats": {},
-        "noncombatStats": {
-          "alchemySpeed": 0.225
-        },
-        "combatEnhancementBonuses": {},
-        "noncombatEnhancementBonuses": {
-          "alchemySpeed": 0.0045000000000000005
-        }
- */
 
-type NoncombatStatsProp = `${Action}Speed` | `${Action}Efficiency` | `${Action}Success`
+type NoncombatStatsKey = "Speed" | "Efficiency" | "Success" | "RareFind" | "EssenceFind" | "Experience"
+type NoncombatStatsProp = `${Action | "skilling"}${NoncombatStatsKey}`
 
 export interface EquipmentDetail {
   type: EquipmentType

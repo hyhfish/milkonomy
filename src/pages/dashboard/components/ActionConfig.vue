@@ -14,6 +14,7 @@ const actionList = ref<ActionConfigItem[]>([])
 const specialList = ref<PlayerEquipmentItem[]>([])
 function onDialog() {
   actionConfigActivated.value = getActionConfigActivated()
+  loadData(actionConfigActivated.value)
   visible.value = true
 }
 
@@ -34,7 +35,7 @@ function loadData(activated: boolean) {
 
 function onConfirm() {
   try {
-    throw new Error("敬请期待")
+    // throw new Error("敬请期待")
     setActionConfigApi(actionList.value, specialList.value, actionConfigActivated.value)
     visible.value = false
   } catch (e: any) {
@@ -64,12 +65,12 @@ function onConfirm() {
             <el-table-column prop="action" label="职业" width="140" align="center" />
             <el-table-column label="技能等级" width="100" align="center">
               <template #default="{ row }">
-                <el-input-number v-model="row.actionLevel" :min="1" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
+                <el-input-number v-model="row.playerLevel" :min="1" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
             <el-table-column label="房子等级" width="100" align="center">
               <template #default="{ row }">
-                <el-input-number v-model="row.houseLevel" :min="1" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
+                <el-input-number v-model="row.houseLevel" :min="0" :max="10" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
             <el-table-column label="工具" align="center">

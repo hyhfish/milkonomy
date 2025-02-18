@@ -1,24 +1,25 @@
 import type { Action, Equipment } from "~/game"
+import { clearEnhancelateCache } from "@/common/apis/game"
 import { defineStore } from "pinia"
 import { useGameStore } from "./game"
 
 export const usePlayerStore = defineStore("player", {
   state: () => ({
-    actionConfigMap: load(),
-    actionConfigActivated: getActivated(),
-    specialEquimentMap: loadSpecial()
+    config: load(),
+    actionConfigActivated: getActivated()
   }),
   actions: {
     commit() {
-      save(this.actionConfigMap)
-      saveSpecial(this.specialEquimentMap)
+      save(this.config)
       useGameStore().clearLeaderBoardCache()
+      clearEnhancelateCache()
     },
-    setActionConfig(list: ActionConfigItem[]) {
-      this.actionConfigMap = new Map(list.map(item => [item.action, toRaw(item)]))
-    },
-    setSpecialEquipment(list: PlayerEquipmentItem[]) {
-      this.specialEquimentMap = new Map(list.map(item => [item.type, toRaw(item)]))
+    setActionConfig(list: ActionConfigItem[], sepecial: PlayerEquipmentItem[]) {
+      this.config = {
+        actionConfigMap: new Map(list.map(item => [item.action, toRaw(item)])),
+        specialEquimentMap: new Map(sepecial.map(item => [item.type, toRaw(item)]))
+
+      }
     },
     setActivated(value: boolean) {
       this.actionConfigActivated = value
@@ -29,7 +30,7 @@ export const usePlayerStore = defineStore("player", {
 const KEY = "player-action-config"
 export interface ActionConfigItem {
   action: Action
-  actionLevel: number
+  playerLevel: number
   tool: PlayerEquipmentItem
   body: PlayerEquipmentItem
   legs: PlayerEquipmentItem
@@ -40,31 +41,35 @@ export interface PlayerEquipmentItem {
   hrid?: string
   enhanceLevel?: number
 }
-function load(): Map<Action, ActionConfigItem> {
-  let map = new Map<Action, ActionConfigItem>()
-  try {
-    const data = JSON.parse(localStorage.getItem(KEY) || "{}")
-    map = new Map<Action, ActionConfigItem>(Object.entries(data) as [Action, ActionConfigItem][])
-  } catch {
-  }
-  return map
-}
-function save(map: Map<Action, ActionConfigItem>) {
-  localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(map.entries())))
+export interface ActionConfig {
+  actionConfigMap: Map<Action, ActionConfigItem>
+  specialEquimentMap: Map<Equipment, PlayerEquipmentItem>
 }
 
-const SPECIAL_KEY = "player-special-equipment"
-function loadSpecial(): Map<Equipment, PlayerEquipmentItem> {
-  let map = new Map<Equipment, PlayerEquipmentItem>()
+function load(): ActionConfig {
+  const config = {
+    actionConfigMap: new Map<Action, ActionConfigItem>(),
+    specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>()
+  }
   try {
-    const data = JSON.parse(localStorage.getItem(SPECIAL_KEY) || "{}")
-    map = new Map<Equipment, PlayerEquipmentItem>(Object.entries(data) as [Equipment, PlayerEquipmentItem][])
+    const data = JSON.parse(localStorage.getItem(KEY) || "{}")
+    config.actionConfigMap = new Map<Action, ActionConfigItem>(Object.entries(data.actionConfigMap || {}) as [Action, ActionConfigItem][])
+    config.specialEquimentMap = new Map<Equipment, PlayerEquipmentItem>(Object.entries(data.specialEquimentMap || {}) as [Equipment, PlayerEquipmentItem][])
   } catch {
   }
-  return map
+  return config
 }
-function saveSpecial(map: Map<Equipment, PlayerEquipmentItem>) {
-  localStorage.setItem(SPECIAL_KEY, JSON.stringify(Object.fromEntries(map.entries())))
+function save(config: ActionConfig) {
+  // localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(map.entries())))
+  const object: Record<string, any> = {}
+  for (const [key, value] of Object.entries(config)) {
+    if (value instanceof Map) {
+      object[key] = Object.fromEntries(value.entries())
+    } else {
+      object[key] = value
+    }
+  }
+  localStorage.setItem(KEY, JSON.stringify(object))
 }
 
 const ACTIVATED_KEY = "player-action-activated"

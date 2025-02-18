@@ -9,12 +9,14 @@ import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
 import { useFavoriteStore } from "@/pinia/stores/favorite"
 
+import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Search, Star, StarFilled } from "@element-plus/icons-vue"
 import { cloneDeep } from "lodash-es"
+import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
 import SinglePrice from "../dashboard/components/SinglePrice.vue"
@@ -63,7 +65,9 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
-  () => getMarketDataApi()
+  () => getMarketDataApi(),
+  () => usePlayerStore().config,
+  () => usePlayerStore().actionConfigActivated
 ], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "enhanposer-price-pagination")
@@ -160,6 +164,10 @@ function deletePrice(row: StoragePriceItem) {
         }"
       >
         市场数据更新时间:{{ new Date(getMarketDataApi()?.time * 1000).toLocaleString() }}
+      </div>
+
+      <div>
+        <ActionConfig />
       </div>
     </div>
     <el-row :gutter="20" class="row">
@@ -357,10 +365,10 @@ function deletePrice(row: StoragePriceItem) {
 .game-info {
   display: flex;
   margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
   font-size: 14px;
-  * {
-    margin-right: 20px;
-  }
+  gap: 10px 20px;
   .error {
     color: #f56c6c;
   }

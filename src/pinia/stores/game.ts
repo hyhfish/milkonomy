@@ -1,5 +1,5 @@
 import type Calculator from "@/calculator"
-import type { GameData } from "~/game"
+import type { Action, GameData, NoncombatStatsKey } from "~/game"
 import type { MarketData } from "~/market"
 import { defineStore } from "pinia"
 
@@ -15,8 +15,6 @@ export const ACTION_LIST = [
 
 export const EQUIPMENT_LIST = [
   "head",
-  "neck",
-  "earrings",
   "body",
   "legs",
   "feet",
@@ -24,11 +22,32 @@ export const EQUIPMENT_LIST = [
 
   "ring",
   "neck",
-  "ring",
+  "earrings",
   "back",
   "off_hand"
   // 'pouch'
+  // 'main_hand'
 ] as const
+
+const DEFAULT_HOUSE = {
+  Efficiency: 0.015,
+  Experience: 0.0005,
+  RareFind: 0.002
+}
+export const HOUSE_MAP: Record<Action, Partial<Record<NoncombatStatsKey, number>>> = {
+  cheesesmithing: { ...DEFAULT_HOUSE },
+  crafting: { ...DEFAULT_HOUSE },
+  tailoring: { ...DEFAULT_HOUSE },
+  brewing: { ...DEFAULT_HOUSE },
+  cooking: { ...DEFAULT_HOUSE },
+  alchemy: { ...DEFAULT_HOUSE },
+  enhancing: {
+    Speed: 0.01,
+    Success: 0.0005,
+    Experience: 0.0005,
+    RareFind: 0.002
+  }
+}
 
 export const useGameStore = defineStore("game", {
   state: () => ({
