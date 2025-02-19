@@ -86,7 +86,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         name: "Sponsor",
         meta: {
           title: "打赏",
-          svgIcon: "dashboard",
+          elIcon: "Coin",
           affix: true
         }
       }
