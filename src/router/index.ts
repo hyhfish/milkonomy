@@ -85,7 +85,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/pages/sponsor/index.vue"),
         name: "Sponsor",
         meta: {
-          title: "赞助",
+          title: "打赏",
           svgIcon: "dashboard",
           affix: true
         }

@@ -92,15 +92,14 @@ function onPaypal() {
 </script>
 
 <template>
-  <!-- 如果您觉得本项目对您有帮助，可以赞助作者一根辣条 -->
   <div style="text-align: center;">
     <h1>赞助作者</h1>
-    <p>如果您觉得本项目对您有帮助，可以赞助作者一根辣条</p>
+    <p>如果您觉得本项目对您有帮助，可以打赏作者一根辣条</p>
     <div>
       <el-row :gutter="20" class="img-row">
         <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
           <el-card>
-            <img width="80%" :src="logoWechat" alt="微信赞助">
+            <img width="80%" :src="logoWechat" alt="微信打赏">
             <div class="img-alt">
               WeChat
             </div>
@@ -108,7 +107,7 @@ function onPaypal() {
         </el-col>
         <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
           <el-card>
-            <img width="80%" :src="logoAlipay" alt="支付宝赞助">
+            <img width="80%" :src="logoAlipay" alt="支付宝打赏">
             <div class="img-alt">
               Alipay
             </div>
@@ -116,7 +115,7 @@ function onPaypal() {
         </el-col>
         <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
           <el-card style="cursor:pointer" @click="onPaypal">
-            <img width="80%" :src="logoPaypal" alt="Paypal赞助">
+            <img width="80%" :src="logoPaypal" alt="Paypal打赏">
             <el-link :icon="Link" underline type="primary" class="img-alt">
               PayPal
             </el-link>
@@ -126,7 +125,7 @@ function onPaypal() {
     </div>
     <el-card class="sponsor-list">
       <template #header>
-        赞助者名单&nbsp;
+        打赏者名单&nbsp;
         <el-button type="primary" @click="dialogVisible = true">
           我要上榜
         </el-button>
@@ -150,7 +149,7 @@ function onPaypal() {
     <el-dialog class="dialog" v-model="dialogVisible" title="我要上榜" :show-close="false">
       <el-form :model="form" ref="refForm" class="form" :rules="rules">
         <el-form-item prop="nickname" label="昵称">
-          <el-input v-model="form.nickname" placeholder="赞助名单上显示的名字" />
+          <el-input v-model="form.nickname" placeholder="打赏者名单上显示的名字" />
         </el-form-item>
         <el-form-item prop="platform" label="平台">
           <el-select v-model="form.platform" placeholder="请选择">
@@ -166,7 +165,7 @@ function onPaypal() {
           <el-input v-model="form.amount" placeholder="CNY" />
         </el-form-item>
         <el-form-item>
-          提交后请等待作者审核，审核通过后会显示在赞助名单中
+          提交后请等待作者审核，审核通过后会显示在打赏者名单中
         </el-form-item>
       </el-form>
 
