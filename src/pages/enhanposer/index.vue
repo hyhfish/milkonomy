@@ -2,16 +2,16 @@
 import type Calculator from "@/calculator"
 import type { FormInstance, Sort } from "element-plus"
 import { WorkflowCalculator } from "@/calculator/workflow"
+import { getEnhanposerDataApi } from "@/common/apis/enhanposer"
 import { addFavoriteApi, deleteFavoriteApi } from "@/common/apis/favorite"
 import { getGameDataApi, getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
-import { useFavoriteStore } from "@/pinia/stores/favorite"
 
+import { useFavoriteStore } from "@/pinia/stores/favorite"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
-import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Search, Star, StarFilled } from "@element-plus/icons-vue"
@@ -36,7 +36,7 @@ const ldSearchData = useMemory("enhanposer-leaderboard-search-data", {
 const loadingLD = ref(false)
 function getLeaderboardData() {
   loadingLD.value = true
-  getLeaderboardDataApi({
+  getEnhanposerDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
     ...ldSearchData.value,
@@ -101,9 +101,9 @@ function handleSearchPrice() {
 // 监听分页参数的变化
 watch([
   () => paginationDataPrice.currentPage,
-  () => paginationDataPrice.pageSize
+  () => paginationDataPrice.pageSize,
+  () => getMarketDataApi()
 ], getPriceData, { immediate: true })
-
 // #endregion
 
 // #region deepWatch
@@ -181,27 +181,9 @@ function deletePrice(row: StoragePriceItem) {
               <el-form-item prop="name" label="物品">
                 <el-input style="width:100px" v-model="ldSearchData.name" placeholder="请输入" clearable @input="handleSearchLD" />
               </el-form-item>
-              <el-form-item prop="phone" label="项目">
-                <el-select v-model="ldSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchLD">
-                  <el-option label="锻造" value="锻造" />
-                  <el-option label="制造" value="制造" />
-                  <el-option label="裁缝" value="裁缝" />
-                  <el-option label="烹饪" value="烹饪" />
-                  <el-option label="冲泡" value="冲泡" />
-                  <el-option label="点金" value="点金" />
-                  <el-option label="重组" value="重组" />
-                  <el-option label="分解" value="分解" />
-                  <el-option label="强化分解" value="强化分解" />
-                </el-select>
-              </el-form-item>
 
               <el-form-item prop="name" label="利润率 >">
                 <el-input style="width:60px" v-model="ldSearchData.profitRate" placeholder="请输入" clearable @input="handleSearchLD" />&nbsp;%
-              </el-form-item>
-              <el-form-item>
-                <el-checkbox v-model="ldSearchData.banEquipment" @change="handleSearchLD">
-                  排除装备
-                </el-checkbox>
               </el-form-item>
             </el-form>
             <div style="font-size:12px;color:#999">

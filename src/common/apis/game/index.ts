@@ -118,6 +118,7 @@ export function setEnhancelateCache(enhanceLevel: number, protectLevel: number, 
   enhancelateCache[`${enhanceLevel}-${protectLevel}-${itemLevel}`] = result
 }
 export function clearEnhancelateCache() {
+  useGameStore().clearEnhanposerCache()
   enhancelateCache = {}
 }
 // #region 游戏内代码

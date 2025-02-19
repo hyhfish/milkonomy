@@ -3,13 +3,13 @@ import type Calculator from "@/calculator"
 import type * as Leaderboard from "./type"
 import type { Action } from "~/game"
 import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
-import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import { type StorageCalculatorItem, useFavoriteStore } from "@/pinia/stores/favorite"
 import { useGameStore } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
+import { handlePage, handlePush, handleSort } from "../utils"
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   let profitList: Calculator[] = []
@@ -19,12 +19,8 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
     await new Promise(resolve => setTimeout(resolve, 0))
     const startTime = Date.now()
     try {
-      if (params.enhanposer) {
-        profitList = profitList.concat(calcEnhanceProfit())
-      } else {
-        profitList = calcProfit()
-        profitList = profitList.concat(calcAllFlowProfit())
-      }
+      profitList = calcProfit()
+      profitList = profitList.concat(calcAllFlowProfit())
     } catch (e: any) {
       console.error(e)
     }
@@ -37,26 +33,8 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
 
   profitList.forEach(item => item.favorite = useFavoriteStore().hasFavorite(item))
-  // 首先进行一次利润排序
-  profitList.sort((a, b) => b.result.profitPH - a.result.profitPH)
 
-  // 排序
-  if (params.sort && params.sort.order) {
-    const props = params.sort.prop.split(".")
-    function getValue(c: any) {
-      let value = c
-      for (let i = 0; i < props.length; ++i) {
-        value = value[props[i]]
-      }
-      return value
-    }
-    const order = params.sort.order
-    profitList.sort((a, b) => {
-      return order === "descending" ? getValue(b) - getValue(a) : getValue(a) - getValue(b)
-    })
-  }
-  // 分页
-  return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
+  return handlePage(handleSort(profitList, params), params)
 }
 
 function calcProfit() {
@@ -115,43 +93,6 @@ function calcProfit() {
   return profitList
 }
 
-function calcEnhanceProfit() {
-  const gameData = getGameDataApi()
-  // 所有物品列表
-  const list = Object.values(gameData.itemDetailMap)
-  const profitList: Calculator[] = []
-  list.filter(item => item.enhancementCosts).forEach((item) => {
-    for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
-      let bestProfit = -Infinity
-      let bestCal: WorkflowCalculator | undefined
-      for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
-        for (let catalystRank = 0; catalystRank <= 2; catalystRank++) {
-          const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
-          // 预筛选，把不可能盈利的去掉
-          if (!enhancer.available) {
-            continue
-          }
-
-          // protectLevel = enhanceLevel 时表示不用垫子
-          const c = new WorkflowCalculator([
-            getStorageCalculatorItem(enhancer),
-            getStorageCalculatorItem(new DecomposeCalculator({ enhanceLevel, hrid: item.hrid, catalystRank }))
-          ], `强化分解+${enhanceLevel}`)
-
-          c.run()
-
-          if (c.result.profitPH > bestProfit) {
-            bestProfit = c.result.profitPH
-            bestCal = c
-          }
-        }
-      }
-      bestCal && handlePush(profitList, bestCal)
-    }
-  })
-  return profitList
-}
-
 function calcAllFlowProfit() {
   const gameData = getGameDataApi()
   // 所有物品列表
@@ -185,12 +126,4 @@ function calcAllFlowProfit() {
     }
   })
   return profitList
-}
-
-function handlePush(profitList: Calculator[], cal: Calculator) {
-  if (!cal.available) return
-  if (!cal.result) {
-    cal.run()
-  }
-  profitList.push(cal)
 }

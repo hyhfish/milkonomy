@@ -93,7 +93,7 @@ function onPaypal() {
 
 <template>
   <div style="text-align: center;">
-    <h1>赞助作者</h1>
+    <h1>打赏作者</h1>
     <p>如果您觉得本项目对您有帮助，可以打赏作者一根辣条</p>
     <div>
       <el-row :gutter="20" class="img-row">
@@ -116,7 +116,7 @@ function onPaypal() {
         <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
           <el-card style="cursor:pointer" @click="onPaypal">
             <img width="80%" :src="logoPaypal" alt="Paypal打赏">
-            <el-link :icon="Link" underline type="primary" class="img-alt">
+            <el-link :icon="Link" underline type="primary" class="img-alt" style="display:flex">
               PayPal
             </el-link>
           </el-card>
@@ -191,7 +191,7 @@ function onPaypal() {
   }
 }
 .img-alt {
-  font-size: 30px;
+  font-size: 2vw;
   font-weight: bold;
   margin: 10px 0 20px 0;
 }

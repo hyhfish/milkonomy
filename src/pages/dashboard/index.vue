@@ -104,7 +104,8 @@ watch([
   () => paginationDataMN.currentPage,
   () => paginationDataMN.pageSize,
   () => getMarketDataApi(),
-  () => usePlayerStore().config
+  () => usePlayerStore().config,
+  () => usePlayerStore().actionConfigActivated
 ], getFavoriteData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "dashboard-price-pagination")
@@ -135,6 +136,17 @@ function getPriceData() {
 function handleSearchPrice() {
   paginationDataPrice.currentPage === 1 ? getPriceData() : (paginationDataPrice.currentPage = 1)
 }
+
+// 监听分页参数的变化
+watch([
+  () => paginationDataPrice.currentPage,
+  () => paginationDataPrice.pageSize,
+  () => getMarketDataApi()
+], (val) => {
+  console.log("fuck", val)
+  getPriceData()
+}, { immediate: true })
+
 // #endregion
 
 // #region deepWatch
