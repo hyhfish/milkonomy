@@ -142,10 +142,7 @@ watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
   () => getMarketDataApi()
-], (val) => {
-  console.log("fuck", val)
-  getPriceData()
-}, { immediate: true })
+], getPriceData, { immediate: true })
 
 // #endregion
 

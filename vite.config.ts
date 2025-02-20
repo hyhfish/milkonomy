@@ -125,7 +125,7 @@ export default defineConfig(({ mode }) => {
       UnoCSS(),
       // 自动按需导入 API
       AutoImport({
-        imports: ["vue", "vue-router", "pinia"],
+        imports: ["vue", "vue-router", "pinia", "vue-i18n"],
         dts: "types/auto/auto-imports.d.ts",
         resolvers: [ElementPlusResolver()]
       }),

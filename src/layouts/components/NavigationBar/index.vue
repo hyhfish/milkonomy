@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useAppStore } from "@/pinia/stores/app"
 import { useSettingsStore } from "@/pinia/stores/settings"
+import Globalization from "@@/components/Globalization/index.vue"
 import Notify from "@@/components/Notify/index.vue"
 import Screenfull from "@@/components/Screenfull/index.vue"
 import SearchMenu from "@@/components/SearchMenu/index.vue"
@@ -33,6 +34,7 @@ function toggleSidebar() {
     <Sidebar v-if="isTop && !isMobile" class="sidebar" />
     <div class="right-menu">
       <SearchMenu v-if="showSearchMenu" class="right-menu-item" />
+      <Globalization />
       <Screenfull v-if="showScreenfull" class="right-menu-item" />
       <ThemeSwitch v-if="showThemeSwitch" class="right-menu-item" />
       <Notify v-if="showNotify" class="right-menu-item" />

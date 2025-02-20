@@ -9,7 +9,7 @@ import { WorkflowCalculator } from "@/calculator/workflow"
 import { type StorageCalculatorItem, useFavoriteStore } from "@/pinia/stores/favorite"
 import { useGameStore } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
-import { handlePage, handlePush, handleSort } from "../utils"
+import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   let profitList: Calculator[] = []
@@ -27,14 +27,9 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
     useGameStore().setLeaderBoardCache(profitList)
     ElMessage.success(`计算完成，耗时${(Date.now() - startTime) / 1000}秒`)
   }
-  params.name && (profitList = profitList.filter(cal => cal.item.name.toLowerCase().includes(params.name!.toLowerCase())))
-  params.project && (profitList = profitList.filter(cal => cal.project.match(params.project!)))
-  params.banEquipment && (profitList = profitList.filter(cal => !cal.isEquipment))
-  params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
-
   profitList.forEach(item => item.favorite = useFavoriteStore().hasFavorite(item))
 
-  return handlePage(handleSort(profitList, params), params)
+  return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }
 
 function calcProfit() {

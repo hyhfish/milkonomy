@@ -4,10 +4,9 @@ import { DecomposeCalculator } from "@/calculator/alchemy"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
-import { useFavoriteStore } from "@/pinia/stores/favorite"
 import { useGameStore } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
-import { handlePage, handlePush, handleSort } from "../utils"
+import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 /** 查 */
 export async function getEnhanposerDataApi(params: any) {
@@ -27,10 +26,10 @@ export async function getEnhanposerDataApi(params: any) {
   }
   params.name && (profitList = profitList.filter(cal => cal.item.name.toLowerCase().includes(params.name!.toLowerCase())))
   params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
-  profitList.forEach(item => item.favorite = useFavoriteStore().hasFavorite(item))
+
   // 首先进行一次利润排序
 
-  return handlePage(handleSort(profitList, params), params)
+  return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }
 
 function calcEnhanceProfit() {
