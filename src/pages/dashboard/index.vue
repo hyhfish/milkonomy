@@ -10,6 +10,7 @@ import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
 import { useFavoriteStore } from "@/pinia/stores/favorite"
 
+import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
@@ -66,7 +67,7 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
-  () => getMarketDataApi(),
+  () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated
 ], getLeaderboardData, { immediate: true })
@@ -103,7 +104,7 @@ function handleSearchMN() {
 watch([
   () => paginationDataMN.currentPage,
   () => paginationDataMN.pageSize,
-  () => getMarketDataApi(),
+  () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated
 ], getFavoriteData, { immediate: true })
@@ -141,7 +142,7 @@ function handleSearchPrice() {
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => getMarketDataApi()
+  () => useGameStore().marketData
 ], getPriceData, { immediate: true })
 
 // #endregion
