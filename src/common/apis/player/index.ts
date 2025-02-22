@@ -247,9 +247,13 @@ export function getBuffOf(action: Action, key: NoncombatStatsKey) {
   return (buffs[`${action}${key}`] || 0) + (buffs[`skilling${key}`] || 0)
 }
 
+export function getPlayerLevelOf(action: Action) {
+  return getActionConfigOf(action).playerLevel + getBuffOf(action, "Level")
+}
+
 export function getAlchemySuccessRatio(item: ItemDetail) {
   const action = "alchemy"
-  const playerLevel = getActionConfigOf(action).playerLevel
+  const playerLevel = getPlayerLevelOf(action)
   const levelRatio = playerLevel >= item.itemLevel
     ? 0
     : -0.9 * (1 - playerLevel / item.itemLevel)
@@ -258,7 +262,7 @@ export function getAlchemySuccessRatio(item: ItemDetail) {
 
 export function getEnhanceSuccessRatio(item: ItemDetail) {
   const action = "enhancing"
-  const playerLevel = getActionConfigOf(action).playerLevel
+  const playerLevel = getPlayerLevelOf(action)
   const levelRatio = playerLevel >= item.itemLevel
     ? (playerLevel - item.itemLevel) * 0.0005
     : -0.5 * (1 - playerLevel / item.itemLevel)

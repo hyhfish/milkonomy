@@ -1,6 +1,6 @@
 import type { Action } from "~/game"
 import { getItemDetailOf } from "@/common/apis/game"
-import { getActionConfigOf, getBuffOf } from "@/common/apis/player"
+import { getBuffOf, getPlayerLevelOf } from "@/common/apis/player"
 import { getManualPriceActivated, getManualPriceOf } from "@/common/apis/price"
 import * as Format from "@@/utils/format"
 
@@ -196,7 +196,7 @@ export default abstract class Calculator {
 
   // #region 用户配置属性
   get playerLevel(): number {
-    return getActionConfigOf(this.action).playerLevel + getBuffOf(this.action, "Level")
+    return getPlayerLevelOf(this.action)
   }
 
   get essenceRatio(): number {

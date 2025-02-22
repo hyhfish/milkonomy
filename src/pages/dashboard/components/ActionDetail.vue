@@ -82,7 +82,7 @@ const simple = ref(true)
             <div class="param-wrapper">
               <template v-if="!simple">
                 <div class="tea">
-                  <ItemIcon v-for="tea in getActionConfigOf(data.action).tea" :key="tea" :hrid="tea" />
+                  <ItemIcon v-for="tea in getActionConfigOf(calculator.action).tea" :key="tea" :hrid="tea" />
                 </div>
                 <div v-if="calculator?.result.successRate! < 1">
                   成功率：{{ calculator?.result.successRateFormat }}
@@ -93,9 +93,14 @@ const simple = ref(true)
                 <div>速度：{{ calculator?.result.speedFormat }}</div>
                 <div>时间：{{ calculator?.result.timeCostFormat }}</div>
                 <div>时间占比：{{ Format.percent(data.workMultiplier![i]!) }}</div>
-                <div v-if="calculator instanceof EnhanceCalculator">
-                  强化平均耗时：{{ Format.costTime(1 / calculator.ingredientList[0].count * calculator.timeCost) }}
-                </div>
+                <template v-if="calculator instanceof EnhanceCalculator">
+                  <div>
+                    强化平均耗时：{{ Format.costTime(1 / calculator.ingredientList[0].count * calculator.timeCost) }}
+                  </div>
+                  <div>
+                    强化平均次数：{{ Format.number(1 / calculator.ingredientList[0].count, 3) }}
+                  </div>
+                </template>
               </template>
 
               <el-icon class="transition" :size="36">

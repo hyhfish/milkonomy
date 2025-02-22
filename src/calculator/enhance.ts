@@ -5,6 +5,7 @@ import * as Format from "@@/utils/format"
 import * as math from "mathjs"
 import Calculator from "."
 import { DecomposeCalculator } from "./alchemy"
+import { getTeaIngredientList } from "./utils"
 
 export interface EnhancelateResult {
   actions: number
@@ -56,10 +57,6 @@ export class EnhanceCalculator extends Calculator {
     return getEnhanceTimeCost() / this.speed
   }
 
-  get equipmentSuccessRate(): number {
-    return 0.0464
-  }
-
   get speed() {
     return super.speed + Math.max(0, this.playerLevel - this.actionLevel) * 0.01
   }
@@ -68,9 +65,9 @@ export class EnhanceCalculator extends Calculator {
     return 1
   }
 
-  _ingredientList: Ingredient[] = []
+  _ingredientList?: Ingredient[]
   get ingredientList(): Ingredient[] {
-    if (this._ingredientList.length === 0) {
+    if (!this._ingredientList) {
       // 为了与Calculator的设计理念一致，这里需要将成本和收益转换为单次成本和单次收益
       const { actions, protects } = this.enhancelate()
       this._ingredientList = [
@@ -94,13 +91,15 @@ export class EnhanceCalculator extends Calculator {
           marketPrice: getPriceOf(item.itemHrid).ask
         }))
       )
+
+      this._ingredientList = this._ingredientList.concat(getTeaIngredientList(this))
     }
     return this._ingredientList
   }
 
-  _productList: Product[] = []
+  _productList?: Product[]
   get productList(): Product[] {
-    if (this._productList.length === 0) {
+    if (!this._productList) {
       // 为了与Calculator的设计理念一致，这里需要将成本和收益转换为单次成本和单次收益
       const { actions } = this.enhancelate()
 
@@ -145,10 +144,6 @@ export class EnhanceCalculator extends Calculator {
   }
 
   // #region 项目特有属性
-
-  get houseSuccessRate() {
-    return 0.0005 * 4
-  }
 
   /**
    * 预估强化->分解最大利润
