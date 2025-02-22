@@ -186,7 +186,7 @@ function onConfirm() {
 :deep(.el-checkbox.is-bordered) {
   margin-right: 3px;
   position: relative;
-  padding: 5px;
+  padding: 5px !important;
   height: 40px;
   width: 40px;
 }
