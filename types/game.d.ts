@@ -81,8 +81,18 @@ export interface ConsumableDetail {
   hitpointRestore: number
   manapointRestore: number
   recoveryDuration: number
-  buffs: PROP_TODO
+  buffs: Buff[]
   defaultCombatTriggers: PROP_TODO
+}
+export interface Buff {
+  uniqueHrid: string
+  typeHrid: string
+  ratioBoost: number
+  ratioBoostLevelBonus: number
+  flatBoost: number
+  flatBoostLevelBonus: number
+  startTime: string
+  duration: number
 }
 
 type Action = typeof ACTION_LIST[number]
@@ -104,7 +114,7 @@ export interface AlchemyDetail {
 
 // #region Equipment
 
-type NoncombatStatsKey = "Speed" | "Efficiency" | "Success" | "RareFind" | "EssenceFind" | "Experience"
+type NoncombatStatsKey = "Speed" | "Efficiency" | "Success" | "RareFind" | "EssenceFind" | "Experience" | "Level" | "Artisan" | "Gourmet" | "Blessed"
 type NoncombatStatsProp = `${Action | "skilling"}${NoncombatStatsKey}`
 
 export interface EquipmentDetail {

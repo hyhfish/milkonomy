@@ -1,6 +1,6 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getAlchemyDecomposeEnhancingEssenceOutput, getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
-import { getAlchemySuccessRatio } from "@/common/apis/player"
+import { getAlchemySuccessRatio, getBuffOf } from "@/common/apis/player"
 import Calculator from "."
 import { getTeaIngredientList } from "./utils"
 
@@ -19,12 +19,8 @@ abstract class AlchemyCalculator extends Calculator {
     super({ ...config, action: "alchemy" })
   }
 
-  get catalystTeaRatio(): number {
-    return this.catalyticTea ? 0.05 : 0
-  }
-
   get catalystRatio(): number {
-    let ratio = this.catalystTeaRatio
+    let ratio = getBuffOf(this.action, "Success") || 0
     ratio += (this.catalystRank ? this.catalystRank * 0.1 + 0.05 : 0)
     return ratio
   }

@@ -2,7 +2,7 @@ import type { ActionConfigItem, PlayerEquipmentItem } from "@/pinia/stores/playe
 import type { StoragePriceItem } from "@/pinia/stores/price"
 import type { RequestData } from "../leaderboard/type"
 import type { Action, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
-import { DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
+import { DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
 import { getEquipmentTypeOf } from "@/common/utils/game"
 import { ACTION_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
@@ -32,6 +32,7 @@ let playerConfig = structuredClone(toRaw(usePlayerStore().config))
 const defaultPlayerConfig = structuredClone(toRaw(usePlayerStore().config))
 let actionConfigActivated = usePlayerStore().actionConfigActivated
 let equipmentList = [] as ItemDetail[]
+let teaList = [] as ItemDetail[]
 let buffs = {} as Record<NoncombatStatsProp, number>
 
 watch (() => useGameStore().gameData, () => {
@@ -39,6 +40,8 @@ watch (() => useGameStore().gameData, () => {
   equipmentList = Object.freeze(structuredClone(Object.values(toRaw(useGameStore().gameData!.itemDetailMap))))
     .filter(item => item.equipmentDetail?.noncombatStats && Object.keys(item.equipmentDetail?.noncombatStats).length > 0)
 
+  teaList = Object.freeze(structuredClone(Object.values(toRaw(useGameStore().gameData!.itemDetailMap))))
+    .filter(item => item.categoryHrid === "/item_categories/drink")
   initDefaultActionConfigMap()
   initDefaultSpecialEquipmentMap()
   initBuffMap()
@@ -79,7 +82,8 @@ function initDefaultActionConfigMap() {
         hrid: undefined,
         enhanceLevel: undefined
       },
-      houseLevel: 4
+      houseLevel: 4,
+      tea: structuredClone(DEFAULT_TEA[action])
     })
   }
 }
@@ -158,6 +162,12 @@ export function getSpecialEquipmentOf(type: Equipment, activated: boolean) {
 
 // #endregion
 
+// #region 茶
+export function getTeaListOf(action: Action) {
+  return teaList.filter(item => item.consumableDetail?.usableInActionTypeMap[`/action_types/${action}`]).sort((a, b) => Number(a.hrid.includes(action)) - Number(b.hrid.includes(action)))
+}
+// #endregion
+
 // #region buff计算
 function initBuffMap() {
   if (!getGameDataApi()) return
@@ -165,8 +175,9 @@ function initBuffMap() {
   const enhanceMultiplier = getGameDataApi().enhancementLevelTotalBonusMultiplierTable
   for (const action of ACTION_LIST) {
     const actionConfig = getActionConfigOf(action)
+    console.log("actionConfig", actionConfig)
     for (const ac of Object.values(actionConfig)) {
-      if (typeof ac === "object" && ac.hrid) {
+      if (typeof ac === "object" && !Array.isArray(ac) && ac.hrid) {
         const item = getItemDetailOf(ac.hrid)
         item.equipmentDetail?.noncombatStats && Object.entries(item.equipmentDetail.noncombatStats).forEach(([key, value]) => {
           const bonus = item.equipmentDetail?.noncombatEnhancementBonuses[key as NoncombatStatsProp]
@@ -181,6 +192,38 @@ function initBuffMap() {
       }
       buffs[`${buffAction}${key}` as NoncombatStatsProp] = (buffs[`${buffAction}${key}` as NoncombatStatsProp] || 0) + (HOUSE_MAP[action as Action][key as NoncombatStatsKey] || 0) * (actionConfig.houseLevel || 0)
     })
+
+    // 茶
+    for (const tea of actionConfig.tea || []) {
+      const item = getItemDetailOf(tea)
+      item.consumableDetail?.buffs && item.consumableDetail.buffs.forEach((buff) => {
+        if (buff.typeHrid === `/buff_types/${action}_level`) {
+          buffs[`${action}Level`] = (buffs[`${action}Level`] || 0) + buff.flatBoost
+        }
+        if (buff.typeHrid === "/buff_types/efficiency") {
+          buffs[`${action}Efficiency`] = (buffs[`${action}Efficiency`] || 0) + buff.flatBoost
+        }
+        if (buff.typeHrid === "/buff_types/artisan") {
+          buffs[`${action}Artisan`] = (buffs[`${action}Artisan`] || 0) + buff.flatBoost
+        }
+        // 工匠茶的等级debuff
+        if (buff.typeHrid === "/buff_types/action_level") {
+          buffs[`${action}Level`] = (buffs[`${action}Level`] || 0) - buff.flatBoost
+        }
+        if (buff.typeHrid === "/buff_types/gourmet") {
+          buffs[`${action}Gourmet`] = (buffs[`${action}Gourmet`] || 0) + buff.flatBoost
+        }
+        if (buff.typeHrid === `/buff_types/${action}_success`) {
+          buffs[`${action}Success`] = (buffs[`${action}Success`] || 0) + buff.ratioBoost
+        }
+        if (buff.typeHrid === "/buff_types/blessed") {
+          buffs[`${action}Blessed`] = (buffs[`${action}Blessed`] || 0) + buff.flatBoost
+        }
+        if (buff.typeHrid === "/buff_types/action_speed") {
+          buffs[`${action}Speed`] = (buffs[`${action}Speed`] || 0) + buff.flatBoost
+        }
+      })
+    }
   }
   for (const equipment of EQUIPMENT_LIST) {
     const eq = getSpecialEquipmentOf(equipment, actionConfigActivated)

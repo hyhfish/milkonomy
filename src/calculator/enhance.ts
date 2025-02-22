@@ -1,6 +1,6 @@
 import type { CalculatorConfig, Ingredient, IngredientWithPrice, Product } from "."
 import { getEnhancelateCache, getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getPriceOf, setEnhancelateCache } from "@/common/apis/game"
-import { getEnhanceSuccessRatio } from "@/common/apis/player"
+import { getBuffOf, getEnhanceSuccessRatio } from "@/common/apis/player"
 import * as Format from "@@/utils/format"
 import * as math from "mathjs"
 import Calculator from "."
@@ -223,12 +223,12 @@ export class EnhanceCalculator extends Calculator {
   }
 
   levelUpRate(rate: number): number {
-    const successRate = this.successRateEnhance(rate) * (this.blessedTea ? 0.99 : 1)
+    const successRate = this.successRateEnhance(rate) * (1 - getBuffOf(this.action, "Blessed"))
     return Math.min(1, successRate)
   }
 
   levelLeapRate(rate: number): number {
-    return this.successRateEnhance(rate) * (this.blessedTea ? 0.01 : 0)
+    return this.successRateEnhance(rate) * getBuffOf(this.action, "Blessed")
   }
 
   failRate(rate: number): number {

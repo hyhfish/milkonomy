@@ -2,6 +2,7 @@
 import type Calculator from "@/calculator"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { WorkflowCalculator } from "@/calculator/workflow"
+import { getActionConfigOf } from "@/common/apis/player"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import * as Format from "@@/utils/format"
 import ActionDetailCard from "./ActionDetailCard.vue"
@@ -50,11 +51,7 @@ const simple = ref(true)
         <el-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4">
           <div class="param-wrapper">
             <div class="tea">
-              <ItemIcon v-if="data?.gourmetTea" hrid="/items/gourmet_tea" />
-              <ItemIcon v-if="data?.efficiencyTea" hrid="/items/efficiency_tea" />
-              <ItemIcon v-if="data?.artisanTea" hrid="/items/artisan_tea" />
-              <ItemIcon v-if="data.catalyticTea" hrid="/items/catalytic_tea" />
-              <ItemIcon v-if="data.blessedTea" hrid="/items/blessed_tea" />
+              <ItemIcon v-for="tea in getActionConfigOf(data.action).tea" :key="tea" :hrid="tea" />
             </div>
             <div v-if="data?.result.successRate! < 1">
               成功率：{{ data?.result.successRateFormat }}
@@ -85,11 +82,7 @@ const simple = ref(true)
             <div class="param-wrapper">
               <template v-if="!simple">
                 <div class="tea">
-                  <ItemIcon v-if="calculator?.gourmetTea" hrid="/items/gourmet_tea" />
-                  <ItemIcon v-if="calculator?.efficiencyTea" hrid="/items/efficiency_tea" />
-                  <ItemIcon v-if="calculator?.artisanTea" hrid="/items/artisan_tea" />
-                  <ItemIcon v-if="calculator.catalyticTea" hrid="/items/catalytic_tea" />
-                  <ItemIcon v-if="calculator.blessedTea" hrid="/items/blessed_tea" />
+                  <ItemIcon v-for="tea in getActionConfigOf(data.action).tea" :key="tea" :hrid="tea" />
                 </div>
                 <div v-if="calculator?.result.successRate! < 1">
                   成功率：{{ calculator?.result.successRateFormat }}

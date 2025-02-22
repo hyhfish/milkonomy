@@ -1,4 +1,5 @@
 import type { PlayerEquipmentItem } from "@/pinia/stores/player"
+import type { Action } from "~/game"
 
 export const DEFAULT_SEPCIAL_EQUIPMENT_LIST: PlayerEquipmentItem[] = [
   { type: "off_hand", hrid: "/items/eye_watch", enhanceLevel: 10 },
@@ -8,3 +9,13 @@ export const DEFAULT_SEPCIAL_EQUIPMENT_LIST: PlayerEquipmentItem[] = [
   { type: "earrings", hrid: "", enhanceLevel: undefined },
   { type: "ring", hrid: "", enhanceLevel: undefined }
 ]
+
+export const DEFAULT_TEA: Record<Action, string[]> = Object.freeze({
+  cheesesmithing: ["/items/wisdom_tea", "/items/artisan_tea", "/items/efficiency_tea"],
+  crafting: ["/items/wisdom_tea", "/items/artisan_tea", "/items/efficiency_tea"],
+  tailoring: ["/items/wisdom_tea", "/items/artisan_tea", "/items/efficiency_tea"],
+  brewing: ["/items/gourmet_tea", "/items/artisan_tea", "/items/efficiency_tea"],
+  cooking: ["/items/gourmet_tea", "/items/artisan_tea", "/items/efficiency_tea"],
+  alchemy: ["/items/wisdom_tea", "/items/efficiency_tea", "/items/catalytic_tea"],
+  enhancing: ["/items/wisdom_tea", "/items/blessed_tea", "/items/super_enhancing_tea"]
+})

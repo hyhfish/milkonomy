@@ -35,6 +35,7 @@ export interface ActionConfigItem {
   body: PlayerEquipmentItem
   legs: PlayerEquipmentItem
   houseLevel: number
+  tea: string[]
 }
 export interface PlayerEquipmentItem {
   type: Equipment

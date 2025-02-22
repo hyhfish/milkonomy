@@ -1,5 +1,6 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getActionDetailOf, getPriceOf } from "@/common/apis/game"
+import { getBuffOf } from "@/common/apis/player"
 import Calculator from "."
 import { getTeaIngredientList } from "./utils"
 
@@ -9,7 +10,7 @@ export class ManufactureCalculator extends Calculator {
   }
 
   get actionLevel(): number {
-    return this.actionItem.levelRequirement.level + (this.artisanTea ? 5 : 0)
+    return this.actionItem.levelRequirement.level
   }
 
   get available(): boolean {
@@ -45,10 +46,11 @@ export class ManufactureCalculator extends Calculator {
         marketPrice: getPriceOf(this.actionItem.upgradeItemHrid).ask
       })
     }
+    const artisanBuff = getBuffOf(this.action, "Artisan")
     list = list.concat(this.actionItem.inputItems.map(input => ({
       hrid: input.itemHrid,
       // 工匠茶补正
-      count: input.count * (this.artisanTea ? 0.9 : 1),
+      count: input.count * (1 - artisanBuff),
       marketPrice: getPriceOf(input.itemHrid).ask
     })))
 
@@ -57,10 +59,11 @@ export class ManufactureCalculator extends Calculator {
   }
 
   get productList(): Product[] {
+    const gourmetBuff = getBuffOf(this.action, "Gourmet")
     let list = this.actionItem.outputItems.map(output => ({
       hrid: output.itemHrid,
       // 双倍茶补正
-      count: output.count * (this.gourmetTea ? 1.12 : 1),
+      count: output.count * (1 + gourmetBuff),
       marketPrice: getPriceOf(output.itemHrid).bid
     }))
     list = list.concat(this.actionItem.essenceDropTable?.map(essence => ({

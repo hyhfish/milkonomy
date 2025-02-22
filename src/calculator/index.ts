@@ -55,7 +55,7 @@ export default abstract class Calculator {
   }
 
   get efficiency(): number {
-    return 1 + Math.max(0, (this.playerLevel - this.actionLevel) * 0.01) + (this.efficiencyTea ? 0.1 : 0) + getBuffOf(this.action, "Efficiency")
+    return 1 + Math.max(0, (this.playerLevel - this.actionLevel) * 0.01) + getBuffOf(this.action, "Efficiency")
   }
 
   get speed(): number {
@@ -196,7 +196,7 @@ export default abstract class Calculator {
 
   // #region 用户配置属性
   get playerLevel(): number {
-    return getActionConfigOf(this.action).playerLevel
+    return getActionConfigOf(this.action).playerLevel + getBuffOf(this.action, "Level")
   }
 
   get essenceRatio(): number {
@@ -225,26 +225,6 @@ export default abstract class Calculator {
 
   get successRate(): number {
     return 1
-  }
-
-  get efficiencyTea(): boolean {
-    return getItemDetailOf("/items/efficiency_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
-  }
-
-  get artisanTea(): boolean {
-    return getItemDetailOf("/items/artisan_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
-  }
-
-  get gourmetTea(): boolean {
-    return getItemDetailOf("/items/gourmet_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
-  }
-
-  get catalyticTea(): boolean {
-    return getItemDetailOf("/items/catalytic_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
-  }
-
-  get blessedTea(): boolean {
-    return getItemDetailOf("/items/blessed_tea").consumableDetail.usableInActionTypeMap[`/action_types/${this.action}`]
   }
 
   // 给三采预留空间
