@@ -10,8 +10,8 @@ export const ACTION_LIST = [
   "cheesesmithing",
   "crafting",
   "tailoring",
-  "brewing",
   "cooking",
+  "brewing",
   "alchemy",
   "enhancing"
 ] as const

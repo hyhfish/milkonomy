@@ -164,7 +164,7 @@ export function getSpecialEquipmentOf(type: Equipment, activated: boolean) {
 
 // #region 茶
 export function getTeaListOf(action: Action) {
-  return teaList.filter(item => item.consumableDetail?.usableInActionTypeMap[`/action_types/${action}`]).sort((a, b) => Number(a.hrid.includes(action)) - Number(b.hrid.includes(action)))
+  return teaList.filter(item => item.consumableDetail?.usableInActionTypeMap[`/action_types/${action}`]).sort((a, b) => a.itemLevel - b.itemLevel).sort((a, b) => Number(a.hrid.includes(action)) - Number(b.hrid.includes(action)))
 }
 // #endregion
 
