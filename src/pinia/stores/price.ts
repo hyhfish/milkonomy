@@ -24,6 +24,11 @@ export const usePriceStore = defineStore("price", {
       }
       Object.assign(price.ask!, row.ask)
       Object.assign(price.bid!, row.bid)
+      for (const [key, value] of this.map) {
+        if (!value.ask?.manual && !value.bid?.manual) {
+          this.map.delete(key)
+        }
+      }
     },
     deletePrice(row: StoragePriceItem) {
       this.map.delete(row.hrid)
