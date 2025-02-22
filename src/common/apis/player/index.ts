@@ -154,8 +154,8 @@ export function getSpecialEquipmentListOf(type: string) {
  */
 export function getSpecialEquipmentOf(type: Equipment, activated: boolean) {
   return activated
-    ? playerConfig.specialEquimentMap.size
-      ? playerConfig.specialEquimentMap.get(type)
+    ? playerConfig.specialEquimentMap.get(type)
+      ? playerConfig.specialEquimentMap.get(type)!
       : defaultPlayerConfig.specialEquimentMap.get(type)
     : defaultPlayerConfig.specialEquimentMap.get(type)
 }
