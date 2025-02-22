@@ -47,7 +47,7 @@ export class GatherCalculator extends Calculator {
 
     // 加工茶
     const processingHrid = getProcessingProduct(this.hrid)
-    if (processingHrid) {
+    if (processingHrid && processingBuff) {
       list.push({
         hrid: processingHrid,
         count: processingBuff,
