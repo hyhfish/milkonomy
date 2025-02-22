@@ -114,7 +114,7 @@ export function getActionConfigActivated() {
  */
 export function getActionConfigOf(action: Action, activated: boolean = actionConfigActivated) {
   return activated
-    ? playerConfig.actionConfigMap.size
+    ? playerConfig.actionConfigMap.get(action)
       ? playerConfig.actionConfigMap.get(action)!
       : defaultPlayerConfig.actionConfigMap.get(action)!
     : defaultPlayerConfig.actionConfigMap.get(action)!
@@ -175,7 +175,6 @@ function initBuffMap() {
   const enhanceMultiplier = getGameDataApi().enhancementLevelTotalBonusMultiplierTable
   for (const action of ACTION_LIST) {
     const actionConfig = getActionConfigOf(action)
-    console.log("actionConfig", actionConfig)
     for (const ac of Object.values(actionConfig)) {
       if (typeof ac === "object" && !Array.isArray(ac) && ac.hrid) {
         const item = getItemDetailOf(ac.hrid)
@@ -221,6 +220,12 @@ function initBuffMap() {
         }
         if (buff.typeHrid === "/buff_types/action_speed") {
           buffs[`${action}Speed`] = (buffs[`${action}Speed`] || 0) + buff.flatBoost
+        }
+        if (buff.typeHrid === "/buff_types/gathering") {
+          buffs[`${action}Gathering`] = (buffs[`${action}Gathering`] || 0) + buff.flatBoost
+        }
+        if (buff.typeHrid === "/buff_types/processing") {
+          buffs[`${action}Processing`] = (buffs[`${action}Processing`] || 0) + buff.flatBoost
         }
       })
     }

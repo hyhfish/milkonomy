@@ -4,6 +4,9 @@ import type { MarketData } from "~/market"
 import { defineStore } from "pinia"
 
 export const ACTION_LIST = [
+  "milking",
+  "foraging",
+  "woodcutting",
   "cheesesmithing",
   "crafting",
   "tailoring",
@@ -35,6 +38,9 @@ const DEFAULT_HOUSE = {
   RareFind: 0.002
 }
 export const HOUSE_MAP: Record<Action, Partial<Record<NoncombatStatsKey, number>>> = {
+  milking: { ...DEFAULT_HOUSE },
+  foraging: { ...DEFAULT_HOUSE },
+  woodcutting: { ...DEFAULT_HOUSE },
   cheesesmithing: { ...DEFAULT_HOUSE },
   crafting: { ...DEFAULT_HOUSE },
   tailoring: { ...DEFAULT_HOUSE },

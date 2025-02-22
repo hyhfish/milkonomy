@@ -3,6 +3,7 @@ import type Calculator from "@/calculator"
 import type * as Leaderboard from "./type"
 import type { Action } from "~/game"
 import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
+import { GatherCalculator } from "@/calculator/gather"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
@@ -39,39 +40,20 @@ function calcProfit() {
   const profitList: Calculator[] = []
   list.forEach((item) => {
     const cList = []
-    cList.push(new TransmuteCalculator({
-      hrid: item.hrid
-    }))
-    cList.push(new DecomposeCalculator({
-      hrid: item.hrid
-    }))
-    cList.push(new CoinifyCalculator({
-      hrid: item.hrid
-    }))
-    cList.push(new TransmuteCalculator({
-      hrid: item.hrid,
-      catalystRank: 1
-    }))
-    cList.push(new TransmuteCalculator({
-      hrid: item.hrid,
-      catalystRank: 2
-    }))
-    cList.push(new DecomposeCalculator({
-      hrid: item.hrid,
-      catalystRank: 1
-    }))
-    cList.push(new DecomposeCalculator({
-      hrid: item.hrid,
-      catalystRank: 2
-    }))
-    cList.push(new CoinifyCalculator({
-      hrid: item.hrid,
-      catalystRank: 1
-    }))
-    cList.push(new CoinifyCalculator({
-      hrid: item.hrid,
-      catalystRank: 2
-    }))
+    for (let catalystRank = 0; catalystRank <= 2; catalystRank++) {
+      cList.push(new TransmuteCalculator({
+        hrid: item.hrid,
+        catalystRank
+      }))
+      cList.push(new DecomposeCalculator({
+        hrid: item.hrid,
+        catalystRank
+      }))
+      cList.push(new CoinifyCalculator({
+        hrid: item.hrid,
+        catalystRank
+      }))
+    }
     cList.forEach(c => handlePush(profitList, c))
     const projects: [string, Action][] = [
       ["锻造", "cheesesmithing"],
@@ -82,6 +64,16 @@ function calcProfit() {
     ]
     for (const [project, action] of projects) {
       const c = new ManufactureCalculator({ hrid: item.hrid, project, action })
+      handlePush(profitList, c)
+    }
+
+    const gatherings: [string, Action][] = [
+      ["挤奶", "milking"],
+      ["采摘", "foraging"],
+      ["伐木", "woodcutting"]
+    ]
+    for (const [project, action] of gatherings) {
+      const c = new GatherCalculator({ hrid: item.hrid, project, action })
       handlePush(profitList, c)
     }
   })

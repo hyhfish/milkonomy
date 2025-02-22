@@ -114,7 +114,7 @@ export interface AlchemyDetail {
 
 // #region Equipment
 
-type NoncombatStatsKey = "Speed" | "Efficiency" | "Success" | "RareFind" | "EssenceFind" | "Experience" | "Level" | "Artisan" | "Gourmet" | "Blessed"
+type NoncombatStatsKey = "Speed" | "Efficiency" | "Success" | "RareFind" | "EssenceFind" | "Experience" | "Level" | "Artisan" | "Gourmet" | "Blessed" | "Gathering" | "Processing"
 type NoncombatStatsProp = `${Action | "skilling"}${NoncombatStatsKey}`
 
 export interface EquipmentDetail {

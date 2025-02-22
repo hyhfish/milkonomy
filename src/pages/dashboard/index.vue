@@ -227,6 +227,9 @@ function deletePrice(row: StoragePriceItem) {
               </el-form-item>
               <el-form-item prop="phone" label="项目">
                 <el-select v-model="ldSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchLD">
+                  <el-option label="挤奶" value="挤奶" />
+                  <el-option label="采摘" value="采摘" />
+                  <el-option label="伐木" value="伐木" />
                   <el-option label="锻造" value="锻造" />
                   <el-option label="制造" value="制造" />
                   <el-option label="裁缝" value="裁缝" />
@@ -235,7 +238,6 @@ function deletePrice(row: StoragePriceItem) {
                   <el-option label="点金" value="点金" />
                   <el-option label="重组" value="重组" />
                   <el-option label="分解" value="分解" />
-                  <el-option label="强化分解" value="强化分解" />
                 </el-select>
               </el-form-item>
 
@@ -410,14 +412,17 @@ function deletePrice(row: StoragePriceItem) {
               </el-form-item>
               <el-form-item prop="phone" label="项目">
                 <el-select v-model="frSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchMN">
+                  <el-option label="挤奶" value="挤奶" />
+                  <el-option label="采摘" value="采摘" />
+                  <el-option label="伐木" value="伐木" />
                   <el-option label="锻造" value="锻造" />
                   <el-option label="制造" value="制造" />
                   <el-option label="裁缝" value="裁缝" />
                   <el-option label="烹饪" value="烹饪" />
                   <el-option label="冲泡" value="冲泡" />
+                  <el-option label="点金" value="点金" />
                   <el-option label="重组" value="重组" />
                   <el-option label="分解" value="分解" />
-                  <el-option label="强化分解" value="强化分解" />
                 </el-select>
               </el-form-item>
             </el-form>

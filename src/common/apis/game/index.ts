@@ -10,11 +10,14 @@ const game = {
   marketData: null as MarketData | null
 }
 
+let _processingProductMap: Record<string, string> = {}
+
 let _priceCache = {} as Record<string, MarketItem>
 
 watch(() => useGameStore().gameData, () => {
   game.gameData = Object.freeze(structuredClone(toRaw(useGameStore().gameData)))
   _priceCache = {}
+  initProcessingProductMap()
 }, { immediate: true })
 watch(() => useGameStore().marketData, () => {
   console.log("raw marketData changed")
@@ -107,6 +110,19 @@ export function getEnhanceTimeCost() {
 
 export function enhancementLevelSuccessRateTable() {
   return getGameDataApi().enhancementLevelSuccessRateTable
+}
+
+export function initProcessingProductMap() {
+  _processingProductMap = {}
+  Object.entries(getGameDataApi()?.actionDetailMap).forEach(([key, value]) => {
+    if (key.match(/fabric$/) || key.match(/lumber$/) || key.match(/cheese$/)) {
+      _processingProductMap[value.inputItems[0].itemHrid] = value.outputItems[0].itemHrid
+    }
+  })
+}
+
+export function getProcessingProduct(hrid: string) {
+  return _processingProductMap[hrid]
 }
 
 // #region enhancelate

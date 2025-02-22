@@ -1,12 +1,12 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
-import { getActionDetailOf, getPriceOf } from "@/common/apis/game"
+import { getActionDetailOf, getPriceOf, getProcessingProduct } from "@/common/apis/game"
 import { getBuffOf } from "@/common/apis/player"
 import Calculator from "."
 import { getTeaIngredientList } from "./utils"
 
-export class ManufactureCalculator extends Calculator {
+export class GatherCalculator extends Calculator {
   get className() {
-    return "ManufactureCalculator"
+    return "GatherCalculator"
   }
 
   get actionLevel(): number {
@@ -14,15 +14,7 @@ export class ManufactureCalculator extends Calculator {
   }
 
   get available(): boolean {
-    if (!this.actionItem) {
-      return false
-    }
-    for (const ingredient of this.ingredientList) {
-      if (ingredient.marketPrice === -1) {
-        return false
-      }
-    }
-    return true
+    return !!this.actionItem
   }
 
   constructor(config: CalculatorConfig) {
@@ -30,7 +22,8 @@ export class ManufactureCalculator extends Calculator {
   }
 
   get actionItem() {
-    return getActionDetailOf(`/actions/${this.action}/${this.key}`)
+    const actionKey = this.key?.replace(/milk$/, "cow").replace(/log$/, "tree")
+    return getActionDetailOf(`/actions/${this.action}/${actionKey}`)
   }
 
   get timeCost(): number {
@@ -38,34 +31,30 @@ export class ManufactureCalculator extends Calculator {
   }
 
   get ingredientList(): Ingredient[] {
-    let list = []
-    if (this.actionItem.upgradeItemHrid) {
-      list.push({
-        hrid: this.actionItem.upgradeItemHrid,
-        count: 1,
-        marketPrice: getPriceOf(this.actionItem.upgradeItemHrid).ask
-      })
-    }
-    const artisanBuff = getBuffOf(this.action, "Artisan")
-    list = list.concat(this.actionItem.inputItems.map(input => ({
-      hrid: input.itemHrid,
-      // 工匠茶补正
-      count: input.count * (1 - artisanBuff),
-      marketPrice: getPriceOf(input.itemHrid).ask
-    })))
-
-    list = list.concat(getTeaIngredientList(this))
-    return list
+    return getTeaIngredientList(this) || []
   }
 
   get productList(): Product[] {
-    const gourmetBuff = getBuffOf(this.action, "Gourmet")
-    let list = this.actionItem.outputItems.map(output => ({
+    const gatheringBuff = getBuffOf(this.action, "Gathering")
+    const processingBuff = getBuffOf(this.action, "Processing")
+
+    let list = this.actionItem.dropTable!.map(output => ({
       hrid: output.itemHrid,
-      // 双倍茶补正
-      count: output.count * (1 + gourmetBuff),
+      // 采集茶补正
+      count: (output.maxCount + output.minCount) / 2 * (1 - processingBuff) * (1 + gatheringBuff),
       marketPrice: getPriceOf(output.itemHrid).bid
     }))
+
+    // 加工茶
+    const processingHrid = getProcessingProduct(this.hrid)
+    if (processingHrid) {
+      list.push({
+        hrid: processingHrid,
+        count: processingBuff,
+        marketPrice: getPriceOf(processingHrid).bid
+      })
+    }
+
     list = list.concat(this.actionItem.essenceDropTable?.map(essence => ({
       hrid: essence.itemHrid,
       count: essence.maxCount,

@@ -11,6 +11,9 @@ export const DEFAULT_SEPCIAL_EQUIPMENT_LIST: PlayerEquipmentItem[] = [
 ]
 
 export const DEFAULT_TEA: Record<Action, string[]> = Object.freeze({
+  milking: ["/items/processing_tea", "/items/gathering_tea", "/items/efficiency_tea"],
+  foraging: ["/items/processing_tea", "/items/gathering_tea", "/items/efficiency_tea"],
+  woodcutting: ["/items/processing_tea", "/items/gathering_tea", "/items/efficiency_tea"],
   cheesesmithing: ["/items/wisdom_tea", "/items/artisan_tea", "/items/efficiency_tea"],
   crafting: ["/items/wisdom_tea", "/items/artisan_tea", "/items/efficiency_tea"],
   tailoring: ["/items/wisdom_tea", "/items/artisan_tea", "/items/efficiency_tea"],

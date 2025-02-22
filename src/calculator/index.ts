@@ -85,9 +85,9 @@ export default abstract class Calculator {
     return result
   }
 
-  _ingredientListWithPrice: IngredientWithPrice[] = []
+  _ingredientListWithPrice?: IngredientWithPrice[]
   get ingredientListWithPrice(): IngredientWithPrice[] {
-    if (this._ingredientListWithPrice.length === 0) {
+    if (!this._ingredientListWithPrice) {
       const list = this.ingredientList.map((item) => {
         return {
           ...item,
@@ -102,9 +102,9 @@ export default abstract class Calculator {
     return this._ingredientListWithPrice
   }
 
-  _productListWithPrice: ProductWithPrice[] = []
+  _productListWithPrice?: ProductWithPrice[]
   get productListWithPrice(): ProductWithPrice[] {
-    if (this._productListWithPrice.length === 0) {
+    if (!this._productListWithPrice) {
       const list = this.productList.map((item) => {
         return {
           ...item,
@@ -167,7 +167,7 @@ export default abstract class Calculator {
     const costPH = this.cost * this.consumePH
     const incomePH = this.income * this.gainPH
     const profitPH = incomePH - costPH
-    const profitRate = profitPH / costPH
+    const profitRate = costPH ? profitPH / costPH : 0
 
     this.result = {
       hrid: this.item.hrid,
