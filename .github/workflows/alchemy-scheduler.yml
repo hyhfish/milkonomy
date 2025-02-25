@@ -8,20 +8,24 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@master
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 22.12.0
+          node-version: "18"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
         with:
-          version: 9.15.0
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Run Alchemy Script
-        run: pnpm run run-alchemy
+        run: npm run run-alchemy
