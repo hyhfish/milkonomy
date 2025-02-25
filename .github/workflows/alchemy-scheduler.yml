@@ -13,10 +13,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm # 自动缓存 node_modules
+          cache: yarn # 自动缓存 Yarn 依赖
+
+      - name: Install Yarn
+        run: npm install -g yarn # 与本地版本一致
 
       - name: Install Dependencies
-        run: npm ci --prefer-offline # 优先使用缓存
+        run: yarn install --frozen-lockfile --prefer-offline
 
       - name: Run Alchemy Script
         run: npm run run-alchemy
