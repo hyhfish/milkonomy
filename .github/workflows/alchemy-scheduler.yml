@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update:
+  execute:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,13 +13,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: yarn # 自动缓存 Yarn 依赖
+          cache: yarn
+          cache-dependency-path: scripts/alchemy-leaderboard/yarn.lock # 🔥 关键：仅缓存子目录
 
       - name: Install Yarn
-        run: npm install -g yarn # 与本地版本一致
+        run: npm install -g yarn@1.22.19
 
       - name: Install Dependencies
-        run: yarn install --frozen-lockfile --prefer-offline
+        working-directory: ./scripts/alchemy-leaderboard # 🚀 隔离安装
+        run: yarn install --frozen-lockfile
 
-      - name: Run Alchemy Script
-        run: npm run run-alchemy
+      - name: Execute
+        working-directory: ./scripts/alchemy-leaderboard
+        run: yarn start
