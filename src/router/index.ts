@@ -184,6 +184,14 @@ export const constantRoutes: RouteRecordRaw[] = [
         }
       },
       {
+        path: "https://test-ctmd6jnzo6t9.feishu.cn/docx/KG9ddER6Eo2uPoxJFkicsvbEnCe",
+        component: () => {},
+        name: "Link4",
+        meta: {
+          title: "牛牛手册(攻略/插件)"
+        }
+      },
+      {
         path: "https://github.com/holychikenz/MWIApi",
         component: () => {},
         name: "Link2",
