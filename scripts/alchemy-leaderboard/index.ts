@@ -29,7 +29,8 @@ function getLeaderboardData() {
   profitListR = profitListR.slice(0, 100)
 
   axios.post("https://script.google.com/macros/s/AKfycbwr0ijGPDBuw0GWv375wvV72e0aHQswCLF_JYrWum3dyu7oMJLnX2iRNeQiNt0Bk_zhOw/exec", {
-    time: new Date(getMarketDataApi()?.time * 1000).toLocaleString(),
+    // 北京时间
+    time: new Date(getMarketDataApi()?.time * 1000).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }),
     // 转成二维数组
     list1: profitList.map(cal => [
       dic[cal.item.name],
