@@ -77,7 +77,7 @@ function loadData() {
       console.log("data", data)
       sponsorList.value = data.map(([approved, nickname, platform, name, amount, date]: any) => {
         return { approved, nickname, platform, name, amount, date: new Date(date) } as Sponsor
-      })
+      }).sort((a: Sponsor, b: Sponsor) => b.amount! - a.amount!)
     })
     .catch((e) => {
       ElMessage.error(e)
