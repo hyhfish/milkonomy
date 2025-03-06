@@ -51,7 +51,7 @@ export class TransmuteCalculator extends AlchemyCalculator {
   }
 
   get available(): boolean {
-    return this.item.alchemyDetail?.transmuteDropTable != null && getPriceOf(this.item.hrid).ask !== -1
+    return this.item.alchemyDetail?.transmuteDropTable != null
   }
 
   get timeCost(): number {
@@ -138,7 +138,7 @@ export class DecomposeCalculator extends AlchemyCalculator {
   }
 
   get available(): boolean {
-    return this.item.alchemyDetail?.decomposeItems != null && getPriceOf(this.item.hrid).ask !== -1
+    return this.item.alchemyDetail?.decomposeItems != null
   }
 
   get timeCost(): number {
@@ -225,7 +225,7 @@ export class CoinifyCalculator extends AlchemyCalculator {
   }
 
   get available(): boolean {
-    return this.item.alchemyDetail?.isCoinifiable && getPriceOf(this.item.hrid).ask !== -1
+    return this.item.alchemyDetail?.isCoinifiable
   }
 
   get timeCost(): number {

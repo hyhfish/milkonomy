@@ -144,10 +144,7 @@ export class WorkflowCalculator extends Calculator {
   }
 
   get available(): boolean {
-    // 传统的方式非常慢，之后想办法优化
-    // return this.ingredientListWithPrice.every(item => item.price !== -1)
-    // 只验证首次流程的原料价格
-    return this.calculatorList[0].ingredientListWithPrice[0].price !== -1
+    return true
   }
 
   get actionLevel(): number {
@@ -199,8 +196,12 @@ export class WorkflowCalculator extends Calculator {
     const item = this.calculator.item
     const costPH = this.resultList.reduce((acc, curr) => acc + curr.costPH, 0)
     const incomePH = this.resultList.reduce((acc, curr) => acc + curr.incomePH, 0)
-    const profitPH = this.resultList.reduce((acc, curr) => acc + curr.profitPH, 0)
+    let profitPH = this.resultList.reduce((acc, curr) => acc + curr.profitPH, 0)
     const profitRate = profitPH / costPH
+
+    if (this.calculatorList.some(cal => !cal.valid)) {
+      profitPH = -1 / 24
+    }
 
     this.result = {
       workMultiplier: this.workMultiplier,

@@ -14,15 +14,7 @@ export class ManufactureCalculator extends Calculator {
   }
 
   get available(): boolean {
-    if (!this.actionItem) {
-      return false
-    }
-    for (const ingredient of this.ingredientList) {
-      if (ingredient.marketPrice === -1) {
-        return false
-      }
-    }
-    return true
+    return !!this.actionItem
   }
 
   constructor(config: CalculatorConfig) {

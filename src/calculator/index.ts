@@ -163,11 +163,27 @@ export default abstract class Calculator {
     return this._gainPH
   }
 
+  /**
+   * 收益是否有效
+   */
+  get valid(): boolean {
+    for (const ingredient of this.ingredientListWithPrice) {
+      if (ingredient.price === -1) {
+        return false
+      }
+    }
+    return true
+  }
+
   run() {
     const costPH = this.cost * this.consumePH
     const incomePH = this.income * this.gainPH
-    const profitPH = incomePH - costPH
+    let profitPH = incomePH - costPH
     const profitRate = costPH ? profitPH / costPH : 0
+
+    if (!this.valid) {
+      profitPH = -1 / 24
+    }
 
     this.result = {
       hrid: this.item.hrid,
