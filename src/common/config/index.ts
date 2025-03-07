@@ -8,7 +8,8 @@ export const DEFAULT_SEPCIAL_EQUIPMENT_LIST: PlayerEquipmentItem[] = [
   { type: "feet", hrid: "/items/collectors_boots", enhanceLevel: 10 },
   { type: "neck", hrid: "", enhanceLevel: undefined },
   { type: "earrings", hrid: "", enhanceLevel: undefined },
-  { type: "ring", hrid: "", enhanceLevel: undefined }
+  { type: "ring", hrid: "", enhanceLevel: undefined },
+  { type: "pouch", hrid: "", enhanceLevel: undefined }
 ]
 
 export const DEFAULT_TEA: Record<Action, string[]> = Object.freeze({

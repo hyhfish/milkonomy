@@ -48,7 +48,6 @@ function onConfirm() {
   <el-button @click="onDialog" :type="playerStore.actionConfigActivated ? 'success' : 'info'">
     自定义等级({{ playerStore.actionConfigActivated ? '已开启' : '已关闭' }})
   </el-button>
-  {{ '----' }} 可以自定义喝茶了！
   <el-dialog v-model="visible" :show-close="false" width="80%">
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">

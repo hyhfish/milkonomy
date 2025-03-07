@@ -173,7 +173,20 @@ function initBuffMap() {
   if (!getGameDataApi()) return
   buffs = {} as Record<NoncombatStatsProp, number>
   const enhanceMultiplier = getGameDataApi().enhancementLevelTotalBonusMultiplierTable
+  // 特殊装备
+  for (const equipment of EQUIPMENT_LIST) {
+    const eq = getSpecialEquipmentOf(equipment, actionConfigActivated)
+    if (eq && eq.hrid) {
+      const item = getItemDetailOf(eq.hrid!)
+      item.equipmentDetail?.noncombatStats && Object.entries(item.equipmentDetail.noncombatStats).forEach(([key, value]) => {
+        const bonus = item.equipmentDetail?.noncombatEnhancementBonuses[key as NoncombatStatsProp]
+        buffs[key as NoncombatStatsProp] = (buffs[key as NoncombatStatsProp] || 0) + value + ((bonus || 0) * (enhanceMultiplier[eq.enhanceLevel || 0]))
+      })
+    }
+  }
+
   for (const action of ACTION_LIST) {
+    // 职业装备
     const actionConfig = getActionConfigOf(action)
     for (const ac of Object.values(actionConfig)) {
       if (typeof ac === "object" && !Array.isArray(ac) && ac.hrid) {
@@ -184,6 +197,7 @@ function initBuffMap() {
         })
       }
     }
+    // 房子
     Object.keys(HOUSE_MAP[action as Action]).forEach((key) => {
       let buffAction = action as Action | "skilling"
       if (key === "RareFind" || key === "Experience") {
@@ -197,46 +211,36 @@ function initBuffMap() {
       const item = getItemDetailOf(tea)
       item.consumableDetail?.buffs && item.consumableDetail.buffs.forEach((buff) => {
         if (buff.typeHrid === `/buff_types/${action}_level`) {
-          buffs[`${action}Level`] = (buffs[`${action}Level`] || 0) + buff.flatBoost
+          buffs[`${action}Level`] = (buffs[`${action}Level`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         if (buff.typeHrid === "/buff_types/efficiency") {
-          buffs[`${action}Efficiency`] = (buffs[`${action}Efficiency`] || 0) + buff.flatBoost
+          buffs[`${action}Efficiency`] = (buffs[`${action}Efficiency`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         if (buff.typeHrid === "/buff_types/artisan") {
-          buffs[`${action}Artisan`] = (buffs[`${action}Artisan`] || 0) + buff.flatBoost
+          buffs[`${action}Artisan`] = (buffs[`${action}Artisan`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         // 工匠茶的等级debuff
         if (buff.typeHrid === "/buff_types/action_level") {
           buffs[`${action}Level`] = (buffs[`${action}Level`] || 0) - buff.flatBoost
         }
         if (buff.typeHrid === "/buff_types/gourmet") {
-          buffs[`${action}Gourmet`] = (buffs[`${action}Gourmet`] || 0) + buff.flatBoost
+          buffs[`${action}Gourmet`] = (buffs[`${action}Gourmet`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         if (buff.typeHrid === `/buff_types/${action}_success`) {
-          buffs[`${action}Success`] = (buffs[`${action}Success`] || 0) + buff.ratioBoost
+          buffs[`${action}Success`] = (buffs[`${action}Success`] || 0) + (buff.ratioBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         if (buff.typeHrid === "/buff_types/blessed") {
-          buffs[`${action}Blessed`] = (buffs[`${action}Blessed`] || 0) + buff.flatBoost
+          buffs[`${action}Blessed`] = (buffs[`${action}Blessed`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         if (buff.typeHrid === "/buff_types/action_speed") {
-          buffs[`${action}Speed`] = (buffs[`${action}Speed`] || 0) + buff.flatBoost
+          buffs[`${action}Speed`] = (buffs[`${action}Speed`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         if (buff.typeHrid === "/buff_types/gathering") {
-          buffs[`${action}Gathering`] = (buffs[`${action}Gathering`] || 0) + buff.flatBoost
+          buffs[`${action}Gathering`] = (buffs[`${action}Gathering`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         if (buff.typeHrid === "/buff_types/processing") {
-          buffs[`${action}Processing`] = (buffs[`${action}Processing`] || 0) + buff.flatBoost
+          buffs[`${action}Processing`] = (buffs[`${action}Processing`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
-      })
-    }
-  }
-  for (const equipment of EQUIPMENT_LIST) {
-    const eq = getSpecialEquipmentOf(equipment, actionConfigActivated)
-    if (eq && eq.hrid) {
-      const item = getItemDetailOf(eq.hrid!)
-      item.equipmentDetail?.noncombatStats && Object.entries(item.equipmentDetail.noncombatStats).forEach(([key, value]) => {
-        const bonus = item.equipmentDetail?.noncombatEnhancementBonuses[key as NoncombatStatsProp]
-        buffs[key as NoncombatStatsProp] = (buffs[key as NoncombatStatsProp] || 0) + value + ((bonus || 0) * (enhanceMultiplier[eq.enhanceLevel || 0]))
       })
     }
   }

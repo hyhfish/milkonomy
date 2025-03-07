@@ -27,8 +27,8 @@ export const EQUIPMENT_LIST = [
   "neck",
   "earrings",
   "back",
-  "off_hand"
-  // 'pouch'
+  "off_hand",
+  "pouch"
   // 'main_hand'
 ] as const
 
