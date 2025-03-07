@@ -251,6 +251,10 @@ export function getBuffOf(action: Action, key: NoncombatStatsKey) {
   return (buffs[`${action}${key}`] || 0) + (buffs[`skilling${key}`] || 0)
 }
 
+export function getDrinkConcentration() {
+  return buffs.drinkConcentration || 0
+}
+
 export function getPlayerLevelOf(action: Action) {
   return getActionConfigOf(action).playerLevel + getBuffOf(action, "Level")
 }

@@ -1,7 +1,7 @@
 import type { StorageCalculatorItem } from "@/pinia/stores/favorite"
 import type Calculator from "."
 import { getPriceOf } from "@/common/apis/game"
-import { getActionConfigOf } from "@/common/apis/player"
+import { getActionConfigOf, getDrinkConcentration } from "@/common/apis/player"
 import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "./alchemy"
 import { EnhanceCalculator } from "./enhance"
 import { ManufactureCalculator } from "./manufacture"
@@ -34,7 +34,7 @@ export function getStorageCalculatorItem(calculator: Calculator): StorageCalcula
 export function getTeaIngredientList(cal: Calculator) {
   return (getActionConfigOf(cal.action).tea || []).map(hrid => ({
     hrid,
-    count: 3600 / 300 / cal.consumePH,
+    count: 3600 / 300 / cal.consumePH * (1 + getDrinkConcentration()),
     marketPrice: getPriceOf(hrid).ask
   }))
 }
