@@ -64,8 +64,18 @@ export const useGameStore = defineStore("game", {
   }),
   actions: {
     async fetchData() {
-      const url = import.meta.env.MODE === "development" ? "https://luyh7.github.io/milkonomy/" : "./"
-      const response = await Promise.all([fetch(`${url}data/data.json`), fetch(`${url}data/market.json`)])
+      // 如果数据time晚于一个半小时前，无需更新
+      if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 90) {
+        // 无需更新
+        return
+      }
+      const DATA_URL = [
+        "https://raw.githubusercontent.com/silent1b/MWIData/main/init_client_info.json",
+        "https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
+      ]
+      // const url = import.meta.env.MODE === "development" ? "https://luyh7.github.io/milkonomy/" : "./"
+      // const response = await Promise.all([fetch(`${url}data/data.json`), fetch(`${url}data/market.json`)])
+      const response = await Promise.all(DATA_URL.map(url => fetch(url)))
       if (!response[0].ok || !response[1].ok) {
         throw new Error("Failed to fetch data")
       }
