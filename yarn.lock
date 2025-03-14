@@ -5809,6 +5809,11 @@ vue-flow-layout@^0.1.1:
   resolved "https://registry.npmmirror.com/vue-flow-layout/-/vue-flow-layout-0.1.1.tgz#4095d9e79b80e845f110d4d015de6faf2c71f735"
   integrity sha512-JdgRRUVrN0Y2GosA0M68DEbKlXMqJ7FQgsK8CjQD2vxvNSqAU6PZEpi4cfcTVtfM2GVOMjHo7GKKLbXxOBqDqA==
 
+vue-gtag@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npmmirror.com/vue-gtag/-/vue-gtag-2.1.0.tgz#95a99c19d53da8576f6d8ba915090044f6819754"
+  integrity sha512-lnEiHtNkw37lUug36n023uYWRaFz7s2Wk12G+hdzrTKwWwTBuq0Mcd5e0zH65aKPZRWT+51C6LUHZShpTPiMng==
+
 vue-i18n@11.1.1:
   version "11.1.1"
   resolved "https://registry.npmmirror.com/vue-i18n/-/vue-i18n-11.1.1.tgz#8bae0201ac1396d1c77a60ed2a03026396ab4714"
