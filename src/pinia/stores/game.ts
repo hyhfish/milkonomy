@@ -70,8 +70,8 @@ export const useGameStore = defineStore("game", {
         return
       }
       const DATA_URL = [
-        "https://raw.githubusercontent.com/silent1b/MWIData/main/init_client_info.json",
-        "https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
+        "https://gh-proxy.com/raw.githubusercontent.com/silent1b/MWIData/main/init_client_info.json",
+        "https://gh-proxy.com/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
       ]
       // const url = import.meta.env.MODE === "development" ? "https://luyh7.github.io/milkonomy/" : "./"
       // const response = await Promise.all([fetch(`${url}data/data.json`), fetch(`${url}data/market.json`)])
