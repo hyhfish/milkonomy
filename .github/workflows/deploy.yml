@@ -1,11 +1,11 @@
 name: Build And Deploy milkonomy
 # 允许手动触发
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "src/**"
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "src/**"
   workflow_dispatch:
   workflow_call:
     inputs:
