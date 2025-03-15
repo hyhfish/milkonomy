@@ -21,7 +21,9 @@ import { cloneDeep } from "lodash-es"
 import ActionConfig from "./components/ActionConfig.vue"
 import ActionDetail from "./components/ActionDetail.vue"
 import ActionPrice from "./components/ActionPrice.vue"
+
 import SinglePrice from "./components/SinglePrice.vue"
+
 // #region 查
 const favoriteStore = useFavoriteStore()
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "dashboard-leaderboard-pagination")

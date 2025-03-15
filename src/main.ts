@@ -17,7 +17,7 @@ import { useGameStore } from "./pinia/stores/game"
 
 import locales from "@/locales"
 
-import VueGtag from "vue-gtag"
+import VueGtag, { trackRouter } from "vue-gtag-next"
 
 // 创建应用实例
 const app = createApp(App)
@@ -28,6 +28,7 @@ installPlugins(app)
 // 国际化
 app.use(locales)
 
+trackRouter(router)
 // 安装 pinia 和 router
 app.use(pinia).use(router)
 
@@ -37,10 +38,10 @@ setInterval(() => {
 }, 120 * 1000)
 
 app.use(VueGtag, {
-  config: {
-    id: "G-GC32DWCZVS"
+  property: {
+    id: "G-XHFS0BRE7Y"
   }
-}, router)
+})
 
 useGameStore().fetchData().then(() => {
   router.isReady().then(() => {

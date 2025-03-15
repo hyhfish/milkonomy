@@ -1,7 +1,7 @@
 {
   "name": "milkonomy",
   "type": "module",
-  "version": "1.1.170",
+  "version": "1.1.171",
   "description": "A crafted admin template, built with Vue3, Vite, TypeScript, Element Plus, and more",
   "author": "luyh7 <470103427@qq.com> (https://github.com/luyh7)",
   "repository": "https://github.com/luyh7/milkonomy",
@@ -9,6 +9,7 @@
     "dev": "vite",
     "build:staging": "vue-tsc && vite build --mode staging",
     "build": "vue-tsc && vite build",
+    "deploy": "yarn build && gh-pages -d dist",
     "preview": "vite preview",
     "lint": "eslint . --fix",
     "prepare": "husky",
@@ -31,7 +32,7 @@
     "pinia": "2.3.0",
     "screenfull": "6.0.2",
     "vue": "3.5.13",
-    "vue-gtag": "2.1.0",
+    "vue-gtag-next": "1.14.0",
     "vue-i18n": "11.1.1",
     "vue-router": "4.5.0",
     "vxe-table": "4.6.25"
@@ -48,6 +49,7 @@
     "@vue/test-utils": "2.4.6",
     "eslint": "9.18.0",
     "eslint-plugin-format": "1.0.1",
+    "gh-pages": "6.3.0",
     "happy-dom": "16.6.0",
     "husky": "9.1.7",
     "lint-staged": "15.4.0",
