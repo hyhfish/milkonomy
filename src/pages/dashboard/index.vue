@@ -3,7 +3,7 @@ import type Calculator from "@/calculator"
 import type { FormInstance, Sort } from "element-plus"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
-import { getGameDataApi, getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
+import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getActionConfigOf } from "@/common/apis/player"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
@@ -203,14 +203,14 @@ function deletePrice(row: StoragePriceItem) {
 <template>
   <div class="app-container">
     <div class="game-info">
-      <div>MWI版本：{{ getGameDataApi()?.gameVersion }}</div>
+      <div>MWI版本：{{ useGameStore().gameData?.gameVersion }}</div>
       <div
         :class="{
           error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
           success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
         }"
       >
-        市场数据更新时间:{{ new Date(getMarketDataApi()?.time * 1000).toLocaleString() }}
+        市场数据更新时间:{{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
       </div>
       <div>
         <ActionConfig />

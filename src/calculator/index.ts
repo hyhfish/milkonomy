@@ -73,7 +73,7 @@ export default abstract class Calculator {
       const priceConfig = priceConfigList[i]
       const hasManualPrice = getManualPriceOf(item.hrid)?.[type]?.manual && getManualPriceActivated()
       const manualPrice = getManualPriceOf(item.hrid)?.[type]?.manualPrice
-      if (hasManualPrice) {
+      if (!priceConfig?.immutable && hasManualPrice) {
         this.hasManualPrice = true
       }
       const price = priceConfig?.immutable ? priceConfig.price! : hasManualPrice ? manualPrice! : item.marketPrice
