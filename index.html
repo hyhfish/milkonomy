@@ -11,6 +11,7 @@
         // 拼接完整新URL（保留路径、参数、哈希）
         const newUrl = new URL(window.location.href)
         newUrl.hostname = NEW_DOMAIN // 替换域名
+        newUrl.pathname = "/" // 替换路径
         window.location.replace(newUrl.href) // 执行跳转
       }
     </script>
