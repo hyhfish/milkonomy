@@ -238,7 +238,7 @@ function deletePrice(row: StoragePriceItem) {
                   <el-option label="烹饪" value="烹饪" />
                   <el-option label="冲泡" value="冲泡" />
                   <el-option label="点金" value="点金" />
-                  <el-option label="重组" value="重组" />
+                  <el-option label="转化" value="转化" />
                   <el-option label="分解" value="分解" />
                 </el-select>
               </el-form-item>
@@ -423,7 +423,7 @@ function deletePrice(row: StoragePriceItem) {
                   <el-option label="烹饪" value="烹饪" />
                   <el-option label="冲泡" value="冲泡" />
                   <el-option label="点金" value="点金" />
-                  <el-option label="重组" value="重组" />
+                  <el-option label="转化" value="转化" />
                   <el-option label="分解" value="分解" />
                 </el-select>
               </el-form-item>

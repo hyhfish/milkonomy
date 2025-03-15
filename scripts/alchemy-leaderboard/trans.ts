@@ -121,7 +121,7 @@ export const dic: Record<string, string> = {
   "Butter Of Proficiency": "精通之油",
   "Catalyst Of Coinification": "点金催化剂",
   "Catalyst Of Decomposition": "分解催化剂",
-  "Catalyst Of Transmutation": "重组催化剂",
+  "Catalyst Of Transmutation": "转化催化剂",
   "Catalytic Tea": "催化茶",
   "Cedar Bow": "雪松弓",
   "Cedar Crossbow": "雪松弩",

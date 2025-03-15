@@ -38,7 +38,7 @@ export class TransmuteCalculator extends AlchemyCalculator {
   }
 
   constructor(config: AlchemyCalculatorConfig) {
-    super({ ...config, project: "重组" })
+    super({ ...config, project: "转化" })
   }
 
   get catalyst(): AlchemyCatalyst | undefined {
