@@ -119,6 +119,7 @@ export function initProcessingProductMap() {
       _processingProductMap[value.inputItems[0].itemHrid] = value.outputItems[0].itemHrid
     }
   })
+  _processingProductMap["/items/rainbow_milk"] = "/items/rainbow_cheese"
 }
 
 export function getProcessingProduct(hrid: string) {

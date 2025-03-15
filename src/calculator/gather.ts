@@ -22,6 +22,10 @@ export class GatherCalculator extends Calculator {
   }
 
   get actionItem() {
+    // 彩虹奶酪是特例
+    if (this.item.hrid === "/items/rainbow_milk") {
+      return getActionDetailOf(`/actions/milking/unicow`)
+    }
     const actionKey = this.key?.replace(/milk$/, "cow").replace(/log$/, "tree")
     return getActionDetailOf(`/actions/${this.action}/${actionKey}`)
   }
