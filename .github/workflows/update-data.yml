@@ -2,8 +2,8 @@ name: Update Game Data
 env:
   GITHUB_REPOSITORY: ${{ github.repository }}
 on:
-  schedule:
-    - cron: "*/10 * * * *"
+  # schedule:
+  #   - cron: "*/10 * * * *"
   workflow_dispatch:
 
 jobs:
