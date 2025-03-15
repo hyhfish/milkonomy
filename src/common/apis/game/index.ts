@@ -114,7 +114,7 @@ export function enhancementLevelSuccessRateTable() {
 
 export function initProcessingProductMap() {
   _processingProductMap = {}
-  Object.entries(getGameDataApi()?.actionDetailMap).forEach(([key, value]) => {
+  game.gameData && Object.entries(game.gameData.actionDetailMap).forEach(([key, value]) => {
     if (key.match(/fabric$/) || key.match(/lumber$/) || key.match(/cheese$/)) {
       _processingProductMap[value.inputItems[0].itemHrid] = value.outputItems[0].itemHrid
     }
