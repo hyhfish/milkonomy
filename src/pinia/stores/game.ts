@@ -65,7 +65,7 @@ export const useGameStore = defineStore("game", {
   actions: {
     async fetchData() {
       // 如果数据time晚于一个半小时前，无需更新
-      if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 90) {
+      if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 75) {
         // 无需更新
         return
       }
