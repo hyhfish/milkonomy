@@ -64,11 +64,11 @@ export const useGameStore = defineStore("game", {
   }),
   actions: {
     async fetchData() {
-      // 如果数据time晚于一个半小时前，无需更新
-      if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 75) {
-        // 无需更新
-        return
-      }
+      // 如果数据time晚于20min前，无需更新
+      // if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 20) {
+      //   // 无需更新
+      //   return
+      // }
       const DATA_URL = [
         "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/silent1b/MWIData/main/init_client_info.json",
         "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
