@@ -54,7 +54,7 @@ const { t } = useI18n()
         <el-card>
           <template #header>
             <span style="margin-right: 20px;">{{ t('动作') }}</span>
-            <el-switch v-model="actionConfigActivated" active-text="已开启" inactive-text="已关闭" inline-prompt />
+            <el-switch v-model="actionConfigActivated" :active-text="t('已开启')" :inactive-text="t('已关闭')" inline-prompt />
           </template>
           <el-table :data="actionList">
             <el-table-column prop="name" width="54">
