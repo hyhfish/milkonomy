@@ -134,7 +134,12 @@ const { t } = useI18n()
       <el-table v-loading="sponsorLoading" :data="sponsorList">
         <el-table-column :label="t('排名')" width="60">
           <template #default="{ $index }">
-            <span>{{ $index + 1 }}</span>
+            <div class="uno-flex-x-center">
+              <div>{{ ['🥇', '🥈', '🥉'][$index] }}</div>
+              <div v-if="$index >= 3">
+                {{ $index + 1 }}
+              </div>
+            </div>
           </template>
         </el-table-column>
 
