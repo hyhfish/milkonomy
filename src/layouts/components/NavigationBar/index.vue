@@ -2,9 +2,7 @@
 import { useAppStore } from "@/pinia/stores/app"
 import { useSettingsStore } from "@/pinia/stores/settings"
 import Globalization from "@@/components/Globalization/index.vue"
-import Notify from "@@/components/Notify/index.vue"
 import Screenfull from "@@/components/Screenfull/index.vue"
-import SearchMenu from "@@/components/SearchMenu/index.vue"
 import ThemeSwitch from "@@/components/ThemeSwitch/index.vue"
 import { useDevice } from "@@/composables/useDevice"
 import { useLayoutMode } from "@@/composables/useLayoutMode"
@@ -14,7 +12,7 @@ const { isMobile } = useDevice()
 const { isTop } = useLayoutMode()
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
-const { showNotify, showThemeSwitch, showScreenfull, showSearchMenu } = storeToRefs(settingsStore)
+const { showThemeSwitch, showScreenfull } = storeToRefs(settingsStore)
 
 /** 切换侧边栏 */
 function toggleSidebar() {
@@ -33,11 +31,11 @@ function toggleSidebar() {
     <Breadcrumb v-if="!isTop || isMobile" class="breadcrumb" />
     <Sidebar v-if="isTop && !isMobile" class="sidebar" />
     <div class="right-menu">
-      <SearchMenu v-if="showSearchMenu" class="right-menu-item" />
+      <!-- <SearchMenu v-if="showSearchMenu" class="right-menu-item" /> -->
       <Globalization />
       <Screenfull v-if="showScreenfull" class="right-menu-item" />
       <ThemeSwitch v-if="showThemeSwitch" class="right-menu-item" />
-      <Notify v-if="showNotify" class="right-menu-item" />
+      <!-- <Notify v-if="showNotify" class="right-menu-item" /> -->
     </div>
   </div>
 </template>

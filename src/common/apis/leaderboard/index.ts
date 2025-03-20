@@ -7,10 +7,13 @@ import { GatherCalculator } from "@/calculator/gather"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
+import locales from "@/locales"
 import { type StorageCalculatorItem, useFavoriteStore } from "@/pinia/stores/favorite"
 import { useGameStore } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
+
+const { t } = locales.global
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   let profitList: Calculator[] = []
@@ -26,7 +29,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
       console.error(e)
     }
     useGameStore().setLeaderBoardCache(profitList)
-    ElMessage.success(`计算完成，耗时${(Date.now() - startTime) / 1000}秒`)
+    ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
   profitList.forEach(item => item.favorite = useFavoriteStore().hasFavorite(item))
 
@@ -56,11 +59,11 @@ function calcProfit() {
     }
     cList.forEach(c => handlePush(profitList, c))
     const projects: [string, Action][] = [
-      ["锻造", "cheesesmithing"],
-      ["制造", "crafting"],
-      ["裁缝", "tailoring"],
-      ["烹饪", "cooking"],
-      ["冲泡", "brewing"]
+      [t("锻造"), "cheesesmithing"],
+      [t("制造"), "crafting"],
+      [t("裁缝"), "tailoring"],
+      [t("烹饪"), "cooking"],
+      [t("冲泡"), "brewing"]
     ]
     for (const [project, action] of projects) {
       const c = new ManufactureCalculator({ hrid: item.hrid, project, action })
@@ -68,9 +71,9 @@ function calcProfit() {
     }
 
     const gatherings: [string, Action][] = [
-      ["挤奶", "milking"],
-      ["采摘", "foraging"],
-      ["伐木", "woodcutting"]
+      [t("挤奶"), "milking"],
+      [t("采摘"), "foraging"],
+      [t("伐木"), "woodcutting"]
     ]
     for (const [project, action] of gatherings) {
       const c = new GatherCalculator({ hrid: item.hrid, project, action })
@@ -87,11 +90,11 @@ function calcAllFlowProfit() {
   const profitList: Calculator[] = []
   list.forEach((item) => {
     const projects: [string, Action][] = [
-      ["锻造", "cheesesmithing"],
-      ["制造", "crafting"],
-      ["裁缝", "tailoring"],
-      ["烹饪", "cooking"],
-      ["冲泡", "brewing"]
+      [t("锻造"), "cheesesmithing"],
+      [t("制造"), "crafting"],
+      [t("裁缝"), "tailoring"],
+      [t("烹饪"), "cooking"],
+      [t("冲泡"), "brewing"]
     ]
     for (const [project, action] of projects) {
       const configs: StorageCalculatorItem[] = []

@@ -10,12 +10,14 @@ defineProps<{
   simple?: boolean
   workMultiplier?: number
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
   <el-card>
     <el-table :data="data[`${type}ListWithPrice`]" :show-header="false">
-      <el-table-column label="物品" width="44">
+      <el-table-column width="44">
         <template #default="{ row }">
           <ItemIcon :hrid="row.hrid" />
         </template>
@@ -63,7 +65,7 @@ defineProps<{
       </el-table-column>
     </el-table>
     <div class="footer-wrapper">
-      {{ type === 'ingredient' ? `成本：${Format.money(data.result.costPH * (workMultiplier || 1))}` : `收入：${Format.money(data.result.incomePH * (workMultiplier || 1))}` }} / h
+      {{ type === 'ingredient' ? `${t('成本')}：${Format.money(data.result.costPH * (workMultiplier || 1))}` : `${t('收入')}：${Format.money(data.result.incomePH * (workMultiplier || 1))}` }} / h
     </div>
   </el-card>
 </template>

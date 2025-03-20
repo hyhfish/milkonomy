@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const { t } = useI18n()
+</script>
+
 <template>
   <div class="error">
     <div class="error-svg">
@@ -5,7 +9,7 @@
     </div>
     <router-link to="/">
       <el-button type="primary">
-        回到首页
+        {{ t('回到首页') }}
       </el-button>
     </router-link>
   </div>

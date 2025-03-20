@@ -89,19 +89,20 @@ function loadData() {
 function onPaypal() {
   window.open("https://paypal.me/luyh7")
 }
+const { t } = useI18n()
 </script>
 
 <template>
   <div style="text-align: center;">
-    <h1>打赏作者</h1>
-    <p>如果您觉得本项目对您有帮助，可以打赏作者一根辣条</p>
+    <h1>{{ t('打赏作者') }}</h1>
+    <p>{{ t('如果您觉得本项目对您有帮助，可以打赏作者一根辣条') }}</p>
     <div>
       <el-row :gutter="20" class="img-row">
         <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
           <el-card>
             <img width="80%" :src="logoWechat" alt="微信打赏">
             <div class="img-alt">
-              WeChat
+              {{ t('微信') }}
             </div>
           </el-card>
         </el-col>
@@ -109,7 +110,7 @@ function onPaypal() {
           <el-card>
             <img width="80%" :src="logoAlipay" alt="支付宝打赏">
             <div class="img-alt">
-              Alipay
+              {{ t('支付宝') }}
             </div>
           </el-card>
         </el-col>
@@ -125,20 +126,20 @@ function onPaypal() {
     </div>
     <el-card class="sponsor-list">
       <template #header>
-        打赏者名单&nbsp;
+        {{ t('打赏者名单') }}&nbsp;
         <el-button type="primary" @click="dialogVisible = true">
-          我要上榜
+          {{ t('我要上榜') }}
         </el-button>
       </template>
       <el-table v-loading="sponsorLoading" :data="sponsorList">
-        <el-table-column label="排名" width="60">
+        <el-table-column :label="t('排名')" width="60">
           <template #default="{ $index }">
             <span>{{ $index + 1 }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column prop="nickname" label="昵称" />
-        <el-table-column prop="amount" label="金额">
+        <el-table-column prop="nickname" :label="t('昵称')" />
+        <el-table-column prop="amount" :label="t('金额')">
           <template #default="{ row }">
             <span>¥{{ row.amount }}</span>
           </template>
@@ -146,27 +147,27 @@ function onPaypal() {
       </el-table>
     </el-card>
 
-    <el-dialog class="dialog" v-model="dialogVisible" title="我要上榜" :show-close="false">
-      <el-form :model="form" ref="refForm" class="form" :rules="rules">
-        <el-form-item prop="nickname" label="昵称">
-          <el-input v-model="form.nickname" placeholder="打赏者名单上显示的名字" />
+    <el-dialog class="dialog" v-model="dialogVisible" :title="t('我要上榜')" :show-close="false">
+      <el-form :model="form" ref="refForm" class="form" :rules="rules" label-width="80px">
+        <el-form-item prop="nickname" :label="t('昵称')">
+          <el-input v-model="form.nickname" :placeholder="t('打赏者名单上显示的名字')" />
         </el-form-item>
-        <el-form-item prop="platform" label="平台">
-          <el-select v-model="form.platform" placeholder="请选择">
-            <el-option label="支付宝" value="支付宝" />
-            <el-option label="微信" value="微信" />
+        <el-form-item prop="platform" :label="t('平台')">
+          <el-select v-model="form.platform" :placeholder="t('请选择')">
+            <el-option :label="t('支付宝')" value="支付宝" />
+            <el-option :label="t('微信')" value="微信" />
             <el-option label="Paypal" value="Paypal" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="name" label="姓名">
-          <el-input v-model="form.name" placeholder="您支付时使用的名字" />
+        <el-form-item prop="name" :label="t('姓名')">
+          <el-input v-model="form.name" :placeholder="t('您支付时使用的名字')" />
         </el-form-item>
-        <el-form-item prop="amount" label="金额">
+        <el-form-item prop="amount" :label="t('金额')">
           <el-input v-model="form.amount" placeholder="CNY" />
         </el-form-item>
-        <el-form-item>
-          提交后请等待作者审核，审核通过后会显示在打赏者名单中
-        </el-form-item>
+        <div style="margin: 10px 80px; line-height: 1.5;">
+          {{ t('提交后请等待作者审核，审核通过后会显示在打赏者名单中') }}
+        </div>
       </el-form>
 
       <template #footer>

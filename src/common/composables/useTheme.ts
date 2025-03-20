@@ -1,3 +1,5 @@
+import locale from "@/locales"
+
 import { getActiveThemeName, setActiveThemeName } from "@@/utils/cache/local-storage"
 
 const DEFAULT_THEME_NAME = "dark"
@@ -9,19 +11,20 @@ interface ThemeList {
   title: string
   name: ThemeName
 }
+const { t } = locale.global
 
 /** 主题列表 */
 const themeList: ThemeList[] = [
   {
-    title: "普通",
+    title: t("普通"),
     name: "normal"
   },
   {
-    title: "黑暗",
+    title: t("黑暗"),
     name: "dark"
   },
   {
-    title: "深蓝",
+    title: t("深蓝"),
     name: "dark-blue"
   }
 ]

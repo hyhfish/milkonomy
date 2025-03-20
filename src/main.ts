@@ -7,6 +7,7 @@ import { installPlugins } from "@/plugins"
 import App from "@/App.vue"
 
 // css
+import "element-plus/dist/index.css"
 import "normalize.css"
 import "nprogress/nprogress.css"
 import "element-plus/theme-chalk/dark/css-vars.css"
@@ -34,8 +35,8 @@ app.use(pinia).use(router)
 
 // 定时获取数据
 setInterval(() => {
-  useGameStore().fetchData()
-}, 120 * 1000)
+  useGameStore().tryFetchData()
+}, 300 * 1000)
 
 app.use(VueGtag, {
   property: {
@@ -43,7 +44,7 @@ app.use(VueGtag, {
   }
 })
 
-useGameStore().fetchData().then(() => {
+useGameStore().tryFetchData().then(() => {
   router.isReady().then(() => {
     app.mount("#app")
   })

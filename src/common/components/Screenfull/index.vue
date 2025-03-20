@@ -1,23 +1,18 @@
 <script lang="ts" setup>
 import screenfull from "screenfull"
 
+const props = withDefaults(defineProps<Props>(), {
+  element: "html",
+  content: false
+})
+
 interface Props {
   /** 全屏的元素，默认是 html */
   element?: string
-  /** 打开全屏提示语 */
-  openTips?: string
-  /** 关闭全屏提示语 */
-  exitTips?: string
   /** 是否只针对内容区 */
   content?: boolean
 }
-
-const props = withDefaults(defineProps<Props>(), {
-  element: "html",
-  openTips: "全屏",
-  exitTips: "退出全屏",
-  content: false
-})
+const { t } = useI18n()
 
 const CONTENT_LARGE = "content-large"
 
@@ -28,8 +23,12 @@ const classList = document.body.classList
 // #region 全屏
 const isEnabled = screenfull.isEnabled
 const isFullscreen = ref<boolean>(false)
-const fullscreenTips = computed(() => (isFullscreen.value ? props.exitTips : props.openTips))
-const fullscreenSvgName = computed(() => (isFullscreen.value ? "fullscreen-exit" : "fullscreen"))
+const fullscreenTips = computed(() =>
+  isFullscreen.value ? t("关闭全屏") : t("全屏")
+)
+const fullscreenSvgName = computed(() =>
+  isFullscreen.value ? "fullscreen-exit" : "fullscreen"
+)
 
 function handleFullscreenClick() {
   const dom = document.querySelector(props.element) || undefined
@@ -56,8 +55,12 @@ watchEffect((onCleanup) => {
 
 // #region 内容区
 const isContentLarge = ref<boolean>(false)
-const contentLargeTips = computed(() => (isContentLarge.value ? "内容区复原" : "内容区放大"))
-const contentLargeSvgName = computed(() => (isContentLarge.value ? "fullscreen-exit" : "fullscreen"))
+const contentLargeTips = computed(() =>
+  isContentLarge.value ? t("内容区复原") : t("内容区放大")
+)
+const contentLargeSvgName = computed(() =>
+  isContentLarge.value ? "fullscreen-exit" : "fullscreen"
+)
 
 function handleContentLargeClick() {
   isContentLarge.value = !isContentLarge.value
@@ -79,8 +82,17 @@ function handleContentFullClick() {
 <template>
   <div>
     <!-- 全屏 -->
-    <el-tooltip v-if="!props.content" effect="dark" :content="fullscreenTips" placement="bottom">
-      <SvgIcon :name="fullscreenSvgName" @click="handleFullscreenClick" class="svg-icon" />
+    <el-tooltip
+      v-if="!props.content"
+      effect="dark"
+      :content="fullscreenTips"
+      placement="bottom"
+    >
+      <SvgIcon
+        :name="fullscreenSvgName"
+        class="svg-icon"
+        @click="handleFullscreenClick"
+      />
     </el-tooltip>
     <!-- 内容区 -->
     <el-dropdown v-else :disabled="isFullscreen">
@@ -93,7 +105,7 @@ function handleContentFullClick() {
           </el-dropdown-item>
           <!-- 内容区全屏 -->
           <el-dropdown-item @click="handleContentFullClick">
-            内容区全屏
+            {{ t('内容区全屏') }}
           </el-dropdown-item>
         </el-dropdown-menu>
       </template>
@@ -104,6 +116,7 @@ function handleContentFullClick() {
 <style lang="scss" scoped>
 .svg-icon {
   font-size: 20px;
+
   &:focus {
     outline: none;
   }

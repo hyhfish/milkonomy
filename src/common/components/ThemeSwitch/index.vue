@@ -19,12 +19,13 @@ function handleChangeTheme({ clientX, clientY }: MouseEvent, themeName: ThemeNam
   }
   document.startViewTransition ? document.startViewTransition(handler) : handler()
 }
+const { t } = useI18n()
 </script>
 
 <template>
   <el-dropdown trigger="click">
     <div>
-      <el-tooltip effect="dark" content="主题模式" placement="bottom">
+      <el-tooltip effect="dark" :content="t('主题')" placement="bottom">
         <el-icon :size="20">
           <MagicStick />
         </el-icon>

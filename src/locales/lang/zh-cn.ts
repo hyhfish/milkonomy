@@ -726,5 +726,20 @@ export default {
   "Wooden Nature Staff": "木制自然法杖",
   "Wooden Shield": "木盾",
   "Wooden Water Staff": "木制水法杖",
-  "Yogurt": "酸奶"
+  "Yogurt": "酸奶",
+
+  // Equipment Slots
+  "Tool": "工具",
+  "Head": "头部",
+  "Body": "身体",
+  "Legs": "腿部",
+  "Feet": "脚部",
+  "Hands": "手部",
+  "Ring": "戒指",
+  "Neck": "项链",
+  "Earrings": "耳环",
+  "Back": "背部",
+  "Off Hand": "副手",
+  "Pouch": "袋子"
+
 }

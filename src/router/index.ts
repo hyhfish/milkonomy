@@ -1,11 +1,12 @@
 import type { RouteRecordRaw } from "vue-router"
+import locale from "@/locales"
 import { routerConfig } from "@/router/config"
 import { registerNavigationGuard } from "@/router/guard"
 import { createRouter } from "vue-router"
 import { flatMultiLevelRoutes } from "./helper"
 
 const Layouts = () => import("@/layouts/index.vue")
-
+const { t } = locale.global
 /**
  * @name 常驻路由
  * @description 除了 redirect/403/404/login 等隐藏页面，其他页面建议设置唯一的 Name 属性
@@ -49,7 +50,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/pages/dashboard/index.vue"),
         name: "Dashboard",
         meta: {
-          title: "首页",
+          title: t("首页"),
           svgIcon: "dashboard",
           affix: true
         }
@@ -85,7 +86,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/pages/sponsor/index.vue"),
         name: "Sponsor",
         meta: {
-          title: "打赏",
+          title: t("打赏"),
           elIcon: "Coin",
           affix: true
         }
@@ -171,7 +172,7 @@ export const constantRoutes: RouteRecordRaw[] = [
   {
     path: "/link",
     meta: {
-      title: "相关链接",
+      title: t("相关链接"),
       elIcon: "Link"
     },
     children: [

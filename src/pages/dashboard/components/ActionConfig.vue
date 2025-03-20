@@ -35,25 +35,25 @@ function loadData(activated: boolean) {
 
 function onConfirm() {
   try {
-    // throw new Error("敬请期待")
     setActionConfigApi(actionList.value, specialList.value, actionConfigActivated.value)
     visible.value = false
   } catch (e: any) {
     ElMessage.error(e.message)
   }
 }
+const { t } = useI18n()
 </script>
 
 <template>
   <el-button @click="onDialog" :type="playerStore.actionConfigActivated ? 'success' : 'info'">
-    自定义等级({{ playerStore.actionConfigActivated ? '已开启' : '已关闭' }})
+    {{ t('我的等级/装备') }}({{ playerStore.actionConfigActivated ? t('已开启') : t('已关闭') }})
   </el-button>
   <el-dialog v-model="visible" :show-close="false" width="80%">
     <el-row :gutter="20">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">
         <el-card>
           <template #header>
-            <span style="margin-right: 20px;">工具/装备</span>
+            <span style="margin-right: 20px;">{{ t('动作') }}</span>
             <el-switch v-model="actionConfigActivated" active-text="已开启" inactive-text="已关闭" inline-prompt />
           </template>
           <el-table :data="actionList">
@@ -62,20 +62,20 @@ function onConfirm() {
                 <ItemIcon :hrid="`/actions/${row.action}`" />
               </template>
             </el-table-column>
-            <el-table-column prop="action" label="职业" width="125" align="center" />
-            <el-table-column label="技能等级" width="85" align="center">
+            <el-table-column prop="action" :label="t('Action')" width="125" align="center" />
+            <el-table-column :label="t('技能等级')" width="85" align="center">
               <template #default="{ row }">
                 <el-input-number v-model="row.playerLevel" :min="1" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
-            <el-table-column label="房子等级" width="85" align="center">
+            <el-table-column :label="t('房子等级')" width="85" align="center">
               <template #default="{ row }">
                 <el-input-number v-model="row.houseLevel" :min="0" :max="10" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
-            <el-table-column label="工具" align="center" min-width="105">
+            <el-table-column :label="t('工具')" align="center" min-width="105">
               <template #default="{ row }">
-                <el-select style="width:80px" v-model="row.tool.hrid" placeholder="无" clearable :disabled="!actionConfigActivated">
+                <el-select style="width:80px" v-model="row.tool.hrid" :placeholder="t('无')" clearable :disabled="!actionConfigActivated">
                   <el-option v-for="item in getToolListOf(row.action)" :key="item.hrid" :label="item.name" :value="item.hrid">
                     <div style="display:flex;align-items:center;gap:10px;">
                       <ItemIcon :hrid="item.hrid" />
@@ -90,9 +90,9 @@ function onConfirm() {
                 <el-input-number v-model="row.tool.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
-            <el-table-column label="身体" align="center" min-width="105">
+            <el-table-column :label="t('身体')" align="center" min-width="105">
               <template #default="{ row }">
-                <el-select style="width:80px" v-model="row.body.hrid" placeholder="无" clearable :disabled="!actionConfigActivated">
+                <el-select style="width:80px" v-model="row.body.hrid" :placeholder="t('无')" clearable :disabled="!actionConfigActivated">
                   <el-option v-for="item in getEquipmentListOf(row.action, 'body')" :key="item.hrid" :label="item.name" :value="item.hrid">
                     <div style="display:flex;align-items:center;gap:10px;">
                       <ItemIcon :hrid="item.hrid" />
@@ -107,9 +107,9 @@ function onConfirm() {
                 <el-input-number v-model="row.body.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
-            <el-table-column label="腿部" align="center" min-width="105">
+            <el-table-column :label="t('腿部')" align="center" min-width="105">
               <template #default="{ row }">
-                <el-select style="width:80px" v-model="row.legs.hrid" placeholder="无" clearable :disabled="!actionConfigActivated">
+                <el-select style="width:80px" v-model="row.legs.hrid" :placeholder="t('无')" clearable :disabled="!actionConfigActivated">
                   <el-option v-for="item in getEquipmentListOf(row.action, 'legs')" :key="item.hrid" :label="item.name" :value="item.hrid">
                     <div style="display:flex;align-items:center;gap:10px;">
                       <ItemIcon :hrid="item.hrid" />
@@ -124,7 +124,7 @@ function onConfirm() {
                 <el-input-number v-model="row.legs.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
-            <el-table-column label="茶" align="center" min-width="155">
+            <el-table-column :label="t('茶')" align="center" min-width="155">
               <template #default="{ row }">
                 <el-checkbox-group v-model="row.tea" size="large" :disabled="!actionConfigActivated" :max="3">
                   <el-checkbox v-for="tea in getTeaListOf(row.action)" :key="tea.hrid" :value="tea.hrid" border>
@@ -141,14 +141,18 @@ function onConfirm() {
         <el-card>
           <template #header>
             <div style="line-height: 32px;">
-              其他
+              {{ t('其他') }}
             </div>
           </template>
           <el-table :data="specialList">
-            <el-table-column prop="type" label="部位" width="194" />
-            <el-table-column label="装备">
+            <el-table-column prop="type" :label="t('部位')" width="194">
               <template #default="{ row }">
-                <el-select style="width:80px" v-model="row.hrid" placeholder="无" clearable :disabled="!actionConfigActivated">
+                {{ t(row.type.replace(/_/g, ' ').replace(/\b\w+\b/g, (word:any) => word.substring(0, 1).toUpperCase() + word.substring(1))) }}
+              </template>
+            </el-table-column>
+            <el-table-column :label="t('装备')">
+              <template #default="{ row }">
+                <el-select style="width:80px" v-model="row.hrid" :placeholder="t('无')" clearable :disabled="!actionConfigActivated">
                   <el-option v-for="item in getSpecialEquipmentListOf(row.type)" :key="item.hrid" :label="item.name" :value="item.hrid">
                     <div style="display:flex;align-items:center;gap:10px;">
                       <ItemIcon :hrid="item.hrid" />
@@ -171,7 +175,7 @@ function onConfirm() {
     <template #footer>
       <div style="text-align: center;">
         <el-button type="primary" @click="onConfirm">
-          保存
+          {{ t('保存') }}
         </el-button>
       </div>
     </template>

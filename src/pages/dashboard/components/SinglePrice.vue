@@ -31,6 +31,7 @@ function onConfirm() {
   refPopover.value?.hide()
   emit("confirm")
 }
+const { t } = useI18n()
 </script>
 
 <template>
@@ -44,17 +45,17 @@ function onConfirm() {
       </div>
     </template>
     <el-form :model="form">
-      <el-form-item label="买">
-        <el-switch v-model="form.ask.manual" active-text="自定义" inactive-text="市场价" inline-prompt style="--el-switch-off-color: #13ce66" />
+      <el-form-item :label="t('买')">
+        <el-switch v-model="form.ask.manual" :active-text="t('自定义')" :inactive-text="t('市场价')" inline-prompt style="--el-switch-off-color: #13ce66" />
         <el-input-number v-if="form.ask.manual" style="margin-left:10px" v-model="form.ask.manualPrice" :disabled="!form.ask.manual" :controls="false" />
       </el-form-item>
-      <el-form-item label="卖">
-        <el-switch v-model="form.bid.manual" active-text="自定义" inactive-text="市场价" inline-prompt style="--el-switch-off-color: #13ce66" />
+      <el-form-item :label="t('卖')">
+        <el-switch v-model="form.bid.manual" :active-text="t('自定义')" :inactive-text="t('市场价')" inline-prompt style="--el-switch-off-color: #13ce66" />
         <el-input-number v-if="form.bid.manual" style="margin-left:10px" v-model="form.bid.manualPrice" :disabled="!form.bid.manual" :controls="false" />
       </el-form-item>
     </el-form>
     <el-button style="display:block; margin:auto;" type="primary" @click="onConfirm">
-      保存
+      {{ t('保存') }}
     </el-button>
   </ElPopover>
 </template>

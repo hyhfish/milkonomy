@@ -56,6 +56,7 @@ function onConfirm() {
     ElMessage.error(e.message)
   }
 }
+const { t } = useI18n()
 </script>
 
 <template>
@@ -64,17 +65,17 @@ function onConfirm() {
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
         <el-card>
           <el-table :data="currentIngredientPriceConfigList">
-            <el-table-column label="物品" width="54">
+            <el-table-column width="54">
               <template #default="{ row }">
                 <ItemIcon :hrid="row.hrid" />
               </template>
             </el-table-column>
-            <el-table-column label="物品">
+            <el-table-column :label="t('物品')">
               <template #default="{ row }">
                 {{ getItemDetailOf(row.hrid).name }}
               </template>
             </el-table-column>
-            <el-table-column prop="price" label="市场价格">
+            <el-table-column prop="price" :label="t('市场价格')">
               <template #default="{ row }">
                 <div v-if="row.hrid === Calculator.COIN_HRID">
                   {{ Format.price(row.price) }}
@@ -85,7 +86,7 @@ function onConfirm() {
               </template>
             </el-table-column>
 
-            <el-table-column label="自定义价格">
+            <el-table-column :label="t('自定义价格')">
               <template #default="{ row }">
                 <el-checkbox style="margin-right: 10px;" v-show="row.hrid !== Calculator.COIN_HRID" v-model="row.manual" />
                 <el-input-number v-show="row.manual" v-model="row.price" :controls="false" />
@@ -97,17 +98,17 @@ function onConfirm() {
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
         <el-card>
           <el-table :data="currentProductPriceConfigList">
-            <el-table-column prop="name" label="物品" width="54">
+            <el-table-column prop="name" width="54">
               <template #default="{ row }">
                 <ItemIcon :hrid="row.hrid" />
               </template>
             </el-table-column>
-            <el-table-column prop="name" label="物品">
+            <el-table-column prop="name" :label="t('物品')">
               <template #default="{ row }">
                 {{ getItemDetailOf(row.hrid).name }}
               </template>
             </el-table-column>
-            <el-table-column prop="price" label="市场价格">
+            <el-table-column prop="price" :label="t('市场价格')">
               <template #default="{ row }">
                 <div v-if="row.hrid === Calculator.COIN_HRID">
                   {{ Format.price(row.price) }}
@@ -117,7 +118,7 @@ function onConfirm() {
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="自定义价格">
+            <el-table-column :label="t('自定义价格')">
               <template #default="{ row }">
                 <el-checkbox style="margin-right: 10px;" v-show="row.hrid !== Calculator.COIN_HRID" v-model="row.manual" />
                 <el-input-number v-show="row.manual" v-model="row.price" :controls="false" />
@@ -130,7 +131,7 @@ function onConfirm() {
     <template #footer>
       <div style="text-align: center;">
         <el-button type="primary" @click="onConfirm">
-          保存
+          {{ t('保存') }}
         </el-button>
       </div>
     </template>

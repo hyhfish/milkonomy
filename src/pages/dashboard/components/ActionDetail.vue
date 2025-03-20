@@ -22,25 +22,26 @@ const visible: Ref<boolean> = computed({
   }
 })
 const simple = ref(true)
+const { t } = useI18n()
 </script>
 
 <template>
   <el-dialog v-model="visible" :show-close="false" width="80%">
     <el-checkbox style="margin:auto" v-if="data instanceof WorkflowCalculator" v-model="simple">
-      简易模式
+      {{ t('简易模式') }}
     </el-checkbox>
     <template v-if="data">
       <el-row :gutter="10" style="padding: 0 20px">
         <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
-          <div style="font-size:12px;color:#999;margin-bottom:10px">
+          <!-- <div style="font-size:12px;color:#999;margin-bottom:10px">
             如果当前市场价格 {{ '<' }} 显示价格，则价格为<span class="green">绿色</span>，反之为<span class="red">红色</span>
-          </div>
+          </div> -->
         </el-col>
         <el-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4" />
         <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
-          <div style="font-size:12px;color:#999;margin-bottom:10px">
+          <!-- <div style="font-size:12px;color:#999;margin-bottom:10px">
             如果当前市场价格 > 显示价格，则价格为<span class="green">绿色</span>，反之为<span class="red">红色</span>
-          </div>
+          </div> -->
         </el-col>
       </el-row>
       <el-row v-if="!(data instanceof WorkflowCalculator)" :gutter="10" style="padding: 0 20px">
@@ -54,13 +55,13 @@ const simple = ref(true)
               <ItemIcon v-for="tea in getActionConfigOf(data.action).tea" :key="tea" :hrid="tea" />
             </div>
             <div v-if="data?.result.successRate! < 1">
-              成功率：{{ data?.result.successRateFormat }}
+              {{ t('成功率') }}：{{ data?.result.successRateFormat }}
             </div>
             <div v-if="data?.efficiency > 1">
-              效率：{{ data?.result.efficiencyFormat }}
+              {{ t('效率') }}：{{ data?.result.efficiencyFormat }}
             </div>
-            <div>速度：{{ data?.result.speedFormat }}</div>
-            <div>时间：{{ data?.result.timeCostFormat }}</div>
+            <div>{{ t('速度') }}：{{ data?.result.speedFormat }}</div>
+            <div>{{ t('时间') }}：{{ data?.result.timeCostFormat }}</div>
             <el-icon class="transition" :size="36">
               <DArrowRight />
             </el-icon>
@@ -85,14 +86,14 @@ const simple = ref(true)
                   <ItemIcon v-for="tea in getActionConfigOf(calculator.action).tea" :key="tea" :hrid="tea" />
                 </div>
                 <div v-if="calculator?.result.successRate! < 1">
-                  成功率：{{ calculator?.result.successRateFormat }}
+                  {{ t('成功率') }}：{{ calculator?.result.successRateFormat }}
                 </div>
                 <div v-if="data?.efficiency > 1">
-                  效率：{{ calculator?.result.efficiencyFormat }}
+                  {{ t('效率') }}：{{ calculator?.result.efficiencyFormat }}
                 </div>
-                <div>速度：{{ calculator?.result.speedFormat }}</div>
-                <div>时间：{{ calculator?.result.timeCostFormat }}</div>
-                <div>时间占比：{{ Format.percent(data.workMultiplier![i]!) }}</div>
+                <div>{{ t('速度') }}：{{ calculator?.result.speedFormat }}</div>
+                <div>{{ t('时间') }}：{{ calculator?.result.timeCostFormat }}</div>
+                <div>{{ t('时间占比') }}：{{ Format.percent(data.workMultiplier![i]!) }}</div>
                 <template v-if="calculator instanceof EnhanceCalculator">
                   <div>
                     强化平均耗时：{{ Format.costTime(1 / calculator.ingredientList[0].count * calculator.timeCost) }}
@@ -116,13 +117,13 @@ const simple = ref(true)
         <el-row v-if="!simple" :gutter="10" style="padding:0 20px">
           <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
             <div class="footer-wrapper">
-              总成本：{{ data.result.costPHFormat }} / h
+              {{ t('总成本') }}：{{ data.result.costPHFormat }} / h
             </div>
           </el-col>
           <el-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4" />
           <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
             <div class="footer-wrapper">
-              总收入：{{ data.result.incomePHFormat }}/ h
+              {{ t('总收入') }}：{{ data.result.incomePHFormat }}/ h
             </div>
           </el-col>
         </el-row>

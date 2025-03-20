@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
-import type { FormInstance, Sort } from "element-plus"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
@@ -9,14 +8,15 @@ import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
 import { useFavoriteStore } from "@/pinia/stores/favorite"
-
 import { useGameStore } from "@/pinia/stores/game"
+
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Search, Star, StarFilled } from "@element-plus/icons-vue"
+import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep } from "lodash-es"
 import ActionConfig from "./components/ActionConfig.vue"
 import ActionDetail from "./components/ActionDetail.vue"
@@ -188,6 +188,17 @@ function deleteFavorite(row: Calculator) {
 const priceVisible = ref<boolean>(false)
 const currentPriceRow = ref<Calculator>()
 function setPrice(row: Calculator) {
+  const activated = usePriceStore().activated
+  if (!activated) {
+    ElMessageBox.confirm(t("是否确定开启自定义价格？"), t("需先开启自定义价格"), {
+      confirmButtonText: t("确定"),
+      cancelButtonText: t("取消"),
+      closeOnClickModal: true
+    }).then(() => {
+      usePriceStore().setActivated(true)
+    })
+    return
+  }
   currentPriceRow.value = cloneDeep(row)
   priceVisible.value = true
 }
@@ -198,19 +209,20 @@ function deletePrice(row: StoragePriceItem) {
     ElMessage.error(e.message)
   }
 }
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="app-container">
     <div class="game-info">
-      <div>MWI版本：{{ useGameStore().gameData?.gameVersion }}</div>
+      <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
       <div
         :class="{
           error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
           success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
         }"
       >
-        市场数据更新时间:{{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
+        {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
       </div>
       <div>
         <ActionConfig />
@@ -222,39 +234,36 @@ function deletePrice(row: StoragePriceItem) {
           <template #header>
             <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
               <div class="title">
-                扫单填单利润排行
+                {{ t('利润排行') }}
               </div>
-              <el-form-item prop="name" label="物品">
-                <el-input style="width:100px" v-model="ldSearchData.name" placeholder="请输入" clearable @input="handleSearchLD" />
+              <el-form-item prop="name" :label="t('物品')">
+                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" />
               </el-form-item>
-              <el-form-item prop="phone" label="项目">
-                <el-select v-model="ldSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchLD">
-                  <el-option label="挤奶" value="挤奶" />
-                  <el-option label="采摘" value="采摘" />
-                  <el-option label="伐木" value="伐木" />
-                  <el-option label="锻造" value="锻造" />
-                  <el-option label="制造" value="制造" />
-                  <el-option label="裁缝" value="裁缝" />
-                  <el-option label="烹饪" value="烹饪" />
-                  <el-option label="冲泡" value="冲泡" />
-                  <el-option label="点金" value="点金" />
-                  <el-option label="转化" value="转化" />
-                  <el-option label="分解" value="分解" />
+              <el-form-item prop="phone" :label="t('动作')">
+                <el-select v-model="ldSearchData.project" :placeholder="t('请选择')" style="width:100px" clearable @change="handleSearchLD">
+                  <el-option :label="t('挤奶')" :value="t('挤奶')" />
+                  <el-option :label="t('采摘')" :value="t('采摘')" />
+                  <el-option :label="t('伐木')" :value="t('伐木')" />
+                  <el-option :label="t('锻造')" :value="t('锻造')" />
+                  <el-option :label="t('制造')" :value="t('制造')" />
+                  <el-option :label="t('裁缝')" :value="t('裁缝')" />
+                  <el-option :label="t('烹饪')" :value="t('烹饪')" />
+                  <el-option :label="t('冲泡')" :value="t('冲泡')" />
+                  <el-option :label="t('点金')" :value="t('点金')" />
+                  <el-option :label="t('分解')" :value="t('分解')" />
+                  <el-option :label="t('转化')" :value="t('转化')" />
                 </el-select>
               </el-form-item>
 
-              <el-form-item prop="name" label="利润率 >">
-                <el-input style="width:60px" v-model="ldSearchData.profitRate" placeholder="请输入" clearable @input="handleSearchLD" />&nbsp;%
+              <el-form-item prop="name" :label="`${t('利润率')} >`">
+                <el-input style="width:60px" v-model="ldSearchData.profitRate" :placeholder="t('请输入')" clearable @input="handleSearchLD" />&nbsp;%
               </el-form-item>
               <el-form-item>
                 <el-checkbox v-model="ldSearchData.banEquipment" @change="handleSearchLD">
-                  排除装备
+                  {{ t('排除装备') }}
                 </el-checkbox>
               </el-form-item>
             </el-form>
-            <div style="font-size:12px;color:#999">
-              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶
-            </div>
           </template>
           <template #default>
             <el-table :data="leaderboardData" v-loading="loadingLD" @sort-change="handleSortLD">
@@ -263,44 +272,44 @@ function deletePrice(row: StoragePriceItem) {
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="item.name" label="物品" />
+              <el-table-column prop="item.name" :label="t('物品')" />
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
                 </template>
               </el-table-column>
-              <el-table-column prop="project" label="项目" />
-              <el-table-column prop="actionLevel" label="等级" align="center">
+              <el-table-column prop="project" :label="t('动作')" />
+              <el-table-column prop="actionLevel" :label="t('要求等级')" align="center">
                 <template #default="{ row }">
                   <div :class="row.actionLevel > getActionConfigOf(row.action).playerLevel ? 'red' : ''">
                     {{ row.actionLevel }}
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="利润 / 天" align="center" min-width="120">
+              <el-table-column :label="t('利润 / 天')" align="center" min-width="120">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitPDFormat }}&nbsp;
                   </span>
-                  <el-link v-if="usePriceStore().activated" type="primary" :icon="Edit" @click="setPrice(row)">
-                    自定义
+                  <el-link type="primary" :icon="Edit" @click="setPrice(row)">
+                    {{ t('自定义') }}
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="result.profitRate" label="利润率" align="center" sortable="custom" :sort-orders="['descending', null]">
+              <el-table-column prop="result.profitRate" :label="t('利润率')" min-width="120" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.result.profitRateFormat }}
                 </template>
               </el-table-column>
 
-              <el-table-column label="详情" align="center">
+              <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
-                    查看
+                    {{ t('查看') }}
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="favorite" label="收藏" align="center" sortable="custom" :sort-orders="['descending', null]">
+              <el-table-column prop="favorite" :label="t('收藏')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   <template v-if="!(row instanceof WorkflowCalculator)">
                     <el-link v-if="!favoriteStore.hasFavorite(row)" :underline="false" type="warning" :icon="Star" @click="addFavorite(row)" style="font-size:24px" />
@@ -333,15 +342,15 @@ function deletePrice(row: StoragePriceItem) {
           <template #header>
             <el-form class="rank-card" ref="priceSearchFormRef" :inline="true" :model="priceSearchData">
               <div class="title">
-                自定义价格
+                {{ t('自定义价格') }}
               </div>
 
               <el-form-item>
-                <el-switch v-model="usePriceStore().activated" @change="usePriceStore().setActivated" active-text="已开启" inactive-text="已关闭" inline-prompt />
+                <el-switch v-model="usePriceStore().activated" @change="usePriceStore().setActivated" :active-text="t('已开启')" :inactive-text="t('已关闭')" inline-prompt />
               </el-form-item>
 
-              <el-form-item prop="name" label="物品">
-                <el-input style="width:100px" v-model="priceSearchData.name" placeholder="请输入" clearable @input="handleSearchPrice" />
+              <el-form-item prop="name" :label="t('物品')">
+                <el-input style="width:100px" v-model="priceSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchPrice" />
               </el-form-item>
             </el-form>
           </template>
@@ -352,18 +361,18 @@ function deletePrice(row: StoragePriceItem) {
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column label="物品" min-width="120">
+              <el-table-column :label="t('物品')" min-width="120">
                 <template #default="{ row }">
                   {{ getItemDetailOf(row.hrid).name }}
                 </template>
               </el-table-column>
 
-              <el-table-column label="市场价格" min-width="120">
+              <el-table-column :label="t('市场价格')" min-width="120">
                 <template #default="{ row }">
                   {{ Format.price(getPriceOf(row.hrid).ask) }} / {{ Format.price(getPriceOf(row.hrid).bid) }}
                 </template>
               </el-table-column>
-              <el-table-column label="自定义价格" min-width="120">
+              <el-table-column :label="t('自定义价格')" min-width="120">
                 <template #default="{ row }">
                   {{ row.ask?.manual ? Format.price(row.ask?.manualPrice) : '-' }} / {{ row.bid?.manual ? Format.price(row.bid?.manualPrice) : '-' }}
                 </template>
@@ -372,7 +381,7 @@ function deletePrice(row: StoragePriceItem) {
                 <template #default="{ row }">
                   <SinglePrice :data="row">
                     <el-link type="primary" :icon="Edit">
-                      修改
+                      {{ t('修改') }}
                     </el-link>
                   </SinglePrice>
                 </template>
@@ -380,7 +389,7 @@ function deletePrice(row: StoragePriceItem) {
               <el-table-column min-width="80">
                 <template #default="{ row }">
                   <el-link type="danger" :icon=" Delete" @click="deletePrice(row)">
-                    删除
+                    {{ t('删除') }}
                   </el-link>
                 </template>
               </el-table-column>
@@ -407,30 +416,27 @@ function deletePrice(row: StoragePriceItem) {
           <template #header>
             <el-form class="rank-card" ref="frSearchFormRef" :inline="true" :model="frSearchData">
               <div class="title">
-                收藏夹
+                {{ t('收藏夹') }}
               </div>
-              <el-form-item prop="name" label="物品">
-                <el-input style="width:100px" v-model="frSearchData.name" placeholder="请输入" clearable @input="handleSearchMN" />
+              <el-form-item prop="name" :label="t('物品')">
+                <el-input style="width:100px" v-model="frSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchMN" />
               </el-form-item>
-              <el-form-item prop="phone" label="项目">
-                <el-select v-model="frSearchData.project" placeholder="请选择" style="width:100px" clearable @change="handleSearchMN">
-                  <el-option label="挤奶" value="挤奶" />
-                  <el-option label="采摘" value="采摘" />
-                  <el-option label="伐木" value="伐木" />
-                  <el-option label="锻造" value="锻造" />
-                  <el-option label="制造" value="制造" />
-                  <el-option label="裁缝" value="裁缝" />
-                  <el-option label="烹饪" value="烹饪" />
-                  <el-option label="冲泡" value="冲泡" />
-                  <el-option label="点金" value="点金" />
-                  <el-option label="转化" value="转化" />
-                  <el-option label="分解" value="分解" />
+              <el-form-item prop="phone" :label="t('动作')">
+                <el-select v-model="frSearchData.project" :placeholder="t('请选择')" style="width:100px" clearable @change="handleSearchMN">
+                  <el-option :label="t('挤奶')" :value="t('挤奶')" />
+                  <el-option :label="t('采摘')" :value="t('采摘')" />
+                  <el-option :label="t('伐木')" :value="t('伐木')" />
+                  <el-option :label="t('锻造')" :value="t('锻造')" />
+                  <el-option :label="t('制造')" :value="t('制造')" />
+                  <el-option :label="t('裁缝')" :value="t('裁缝')" />
+                  <el-option :label="t('烹饪')" :value="t('烹饪')" />
+                  <el-option :label="t('冲泡')" :value="t('冲泡')" />
+                  <el-option :label="t('点金')" :value="t('点金')" />
+                  <el-option :label="t('分解')" :value="t('分解')" />
+                  <el-option :label="t('转化')" :value="t('转化')" />
                 </el-select>
               </el-form-item>
             </el-form>
-            <div style="font-size:12px;color:#999">
-              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶
-            </div>
           </template>
           <template #default>
             <el-table :data="favoriteData" v-loading="loadingFR">
@@ -439,35 +445,35 @@ function deletePrice(row: StoragePriceItem) {
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="item.name" label="物品" />
+              <el-table-column prop="item.name" :label="t('物品')" />
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
                 </template>
               </el-table-column>
-              <el-table-column prop="project" label="项目" />
-              <el-table-column label="利润 / 天">
+              <el-table-column prop="project" :label="t('动作')" />
+              <el-table-column :label="t('利润 / 天')">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitPDFormat }}&nbsp;
                   </span>
                   <el-link v-if="usePriceStore().activated" type="primary" :icon="Edit" @click="setPrice(row)">
-                    自定义
+                    {{ t('自定义') }}
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="result.profitRateFormat" label="利润率" />
-              <el-table-column label="详情">
+              <el-table-column prop="result.profitRateFormat" :label="t('利润率')" />
+              <el-table-column :label="t('详情')">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
-                    查看
+                    {{ t('查看') }}
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column label="操作">
+              <el-table-column :label="t('操作')">
                 <template #default="{ row }">
                   <el-link type="danger" :icon=" Delete" @click="deleteFavorite(row)">
-                    删除
+                    {{ t('删除') }}
                   </el-link>
                 </template>
               </el-table-column>

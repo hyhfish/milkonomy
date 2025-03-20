@@ -4,9 +4,7 @@ import { useDevice } from "@@/composables/useDevice"
 interface Props {
   total: number
 }
-
 const props = defineProps<Props>()
-
 const { isMobile } = useDevice()
 </script>
 

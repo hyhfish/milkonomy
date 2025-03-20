@@ -1,1 +1,143 @@
-export default {}
+export default {
+  // 系统提示
+  "获取数据第{0}次失败，正在重试...": "Failed to get data count {0}, retrying...",
+  "数据获取失败，直接使用缓存数据": "Failed to get data, using cached data directly",
+  "数据获取失败，请检查网络连接": "Failed to get data, please check the network connection",
+  "已于{0}更新最新数据": "Updated the latest data at {0}",
+  // 功能配置
+  "全屏": "Full Screen",
+  "关闭全屏": "Exit Full Screen",
+  "内容区放大": "Content Zoom In",
+  "内容区全屏": "Content Full Screen",
+  "内容区复原": "Content Restore",
+  "主题": "Theme",
+  "普通": "Normal",
+  "黑暗": "Dark",
+  "深蓝": "Mazarine",
+  "布局配置": "Layout Config",
+  "功能配置": "Function Config",
+  "重置": "Reset",
+
+  "显示标签栏": "Show Tags View",
+  "显示 Logo": "Show Logo",
+  "固定 Header": "Fixed Header",
+  "显示页脚": "Show Footer",
+  "显示消息通知": "Show  Notification",
+  "显示切换主题按钮": "Show Theme Switch Button",
+  "显示全屏按钮": "Show Full Screen Button",
+  "显示搜索按钮": "Show Search Manu",
+  "是否缓存标签栏": "Cache Tags View",
+  "开启系统水印": "Open Watermark",
+  "显示灰色模式": "Gray Mode",
+  "显示色弱模式": "Color Weakness Mode",
+
+  // 路由
+  "回到首页": "Back to Home",
+  "首页": "Home",
+  "打赏": "Sponsor",
+  "相关链接": "Related Links",
+
+  // 组件
+  "请输入": "Input",
+  "请选择": "Select",
+
+  "详情": "Detail",
+  "查看": "View",
+  "修改": "Edit",
+  "删除": "Delete",
+  "保存": "Save",
+  "操作": "Options",
+
+  "已开启": "Enabled",
+  "已关闭": "Disabled",
+
+  // 首页
+  "利润排行": "Profit Ranking",
+  "物品": "Item",
+  "动作": "Action",
+  "要求等级": "Required Level",
+  "排除装备": "Equipment Excluded",
+  "利润率": "Profit Rate",
+  "利润 / 天": "Profit / Day",
+  "收藏夹": "Favorites",
+  "收藏": "Favorite",
+  "自定义价格": "Custom Price",
+  "我的等级/装备": "My Level/Equipment",
+  "自定义": "Custom",
+  "市场价格": "Market Price",
+
+  "挤奶": "Milking",
+  "采摘": "Foraging",
+  "伐木": "Woodcutting",
+  "锻造": "Smithing",
+  "制造": "Crafting",
+  "裁缝": "Tailoring",
+  "烹饪": "Cooking",
+  "冲泡": "Brewing",
+  "点金": "Coinify",
+  "分解": "Decompose",
+  "转化": "Transmute",
+
+  "计算完成，耗时{0}秒": "Calculation completed, run {0}s",
+
+  "MWI版本": "MWI Version",
+  "市场数据更新时间": "Market data update at",
+
+  // 自定义装备
+  "技能等级": "Skill Level",
+  "房子等级": "House Level",
+
+  "工具": "Tool",
+  "头部": "Head",
+  "身体": "Body",
+  "腿部": "Legs",
+  "脚部": "Feet",
+  "手部": "Hands",
+  "戒指": "Ring",
+  "项链": "Neck",
+  "耳环": "Earrings",
+  "背部": "Back",
+  "副手": "Off Hand",
+  "袋子": "Pouch",
+
+  "无": "None",
+  "其他": "Others",
+  "装备": "Equipment",
+  "部位": "Slot",
+
+  "茶": "Tea",
+
+  "简易模式": "Simple Mode",
+  "成功率": "Success Rate",
+  "效率": "Efficiency",
+  "速度": "Speed",
+  "时间": "Time",
+  "时间占比": "Time Ratio",
+  "总成本": "Total Cost",
+  "总收入": "Total Income",
+  "成本": "Cost",
+  "收入": "Income",
+
+  "买": "Ask",
+  "卖": "Bid",
+  "市场价": "Market",
+
+  "是否确定开启自定义价格？": "Are you sure to enable custom price?",
+  "需先开启自定义价格": "Custom price must be enabled first",
+
+  // 打赏
+  "打赏作者": "Reward the Creator",
+  "支付宝": "Alipay",
+  "微信": "WeChat",
+  "如果您觉得本项目对您有帮助，可以打赏作者一根辣条": "If you find this project helpful, fuel the creator with a spicy snack🌶!",
+  "打赏者名单": "Donor List",
+  "我要上榜": "Claim My Spot",
+  "排名": "Rank",
+  "昵称": "Nickname",
+  "金额": "Amount",
+  "平台": "Platform",
+  "姓名": "Name",
+  "打赏者名单上显示的名字": "The name displayed in the donor list.",
+  "您支付时使用的名字": "The name you used when paying.",
+  "提交后请等待作者审核，审核通过后会显示在打赏者名单中": "Please wait for the author to review after submission. It will be displayed in the donor list after approval."
+}
