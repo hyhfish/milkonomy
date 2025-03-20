@@ -47,6 +47,8 @@ export default {
   "删除": "Delete",
   "保存": "Save",
   "操作": "Options",
+  "确定": "OK",
+  "取消": "Cancel",
 
   "已开启": "Enabled",
   "已关闭": "Disabled",
@@ -65,6 +67,7 @@ export default {
   "我的等级/装备": "My Level/Equipment",
   "自定义": "Custom",
   "市场价格": "Market Price",
+  "个": "pcs",
 
   "挤奶": "Milking",
   "采摘": "Foraging",

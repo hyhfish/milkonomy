@@ -38,9 +38,9 @@ const { t } = useI18n()
 
       <el-table-column v-if="!simple" prop="count" label="数量">
         <template #default="{ row }">
-          <span>{{ Format.number(row.count, 3) }}个</span>
+          <span>{{ Format.number(row.count, 3) }}{{ t('个') }}</span>
           &nbsp;<el-text v-if="row.counterCount" style="color:#999;" tag="del">
-            {{ Format.number((row.counterCount + row.count), 3) }}个
+            {{ Format.number((row.counterCount + row.count), 3) }}{{ t('个') }}
           </el-text>
         </template>
       </el-table-column>
