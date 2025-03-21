@@ -62,7 +62,11 @@ const { t } = useI18n()
                 <ItemIcon :hrid="`/actions/${row.action}`" />
               </template>
             </el-table-column>
-            <el-table-column prop="action" :label="t('Action')" width="125" align="center" />
+            <el-table-column :label="t('Action')" width="125" align="center">
+              <template #default="{ row }">
+                {{ t(row.action) }}
+              </template>
+            </el-table-column>
             <el-table-column :label="t('技能等级')" width="85" align="center">
               <template #default="{ row }">
                 <el-input-number v-model="row.playerLevel" :min="1" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />

@@ -81,6 +81,18 @@ export default {
   "点金": "Coinify",
   "分解": "Decompose",
   "转化": "Transmute",
+  "炼金": "Alchemy",
+
+  "milking": "Milking",
+  "foraging": "Foraging",
+  "woodcutting": "Woodcutting",
+  "cheesesmithing": "Smithing",
+  "crafting": "Crafting",
+  "tailoring": "Tailoring",
+  "cooking": "Cooking",
+  "brewing": "Brewing",
+  "alchemy": "Alchemy",
+  "enhancing": "Enhancing",
 
   "计算完成，耗时{0}秒": "Calculation completed, run {0}s",
 

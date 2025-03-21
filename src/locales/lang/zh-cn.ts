@@ -742,6 +742,17 @@ export default {
   "Off Hand": "副手",
   "Pouch": "袋子",
 
+  "milking": "挤奶",
+  "foraging": "采摘",
+  "woodcutting": "伐木",
+  "cheesesmithing": "锻造",
+  "crafting": "制作",
+  "tailoring": "缝纫",
+  "cooking": "烹饪",
+  "brewing": "冲泡",
+  "alchemy": "炼金",
+  "enhancing": "强化",
+
   "计算完成，耗时{0}秒": "计算完成，耗时{0}秒",
   "获取数据第{0}次失败，正在重试...": "获取数据第{0}次失败，正在重试...",
   "已于{0}更新最新数据": "已于{0}更新最新数据",
