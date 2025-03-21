@@ -34,7 +34,7 @@ trackRouter(router)
 app.use(pinia).use(router)
 
 // 定时获取数据
-setTimeout(() => {
+setInterval(() => {
   useGameStore().tryFetchData()
 }, 300 * 1000)
 
