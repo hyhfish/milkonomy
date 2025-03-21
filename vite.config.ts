@@ -70,13 +70,12 @@ export default defineConfig(({ mode }) => {
            */
           manualChunks: {
             vue: ["vue", "vue-router", "pinia"],
-            element: ["element-plus", "@element-plus/icons-vue"],
-            vxe: ["vxe-table"]
+            element: ["element-plus", "@element-plus/icons-vue"]
           }
         }
       },
       // 是否开启 gzip 压缩大小报告，禁用时能略微提高构建性能
-      reportCompressedSize: false,
+      reportCompressedSize: true,
       // 单个 chunk 文件的大小超过 2048kB 时发出警告
       chunkSizeWarningLimit: 2048
     },

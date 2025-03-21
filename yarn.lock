@@ -2564,11 +2564,6 @@ dom-serializer@^2.0.0:
     domhandler "^5.0.2"
     entities "^4.2.0"
 
-dom-zindex@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.npmmirror.com/dom-zindex/-/dom-zindex-1.0.6.tgz#0f911b39d3e542232ad91307638dbb869643f89e"
-  integrity sha512-FKWIhiU96bi3xpP9ewRMgANsoVmMUBnMnmpCT6dPMZOunVYJQmJhSRruoI0XSPoHeIif3kyEuiHbFrOJwEJaEA==
-
 domelementtype@^2.0.1, domelementtype@^2.2.0, domelementtype@^2.3.0:
   version "2.3.0"
   resolved "https://registry.npmmirror.com/domelementtype/-/domelementtype-2.3.0.tgz#5c45e8e869952626331d7aab326d01daf65d589d"
@@ -5995,14 +5990,6 @@ vue@3.5.13:
     "@vue/server-renderer" "3.5.13"
     "@vue/shared" "3.5.13"
 
-vxe-table@4.6.25:
-  version "4.6.25"
-  resolved "https://registry.npmmirror.com/vxe-table/-/vxe-table-4.6.25.tgz#3136d0d8519245f846cec81a7a12a4cc6bb16f55"
-  integrity sha512-rFhGh8w+420cdnIasQKisiKagz9F/iNieB/z6v0j4GcsMfGHEmSJ72YrHcXogQh4wNlCzKVfb7rl7nREL5eIOg==
-  dependencies:
-    dom-zindex "^1.0.6"
-    xe-utils "^3.5.31"
-
 webidl-conversions@^7.0.0:
   version "7.0.0"
   resolved "https://registry.npmmirror.com/webidl-conversions/-/webidl-conversions-7.0.0.tgz#256b4e1882be7debbf01d05f0aa2039778ea080a"
@@ -6095,11 +6082,6 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.npmmirror.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
-
-xe-utils@^3.5.31:
-  version "3.7.0"
-  resolved "https://registry.npmmirror.com/xe-utils/-/xe-utils-3.7.0.tgz#534fa94e3f7f97c50e75c7c451d02d6f5cbdf7d6"
-  integrity sha512-2pndXCEivB7+xWCdCDth/LJ5ngAAstUOoHTGBQauwTqc03M3Cl1tYbNhPUqi4Lcj+UNZnnc8fANbFWjb6TMx6A==
 
 xml-name-validator@^4.0.0:
   version "4.0.0"
