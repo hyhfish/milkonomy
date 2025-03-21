@@ -3,6 +3,7 @@ import type { DropTableItem, GameData, ItemDetail } from "~/game"
 import type { MarketData, MarketItem } from "~/market"
 import Calculator from "@/calculator"
 import { useGameStore } from "@/pinia/stores/game"
+import deepFreeze from "deep-freeze-strict"
 
 // 把Proxy扒下来，提高性能
 const game = {
@@ -11,11 +12,10 @@ const game = {
 }
 
 let _processingProductMap: Record<string, string> = {}
-
 let _priceCache = {} as Record<string, MarketItem>
-
 watch(() => useGameStore().gameData, () => {
-  game.gameData = Object.freeze(structuredClone(toRaw(useGameStore().gameData)))
+  const data = structuredClone(toRaw(useGameStore().gameData))
+  game.gameData = data ? deepFreeze(data) : data
   _priceCache = {}
   initProcessingProductMap()
 }, { immediate: true })
@@ -186,8 +186,7 @@ export function getAlchemyEssenceDropTable(item: ItemDetail, timeCost: number): 
 export function getAlchemyDecomposeEnhancingEssenceOutput(item: ItemDetail, enhancementLevel: number) {
   return enhancementLevel === 0
     ? 0
-    : (item.itemLevel = item.itemLevel || 0,
-      Math.round(2 * (0.5 + 0.1 * 1.05 ** item.itemLevel) * 2 ** enhancementLevel))
+    : Math.round(2 * (0.5 + 0.1 * 1.05 ** (item.itemLevel || 0)) * 2 ** enhancementLevel)
 }
 
 export function getAlchemyDecomposeCoinCost(item: ItemDetail) {

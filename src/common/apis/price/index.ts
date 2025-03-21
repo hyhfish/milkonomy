@@ -2,14 +2,17 @@ import type { IngredientPriceConfig, ProductPriceConfig } from "@/calculator"
 import type Calculator from "@/calculator"
 import type { StoragePriceItem } from "@/pinia/stores/price"
 import type { RequestData } from "../leaderboard/type"
+import locales from "@/locales"
 import { usePriceStore } from "@/pinia/stores/price"
 import { getItemDetailOf } from "../game"
+
+const { t } = locales.global
 
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
   await new Promise(resolve => setTimeout(resolve, 0))
   let list: StoragePriceItem[] = Array.from(usePriceStore().map.values())
-  params.name && (list = list.filter(item => getItemDetailOf(item.hrid).name.toLocaleLowerCase().includes(params.name!.toLowerCase())))
+  params.name && (list = list.filter(item => t(getItemDetailOf(item.hrid).name).toLocaleLowerCase().includes(params.name!.toLowerCase())))
   return { list: list.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: list.length }
 }
 

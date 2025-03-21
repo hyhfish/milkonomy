@@ -1,5 +1,4 @@
 import type Calculator from "@/calculator"
-import locales from "@/locales"
 
 export function handleSort(profitList: Calculator[], params: any) {
   // 首先进行一次利润排序
@@ -26,19 +25,17 @@ export function handlePage(profitList: Calculator[], params: any) {
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
 
-const { t } = locales.global
 export function handlePush(profitList: Calculator[], cal: Calculator) {
   if (!cal.available) return
   if (!cal.result) {
     cal.run()
   }
-  cal.item.name = t(cal.item.name)
   profitList.push(cal)
 }
 
 export function handleSearch(profitList: Calculator[], params: any) {
   params.name && (profitList = profitList.filter(cal =>
-    cal.item.name.toLowerCase().includes(params.name!.toLowerCase())
+    cal.result.name.toLowerCase().includes(params.name!.toLowerCase())
   ))
 
   params.project && (profitList = profitList.filter(cal => cal.project.match(params.project!)))

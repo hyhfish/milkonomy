@@ -72,7 +72,7 @@ const { t } = useI18n()
             </el-table-column>
             <el-table-column :label="t('物品')">
               <template #default="{ row }">
-                {{ getItemDetailOf(row.hrid).name }}
+                {{ t(getItemDetailOf(row.hrid).name) }}
               </template>
             </el-table-column>
             <el-table-column prop="price" :label="t('市场价格')">
@@ -105,7 +105,7 @@ const { t } = useI18n()
             </el-table-column>
             <el-table-column prop="name" :label="t('物品')">
               <template #default="{ row }">
-                {{ getItemDetailOf(row.hrid).name }}
+                {{ t(getItemDetailOf(row.hrid).name) }}
               </template>
             </el-table-column>
             <el-table-column prop="price" :label="t('市场价格')">

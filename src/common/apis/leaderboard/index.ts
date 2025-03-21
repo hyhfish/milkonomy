@@ -28,6 +28,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
     } catch (e: any) {
       console.error(e)
     }
+
     useGameStore().setLeaderBoardCache(profitList)
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
@@ -107,12 +108,12 @@ function calcAllFlowProfit() {
         configs.unshift(getStorageCalculatorItem(c))
         c = new ManufactureCalculator({ hrid: actionItem.upgradeItemHrid, project, action })
         if (configs.length > 1) {
-          handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`))
+          handlePush(profitList, new WorkflowCalculator(configs, t("{0}步{1}", [configs.length, configs[0].project])))
         }
         actionItem = c.actionItem
       }
       configs.unshift(getStorageCalculatorItem(c))
-      handlePush(profitList, new WorkflowCalculator(configs, `${configs.length}步${configs[0].project}`))
+      handlePush(profitList, new WorkflowCalculator(configs, t("{0}步{1}", [configs.length, configs[0].project])))
     }
   })
   return profitList

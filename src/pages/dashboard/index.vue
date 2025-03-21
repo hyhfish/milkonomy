@@ -272,7 +272,7 @@ const { t } = useI18n()
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="item.name" :label="t('物品')" />
+              <el-table-column prop="result.name" :label="t('物品')" />
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
@@ -363,7 +363,7 @@ const { t } = useI18n()
               </el-table-column>
               <el-table-column :label="t('物品')" min-width="120">
                 <template #default="{ row }">
-                  {{ getItemDetailOf(row.hrid).name }}
+                  {{ t(getItemDetailOf(row.hrid).name) }}
                 </template>
               </el-table-column>
 
@@ -445,7 +445,7 @@ const { t } = useI18n()
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="item.name" :label="t('物品')" />
+              <el-table-column prop="result.name" :label="t('物品')" />
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />

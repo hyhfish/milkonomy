@@ -1,8 +1,11 @@
-import type { Action } from "~/game"
+import type { Action, ItemDetail } from "~/game"
 import { getItemDetailOf } from "@/common/apis/game"
 import { getBuffOf, getPlayerLevelOf } from "@/common/apis/player"
 import { getManualPriceActivated, getManualPriceOf } from "@/common/apis/price"
+import locales from "@/locales"
 import * as Format from "@@/utils/format"
+
+const { t } = locales.global
 
 export interface CalculatorConfig {
   hrid: string
@@ -42,8 +45,12 @@ export default abstract class Calculator {
 
   // #region 固定继承属性
 
+  _item?: ItemDetail
   get item() {
-    return getItemDetailOf(this.hrid)
+    if (!this._item) {
+      this._item = getItemDetailOf(this.hrid)
+    }
+    return this._item
   }
 
   get id(): `${string}-${string}-${Action}` {
@@ -187,7 +194,7 @@ export default abstract class Calculator {
 
     this.result = {
       hrid: this.item.hrid,
-      name: this.item.name,
+      name: t(this.item.name),
       project: this.project,
       successRate: this.successRate,
       costPH,

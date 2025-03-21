@@ -152,6 +152,8 @@ function deletePrice(row: StoragePriceItem) {
     ElMessage.error(e.message)
   }
 }
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -198,7 +200,7 @@ function deletePrice(row: StoragePriceItem) {
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="item.name" label="物品" />
+              <el-table-column prop="result.name" label="物品" />
               <el-table-column width="80">
                 <template #default="{ row }">
                   <div style="display:flex;">
@@ -289,7 +291,7 @@ function deletePrice(row: StoragePriceItem) {
               </el-table-column>
               <el-table-column label="物品" min-width="120">
                 <template #default="{ row }">
-                  {{ getItemDetailOf(row.hrid).name }}
+                  {{ t(getItemDetailOf(row.hrid).name) }}
                 </template>
               </el-table-column>
 

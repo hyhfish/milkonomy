@@ -68,6 +68,7 @@ export default {
   "自定义": "Custom",
   "市场价格": "Market Price",
   "个": "pcs",
+  "{0}步{1}": "{0} steps {1}",
 
   "挤奶": "Milking",
   "采摘": "Foraging",

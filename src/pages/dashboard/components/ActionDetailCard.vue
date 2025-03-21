@@ -24,7 +24,7 @@ const { t } = useI18n()
       </el-table-column>
       <el-table-column label="物品">
         <template #default="{ row }">
-          {{ getItemDetailOf(row.hrid).name }}
+          {{ t(getItemDetailOf(row.hrid).name) }}
         </template>
       </el-table-column>
 

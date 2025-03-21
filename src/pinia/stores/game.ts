@@ -61,7 +61,7 @@ export const HOUSE_MAP: Record<Action, Partial<Record<NoncombatStatsKey, number>
 
 export const useGameStore = defineStore("game", {
   state: () => ({
-    gameData: getGameData(),
+    gameData: null as GameData | null,
     marketData: getMarketData(),
     leaderboardCache: {} as { [time: number]: Calculator[] },
     enhanposerCache: {} as { [time: number]: Calculator[] }
@@ -92,26 +92,27 @@ export const useGameStore = defineStore("game", {
       if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 30) {
         return
       }
+      const url = import.meta.env.MODE === "development" ? "https://milkonomy.pages.dev/" : "./"
       const DATA_URL = [
         // client info 时效性不高，不需要更新
-        "https://gh-proxy.com/raw.githubusercontent.com/silent1b/MWIData/main/init_client_info.json",
+        `${url}data/data.json`,
         "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
       ]
 
-      // const url = import.meta.env.MODE === "development" ? "https://luyh7.github.io/milkonomy/" : "./"
-      // const response = await Promise.all([fetch(`${url}data/data.json`), fetch(`${url}data/market.json`)])
       const response = await Promise.all(DATA_URL.map(url => fetch(url)))
       if (!response[0].ok || !response[1].ok) {
         throw new Error("Response not ok")
       }
       const newGameData = await response[0].json()
       const newMarketData = await response[1].json()
-      this.gameData = newGameData
-      this.marketData = newMarketData
+      // 如果有缓存数据，则不更新gameData，防止国际化数据被覆
+      if (!this.gameData) {
+        this.gameData = newGameData
+      }
       if (this.marketData?.time !== newMarketData.time) {
+        this.marketData = newMarketData
         ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
       }
-      setGameData(newGameData)
       setMarketData(newMarketData)
     },
     getLeaderboardCache() {
@@ -138,12 +139,6 @@ export const useGameStore = defineStore("game", {
 })
 
 const KEY_PREFIX = "game-"
-function getGameData() {
-  return JSON.parse(localStorage.getItem(`${KEY_PREFIX}game-data`) || "null") as GameData | null
-}
-function setGameData(value: GameData) {
-  localStorage.setItem(`${KEY_PREFIX}game-data`, JSON.stringify(value))
-}
 
 function getMarketData() {
   return JSON.parse(localStorage.getItem(`${KEY_PREFIX}market-data`) || "null") as MarketData | null

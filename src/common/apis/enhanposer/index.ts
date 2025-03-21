@@ -24,11 +24,6 @@ export async function getEnhanposerDataApi(params: any) {
     useGameStore().setEnhanposerCache(profitList)
     ElMessage.success(`计算完成，耗时${(Date.now() - startTime) / 1000}秒`)
   }
-  params.name && (profitList = profitList.filter(cal => cal.item.name.toLowerCase().includes(params.name!.toLowerCase())))
-  params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
-
-  // 首先进行一次利润排序
-
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }
 

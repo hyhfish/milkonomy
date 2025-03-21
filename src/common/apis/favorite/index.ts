@@ -12,7 +12,7 @@ export async function getFavoriteDataApi(params: RequestData) {
     console.error(e)
   }
   profitList.sort((a, b) => b.result.profitPH - a.result.profitPH)
-  params.name && (profitList = profitList.filter(item => item.item.name.toLowerCase().includes(params.name!.toLowerCase())))
+  params.name && (profitList = profitList.filter(item => item.result.name.toLowerCase().includes(params.name!.toLowerCase())))
   params.project && (profitList = profitList.filter(item => item.project === params.project))
   params.profitRate && (profitList = profitList.filter(item => item.result.profitRate >= params.profitRate! / 100))
   params.banEquipment && (profitList = profitList.filter(item => !item.isEquipment))
