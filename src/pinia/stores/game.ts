@@ -71,7 +71,7 @@ export const useGameStore = defineStore("game", {
       let retryCount = 5
       while (retryCount--) {
         try {
-          await this.fetchData()
+          await this.fetchData(retryCount)
           break
         } catch (e) {
           console.error(`获取数据第${5 - retryCount}次失败`, e)
@@ -87,19 +87,21 @@ export const useGameStore = defineStore("game", {
         throw new Error("强制宕机")
       }
     },
-    async fetchData() {
+    async fetchData(offset: number) {
       // 如果数据time晚于30min前，无需更新，减少流量
       if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 30) {
         return
       }
       const url = import.meta.env.MODE === "development" ? "https://milkonomy.pages.dev/" : "./"
-      const DATA_URL = [
-        // client info 时效性不高，不需要更新
-        `${url}data/data.json`,
-        "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
+      const MARKET_URLS = [
+        "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/market.json",
+        "https://gh-proxy.com/raw.githubusercontent.com/holychikenz/MWIApi/main/market.json"
       ]
+      const LAST_MARKET_URL = `${url}data/market.json`
+      const DATA_URL = `${url}data/data.json`
+      const marketUrl = offset === 0 ? LAST_MARKET_URL : MARKET_URLS[offset % MARKET_URLS.length]
 
-      const response = await Promise.all(DATA_URL.map(url => fetch(url)))
+      const response = await Promise.all([fetch(DATA_URL), fetch(marketUrl)])
       if (!response[0].ok || !response[1].ok) {
         throw new Error("Response not ok")
       }
