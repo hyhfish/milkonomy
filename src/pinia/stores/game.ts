@@ -94,8 +94,8 @@ export const useGameStore = defineStore("game", {
       }
       const url = import.meta.env.MODE === "development" ? "https://milkonomy.pages.dev/" : "./"
       const MARKET_URLS = [
-        "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/market.json",
-        "https://gh-proxy.com/raw.githubusercontent.com/holychikenz/MWIApi/main/market.json"
+        "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
+        "https://gh-proxy.com/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
       ]
       const LAST_MARKET_URL = `${url}data/market.json`
       const DATA_URL = `${url}data/data.json`
