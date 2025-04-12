@@ -186,6 +186,8 @@ export default abstract class Calculator {
     const costPH = this.cost * this.consumePH
     const incomePH = this.income * this.gainPH
     let profitPH = incomePH - costPH
+    // 单次利润
+    const profitPP = profitPH / this.actionsPH
     const profitRate = costPH ? profitPH / costPH : 0
 
     if (!this.valid) {
@@ -207,6 +209,7 @@ export default abstract class Calculator {
       incomePHFormat: Format.money(incomePH),
       profitPHFormat: Format.money(profitPH),
       profitPDFormat: Format.money(profitPH * 24),
+      profitPPFormat: Format.money(profitPP),
       profitRateFormat: Format.percent(profitRate),
       efficiencyFormat: Format.percent(this.efficiency - 1),
       speedFormat: Format.percent(this.speed - 1),

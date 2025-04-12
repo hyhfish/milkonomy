@@ -69,6 +69,10 @@ export default {
   "市场价格": "Market Price",
   "个": "pcs",
   "{0}步{1}": "{0} steps {1}",
+  "利润 / 次": "Profit / Action",
+  "单次动作产生的利润。": "Profit per action.",
+  "#多步动作利润提示": "If it is a multi-step action, the profit of all steps is calculated based on the last step executed once.",
+  "#多步动作利润举例": "For example, 7 steps to smith a holy needle, this shows the total profit of producing 1 holy needle in the whole process.",
 
   "挤奶": "Milking",
   "采摘": "Foraging",

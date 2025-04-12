@@ -15,7 +15,7 @@ import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
-import { Delete, Edit, Search, Star, StarFilled } from "@element-plus/icons-vue"
+import { Delete, Edit, Search, Star, StarFilled, Warning } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep } from "lodash-es"
 import ActionConfig from "./components/ActionConfig.vue"
@@ -302,6 +302,31 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
 
+              <el-table-column align="center" min-width="120">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('利润 / 次') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        {{ t('单次动作产生的利润。') }}
+                        <br>
+                        {{ t('#多步动作利润提示') }}
+                        <br>
+                        {{ t('#多步动作利润举例') }}
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  <span :class="row.hasManualPrice ? 'manual' : ''">
+                    {{ row.result.profitPPFormat }}&nbsp;
+                  </span>
+                </template>
+              </el-table-column>
+
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
@@ -463,6 +488,30 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
               <el-table-column prop="result.profitRateFormat" :label="t('利润率')" />
+              <el-table-column align="center" min-width="120">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('利润 / 次') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        {{ t('单次动作产生的利润。') }}
+                        <br>
+                        {{ t('#多步动作利润提示') }}
+                        <br>
+                        {{ t('#多步动作利润举例') }}
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  <span :class="row.hasManualPrice ? 'manual' : ''">
+                    {{ row.result.profitPPFormat }}&nbsp;
+                  </span>
+                </template>
+              </el-table-column>
               <el-table-column :label="t('详情')">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
