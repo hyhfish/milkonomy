@@ -229,7 +229,30 @@ const { t } = useI18n()
                   {{ row.result.profitRateFormat }}
                 </template>
               </el-table-column>
-
+              <el-table-column align="center" min-width="120">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('利润 / 次') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        {{ t('单次动作产生的利润。') }}
+                        <br>
+                        {{ t('#多步动作利润提示') }}
+                        <br>
+                        {{ t('#多步动作利润举例') }}
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  <span :class="row.hasManualPrice ? 'manual' : ''">
+                    {{ row.result.profitPPFormat }}&nbsp;
+                  </span>
+                </template>
+              </el-table-column>
               <el-table-column label="详情" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
