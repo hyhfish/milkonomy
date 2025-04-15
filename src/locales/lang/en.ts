@@ -69,6 +69,7 @@ export default {
   "市场价格": "Market Price",
   "个": "pcs",
   "{0}步{1}": "{0} steps {1}",
+  "({0})": "({0})",
   "利润 / 次": "Profit / Action",
   "单次动作产生的利润。": "Profit per action.",
   "#多步动作利润提示": "If it is a multi-step action, the profit of all steps is calculated based on the last step executed once.",

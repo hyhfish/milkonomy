@@ -92,7 +92,7 @@ export const useGameStore = defineStore("game", {
       if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 30) {
         return
       }
-      const url = import.meta.env.MODE === "development" ? "https://milkonomy.pages.dev/" : "./"
+      const url = import.meta.env.MODE === "development" ? "/" : "./"
       const MARKET_URLS = [
         "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
         "https://gh-proxy.com/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"

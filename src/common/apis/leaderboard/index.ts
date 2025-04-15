@@ -104,16 +104,33 @@ function calcAllFlowProfit() {
       if (!actionItem?.upgradeItemHrid || actionItem.upgradeItemHrid === "/items/philosophers_stone") {
         continue
       }
+
       while (actionItem.upgradeItemHrid) {
         configs.unshift(getStorageCalculatorItem(c))
-        c = new ManufactureCalculator({ hrid: actionItem.upgradeItemHrid, project, action })
+
         if (configs.length > 1) {
-          handlePush(profitList, new WorkflowCalculator(configs, t("{0}步{1}", [configs.length, configs[0].project])))
+          let projectName = t("{0}步{1}", [configs.length, project])
+          const otherProject = configs.find(conf => conf.project !== project)
+          otherProject && (projectName += t("({0})", [otherProject?.project]))
+          handlePush(profitList, new WorkflowCalculator(configs, projectName))
         }
+
+        // D4更新后，会出现多步动作中出现不同Action组合的情况
+        for (const [project, action] of projects) {
+          c = new ManufactureCalculator({ hrid: actionItem.upgradeItemHrid, project, action })
+          if (c.actionItem) {
+            break
+          }
+        }
+
         actionItem = c.actionItem
       }
       configs.unshift(getStorageCalculatorItem(c))
-      handlePush(profitList, new WorkflowCalculator(configs, t("{0}步{1}", [configs.length, configs[0].project])))
+
+      let projectName = t("{0}步{1}", [configs.length, project])
+      const otherProject = configs.find(conf => conf.project !== project)
+      otherProject && (projectName += t("({0})", [otherProject?.project]))
+      handlePush(profitList, new WorkflowCalculator(configs, projectName))
     }
   })
   return profitList
