@@ -24,10 +24,11 @@ export function costTime(value: number) {
     result += `${h}h`
   }
   if (m) {
-    result += `${m}m`
+    // 个位数前面补0
+    result += `${m < 10 ? "0" : ""}${m}m`
   }
   if (s) {
-    result += `${s}s`
+    result += `${s < 10 ? "0" : ""}${s}s`
   }
   return result
 }

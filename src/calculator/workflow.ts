@@ -46,7 +46,7 @@ export class WorkflowCalculator extends Calculator {
         config.productPriceConfigList = [{ immutable: true, price: 0, hrid: config.hrid }]
       }
       const cal = getCalculatorInstance(config)
-      cal.run()
+      cal.available && cal.run()
       if (cal.hasManualPrice) {
         this.hasManualPrice = true
       }
@@ -148,7 +148,7 @@ export class WorkflowCalculator extends Calculator {
   }
 
   get available(): boolean {
-    return true
+    return this.calculatorList.every(cal => cal.available)
   }
 
   get actionLevel(): number {

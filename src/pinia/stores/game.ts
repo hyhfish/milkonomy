@@ -64,7 +64,8 @@ export const useGameStore = defineStore("game", {
     gameData: null as GameData | null,
     marketData: getMarketData(),
     leaderboardCache: {} as { [time: number]: Calculator[] },
-    enhanposerCache: {} as { [time: number]: Calculator[] }
+    enhanposerCache: {} as { [time: number]: Calculator[] },
+    manualchemyCache: {} as { [time: number]: Calculator[] }
   }),
   actions: {
     async tryFetchData() {
@@ -136,6 +137,16 @@ export const useGameStore = defineStore("game", {
     },
     clearEnhanposerCache() {
       this.enhanposerCache = {}
+    },
+    getManualchemyCache() {
+      return this.manualchemyCache[this.marketData!.time]
+    },
+    setManualchemyCache(list: Calculator[]) {
+      this.clearManualchemyCache()
+      this.manualchemyCache[this.marketData!.time] = list
+    },
+    clearManualchemyCache() {
+      this.manualchemyCache = {}
     }
   }
 })

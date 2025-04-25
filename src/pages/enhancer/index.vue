@@ -1,0 +1,513 @@
+<script lang="ts" setup>
+import type { Action, ItemDetail } from "~/game"
+import Calculator from "@/calculator"
+
+import { EnhanceCalculator } from "@/calculator/enhance"
+import { ManufactureCalculator } from "@/calculator/manufacture"
+import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
+import { getEquipmentList } from "@/common/apis/player"
+import { useGameStore } from "@/pinia/stores/game"
+import { usePlayerStore } from "@/pinia/stores/player"
+import ItemIcon from "@@/components/ItemIcon/index.vue"
+import * as Format from "@@/utils/format"
+import { ElTable } from "element-plus"
+import ActionConfig from "../dashboard/components/ActionConfig.vue"
+
+const dialogVisible = ref(false)
+const search = ref("")
+const equipmentList = computed(() => {
+  return getEquipmentList().filter(item => t(item.name).toLocaleLowerCase().includes(search.value.toLowerCase())).sort((a, b) =>
+    a.sortIndex - b.sortIndex
+  )
+})
+
+const currentItem = ref<Item>({
+  protection: {} as Ingredient,
+  originPrice: 0,
+  originEnhanceLevel: 0
+})
+const manufactureIngredients = ref<Ingredient[]>([])
+const enhancementCosts = ref<Ingredient[]>([])
+const protectionList = ref<Ingredient[]>([])
+
+const defaultConfig = {
+  hourlyRate: 5000000,
+  taxRate: 2
+}
+const hourlyRate = ref()
+const taxRate = ref()
+
+interface Ingredient {
+  hrid: string
+  count: number
+  originPrice: number
+  price?: number
+}
+interface Item {
+  hrid?: string
+  originPrice: number
+  price?: number
+  originEnhanceLevel: number
+  enhanceLevel?: number
+  protection?: Ingredient
+}
+
+const gearManufacture = ref(false)
+watch([
+  () => manufactureIngredients.value,
+  () => gearManufacture.value
+], resetPrice, { deep: true })
+
+function onSelect(item: ItemDetail) {
+  if (!item) {
+    return
+  }
+  currentItem.value = {
+    hrid: item.hrid,
+    originEnhanceLevel: 10,
+    originPrice: 0
+  }
+  dialogVisible.value = false
+  const projects: [string, Action][] = [
+    [t("锻造"), "cheesesmithing"],
+    [t("制造"), "crafting"],
+    [t("裁缝"), "tailoring"]
+  ]
+  let calc: ManufactureCalculator
+  for (const [project, action] of projects) {
+    calc = new ManufactureCalculator({
+      hrid: item.hrid,
+      project,
+      action
+    })
+    if (calc.available) {
+      break
+    }
+  }
+  manufactureIngredients.value = calc!.available
+    ? calc!.ingredientList.filter(item => getItemDetailOf(item.hrid).categoryHrid !== "/item_categories/drink").map(item => ({
+        hrid: item.hrid,
+        count: item.count,
+        originPrice: getPriceOf(item.hrid).ask
+      }))
+    : []
+
+  enhancementCosts.value = item.enhancementCosts!.map(item => ({
+    hrid: item.itemHrid,
+    count: item.count,
+    originPrice: getPriceOf(item.itemHrid).ask
+  }))
+
+  protectionList.value = item.protectionItemHrids
+    ? item.protectionItemHrids.map(hrid => ({
+        hrid,
+        count: 1,
+        originPrice: getPriceOf(hrid).ask
+      }))
+    : []
+  if (!protectionList.value.length) {
+    protectionList.value.push({
+      hrid: item.hrid,
+      count: 1,
+      originPrice: getPriceOf(item.hrid).ask
+    })
+  }
+
+  protectionList.value.push({
+    hrid: "/items/mirror_of_protection",
+    count: 1,
+    originPrice: getPriceOf("/items/mirror_of_protection").ask
+  })
+
+  // price最低的
+  currentItem.value.protection = protectionList.value.reduce((acc: Ingredient, item) => {
+    if (!acc) {
+      return item
+    }
+    return acc.originPrice < item.originPrice ? acc : item
+  })
+}
+
+const results = computed(() => {
+  if (!currentItem.value.hrid) {
+    return []
+  }
+
+  const result = []
+  const enhanceLevel = currentItem.value.enhanceLevel ?? currentItem.value.originEnhanceLevel
+  for (let i = 2; i <= enhanceLevel; ++i) {
+    const calc = new EnhanceCalculator({
+      hrid: currentItem.value.hrid,
+      enhanceLevel: currentItem.value.enhanceLevel ?? currentItem.value.originEnhanceLevel,
+      protectLevel: i
+    })
+
+    const { actions, protects } = calc.enhancelate()
+    const matCost
+        = enhancementCosts.value.reduce((acc, item) => {
+          const price = typeof item.price === "number" ? item.price : item.originPrice
+          return acc + (price * item.count * actions)
+        }, 0) + (typeof currentItem.value.protection?.price === "number"
+          ? currentItem.value.protection!.price
+          : currentItem.value.protection!.originPrice) * protects
+
+    const totalCostNoHourly = matCost + (typeof currentItem.value?.price === "number"
+      ? currentItem.value!.price
+      : currentItem.value!.originPrice)
+    let totalCost = totalCostNoHourly + (hourlyRate.value ?? defaultConfig.hourlyRate) * (actions / calc.actionsPH)
+    totalCost *= (1 + (taxRate.value ?? defaultConfig.taxRate) / 100)
+
+    result.push({
+      actions,
+      actionsFormatted: Format.number(actions, 2),
+      protects,
+      protectsFormatted: Format.number(protects, 2),
+      protectLevel: i,
+      time: Format.costTime(actions / calc.actionsPH * 3600 * 1000000000),
+      matCost: Format.number(matCost),
+      totalCostFormatted: Format.number(totalCost),
+      totalCost,
+      totalCostNoHourly
+    })
+  }
+  return result
+})
+
+const columnWidths = computed(() => {
+  interface ResultItem {
+    actions: number
+    actionsFormatted: string
+    protects: number
+    protectsFormatted: string
+    protectLevel: number
+    time: string
+    matCost: string
+    totalCostFormatted: string
+  }
+  if (!results.value.length) {
+    return {}
+  }
+
+  const props = Object.keys(results.value[0]) as (keyof ResultItem)[]
+  const widths: Record<string, number> = {}
+  for (const prop of props) {
+    const maxWidth = Math.max(...results.value.map(item => item[prop]?.toString().length || 0))
+    widths[prop] = Math.max(maxWidth * 10 + 20, 60)
+  }
+  for (const item of enhancementCosts.value) {
+    const maxWidth = Math.max(...results.value.map(result => (Format.number(item.count * result.actions)).toString().length || 0))
+    widths[item.hrid] = Math.max(maxWidth * 10 + 20, 60)
+  }
+  return widths
+})
+
+const refTable = ref<InstanceType<typeof ElTable> | null>(null)
+const tableWidth = computed(() => {
+  const columns = refTable.value?.columns as unknown as any[] ?? []
+  const width = columns.reduce((acc, item) => {
+    return acc + (item.minWidth || 0)
+  }, 0) ?? 0
+  return Math.max(width + 100, 1100)
+})
+
+watch([
+  () => getMarketDataApi(),
+  () => usePlayerStore().config,
+  () => usePlayerStore().actionConfigActivated
+], resetPrice, { immediate: true })
+
+function resetPrice() {
+  if (!currentItem.value.hrid) {
+    return
+  }
+  // 触发一次computed
+  currentItem.value = JSON.parse(JSON.stringify(currentItem.value))
+
+  if (!gearManufacture.value) {
+    currentItem.value.originPrice = getPriceOf(currentItem.value.hrid!).ask
+    return
+  }
+  const val = manufactureIngredients.value
+  currentItem.value.originPrice = val.length
+    ? val.reduce((acc, item) => {
+        const price = typeof item.price === "number" ? item.price : item.originPrice
+        return acc + (price * item.count)
+      }, 0)
+    : getPriceOf(currentItem.value.hrid!).ask
+
+  manufactureIngredients.value.forEach((item) => {
+    item.originPrice = getPriceOf(item.hrid).ask
+  })
+  enhancementCosts.value.forEach((item) => {
+    item.originPrice = getPriceOf(item.hrid).ask
+  })
+}
+
+function rowStyle({ row }: { row: any }) {
+  // totalcost最小的为半透明浅绿色（内容不要透明）
+  // totalCostNoHourly最小的为半透明浅蓝色
+
+  if (row.totalCost === Math.min(...results.value.map(item => item.totalCost))) {
+    return { background: "rgb(34, 68, 34)" }
+  }
+  if (row.totalCostNoHourly === Math.min(...results.value.map(item => item.totalCostNoHourly))) {
+    return { background: "rgb(34, 51, 85)" }
+  }
+}
+
+const { t } = useI18n()
+</script>
+
+<template>
+  <div class="app-container">
+    <div class="game-info">
+      <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
+      <div
+        :class="{
+          error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
+          success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
+        }"
+      >
+        {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
+      </div>
+      <div>
+        <ActionConfig />
+      </div>
+    </div>
+    <el-row :gutter="20" class="row max-w-1100px mx-auto!">
+      <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">
+        <el-card>
+          <template #header>
+            <div class="flex justify-between items-center">
+              <span>{{ t('装备成本') }}</span>
+              <el-checkbox v-model="gearManufacture">
+                制作装备
+              </el-checkbox>
+            </div>
+          </template>
+          <template v-if="gearManufacture && manufactureIngredients.length">
+            <ElTable :data="manufactureIngredients" style="--el-table-border-color:none" :cell-style="{ padding: '0' }">
+              <el-table-column :label="t('物品')">
+                <template #default="{ row }">
+                  <ItemIcon :hrid="row.hrid" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="count" :label="t('数量')">
+                <template #default="{ row }">
+                  {{ Format.number(row.count, 2) }}
+                </template>
+              </el-table-column>
+
+              <el-table-column :label="t('价格')" align="center" min-width="120">
+                <template #default="{ row }">
+                  <el-input-number v-if="row.hrid !== Calculator.COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                </template>
+              </el-table-column>
+            </ElTable>
+            <el-divider class="mt-2 mb-2" />
+          </template>
+          <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
+            <el-table-column>
+              <template #default="{ row }">
+                <ItemIcon :hrid="row.hrid" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="count" />
+            <el-table-column min-width="120" align="center">
+              <template #default="{ row }">
+                <el-input-number class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+              </template>
+            </el-table-column>
+          </ElTable>
+        </el-card>
+      </el-col>
+      <el-col :xs="16" :sm="10" :md="10" :lg="6" :xl="6" class="max-w-300px mx-auto">
+        <el-card>
+          <div style="position: relative; width: 100%; padding-bottom: 100%;">
+            <ItemIcon
+              :hrid="currentItem?.hrid"
+              style="position: absolute; top:10%; left:10%; width: 80%; height: 80%;"
+            />
+            <el-button style="position: absolute; width: 100%; height: 100%; opacity: 0.5;" @click="dialogVisible = true">
+              {{ currentItem?.hrid ? '' : t('选择装备') }}
+            </el-button>
+            <el-dialog
+              v-model="dialogVisible"
+              :show-close="false"
+            >
+              <el-input v-model="search" :placeholder="t('搜索')" />
+              <div style="display: flex; flex-wrap: wrap;margin-top:10px">
+                <el-button
+                  v-for="item in equipmentList"
+                  :key="item.hrid"
+                  style="width: 50px; height: 50px; margin: 2px;"
+                  @click="onSelect(item)"
+                >
+                  <ItemIcon
+                    :hrid="item.hrid"
+                  />
+                </el-button>
+              </div>
+            </el-dialog>
+          </div>
+        </el-card>
+
+        <el-card class="mt-2">
+          <div class="flex justify-between items-center">
+            <div class="font-size-14px">
+              {{ t('工时费/h') }}
+            </div>
+            <el-input-number
+              class="w-100px"
+              v-model="hourlyRate"
+              :step="1"
+              :min="0"
+              :max="100000000"
+              :placeholder="defaultConfig.hourlyRate.toString()"
+              :controls="false"
+            />
+          </div>
+
+          <div class="flex justify-between items-center">
+            <div class="font-size-14px">
+              {{ t('税率%') }}
+            </div>
+            <el-input-number
+              class="w-100px"
+              v-model="taxRate"
+              :step="1"
+              :min="0"
+              :max="20"
+              :placeholder="defaultConfig.taxRate.toString()"
+              :controls="false"
+            />
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">
+        <el-card :header="t('强化消耗')">
+          <ElTable :data="enhancementCosts" style="--el-table-border-color:none;" :cell-style="{ padding: '0' }">
+            <el-table-column :label="t('物品')">
+              <template #default="{ row }">
+                <ItemIcon :hrid="row.hrid" />
+              </template>
+            </el-table-column>
+            <el-table-column prop="count" :label="t('数量')">
+              <template #default="{ row }">
+                {{ Format.number(row.count, 2) }}
+              </template>
+            </el-table-column>
+
+            <el-table-column :label="t('价格')" align="center" min-width="120">
+              <template #default="{ row }">
+                <el-input-number v-if="row.hrid !== Calculator.COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+              </template>
+            </el-table-column>
+          </ElTable>
+          <el-divider class="mt-2 mb-2" />
+          <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
+            <el-table-column min-width="160">
+              <template #default="{ row }">
+                <el-radio-group v-model="row.protection.hrid">
+                  <el-radio
+                    v-for="item in protectionList"
+                    :key="item.hrid"
+                    :value="item.hrid"
+                    border
+                    style="width: 50px; height: 50px; margin: 2px;"
+                    @click="() => row.protection = item"
+                  >
+                    <ItemIcon
+                      :hrid="item.hrid"
+                    />
+                  </el-radio>
+                </el-radio-group>
+              </template>
+            </el-table-column>
+            <el-table-column min-width="120" align="center">
+              <template #default="{ row }">
+                <el-input-number class="max-w-100%" v-model="row.protection.price" :placeholder="Format.number(row.protection.originPrice)" :controls="false" />
+              </template>
+            </el-table-column>
+          </ElTable>
+          <el-divider class="mt-2 mb-2" />
+
+          <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
+            <el-table-column>
+              <template #default>
+                {{ t('目标:') }}
+              </template>
+            </el-table-column>
+            <el-table-column />
+            <el-table-column min-width="120" align="center">
+              <template #default="{ row }">
+                <el-input-number class="max-w-100%" :max="20" :min="1" v-model="row.enhanceLevel" :placeholder="Format.number(row.originEnhanceLevel)" :controls="false" />
+              </template>
+            </el-table-column>
+          </ElTable>
+        </el-card>
+      </el-col>
+    </el-row>
+    <el-card class="mx-auto" :style="{ width: `${tableWidth}px`, maxWidth: '100%' }">
+      <ElTable
+        ref="refTable"
+        :data="results"
+        size="large"
+        border
+        fit
+        :header-cell-style="{ padding: '8px 0' }"
+        :style="{ width: `${tableWidth}px` }"
+        :row-style="rowStyle"
+      >
+        <el-table-column prop="protectLevel" :label="t('Prot')" :min-width="columnWidths.protectLevel" header-align="center" align="right" />
+        <el-table-column prop="actionsFormatted" :label="t('次数')" :min-width="columnWidths.actionsFormatted" header-align="center" align="right" />
+        <el-table-column prop="time" :label="t('时间')" :min-width="columnWidths.time" align="right" />
+
+        <el-table-column v-for="item in enhancementCosts" :key="item.hrid" :min-width="columnWidths[item.hrid]" header-align="center" align="right">
+          <template #header>
+            <ItemIcon class="mt-[8px]" :width="20" :height="20" :hrid="item.hrid" />
+          </template>
+          <template #default="{ row }">
+            {{ Format.number(item.count * row.actions) }}
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
+        <el-table-column prop="matCost" :label="t('材料费用')" :min-width="columnWidths.matCost" header-align="center" align="right" />
+        <el-table-column prop="totalCostFormatted" :label="t('总费用')" :min-width="columnWidths.totalCost" header-align="center" align="right" />
+      </ElTable>
+    </el-card>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.game-info {
+  display: flex;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 14px;
+  gap: 10px 20px;
+  .error {
+    color: #f56c6c;
+  }
+  .success {
+    color: #67c23a;
+  }
+}
+.el-col {
+  margin-bottom: 20px !important;
+}
+
+/* 隐藏单选框的圆形选择器 */
+:deep(.el-radio__inner) {
+  display: none;
+}
+:deep(.el-radio__label) {
+  padding-left: 0;
+  padding-top: 9px;
+}
+:deep(.el-radio.is-bordered) {
+  padding: 9px;
+}
+</style>

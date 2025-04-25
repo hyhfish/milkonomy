@@ -32,6 +32,7 @@ let playerConfig = structuredClone(toRaw(usePlayerStore().config))
 const defaultPlayerConfig = structuredClone(toRaw(usePlayerStore().config))
 let actionConfigActivated = usePlayerStore().actionConfigActivated
 let equipmentList = [] as ItemDetail[]
+let allEquipmentList = [] as ItemDetail[]
 let teaList = [] as ItemDetail[]
 let buffs = {} as Record<NoncombatStatsProp, number>
 
@@ -39,7 +40,8 @@ watch (() => useGameStore().gameData, () => {
   if (!useGameStore().gameData) return
   equipmentList = Object.freeze(structuredClone(Object.values(toRaw(useGameStore().gameData!.itemDetailMap))))
     .filter(item => item.equipmentDetail?.noncombatStats && Object.keys(item.equipmentDetail?.noncombatStats).length > 0)
-
+  allEquipmentList = Object.freeze(structuredClone(Object.values(toRaw(useGameStore().gameData!.itemDetailMap))))
+    .filter(item => item.equipmentDetail)
   teaList = Object.freeze(structuredClone(Object.values(toRaw(useGameStore().gameData!.itemDetailMap))))
     .filter(item => item.categoryHrid === "/item_categories/drink")
   initDefaultActionConfigMap()
@@ -122,6 +124,13 @@ export function getActionConfigOf(action: Action, activated: boolean = actionCon
 
 export function getToolListOf(action: Action) {
   return equipmentList.filter(item => item.equipmentDetail?.type === `/equipment_types/${action}_tool`).sort((a, b) => a.itemLevel - b.itemLevel)
+}
+
+/**
+ * 获取所有装备列表
+ */
+export function getEquipmentList() {
+  return allEquipmentList
 }
 
 /**

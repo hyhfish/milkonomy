@@ -57,6 +57,23 @@ export const constantRoutes: RouteRecordRaw[] = [
       }
     ]
   },
+
+  {
+    path: "/",
+    component: Layouts,
+    redirect: "/enhancer",
+    children: [
+      {
+        path: "enhancer",
+        component: () => import("@/pages/enhancer/index.vue"),
+        name: "Enhancer",
+        meta: {
+          title: "强化计算",
+          elIcon: "MagicStick"
+        }
+      }
+    ]
+  },
   {
     path: "/",
     component: Layouts,
@@ -76,6 +93,26 @@ export const constantRoutes: RouteRecordRaw[] = [
       }
     ]
   },
+  {
+    path: "/",
+    component: Layouts,
+    redirect: "/manualchemy",
+    meta: {
+      hidden: true
+    },
+    children: [
+      {
+        path: "manualchemy",
+        component: () => import("@/pages/manualchemy/index.vue"),
+        name: "Manualchemy",
+        meta: {
+          title: "制作炼金",
+          svgIcon: "dashboard"
+        }
+      }
+    ]
+  },
+
   {
     path: "/",
     component: Layouts,
