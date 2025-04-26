@@ -178,7 +178,7 @@ const results = computed(() => {
       protectLevel: i,
       time: Format.costTime(seconds * 1000000000),
       matCost: Format.money(matCost),
-      totalCostFormatted: Format.number(totalCost),
+      totalCostFormatted: Format.money(totalCost),
       totalCost,
       totalCostNoHourly,
       matCostPH: `${Format.money(matCost / seconds * 3600)} / h`
@@ -571,7 +571,7 @@ const { t } = useI18n()
         <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
         <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" />
         <el-table-column prop="matCostPH" :label="t('材料消耗速率')" :min-width="120" header-align="center" align="right" />
-        <el-table-column prop="totalCostFormatted" :label="t('总费用')" :min-width="columnWidths.totalCost" header-align="center" align="right" />
+        <el-table-column prop="totalCostFormatted" :label="t('总费用')" :min-width="120" header-align="center" align="right" />
       </ElTable>
     </el-card>
   </div>
