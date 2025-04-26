@@ -169,17 +169,19 @@ const results = computed(() => {
     let totalCost = totalCostNoHourly + (enhancerStore.hourlyRate ?? defaultConfig.hourlyRate) * (actions / calc.actionsPH)
     totalCost *= (1 + (enhancerStore.taxRate ?? defaultConfig.taxRate) / 100)
 
+    const seconds = actions / calc.actionsPH * 3600
     result.push({
       actions,
       actionsFormatted: Format.number(actions, 2),
       protects,
       protectsFormatted: Format.number(protects, 2),
       protectLevel: i,
-      time: Format.costTime(actions / calc.actionsPH * 3600 * 1000000000),
-      matCost: Format.number(matCost),
+      time: Format.costTime(seconds * 1000000000),
+      matCost: Format.money(matCost),
       totalCostFormatted: Format.number(totalCost),
       totalCost,
-      totalCostNoHourly
+      totalCostNoHourly,
+      matCostPH: `${Format.money(matCost / seconds * 3600)} / h`
     })
   }
   return result
@@ -195,6 +197,7 @@ const columnWidths = computed(() => {
     time: string
     matCost: string
     totalCostFormatted: string
+    matCostPH: string
   }
   if (!results.value.length) {
     return {}
@@ -556,17 +559,18 @@ const { t } = useI18n()
         <el-table-column prop="actionsFormatted" :label="t('次数')" :min-width="columnWidths.actionsFormatted" header-align="center" align="right" />
         <el-table-column prop="time" :label="t('时间')" :min-width="columnWidths.time" align="right" />
 
-        <el-table-column v-for="item in enhancementCosts" :key="item.hrid" :min-width="columnWidths[item.hrid]" header-align="center" align="right">
+        <el-table-column v-for="item in enhancementCosts" :key="item.hrid" :min-width="100" header-align="center" align="right">
           <template #header>
             <ItemIcon class="mt-[8px]" :width="20" :height="20" :hrid="item.hrid" />
           </template>
           <template #default="{ row }">
-            {{ Format.number(item.count * row.actions) }}
+            {{ Format.money(item.count * row.actions) }}
           </template>
         </el-table-column>
 
         <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
-        <el-table-column prop="matCost" :label="t('材料费用')" :min-width="columnWidths.matCost" header-align="center" align="right" />
+        <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" />
+        <el-table-column prop="matCostPH" :label="t('材料消耗速率')" :min-width="120" header-align="center" align="right" />
         <el-table-column prop="totalCostFormatted" :label="t('总费用')" :min-width="columnWidths.totalCost" header-align="center" align="right" />
       </ElTable>
     </el-card>
