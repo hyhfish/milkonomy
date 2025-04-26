@@ -69,7 +69,8 @@ export const constantRoutes: RouteRecordRaw[] = [
         name: "Enhancer",
         meta: {
           title: "强化计算",
-          elIcon: "MagicStick"
+          elIcon: "MagicStick",
+          affix: true
         }
       }
     ]

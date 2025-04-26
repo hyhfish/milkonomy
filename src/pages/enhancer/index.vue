@@ -6,12 +6,16 @@ import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getEquipmentList } from "@/common/apis/player"
+import { useEnhancerStore } from "@/pinia/stores/enhancer"
 import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import * as Format from "@@/utils/format"
+import { Star, StarFilled } from "@element-plus/icons-vue"
 import { ElTable } from "element-plus"
-import ActionConfig from "../dashboard/components/ActionConfig.vue"
+import ActionConfig from "./components/ActionConfig.vue"
+
+const enhancerStore = useEnhancerStore()
 
 const dialogVisible = ref(false)
 const search = ref("")
@@ -23,8 +27,7 @@ const equipmentList = computed(() => {
 
 const currentItem = ref<Item>({
   protection: {} as Ingredient,
-  originPrice: 0,
-  originEnhanceLevel: 0
+  originPrice: 0
 })
 const manufactureIngredients = ref<Ingredient[]>([])
 const enhancementCosts = ref<Ingredient[]>([])
@@ -32,10 +35,21 @@ const protectionList = ref<Ingredient[]>([])
 
 const defaultConfig = {
   hourlyRate: 5000000,
-  taxRate: 2
+  taxRate: 2,
+  enhanceLevel: 10
 }
-const hourlyRate = ref()
-const taxRate = ref()
+
+onMounted(() => {
+  enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid))
+})
+
+watch(
+  () => enhancerStore.config,
+  () => {
+    enhancerStore.saveConfig()
+  },
+  { deep: true }
+)
 
 interface Ingredient {
   hrid: string
@@ -47,8 +61,6 @@ interface Item {
   hrid?: string
   originPrice: number
   price?: number
-  originEnhanceLevel: number
-  enhanceLevel?: number
   protection?: Ingredient
 }
 
@@ -62,9 +74,9 @@ function onSelect(item: ItemDetail) {
   if (!item) {
     return
   }
+  enhancerStore.config.hrid = item.hrid
   currentItem.value = {
     hrid: item.hrid,
-    originEnhanceLevel: 10,
     originPrice: 0
   }
   dialogVisible.value = false
@@ -134,11 +146,11 @@ const results = computed(() => {
   }
 
   const result = []
-  const enhanceLevel = currentItem.value.enhanceLevel ?? currentItem.value.originEnhanceLevel
+  const enhanceLevel = enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel
   for (let i = 2; i <= enhanceLevel; ++i) {
     const calc = new EnhanceCalculator({
       hrid: currentItem.value.hrid,
-      enhanceLevel: currentItem.value.enhanceLevel ?? currentItem.value.originEnhanceLevel,
+      enhanceLevel,
       protectLevel: i
     })
 
@@ -154,8 +166,8 @@ const results = computed(() => {
     const totalCostNoHourly = matCost + (typeof currentItem.value?.price === "number"
       ? currentItem.value!.price
       : currentItem.value!.originPrice)
-    let totalCost = totalCostNoHourly + (hourlyRate.value ?? defaultConfig.hourlyRate) * (actions / calc.actionsPH)
-    totalCost *= (1 + (taxRate.value ?? defaultConfig.taxRate) / 100)
+    let totalCost = totalCostNoHourly + (enhancerStore.hourlyRate ?? defaultConfig.hourlyRate) * (actions / calc.actionsPH)
+    totalCost *= (1 + (enhancerStore.taxRate ?? defaultConfig.taxRate) / 100)
 
     result.push({
       actions,
@@ -255,11 +267,48 @@ function rowStyle({ row }: { row: any }) {
   }
 }
 
+const menuVisible = ref(false)
+const top = ref(0)
+const left = ref(0)
+const selectedTag = ref("")
+function openMenu(hrid: string, e: MouseEvent) {
+  const menuMinWidth = 100
+  // 当前页面宽度
+  const offsetWidth = document.body.offsetWidth
+  // 面板的最大左边距
+  const maxLeft = offsetWidth - menuMinWidth
+  // 面板距离鼠标指针的距离
+  const left15 = e.clientX + 10
+  left.value = left15 > maxLeft ? maxLeft : left15
+  top.value = e.clientY
+  // 显示面板
+  menuVisible.value = true
+  // 更新当前正在右键操作的标签页
+  selectedTag.value = hrid
+}
+
+/** 关闭右键菜单面板 */
+function closeMenu() {
+  menuVisible.value = false
+}
+
+watch(menuVisible, (value) => {
+  value ? document.body.addEventListener("click", closeMenu) : document.body.removeEventListener("click", closeMenu)
+})
+
 const { t } = useI18n()
 </script>
 
 <template>
   <div class="app-container">
+    <ul v-show="menuVisible" class="contextmenu" :style="{ left: `${left}px`, top: `${top}px` }">
+      <li v-if="!enhancerStore.hasFavorite(selectedTag)" @click="enhancerStore.addFavorite(selectedTag)">
+        收藏
+      </li>
+      <li v-else @click="enhancerStore.removeFavorite(selectedTag)">
+        取消收藏
+      </li>
+    </ul>
     <div class="game-info">
       <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
       <div
@@ -326,26 +375,63 @@ const { t } = useI18n()
           <div style="position: relative; width: 100%; padding-bottom: 100%;">
             <ItemIcon
               :hrid="currentItem?.hrid"
-              style="position: absolute; top:10%; left:10%; width: 80%; height: 80%;"
+              style="position: absolute; bottom:10%; left:10%; width: 80%; height: 80%;"
             />
-            <el-button style="position: absolute; width: 100%; height: 100%; opacity: 0.5;" @click="dialogVisible = true">
+            <el-button style="position: absolute; width: 100%; height: 100%; opacity: 0.5;" @click="dialogVisible = true, search = ''">
               {{ currentItem?.hrid ? '' : t('选择装备') }}
             </el-button>
+            <div v-if="currentItem?.hrid" class="absolute bottom-0 right-0">
+              <el-link v-if="!enhancerStore.hasFavorite(currentItem.hrid)" :underline="false" type="info" :icon="Star" @click="enhancerStore.addFavorite(currentItem.hrid)" style="font-size:42px" />
+              <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="enhancerStore.removeFavorite(currentItem.hrid)" style="font-size:42px" />
+            </div>
             <el-dialog
               v-model="dialogVisible"
               :show-close="false"
             >
               <el-input v-model="search" :placeholder="t('搜索')" />
+              <template v-if="enhancerStore.favorite.length && !search">
+                <el-divider class="mt-2 mb-2" />
+                <div class="mb-2 color-gray-500">
+                  {{ t('收藏') }}
+                  <span color-gray-600>
+                    ({{ t('右键取消收藏') }})</span>
+                </div>
+                <div class="flex">
+                  <el-button
+                    v-for="hrid in enhancerStore.favorite"
+                    :key="hrid"
+                    class="relative"
+                    style="width: 50px; height: 50px; margin: 2px;"
+                    @click="onSelect(getItemDetailOf(hrid))"
+                    @contextmenu.prevent="openMenu(hrid, $event)"
+                  >
+                    <ItemIcon
+                      :hrid="hrid"
+                    />
+
+                    <div class="absolute bottom-0 right-0">
+                      <el-link :underline="false" :icon="StarFilled" type="warning" style="font-size:16px" />
+                    </div>
+                  </el-button>
+                </div>
+                <el-divider class="mt-2 mb-1" />
+              </template>
               <div style="display: flex; flex-wrap: wrap;margin-top:10px">
                 <el-button
                   v-for="item in equipmentList"
                   :key="item.hrid"
                   style="width: 50px; height: 50px; margin: 2px;"
+                  class="relative"
                   @click="onSelect(item)"
+                  @contextmenu.prevent="openMenu(item.hrid, $event)"
                 >
                   <ItemIcon
                     :hrid="item.hrid"
                   />
+
+                  <div v-if="enhancerStore.hasFavorite(item.hrid)" class="absolute bottom-0 right-0">
+                    <el-link :underline="false" :icon="StarFilled" type="warning" style="font-size:16px" />
+                  </div>
                 </el-button>
               </div>
             </el-dialog>
@@ -359,7 +445,7 @@ const { t } = useI18n()
             </div>
             <el-input-number
               class="w-100px"
-              v-model="hourlyRate"
+              v-model="enhancerStore.config.hourlyRate"
               :step="1"
               :min="0"
               :max="100000000"
@@ -374,12 +460,12 @@ const { t } = useI18n()
             </div>
             <el-input-number
               class="w-100px"
-              v-model="taxRate"
+              v-model="enhancerStore.config.taxRate"
               :step="1"
               :min="0"
               :max="20"
+              controls-position="right"
               :placeholder="defaultConfig.taxRate.toString()"
-              :controls="false"
             />
           </div>
         </el-card>
@@ -440,8 +526,15 @@ const { t } = useI18n()
             </el-table-column>
             <el-table-column />
             <el-table-column min-width="120" align="center">
-              <template #default="{ row }">
-                <el-input-number class="max-w-100%" :max="20" :min="1" v-model="row.enhanceLevel" :placeholder="Format.number(row.originEnhanceLevel)" :controls="false" />
+              <template #default>
+                <el-input-number
+                  class="max-w-100%"
+                  :max="20"
+                  :min="1"
+                  v-model="enhancerStore.config.enhanceLevel"
+                  :placeholder="Format.number(defaultConfig.enhanceLevel)"
+                  controls-position="right"
+                />
               </template>
             </el-table-column>
           </ElTable>
@@ -509,5 +602,27 @@ const { t } = useI18n()
 }
 :deep(.el-radio.is-bordered) {
   padding: 9px;
+}
+
+.contextmenu {
+  margin: 0;
+  z-index: 3000;
+  position: fixed;
+  list-style-type: none;
+  padding: 5px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--v3-tagsview-contextmenu-text-color);
+  background-color: var(--v3-tagsview-contextmenu-bg-color);
+  box-shadow: var(--v3-tagsview-contextmenu-box-shadow);
+  li {
+    margin: 0;
+    padding: 7px 16px;
+    cursor: pointer;
+    &:hover {
+      color: var(--v3-tagsview-contextmenu-hover-text-color);
+      background-color: var(--v3-tagsview-contextmenu-hover-bg-color);
+    }
+  }
 }
 </style>

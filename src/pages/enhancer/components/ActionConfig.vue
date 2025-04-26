@@ -25,12 +25,12 @@ function loadData(activated: boolean) {
     return {
       ...getActionConfigOf(action, activated)!
     }
-  }))
+  }).filter(item => item.action === "enhancing"))
   specialList.value = structuredClone(DEFAULT_SEPCIAL_EQUIPMENT_LIST.map((item) => {
     return {
       ...getSpecialEquipmentOf(item.type, activated)!
     }
-  }))
+  }).filter(item => ["hands", "neck", "earrings", "ring", "pouch"].includes(item.type)))
 }
 
 function onConfirm() {
@@ -50,10 +50,10 @@ const { t } = useI18n()
   </el-button>
   <el-dialog v-model="visible" :show-close="false" width="80%">
     <el-row :gutter="20">
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16" class="mb-2">
         <el-card>
           <template #header>
-            <span style="margin-right: 20px;">{{ t('动作') }}</span>
+            <!-- <span style="margin-right: 20px;">{{ t('动作') }}</span> -->
             <el-switch v-model="actionConfigActivated" :active-text="t('已开启')" :inactive-text="t('已关闭')" inline-prompt />
           </template>
           <el-table :data="actionList">
@@ -143,11 +143,11 @@ const { t } = useI18n()
 
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="8">
         <el-card>
-          <template #header>
+          <!-- <template #header>
             <div style="line-height: 32px;">
               {{ t('其他') }}
             </div>
-          </template>
+          </template> -->
           <el-table :data="specialList">
             <el-table-column prop="type" :label="t('部位')" width="194">
               <template #default="{ row }">

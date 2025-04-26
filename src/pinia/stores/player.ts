@@ -16,10 +16,23 @@ export const usePlayerStore = defineStore("player", {
       clearEnhancelateCache()
     },
     setActionConfig(list: ActionConfigItem[], sepecial: PlayerEquipmentItem[]) {
-      this.config = {
-        actionConfigMap: new Map(list.map(item => [item.action, toRaw(item)])),
-        specialEquimentMap: new Map(sepecial.map(item => [item.type, toRaw(item)]))
+      // this.config = {
+      //   actionConfigMap: new Map(list.map(item => [item.action, toRaw(item)])),
+      //   specialEquimentMap: new Map(sepecial.map(item => [item.type, toRaw(item)]))
+      // }
 
+      for (const item of list) {
+        this.config.actionConfigMap.set(item.action, toRaw(item))
+      }
+
+      for (const item of sepecial) {
+        this.config.specialEquimentMap.set(item.type, toRaw(item))
+      }
+
+      // 触发更新
+      this.config = {
+        actionConfigMap: new Map(Array.from(this.config.actionConfigMap.entries()).map(([key, value]) => [key, toRaw(value)])),
+        specialEquimentMap: new Map(Array.from(this.config.specialEquimentMap.entries()).map(([key, value]) => [key, toRaw(value)]))
       }
     },
     setActivated(value: boolean) {
