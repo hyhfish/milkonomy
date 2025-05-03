@@ -61,7 +61,7 @@ export const HOUSE_MAP: Record<Action, Partial<Record<NoncombatStatsKey, number>
 
 export const useGameStore = defineStore("game", {
   state: () => ({
-    gameData: null as GameData | null,
+    gameData: getGameData(),
     marketData: getMarketData(),
     leaderboardCache: {} as { [time: number]: Calculator[] },
     enhanposerCache: {} as { [time: number]: Calculator[] },
@@ -117,6 +117,7 @@ export const useGameStore = defineStore("game", {
         ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
       }
       setMarketData(newMarketData)
+      setGameData(newGameData)
     },
     getLeaderboardCache() {
       return this.leaderboardCache[this.marketData!.time]
@@ -158,4 +159,11 @@ function getMarketData() {
 }
 function setMarketData(value: MarketData) {
   localStorage.setItem(`${KEY_PREFIX}market-data`, JSON.stringify(value))
+}
+
+function getGameData() {
+  return JSON.parse(localStorage.getItem(`${KEY_PREFIX}game-data`) || "null") as GameData | null
+}
+function setGameData(value: GameData) {
+  localStorage.setItem(`${KEY_PREFIX}game-data`, JSON.stringify(value))
 }
