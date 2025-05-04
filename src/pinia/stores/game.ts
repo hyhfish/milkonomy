@@ -1,8 +1,9 @@
 import type Calculator from "@/calculator"
+import type { WorkflowCalculator } from "@/calculator/workflow"
 import type { Action, GameData, NoncombatStatsKey } from "~/game"
 import type { MarketData } from "~/market"
-import locales from "@/locales"
 
+import locales from "@/locales"
 import { defineStore } from "pinia"
 
 const { t } = locales.global
@@ -64,7 +65,7 @@ export const useGameStore = defineStore("game", {
     gameData: getGameData(),
     marketData: getMarketData(),
     leaderboardCache: {} as { [time: number]: Calculator[] },
-    enhanposerCache: {} as { [time: number]: Calculator[] },
+    enhanposerCache: {} as { [time: number]: WorkflowCalculator[] },
     manualchemyCache: {} as { [time: number]: Calculator[] }
   }),
   actions: {
@@ -90,9 +91,9 @@ export const useGameStore = defineStore("game", {
     },
     async fetchData(offset: number) {
       // 如果数据time晚于30min前，无需更新，减少流量
-      if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 30) {
-        return
-      }
+      // if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 30) {
+      //   return
+      // }
       const url = import.meta.env.MODE === "development" ? "/" : "./"
       const MARKET_URLS = [
         "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
@@ -112,11 +113,8 @@ export const useGameStore = defineStore("game", {
       if (!this.gameData) {
         this.gameData = newGameData
       }
-      if (this.marketData?.time !== newMarketData.time) {
-        this.marketData = newMarketData
-        ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
-      }
-      setMarketData(newMarketData)
+
+      this.marketData = updateMarketData(this.marketData, newMarketData)
       setGameData(newGameData)
     },
     getLeaderboardCache() {
@@ -132,7 +130,7 @@ export const useGameStore = defineStore("game", {
     getEnhanposerCache() {
       return this.enhanposerCache[this.marketData!.time]
     },
-    setEnhanposerCache(list: Calculator[]) {
+    setEnhanposerCache(list: WorkflowCalculator[]) {
       this.clearEnhanposerCache()
       this.enhanposerCache[this.marketData!.time] = list
     },
@@ -151,6 +149,25 @@ export const useGameStore = defineStore("game", {
     }
   }
 })
+
+function updateMarketData(oldData: MarketData | null, newData: MarketData) {
+  const oldMarket = oldData?.market || {}
+  const newMarket = newData.market || {}
+  for (const key in newMarket) {
+    if (newMarket[key].ask === -1) {
+      newMarket[key].ask = oldMarket[key]?.ask || -1
+    }
+    if (newMarket[key].bid === -1) {
+      newMarket[key].bid = oldMarket[key]?.bid || -1
+    }
+  }
+
+  if (oldData?.time !== newData.time) {
+    ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
+  }
+  setMarketData(newData)
+  return newData
+}
 
 const KEY_PREFIX = "game-"
 

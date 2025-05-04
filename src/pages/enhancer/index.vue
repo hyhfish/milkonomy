@@ -16,6 +16,7 @@ import { ElTable } from "element-plus"
 import ActionConfig from "./components/ActionConfig.vue"
 
 const enhancerStore = useEnhancerStore()
+const { t } = useI18n()
 
 const dialogVisible = ref(false)
 const search = ref("")
@@ -229,7 +230,7 @@ watch([
   () => getMarketDataApi(),
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated
-], resetPrice, { immediate: true })
+], () => enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid)), { immediate: false })
 
 function resetPrice() {
   if (!currentItem.value.hrid) {
@@ -298,8 +299,6 @@ function closeMenu() {
 watch(menuVisible, (value) => {
   value ? document.body.addEventListener("click", closeMenu) : document.body.removeEventListener("click", closeMenu)
 })
-
-const { t } = useI18n()
 </script>
 
 <template>
