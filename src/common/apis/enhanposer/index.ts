@@ -54,7 +54,7 @@ function calcEnhanceProfit() {
           const c = new WorkflowCalculator([
             getStorageCalculatorItem(enhancer),
             getStorageCalculatorItem(new DecomposeCalculator({ enhanceLevel, hrid: item.hrid, catalystRank }))
-          ], `强化分解+${enhanceLevel}`)
+          ], `${t("强化分解")}+${enhanceLevel}`)
 
           c.run()
 
