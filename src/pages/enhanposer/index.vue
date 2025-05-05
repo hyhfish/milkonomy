@@ -166,6 +166,9 @@ const { t } = useI18n()
       <div>
         <ActionConfig />
       </div>
+      <div>
+        谨以此页面纪念我逝去的+8涟漪三叉戟。—— luyh7
+      </div>
     </div>
     <el-row :gutter="20" class="row">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
