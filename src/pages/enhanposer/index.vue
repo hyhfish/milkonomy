@@ -1,26 +1,23 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
 import type { FormInstance, Sort } from "element-plus"
-import { WorkflowCalculator } from "@/calculator/workflow"
 import { getEnhanposerDataApi } from "@/common/apis/enhanposer"
-import { addFavoriteApi, deleteFavoriteApi } from "@/common/apis/favorite"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
 
-import { useFavoriteStore } from "@/pinia/stores/favorite"
 import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
-import { Delete, Edit, Search, Star, StarFilled } from "@element-plus/icons-vue"
+import { Delete, Edit, Search } from "@element-plus/icons-vue"
 import { cloneDeep } from "lodash-es"
-import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
 import SinglePrice from "../dashboard/components/SinglePrice.vue"
+import ActionConfig from "../enhancer/components/ActionConfig.vue"
 // #region 查
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "enhanposer-leaderboard-pagination")
 const leaderboardData = ref<Calculator[]>([])
@@ -30,6 +27,8 @@ const ldSearchData = useMemory("enhanposer-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: "",
+  maxLevel: "",
+  minLevel: "",
   banEquipment: false,
   enhanposer: true
 })
@@ -122,23 +121,7 @@ async function showDetail(row: Calculator) {
   currentRow.value = cloneDeep(row)
   detailVisible.value = true
 }
-function addFavorite(row: Calculator) {
-  const r = row || currentRow.value!
-  try {
-    addFavoriteApi(r)
-    detailVisible.value = false
-  } catch (e: any) {
-    ElMessage.error(e.message)
-  }
-}
 
-function deleteFavorite(row: Calculator) {
-  try {
-    deleteFavoriteApi(row)
-  } catch (e: any) {
-    ElMessage.error(e.message)
-  }
-}
 const priceVisible = ref<boolean>(false)
 const currentPriceRow = ref<Calculator>()
 function setPrice(row: Calculator) {
@@ -185,13 +168,11 @@ const { t } = useI18n()
                 <el-input style="width:100px" v-model="ldSearchData.name" placeholder="请输入" clearable @input="handleSearchLD" />
               </el-form-item>
 
-              <el-form-item prop="name" label="利润率 >">
-                <el-input style="width:60px" v-model="ldSearchData.profitRate" placeholder="请输入" clearable @input="handleSearchLD" />&nbsp;%
+              <el-form-item label="强化等级从">
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @input="handleSearchLD" controls-position="right" />&nbsp;到&nbsp;
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @input="handleSearchLD" controls-position="right" />
               </el-form-item>
             </el-form>
-            <div style="font-size:12px;color:#999">
-              默认工具（+10）、技能100级、房子（4级）、装备（+10），使用工匠茶、效率茶、催化茶
-            </div>
           </template>
           <template #default>
             <el-table :data="leaderboardData" v-loading="loadingLD" @sort-change="handleSortLD">
@@ -204,8 +185,8 @@ const { t } = useI18n()
               <el-table-column width="80">
                 <template #default="{ row }">
                   <div style="display:flex;">
-                    <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
                     <ItemIcon v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel" :hrid="row.calculatorList[0].protectionItem.hrid" />
+                    <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
                   </div>
                   <div v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel">
                     从{{ row.calculatorList[0].protectLevel }}保护
@@ -213,7 +194,6 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
               <el-table-column prop="project" label="项目" />
-              <el-table-column prop="actionLevel" label="等级" align="center" />
               <el-table-column label="利润 / 天" align="center" min-width="120">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
@@ -258,15 +238,6 @@ const { t } = useI18n()
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
                     查看
                   </el-link>
-                </template>
-              </el-table-column>
-              <el-table-column prop="favorite" label="收藏" align="center" sortable="custom" :sort-orders="['descending', null]">
-                <template #default="{ row }">
-                  <template v-if="!(row instanceof WorkflowCalculator)">
-                    <el-link v-if="!useFavoriteStore().hasFavorite(row)" :underline="false" type="warning" :icon="Star" @click="addFavorite(row)" style="font-size:24px" />
-                    <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="deleteFavorite(row)" style="font-size:28px" />
-                  </template>
-                  <template v-else />
                 </template>
               </el-table-column>
             </el-table>

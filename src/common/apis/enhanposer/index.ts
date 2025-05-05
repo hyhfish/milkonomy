@@ -1,5 +1,3 @@
-import type Calculator from "@/calculator"
-
 import { DecomposeCalculator } from "@/calculator/alchemy"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { getStorageCalculatorItem } from "@/calculator/utils"
@@ -10,7 +8,7 @@ import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 /** 查 */
 export async function getEnhanposerDataApi(params: any) {
-  let profitList: Calculator[] = []
+  let profitList: WorkflowCalculator[] = []
   if (useGameStore().getEnhanposerCache()) {
     profitList = useGameStore().getEnhanposerCache()
   } else {
@@ -24,6 +22,10 @@ export async function getEnhanposerDataApi(params: any) {
     useGameStore().setEnhanposerCache(profitList)
     ElMessage.success(`计算完成，耗时${(Date.now() - startTime) / 1000}秒`)
   }
+
+  profitList = profitList.filter(item => params.maxLevel ? (item.calculator as DecomposeCalculator).enhanceLevel <= params.maxLevel : true)
+  profitList = profitList.filter(item => params.minLevel ? (item.calculator as DecomposeCalculator).enhanceLevel >= params.minLevel : true)
+
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }
 
@@ -31,7 +33,7 @@ function calcEnhanceProfit() {
   const gameData = getGameDataApi()
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
-  const profitList: Calculator[] = []
+  const profitList: WorkflowCalculator[] = []
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
       let bestProfit = -Infinity
@@ -40,7 +42,7 @@ function calcEnhanceProfit() {
         for (let catalystRank = 0; catalystRank <= 2; catalystRank++) {
           const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
           // 预筛选，把不可能盈利的去掉
-          if (!enhancer.available) {
+          if (item.itemLevel > 1 || !enhancer.available) {
             continue
           }
 
