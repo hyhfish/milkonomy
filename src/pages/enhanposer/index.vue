@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
-import type { FormInstance, Sort } from "element-plus"
 import { getEnhanposerDataApi } from "@/common/apis/enhanposer"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
-
 import { useGameStore } from "@/pinia/stores/game"
+
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Search } from "@element-plus/icons-vue"
+import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep } from "lodash-es"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
@@ -53,6 +53,7 @@ function getLeaderboardData() {
 }
 function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
+  console.log("va", JSON.stringify(ldSearchData.value))
 }
 
 const sortLD: Ref<Sort | undefined> = ref()
@@ -125,6 +126,17 @@ async function showDetail(row: Calculator) {
 const priceVisible = ref<boolean>(false)
 const currentPriceRow = ref<Calculator>()
 function setPrice(row: Calculator) {
+  const activated = usePriceStore().activated
+  if (!activated) {
+    ElMessageBox.confirm(t("是否确定开启自定义价格？"), t("需先开启自定义价格"), {
+      confirmButtonText: t("确定"),
+      cancelButtonText: t("取消"),
+      closeOnClickModal: true
+    }).then(() => {
+      usePriceStore().setActivated(true)
+    })
+    return
+  }
   currentPriceRow.value = cloneDeep(row)
   priceVisible.value = true
 }
@@ -142,16 +154,15 @@ const { t } = useI18n()
 <template>
   <div class="app-container">
     <div class="game-info">
-      <div>MWI版本：{{ useGameStore().gameData?.gameVersion }}</div>
+      <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
       <div
         :class="{
           error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
           success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
         }"
       >
-        市场数据更新时间:{{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
+        {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
       </div>
-
       <div>
         <ActionConfig />
       </div>
@@ -162,15 +173,15 @@ const { t } = useI18n()
           <template #header>
             <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
               <div class="title">
-                扫单填单利润排行
+                {{ t('利润排行') }}
               </div>
-              <el-form-item prop="name" label="物品">
-                <el-input style="width:100px" v-model="ldSearchData.name" placeholder="请输入" clearable @input="handleSearchLD" />
+              <el-form-item prop="name" :label="t('物品')">
+                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" />
               </el-form-item>
 
-              <el-form-item label="强化等级从">
-                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @input="handleSearchLD" controls-position="right" />&nbsp;到&nbsp;
-                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @input="handleSearchLD" controls-position="right" />
+              <el-form-item :label="t('目标等级从')">
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
             </el-form>
           </template>
@@ -181,30 +192,30 @@ const { t } = useI18n()
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="result.name" label="物品" />
-              <el-table-column width="80">
+              <el-table-column prop="result.name" :label="t('物品')" />
+              <el-table-column min-width="70">
                 <template #default="{ row }">
                   <div style="display:flex;">
                     <ItemIcon v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel" :hrid="row.calculatorList[0].protectionItem.hrid" />
                     <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
                   </div>
                   <div v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel">
-                    从{{ row.calculatorList[0].protectLevel }}保护
+                    {{ t('从{0}保护', [row.calculatorList[0].protectLevel]) }}
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column prop="project" label="项目" />
-              <el-table-column label="利润 / 天" align="center" min-width="120">
+              <el-table-column prop="project" :label="t('动作')" />
+              <el-table-column :label="t('利润 / 天')" align="center" min-width="120">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitPDFormat }}&nbsp;
                   </span>
-                  <el-link v-if="usePriceStore().activated" type="primary" :icon="Edit" @click="setPrice(row)">
-                    自定义
+                  <el-link type="primary" :icon="Edit" @click="setPrice(row)">
+                    {{ t('自定义') }}
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="result.profitRate" label="利润率" align="center" sortable="custom" :sort-orders="['descending', null]">
+              <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.result.profitRateFormat }}
                 </template>
@@ -233,10 +244,10 @@ const { t } = useI18n()
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column label="详情" align="center">
+              <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
-                    查看
+                    {{ t('查看') }}
                   </el-link>
                 </template>
               </el-table-column>
@@ -264,15 +275,15 @@ const { t } = useI18n()
           <template #header>
             <el-form class="rank-card" ref="priceSearchFormRef" :inline="true" :model="priceSearchData">
               <div class="title">
-                自定义价格
+                {{ t('自定义价格') }}
               </div>
 
               <el-form-item>
-                <el-switch v-model="usePriceStore().activated" @change="usePriceStore().setActivated" active-text="已开启" inactive-text="已关闭" inline-prompt />
+                <el-switch v-model="usePriceStore().activated" @change="usePriceStore().setActivated" :active-text="t('已开启')" :inactive-text="t('已关闭')" inline-prompt />
               </el-form-item>
 
-              <el-form-item prop="name" label="物品">
-                <el-input style="width:100px" v-model="priceSearchData.name" placeholder="请输入" clearable @input="handleSearchPrice" />
+              <el-form-item prop="name" :label="t('物品')">
+                <el-input style="width:100px" v-model="priceSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchPrice" />
               </el-form-item>
             </el-form>
           </template>
@@ -283,18 +294,18 @@ const { t } = useI18n()
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column label="物品" min-width="120">
+              <el-table-column :label="t('物品')" min-width="120">
                 <template #default="{ row }">
                   {{ t(getItemDetailOf(row.hrid).name) }}
                 </template>
               </el-table-column>
 
-              <el-table-column label="市场价格" min-width="120">
+              <el-table-column :label="t('市场价格')" min-width="120">
                 <template #default="{ row }">
                   {{ Format.price(getPriceOf(row.hrid).ask) }} / {{ Format.price(getPriceOf(row.hrid).bid) }}
                 </template>
               </el-table-column>
-              <el-table-column label="自定义价格" min-width="120">
+              <el-table-column :label="t('自定义价格')" min-width="120">
                 <template #default="{ row }">
                   {{ row.ask?.manual ? Format.price(row.ask?.manualPrice) : '-' }} / {{ row.bid?.manual ? Format.price(row.bid?.manualPrice) : '-' }}
                 </template>
@@ -303,7 +314,7 @@ const { t } = useI18n()
                 <template #default="{ row }">
                   <SinglePrice :data="row">
                     <el-link type="primary" :icon="Edit">
-                      修改
+                      {{ t('修改') }}
                     </el-link>
                   </SinglePrice>
                 </template>
@@ -311,7 +322,7 @@ const { t } = useI18n()
               <el-table-column min-width="80">
                 <template #default="{ row }">
                   <el-link type="danger" :icon=" Delete" @click="deletePrice(row)">
-                    删除
+                    {{ t('删除') }}
                   </el-link>
                 </template>
               </el-table-column>

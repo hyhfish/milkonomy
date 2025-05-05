@@ -96,10 +96,10 @@ const { t } = useI18n()
                 <div>{{ t('时间占比') }}：{{ Format.percent(data.workMultiplier![i]!) }}</div>
                 <template v-if="calculator instanceof EnhanceCalculator">
                   <div>
-                    强化平均耗时：{{ Format.costTime(1 / calculator.ingredientList[0].count * calculator.timeCost) }}
+                    {{ t('强化平均耗时') }}：{{ Format.costTime(1 / calculator.ingredientList[0].count * calculator.timeCost) }}
                   </div>
                   <div>
-                    强化平均次数：{{ Format.number(1 / calculator.ingredientList[0].count, 3) }}
+                    {{ t('强化平均次数') }}：{{ Format.number(1 / calculator.ingredientList[0].count, 3) }}
                   </div>
                 </template>
               </template>

@@ -2,10 +2,13 @@ import { DecomposeCalculator } from "@/calculator/alchemy"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
+import locales from "@/locales"
 import { useGameStore } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
+
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
+const { t } = locales.global
 /** 查 */
 export async function getEnhanposerDataApi(params: any) {
   let profitList: WorkflowCalculator[] = []
@@ -20,9 +23,10 @@ export async function getEnhanposerDataApi(params: any) {
       console.error(e)
     }
     useGameStore().setEnhanposerCache(profitList)
-    ElMessage.success(`计算完成，耗时${(Date.now() - startTime) / 1000}秒`)
+    ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
 
+  console.log("params", params)
   profitList = profitList.filter(item => params.maxLevel ? (item.calculator as DecomposeCalculator).enhanceLevel <= params.maxLevel : true)
   profitList = profitList.filter(item => params.minLevel ? (item.calculator as DecomposeCalculator).enhanceLevel >= params.minLevel : true)
 

@@ -68,7 +68,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/pages/enhancer/index.vue"),
         name: "Enhancer",
         meta: {
-          title: "强化计算",
+          title: t("强化计算"),
           elIcon: "MagicStick",
           affix: true
         }
@@ -79,16 +79,14 @@ export const constantRoutes: RouteRecordRaw[] = [
     path: "/",
     component: Layouts,
     redirect: "/enhanposer",
-    meta: {
-      hidden: true
-    },
     children: [
       {
         path: "enhanposer",
         component: () => import("@/pages/enhanposer/index.vue"),
         name: "Enhanposer",
         meta: {
-          title: "强化分解",
+          title: t("强化分解"),
+          affix: true,
           svgIcon: "dashboard"
         }
       }

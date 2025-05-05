@@ -332,7 +332,7 @@ watch(menuVisible, (value) => {
             <div class="flex justify-between items-center">
               <span>{{ t('装备成本') }}</span>
               <el-checkbox v-model="gearManufacture">
-                制作装备
+                {{ t('制作装备') }}
               </el-checkbox>
             </div>
           </template>
@@ -523,7 +523,7 @@ watch(menuVisible, (value) => {
           <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default>
-                {{ t('目标:') }}
+                {{ t('目标') }}:
               </template>
             </el-table-column>
             <el-table-column />

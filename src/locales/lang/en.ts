@@ -75,6 +75,30 @@ export default {
   "#多步动作利润提示": "If it is a multi-step action, the profit of all steps is calculated based on the last step executed once.",
   "#多步动作利润举例": "For example, 7 steps to smith a holy needle, this shows the total profit of producing 1 holy needle in the whole process.",
 
+  // 强化分解
+  "强化分解": "Enhance Decompose",
+  "目标等级从": "Target Level from",
+  "到": "to",
+  "从{0}保护": "Protect from Lv.{0}",
+  "强化平均耗时": "Enhance Average Time",
+  "强化平均次数": "Enhance Average Actions",
+
+  // 强化计算
+  "强化计算": "Enhance Calculator",
+  "装备成本": "Gear Cost",
+  "制作装备": "Craft Gear",
+  "工时费/h": "Hourly Rate",
+  "税率%": "% Rate",
+  "数量": "Count",
+  "价格": "Price",
+  "强化消耗": "Enhance Cost",
+  "目标": "Target",
+  "次数": "Actions",
+  "保护": "Protects",
+  "材料费用": "Material Cost",
+  "材料消耗速率": "Material Consumption Rate",
+  "总费用": "Total Cost",
+
   "挤奶": "Milking",
   "采摘": "Foraging",
   "伐木": "Woodcutting",
