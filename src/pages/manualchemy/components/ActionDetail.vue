@@ -21,7 +21,7 @@ const visible: Ref<boolean> = computed({
     emit("update:modelValue", val)
   }
 })
-const simple = ref(true)
+const simple = ref(false)
 const { t } = useI18n()
 </script>
 
