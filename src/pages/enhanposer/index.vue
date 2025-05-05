@@ -167,7 +167,7 @@ const { t } = useI18n()
         <ActionConfig />
       </div>
       <div>
-        谨以此页面纪念我逝去的+8涟漪三叉戟。—— luyh7
+        {{ t('#强化纪念') }}
       </div>
     </div>
     <el-row :gutter="20" class="row">

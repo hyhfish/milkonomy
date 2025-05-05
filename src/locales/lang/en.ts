@@ -82,6 +82,7 @@ export default {
   "从{0}保护": "Protect from Lv.{0}",
   "强化平均耗时": "Enhance Average Time",
   "强化平均次数": "Enhance Average Actions",
+  "#强化纪念": "In memory of my lost +8 Rippling Trident. - luyh7",
 
   // 强化计算
   "强化计算": "Enhance Calculator",
