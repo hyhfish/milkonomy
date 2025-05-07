@@ -164,6 +164,13 @@ function updateMarketData(oldData: MarketData | null, newData: MarketData) {
     }
   }
 
+  // 有些物品可能是oldMarket有的，newMarket没有的
+  for (const key in oldMarket) {
+    if (!newMarket[key]) {
+      newMarket[key] = JSON.parse(JSON.stringify(oldMarket[key]))
+    }
+  }
+
   if (oldData?.time !== newData.time) {
     ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
   }
