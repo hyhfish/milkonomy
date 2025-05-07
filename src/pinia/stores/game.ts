@@ -96,6 +96,7 @@ export const useGameStore = defineStore("game", {
       // }
       const url = import.meta.env.MODE === "development" ? "/" : "./"
       const MARKET_URLS = [
+        "https://hub.gitmirror.com/https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
         "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
         "https://gh-proxy.com/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
         "https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
