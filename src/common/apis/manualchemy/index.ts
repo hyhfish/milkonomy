@@ -59,7 +59,7 @@ function calcAllFlowProfit() {
       while (actionItem.upgradeItemHrid) {
         configs.unshift(getStorageCalculatorItem(c))
 
-        if (configs.length > 1) {
+        if (configs.length >= 1) {
           let projectName = t("{0}步{1}", [configs.length, project])
           const otherProject = configs.find(conf => conf.project !== project)
           otherProject && (projectName += t("({0})", [otherProject?.project]))
