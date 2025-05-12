@@ -65,7 +65,8 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
-  () => getMarketDataApi(),
+  () => useGameStore().marketData,
+  () => useGameStore().marketDataLevel,
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated
 ], getLeaderboardData, { immediate: true })
@@ -102,7 +103,7 @@ function handleSearchPrice() {
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => getMarketDataApi()
+  () => useGameStore().marketData
 ], getPriceData, { immediate: true })
 // #endregion
 
