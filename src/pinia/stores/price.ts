@@ -40,7 +40,7 @@ export const usePriceStore = defineStore("price", {
       this.activated = value
       setActivated(String(value))
       useGameStore().clearLeaderBoardCache()
-      useGameStore().clearEnhanposerCache()
+      clearEnhancelateCache()
       useGameStore().clearManualchemyCache()
     }
   }

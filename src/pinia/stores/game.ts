@@ -69,7 +69,8 @@ export const useGameStore = defineStore("game", {
     enhanposerCache: {} as { [time: number]: WorkflowCalculator[] },
     manualchemyCache: {} as { [time: number]: Calculator[] },
     jungleCache: {} as { [time: number]: WorkflowCalculator[] },
-    secret: loadSecret()
+    secret: loadSecret(),
+    useBid: false
   }),
   actions: {
     async tryFetchData() {
@@ -134,6 +135,12 @@ export const useGameStore = defineStore("game", {
       }
       ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
       this.marketDataLevel = await response.json()
+    },
+    setUseBid(_: boolean) {
+      this.clearLeaderBoardCache()
+      this.clearManualchemyCache()
+      this.clearEnhanposerCache()
+      this.clearJungleCache()
     },
     getLeaderboardCache() {
       return this.leaderboardCache[this.marketData!.time]

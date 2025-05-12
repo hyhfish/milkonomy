@@ -20,11 +20,26 @@ watch(() => useGameStore().gameData, () => {
   _priceCache = {}
   initProcessingProductMap()
 }, { immediate: true })
-watch(() => useGameStore().marketData, () => {
-  console.log("raw marketData changed")
-  game.marketData = Object.freeze(structuredClone(toRaw(useGameStore().marketData)))
-  _priceCache = {}
-}, { immediate: true })
+watch(
+  [
+    () => useGameStore().marketData,
+    () => useGameStore().useBid
+  ],
+  () => {
+    console.log("raw marketData changed")
+    const useBid = useGameStore().useBid
+    const data = Object.freeze(structuredClone(toRaw(useGameStore().marketData)))
+    // 如果useBid为true，则bid为ask
+    if (useBid) {
+      for (const key in data?.market) {
+        data.market[key].ask = data.market[key].bid
+      }
+    }
+    game.marketData = data
+    _priceCache = {}
+  },
+  { immediate: true }
+)
 watch(() => useGameStore().marketDataLevel, () => {
   console.log("raw marketDataLevel changed")
   game.marketDataLevel = Object.freeze(structuredClone(toRaw(useGameStore().marketDataLevel)))

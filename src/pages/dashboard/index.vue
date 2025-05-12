@@ -84,7 +84,8 @@ watch([
   () => paginationDataLD.pageSize,
   () => useGameStore().marketData,
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated
+  () => usePlayerStore().actionConfigActivated,
+  () => useGameStore().useBid
 ], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeFR, handleSizeChange: handleSizeChangeFR } = usePagination({}, "dashboard-favorite-pagination")
@@ -121,7 +122,8 @@ watch([
   () => paginationDataMN.pageSize,
   () => useGameStore().marketData,
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated
+  () => usePlayerStore().actionConfigActivated,
+  () => useGameStore().useBid
 ], getFavoriteData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "dashboard-price-pagination")
@@ -157,7 +159,9 @@ function handleSearchPrice() {
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => useGameStore().marketData
+  () => useGameStore().marketData,
+  () => useGameStore().useBid
+
 ], getPriceData, { immediate: true })
 
 // #endregion
@@ -241,6 +245,11 @@ const { t } = useI18n()
       </div>
       <div>
         <ActionConfig />
+      </div>
+      <div v-if="useGameStore().checkSecret()">
+        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
+          {{ t('右价买') }}
+        </el-checkbox>
       </div>
     </div>
     <el-row :gutter="20" class="row">

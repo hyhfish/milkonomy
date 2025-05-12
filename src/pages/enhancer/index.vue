@@ -42,6 +42,10 @@ const defaultConfig = {
 
 onMounted(() => {
   enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid))
+
+  // 此页面强制左价
+  useGameStore().useBid = false
+  useGameStore().setUseBid(false)
 })
 
 watch(
@@ -229,7 +233,8 @@ const tableWidth = computed(() => {
 watch([
   () => getMarketDataApi(),
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated
+  () => usePlayerStore().actionConfigActivated,
+  () => useGameStore().useBid
 ], () => enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid)), { immediate: false })
 
 function resetPrice() {
@@ -324,6 +329,11 @@ watch(menuVisible, (value) => {
       <div>
         <ActionConfig />
       </div>
+      <!-- <div v-if="useGameStore().checkSecret()">
+        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
+          {{ t('右价买') }}
+        </el-checkbox>
+      </div> -->
     </div>
     <el-row :gutter="20" class="row max-w-1100px mx-auto!">
       <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">

@@ -68,7 +68,8 @@ watch([
   () => paginationDataLD.pageSize,
   () => getMarketDataApi(),
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated
+  () => usePlayerStore().actionConfigActivated,
+  () => useGameStore().useBid
 ], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "enhanposer-price-pagination")
@@ -103,7 +104,8 @@ function handleSearchPrice() {
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => getMarketDataApi()
+  () => getMarketDataApi(),
+  () => useGameStore().useBid
 ], getPriceData, { immediate: true })
 // #endregion
 
@@ -166,6 +168,7 @@ const { t } = useI18n()
       <div>
         <ActionConfig />
       </div>
+
       <div>
         {{ t('#强化纪念') }}
       </div>
@@ -186,6 +189,12 @@ const { t } = useI18n()
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
+
+              <div v-if="useGameStore().checkSecret()">
+                <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
+                  {{ t('右价买') }}
+                </el-checkbox>
+              </div>
             </el-form>
           </template>
           <template #default>
