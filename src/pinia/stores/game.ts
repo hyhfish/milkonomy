@@ -126,7 +126,8 @@ export const useGameStore = defineStore("game", {
       if (!this.checkSecret()) {
         return
       }
-      const url = import.meta.env.MODE === "development" ? "http://127.0.0.1:5000/data" : "http://154.222.31.158:1145/data"
+      // const url = import.meta.env.MODE === "development" ? "http://127.0.0.1:5000/data" : "https://154.222.31.158:1145/data"
+      const url = "https://154.222.31.158:1145/data"
       const response = await fetch(url)
       if (!response.ok) {
         throw new Error("Response not ok")
@@ -179,7 +180,7 @@ export const useGameStore = defineStore("game", {
       saveSecret(value)
     },
     checkSecret() {
-      return btoa(this.secret) === "MTE0NTE0"
+      return btoa(this.secret) === "MTE0NTE0QA=="
     }
 
   }

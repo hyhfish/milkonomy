@@ -55,6 +55,19 @@ function getLeaderboardData() {
     loadingLD.value = false
   })
 }
+
+function handleInput(val: string) {
+  if (val && val.includes("@")) {
+    useGameStore().setSecret(val)
+    if (useGameStore().checkSecret()) {
+      useGameStore().clearJungleCache()
+      useGameStore().fetchMarketDataLevel()
+      router.push({ path: "/jungle" })
+    }
+  }
+
+  handleSearchLD()
+}
 function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
 }
@@ -211,14 +224,6 @@ function deletePrice(row: StoragePriceItem) {
 }
 
 const router = useRouter()
-function onSecret() {
-  useGameStore().setSecret(ldSearchData.value.name)
-  if (useGameStore().checkSecret()) {
-    useGameStore().clearJungleCache()
-    useGameStore().fetchMarketDataLevel()
-    router.push({ path: "/jungle" })
-  }
-}
 const { t } = useI18n()
 </script>
 
@@ -247,7 +252,7 @@ const { t } = useI18n()
                 {{ t('利润排行') }}
               </div>
               <el-form-item prop="name" :label="t('物品')">
-                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" @keyup.esc="onSecret" />
+                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleInput" />
               </el-form-item>
               <el-form-item prop="phone" :label="t('动作')">
                 <el-select v-model="ldSearchData.project" :placeholder="t('请选择')" style="width:100px" clearable @change="handleSearchLD">
