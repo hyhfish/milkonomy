@@ -1,3 +1,4 @@
+import { clearEnhancelateCache } from "@/common/apis/game"
 import { defineStore } from "pinia"
 import { useGameStore } from "./game"
 
@@ -10,7 +11,7 @@ export const usePriceStore = defineStore("price", {
     commit() {
       save(this.map)
       useGameStore().clearLeaderBoardCache()
-      useGameStore().clearEnhanposerCache()
+      clearEnhancelateCache()
       useGameStore().clearManualchemyCache()
     },
     setPrice(row: StoragePriceItem) {
