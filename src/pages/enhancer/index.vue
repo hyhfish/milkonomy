@@ -398,7 +398,7 @@ watch(menuVisible, (value) => {
                   <span color-gray-600>
                     ({{ t('右键取消收藏') }})</span>
                 </div>
-                <div class="flex">
+                <div class="flex flex-wrap">
                   <el-button
                     v-for="hrid in enhancerStore.favorite"
                     :key="hrid"
