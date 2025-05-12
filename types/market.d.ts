@@ -12,3 +12,18 @@ export interface MarketItem {
   bid: number
   vendor?: number
 }
+
+export interface MarketDataLevel {
+  [name: string]: {
+    [level: string]: {
+      bid: {
+        time: number
+        price: number
+      }
+      ask: {
+        time: number
+        price: number
+      }
+    }
+  }
+}

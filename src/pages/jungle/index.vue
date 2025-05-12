@@ -1,46 +1,42 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
-import { WorkflowCalculator } from "@/calculator/workflow"
-import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
-import { getActionConfigOf } from "@/common/apis/player"
+import { getDataApi } from "@/common/apis/jungle"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
-import { useFavoriteStore } from "@/pinia/stores/favorite"
 import { useGameStore } from "@/pinia/stores/game"
 
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
-import { getLeaderboardDataApi } from "@@/apis/leaderboard"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
-import { Delete, Edit, Search, Star, StarFilled, Warning } from "@element-plus/icons-vue"
+import { Delete, Edit, Search } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep } from "lodash-es"
-import ActionConfig from "./components/ActionConfig.vue"
-import ActionDetail from "./components/ActionDetail.vue"
-
-import ActionPrice from "./components/ActionPrice.vue"
-import SinglePrice from "./components/SinglePrice.vue"
+import ActionDetail from "../dashboard/components/ActionDetail.vue"
+import ActionPrice from "../dashboard/components/ActionPrice.vue"
+import SinglePrice from "../dashboard/components/SinglePrice.vue"
+import ActionConfig from "../enhancer/components/ActionConfig.vue"
 
 // #region 查
-const favoriteStore = useFavoriteStore()
-const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "dashboard-leaderboard-pagination")
+const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "jungle-leaderboard-pagination")
 const leaderboardData = ref<Calculator[]>([])
 const ldSearchFormRef = ref<FormInstance | null>(null)
 
-const ldSearchData = useMemory("dashboard-leaderboard-search-data", {
+const ldSearchData = useMemory("jungle-leaderboard-search-data", {
   name: "",
   project: "",
-  profitRate: 10,
-  banEquipment: true
+  profitRate: "",
+  maxLevel: "",
+  minLevel: "",
+  banEquipment: false
 })
 
 const loadingLD = ref(false)
 function getLeaderboardData() {
   loadingLD.value = true
-  getLeaderboardDataApi({
+  getDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
     ...ldSearchData.value,
@@ -69,52 +65,15 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
-  () => useGameStore().marketData,
+  () => getMarketDataApi(),
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated
 ], getLeaderboardData, { immediate: true })
 
-const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeFR, handleSizeChange: handleSizeChangeFR } = usePagination({}, "dashboard-favorite-pagination")
-const favoriteData = ref<Calculator[]>([])
-const frSearchFormRef = ref<FormInstance | null>(null)
-const frSearchData = useMemory("dashboard-favorite-search-data", {
-  name: "",
-  project: ""
-})
-
-const loadingFR = ref(false)
-function getFavoriteData() {
-  loadingFR.value = true
-  getFavoriteDataApi({
-    currentPage: paginationDataMN.currentPage,
-    size: paginationDataMN.pageSize,
-    ...frSearchData.value
-  }).then((data) => {
-    paginationDataMN.total = data.total
-    favoriteData.value = data.list
-  }).catch(() => {
-    favoriteData.value = []
-  }).finally(() => {
-    loadingFR.value = false
-  })
-}
-
-function handleSearchMN() {
-  paginationDataMN.currentPage === 1 ? getFavoriteData() : (paginationDataMN.currentPage = 1)
-}
-// 监听分页参数的变化
-watch([
-  () => paginationDataMN.currentPage,
-  () => paginationDataMN.pageSize,
-  () => useGameStore().marketData,
-  () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated
-], getFavoriteData, { immediate: true })
-
-const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "dashboard-price-pagination")
+const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "jungle-price-pagination")
 const priceData = ref<StoragePriceItem[]>([])
 const priceSearchFormRef = ref<FormInstance | null>(null)
-const priceSearchData = useMemory("dashboard-price-search-data", {
+const priceSearchData = useMemory("jungle-price-search-data", {
   name: ""
 })
 
@@ -139,25 +98,18 @@ function getPriceData() {
 function handleSearchPrice() {
   paginationDataPrice.currentPage === 1 ? getPriceData() : (paginationDataPrice.currentPage = 1)
 }
-
 // 监听分页参数的变化
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => useGameStore().marketData
+  () => getMarketDataApi()
 ], getPriceData, { immediate: true })
-
 // #endregion
 
 // #region deepWatch
-watch(() => favoriteStore.list, () => {
-  getLeaderboardData()
-  getFavoriteData()
-}, { deep: true })
 
 watch(() => usePriceStore(), () => {
   getLeaderboardData()
-  getFavoriteData()
   getPriceData()
 }, { deep: true })
 // #endregion
@@ -168,23 +120,7 @@ async function showDetail(row: Calculator) {
   currentRow.value = cloneDeep(row)
   detailVisible.value = true
 }
-function addFavorite(row: Calculator) {
-  const r = row || currentRow.value!
-  try {
-    addFavoriteApi(r)
-    detailVisible.value = false
-  } catch (e: any) {
-    ElMessage.error(e.message)
-  }
-}
 
-function deleteFavorite(row: Calculator) {
-  try {
-    deleteFavoriteApi(row)
-  } catch (e: any) {
-    ElMessage.error(e.message)
-  }
-}
 const priceVisible = ref<boolean>(false)
 const currentPriceRow = ref<Calculator>()
 function setPrice(row: Calculator) {
@@ -210,15 +146,6 @@ function deletePrice(row: StoragePriceItem) {
   }
 }
 
-const router = useRouter()
-function onSecret() {
-  useGameStore().setSecret(ldSearchData.value.name)
-  if (useGameStore().checkSecret()) {
-    useGameStore().clearJungleCache()
-    useGameStore().fetchMarketDataLevel()
-    router.push({ path: "/jungle" })
-  }
-}
 const { t } = useI18n()
 </script>
 
@@ -237,6 +164,9 @@ const { t } = useI18n()
       <div>
         <ActionConfig />
       </div>
+      <div>
+        {{ t('打野爽！') }}
+      </div>
     </div>
     <el-row :gutter="20" class="row">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
@@ -247,31 +177,12 @@ const { t } = useI18n()
                 {{ t('利润排行') }}
               </div>
               <el-form-item prop="name" :label="t('物品')">
-                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" @keyup.esc="onSecret" />
-              </el-form-item>
-              <el-form-item prop="phone" :label="t('动作')">
-                <el-select v-model="ldSearchData.project" :placeholder="t('请选择')" style="width:100px" clearable @change="handleSearchLD">
-                  <el-option :label="t('挤奶')" :value="t('挤奶')" />
-                  <el-option :label="t('采摘')" :value="t('采摘')" />
-                  <el-option :label="t('伐木')" :value="t('伐木')" />
-                  <el-option :label="t('锻造')" :value="t('锻造')" />
-                  <el-option :label="t('制造')" :value="t('制造')" />
-                  <el-option :label="t('裁缝')" :value="t('裁缝')" />
-                  <el-option :label="t('烹饪')" :value="t('烹饪')" />
-                  <el-option :label="t('冲泡')" :value="t('冲泡')" />
-                  <el-option :label="t('点金')" :value="t('点金')" />
-                  <el-option :label="t('分解')" :value="t('分解')" />
-                  <el-option :label="t('转化')" :value="t('转化')" />
-                </el-select>
+                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" />
               </el-form-item>
 
-              <el-form-item prop="name" :label="`${t('利润率')} >`">
-                <el-input style="width:60px" v-model="ldSearchData.profitRate" :placeholder="t('请输入')" clearable @input="handleSearchLD" />&nbsp;%
-              </el-form-item>
-              <el-form-item>
-                <el-checkbox v-model="ldSearchData.banEquipment" @change="handleSearchLD">
-                  {{ t('排除装备') }}
-                </el-checkbox>
+              <el-form-item :label="t('目标等级从')">
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
             </el-form>
           </template>
@@ -283,19 +194,18 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
               <el-table-column prop="result.name" :label="t('物品')" />
-              <el-table-column width="54">
+              <el-table-column min-width="70">
                 <template #default="{ row }">
-                  <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="project" :label="t('动作')" />
-              <el-table-column prop="actionLevel" :label="t('要求等级')" align="center">
-                <template #default="{ row }">
-                  <div :class="row.actionLevel > getActionConfigOf(row.action).playerLevel ? 'red' : ''">
-                    {{ row.actionLevel }}
+                  <div style="display:flex;">
+                    <ItemIcon v-if="row.calculatorList && row.calculatorList[row.calculatorList.length - 1].protectLevel < row.calculatorList[row.calculatorList.length - 1].enhanceLevel" :hrid="row.calculatorList[row.calculatorList.length - 1].protectionItem.hrid" />
+                    <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
+                  </div>
+                  <div v-if="row.calculatorList && row.calculatorList[row.calculatorList.length - 1].protectLevel < row.calculatorList[row.calculatorList.length - 1].enhanceLevel">
+                    {{ t('从{0}保护', [row.calculatorList[row.calculatorList.length - 1].protectLevel]) }}
                   </div>
                 </template>
               </el-table-column>
+              <el-table-column prop="project" :label="t('动作')" />
               <el-table-column :label="t('利润 / 天')" align="center" min-width="120">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
@@ -306,12 +216,13 @@ const { t } = useI18n()
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="result.profitRate" :label="t('利润率')" min-width="120" align="center" sortable="custom" :sort-orders="['descending', null]">
+
+              <el-table-column prop="result.profitPHFormat" :label="t('工时费')" align="center" min-width="120" />
+              <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.result.profitRateFormat }}
                 </template>
               </el-table-column>
-
               <el-table-column align="center" min-width="120">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
@@ -336,21 +247,11 @@ const { t } = useI18n()
                   </span>
                 </template>
               </el-table-column>
-
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
                     {{ t('查看') }}
                   </el-link>
-                </template>
-              </el-table-column>
-              <el-table-column prop="favorite" :label="t('收藏')" align="center" sortable="custom" :sort-orders="['descending', null]">
-                <template #default="{ row }">
-                  <template v-if="!(row instanceof WorkflowCalculator)">
-                    <el-link v-if="!favoriteStore.hasFavorite(row)" :underline="false" type="warning" :icon="Star" @click="addFavorite(row)" style="font-size:24px" />
-                    <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="deleteFavorite(row)" style="font-size:28px" />
-                  </template>
-                  <template v-else />
                 </template>
               </el-table-column>
             </el-table>
@@ -446,114 +347,6 @@ const { t } = useI18n()
           </template>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
-        <el-card>
-          <template #header>
-            <el-form class="rank-card" ref="frSearchFormRef" :inline="true" :model="frSearchData">
-              <div class="title">
-                {{ t('收藏夹') }}
-              </div>
-              <el-form-item prop="name" :label="t('物品')">
-                <el-input style="width:100px" v-model="frSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchMN" />
-              </el-form-item>
-              <el-form-item prop="phone" :label="t('动作')">
-                <el-select v-model="frSearchData.project" :placeholder="t('请选择')" style="width:100px" clearable @change="handleSearchMN">
-                  <el-option :label="t('挤奶')" :value="t('挤奶')" />
-                  <el-option :label="t('采摘')" :value="t('采摘')" />
-                  <el-option :label="t('伐木')" :value="t('伐木')" />
-                  <el-option :label="t('锻造')" :value="t('锻造')" />
-                  <el-option :label="t('制造')" :value="t('制造')" />
-                  <el-option :label="t('裁缝')" :value="t('裁缝')" />
-                  <el-option :label="t('烹饪')" :value="t('烹饪')" />
-                  <el-option :label="t('冲泡')" :value="t('冲泡')" />
-                  <el-option :label="t('点金')" :value="t('点金')" />
-                  <el-option :label="t('分解')" :value="t('分解')" />
-                  <el-option :label="t('转化')" :value="t('转化')" />
-                </el-select>
-              </el-form-item>
-            </el-form>
-          </template>
-          <template #default>
-            <el-table :data="favoriteData" v-loading="loadingFR">
-              <el-table-column width="54">
-                <template #default="{ row }">
-                  <ItemIcon :hrid="row.hrid" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="result.name" :label="t('物品')" />
-              <el-table-column width="54">
-                <template #default="{ row }">
-                  <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="project" :label="t('动作')" />
-              <el-table-column :label="t('利润 / 天')">
-                <template #default="{ row }">
-                  <span :class="row.hasManualPrice ? 'manual' : ''">
-                    {{ row.result.profitPDFormat }}&nbsp;
-                  </span>
-                  <el-link v-if="usePriceStore().activated" type="primary" :icon="Edit" @click="setPrice(row)">
-                    {{ t('自定义') }}
-                  </el-link>
-                </template>
-              </el-table-column>
-              <el-table-column prop="result.profitRateFormat" :label="t('利润率')" />
-              <el-table-column align="center" min-width="120">
-                <template #header>
-                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
-                    <div>{{ t('利润 / 次') }}</div>
-                    <el-tooltip placement="top" effect="light">
-                      <template #content>
-                        {{ t('单次动作产生的利润。') }}
-                        <br>
-                        {{ t('#多步动作利润提示') }}
-                        <br>
-                        {{ t('#多步动作利润举例') }}
-                      </template>
-                      <el-icon>
-                        <Warning />
-                      </el-icon>
-                    </el-tooltip>
-                  </div>
-                </template>
-                <template #default="{ row }">
-                  <span :class="row.hasManualPrice ? 'manual' : ''">
-                    {{ row.result.profitPPFormat }}&nbsp;
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column :label="t('详情')">
-                <template #default="{ row }">
-                  <el-link type="primary" :icon="Search" @click="showDetail(row)">
-                    {{ t('查看') }}
-                  </el-link>
-                </template>
-              </el-table-column>
-              <el-table-column :label="t('操作')">
-                <template #default="{ row }">
-                  <el-link type="danger" :icon=" Delete" @click="deleteFavorite(row)">
-                    {{ t('删除') }}
-                  </el-link>
-                </template>
-              </el-table-column>
-            </el-table>
-          </template>
-          <template #footer>
-            <div class="pager-wrapper">
-              <el-pagination
-                background
-                :layout="paginationDataMN.layout"
-                :page-sizes="paginationDataMN.pageSizes"
-                :total="paginationDataMN.total"
-                :page-size="paginationDataMN.pageSize"
-                :current-page="paginationDataMN.currentPage"
-                @size-change="handleSizeChangeFR"
-                @current-change="handleCurrentChangeFR"
-              />
-            </div>
-          </template>
-        </el-card>
-      </el-col>
     </el-row>
     <ActionDetail v-model="detailVisible" :data="currentRow" />
 
@@ -598,12 +391,5 @@ const { t } = useI18n()
 // 蓝色
 .manual {
   color: #409eff;
-}
-
-.red {
-  color: #f56c6c;
-}
-.green {
-  color: #67c23a;
 }
 </style>

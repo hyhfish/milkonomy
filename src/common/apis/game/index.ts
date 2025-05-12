@@ -1,6 +1,6 @@
 import type { EnhancelateResult } from "@/calculator/enhance"
 import type { DropTableItem, GameData, ItemDetail } from "~/game"
-import type { MarketData, MarketItem } from "~/market"
+import type { MarketData, MarketDataLevel, MarketItem } from "~/market"
 import Calculator from "@/calculator"
 import { useGameStore } from "@/pinia/stores/game"
 import deepFreeze from "deep-freeze-strict"
@@ -8,7 +8,8 @@ import deepFreeze from "deep-freeze-strict"
 // 把Proxy扒下来，提高性能
 const game = {
   gameData: null as GameData | null,
-  marketData: null as MarketData | null
+  marketData: null as MarketData | null,
+  marketDataLevel: null as MarketDataLevel | null
 }
 
 let _processingProductMap: Record<string, string> = {}
@@ -23,6 +24,10 @@ watch(() => useGameStore().marketData, () => {
   console.log("raw marketData changed")
   game.marketData = Object.freeze(structuredClone(toRaw(useGameStore().marketData)))
   _priceCache = {}
+}, { immediate: true })
+watch(() => useGameStore().marketDataLevel, () => {
+  console.log("raw marketDataLevel changed")
+  game.marketDataLevel = Object.freeze(structuredClone(toRaw(useGameStore().marketDataLevel)))
 }, { immediate: true })
 
 /** 查 */
@@ -45,7 +50,18 @@ const SPECIAL_PRICE: Record<string, () => MarketItem> = {
   })
 }
 
-export function getPriceOf(hrid: string): MarketItem {
+export function getPriceOf(hrid: string, level?: number): MarketItem {
+  const item = getItemDetailOf(hrid)
+  if (level) {
+    const marketDataLevel = game.marketDataLevel
+    const marketItem = marketDataLevel ? marketDataLevel[item.name] : undefined
+    const priceItem = marketItem ? marketItem[level] : undefined
+    return {
+      ask: priceItem?.ask?.price || 0,
+      bid: priceItem?.bid?.price || 0
+    }
+  }
+
   if (_priceCache[hrid]) {
     return _priceCache[hrid]
   }
@@ -57,8 +73,6 @@ export function getPriceOf(hrid: string): MarketItem {
     _priceCache[hrid] = getLootPrice(hrid)
     return _priceCache[hrid]
   }
-  // todo此处有性能瓶颈，应该是因为itemDetailMap和market的数据量过大
-  const item = getGameDataApi().itemDetailMap[hrid]
   const shopItem = getGameDataApi().shopItemDetailMap[`/shop_items/${item.hrid.split("/").pop()}`]
   const price = getMarketDataApi().market[item.name] || { ask: -1, bid: -1 }
   if (shopItem && shopItem.costs[0].itemHrid === Calculator.COIN_HRID) {
@@ -136,6 +150,7 @@ export function setEnhancelateCache(enhanceLevel: number, protectLevel: number, 
 }
 export function clearEnhancelateCache() {
   useGameStore().clearEnhanposerCache()
+  useGameStore().clearJungleCache()
   enhancelateCache = {}
 }
 // #region 游戏内代码

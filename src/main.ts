@@ -35,6 +35,7 @@ app.use(pinia).use(router)
 // 定时获取数据
 setInterval(() => {
   useGameStore().tryFetchData()
+  useGameStore().fetchMarketDataLevel()
 }, 300 * 1000)
 
 app.use(VueGtag, {
@@ -43,6 +44,7 @@ app.use(VueGtag, {
   }
 })
 
+useGameStore().fetchMarketDataLevel()
 useGameStore().tryFetchData().then(() => {
   router.isReady().then(() => {
     app.mount("#app")

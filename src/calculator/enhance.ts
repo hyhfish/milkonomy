@@ -109,7 +109,7 @@ export class EnhanceCalculator extends Calculator {
         {
           hrid: this.item.hrid,
           count: 1 / actions,
-          marketPrice: getPriceOf(this.item.hrid).bid
+          marketPrice: getPriceOf(this.item.hrid, this.enhanceLevel).bid
         }
       ].concat(getEnhancingRareDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
@@ -126,8 +126,16 @@ export class EnhanceCalculator extends Calculator {
     return this._productList
   }
 
-  get available(): boolean {
+  get profitable(): boolean {
     return !!this.item.enhancementCosts && this.maxProfitApproximate > 0
+  }
+
+  get available(): boolean {
+    return !!this.item.enhancementCosts
+  }
+
+  get isEnhance(): boolean {
+    return !!this.item.enhancementCosts
   }
 
   get actionLevel(): number {

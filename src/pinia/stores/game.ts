@@ -1,7 +1,7 @@
 import type Calculator from "@/calculator"
 import type { WorkflowCalculator } from "@/calculator/workflow"
 import type { Action, GameData, NoncombatStatsKey } from "~/game"
-import type { MarketData } from "~/market"
+import type { MarketData, MarketDataLevel } from "~/market"
 
 import locales from "@/locales"
 import { defineStore } from "pinia"
@@ -64,9 +64,12 @@ export const useGameStore = defineStore("game", {
   state: () => ({
     gameData: getGameData(),
     marketData: getMarketData(),
+    marketDataLevel: {} as MarketDataLevel,
     leaderboardCache: {} as { [time: number]: Calculator[] },
     enhanposerCache: {} as { [time: number]: WorkflowCalculator[] },
-    manualchemyCache: {} as { [time: number]: Calculator[] }
+    manualchemyCache: {} as { [time: number]: Calculator[] },
+    jungleCache: {} as { [time: number]: WorkflowCalculator[] },
+    secret: loadSecret()
   }),
   actions: {
     async tryFetchData() {
@@ -119,6 +122,18 @@ export const useGameStore = defineStore("game", {
       this.marketData = updateMarketData(this.marketData, newMarketData)
       setGameData(newGameData)
     },
+    async fetchMarketDataLevel() {
+      if (!this.checkSecret()) {
+        return
+      }
+      const url = import.meta.env.MODE === "development" ? "http://127.0.0.1:5000/data" : "http://154.222.31.158:1145/data"
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error("Response not ok")
+      }
+      ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
+      this.marketDataLevel = await response.json()
+    },
     getLeaderboardCache() {
       return this.leaderboardCache[this.marketData!.time]
     },
@@ -148,7 +163,25 @@ export const useGameStore = defineStore("game", {
     },
     clearManualchemyCache() {
       this.manualchemyCache = {}
+    },
+    getJungleCache() {
+      return this.jungleCache[this.marketData!.time]
+    },
+    setJungleCache(list: WorkflowCalculator[]) {
+      this.clearJungleCache()
+      this.jungleCache[this.marketData!.time] = list
+    },
+    clearJungleCache() {
+      this.jungleCache = {}
+    },
+    setSecret(value: string) {
+      this.secret = value
+      saveSecret(value)
+    },
+    checkSecret() {
+      return btoa(this.secret) === "MTE0NTE0"
     }
+
   }
 })
 
@@ -192,4 +225,12 @@ function getGameData() {
 }
 function setGameData(value: GameData) {
   localStorage.setItem(`${KEY_PREFIX}game-data`, JSON.stringify(value))
+}
+
+function loadSecret() {
+  return localStorage.getItem(`${KEY_PREFIX}secrete`) || ""
+}
+
+function saveSecret(value: string) {
+  localStorage.setItem(`${KEY_PREFIX}secrete`, value)
 }
