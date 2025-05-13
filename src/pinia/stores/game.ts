@@ -81,12 +81,12 @@ export const useGameStore = defineStore("game", {
           break
         } catch (e) {
           console.error(`获取数据第${5 - retryCount}次失败`, e)
-          if (this.gameData && this.marketData) {
-            ElMessage.error(t("数据获取失败，直接使用缓存数据"))
-            break
-          }
           ElMessage.error(t("获取数据第{0}次失败，正在重试...", [5 - retryCount]))
         }
+      }
+      if (this.gameData && this.marketData) {
+        ElMessage.error(t("数据获取失败，直接使用缓存数据"))
+        return
       }
       if (retryCount < 0) {
         ElMessage.error(t("数据获取失败，请检查网络连接"))
@@ -105,9 +105,9 @@ export const useGameStore = defineStore("game", {
         "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
         "https://hub.gitmirror.com/https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
       ]
-      const LAST_MARKET_URL = `${url}data/market.json`
+      // const LAST_MARKET_URL = `${url}data/market.json`
       const DATA_URL = `${url}data/data.json`
-      const marketUrl = offset === 0 ? LAST_MARKET_URL : MARKET_URLS[offset % MARKET_URLS.length]
+      const marketUrl = MARKET_URLS[(4 - offset) % MARKET_URLS.length]
 
       const response = await Promise.all([fetch(DATA_URL), fetch(marketUrl)])
       if (!response[0].ok || !response[1].ok) {
