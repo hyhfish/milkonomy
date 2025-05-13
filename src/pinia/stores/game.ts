@@ -82,10 +82,11 @@ export const useGameStore = defineStore("game", {
         } catch (e) {
           console.error(`获取数据第${5 - retryCount}次失败`, e)
           ElMessage.error(t("获取数据第{0}次失败，正在重试...", [5 - retryCount]))
-          if (this.gameData && this.marketData && retryCount === 0) {
-            ElMessage.error(t("数据获取失败，直接使用缓存数据"))
-          }
         }
+      }
+      if (this.gameData && this.marketData && retryCount === 0) {
+        ElMessage.error(t("数据获取失败，直接使用缓存数据"))
+        return
       }
       if (retryCount < 0) {
         ElMessage.error(t("数据获取失败，请检查网络连接"))
