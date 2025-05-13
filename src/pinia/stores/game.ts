@@ -4,6 +4,7 @@ import type { Action, GameData, NoncombatStatsKey } from "~/game"
 import type { MarketData, MarketDataLevel } from "~/market"
 
 import locales from "@/locales"
+import { pinia } from "@/pinia"
 import { defineStore } from "pinia"
 
 const { t } = locales.global
@@ -241,4 +242,8 @@ function loadSecret() {
 
 function saveSecret(value: string) {
   localStorage.setItem(`${KEY_PREFIX}secrete`, value)
+}
+
+export function useGameStoreOutside() {
+  return useGameStore(pinia)
 }

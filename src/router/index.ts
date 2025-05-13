@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from "vue-router"
 import locale from "@/locales"
+import { useGameStoreOutside } from "@/pinia/stores/game"
 import { routerConfig } from "@/router/config"
 import { registerNavigationGuard } from "@/router/guard"
 import { createRouter } from "vue-router"
@@ -97,7 +98,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: Layouts,
     redirect: "/jungle",
     meta: {
-      hidden: true
+      hidden: !useGameStoreOutside().checkSecret()
     },
     children: [
       {
@@ -117,7 +118,7 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: Layouts,
     redirect: "/manualchemy",
     meta: {
-      hidden: true
+      hidden: !useGameStoreOutside().checkSecret()
     },
     children: [
       {
