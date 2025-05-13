@@ -22,7 +22,6 @@ export class EnhanceCalculator extends Calculator {
     return "EnhanceCalculator"
   }
 
-  enhanceLevel: number
   protectLevel: number
   protectionItem: IngredientWithPrice
   constructor(config: EnhanceCalculatorConfig) {

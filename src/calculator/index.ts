@@ -32,6 +32,7 @@ export default abstract class Calculator {
   favorite?: boolean
   hasManualPrice: boolean = false
   config: CalculatorConfig
+  enhanceLevel: number = 0
   constructor(config: CalculatorConfig) {
     const { hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [], catalystRank } = config
     this.config = config
@@ -78,7 +79,7 @@ export default abstract class Calculator {
     for (let i = 0; i < list.length; i++) {
       const item = list[i]
       const priceConfig = priceConfigList[i]
-      const hasManualPrice = getManualPriceOf(item.hrid)?.[type]?.manual && getManualPriceActivated()
+      const hasManualPrice = this.enhanceLevel > 0 ? false : getManualPriceOf(item.hrid)?.[type]?.manual && getManualPriceActivated()
       const manualPrice = getManualPriceOf(item.hrid)?.[type]?.manualPrice
       if (!priceConfig?.immutable && hasManualPrice) {
         this.hasManualPrice = true
