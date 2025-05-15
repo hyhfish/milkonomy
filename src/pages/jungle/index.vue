@@ -31,7 +31,7 @@ const ldSearchData = useMemory("jungle-leaderboard-search-data", {
   maxLevel: "",
   minLevel: "",
   banEquipment: false,
-  multiple: false
+  bestManufacture: false
 })
 
 const loadingLD = ref(false)
@@ -196,8 +196,8 @@ const { t } = useI18n()
               </el-form-item>
 
               <el-form-item>
-                <el-checkbox v-model="ldSearchData.multiple" @change="handleSearchLD">
-                  {{ t('2步制作') }}
+                <el-checkbox v-model="ldSearchData.bestManufacture" @change="handleSearchLD">
+                  {{ t('最佳制作方案') }}
                 </el-checkbox>
               </el-form-item>
             </el-form>
@@ -233,7 +233,7 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
 
-              <el-table-column prop="result.profitPHFormat" :label="t('工时费')" align="center" min-width="120" />
+              <el-table-column prop="result.profitPHFormat" :label="t('利润 / 小时')" align="center" min-width="120" />
               <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.result.profitRateFormat }}

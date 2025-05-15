@@ -31,8 +31,11 @@ export async function getDataApi(params: any) {
   profitList = profitList.filter(item => params.maxLevel ? (item.calculator as DecomposeCalculator).enhanceLevel <= params.maxLevel : true)
   profitList = profitList.filter(item => params.minLevel ? (item.calculator as DecomposeCalculator).enhanceLevel >= params.minLevel : true)
 
-  if (params.multiple) {
-    profitList = profitList.filter(item => item.calculatorList.length > 2)
+  if (params.bestManufacture) {
+    profitList = profitList.filter((item) => {
+      const sameEnhance = profitList.find(c => c.calculatorList.length !== item.calculatorList.length && c.calculator.hrid === item.calculator.hrid && c.calculator.enhanceLevel === item.calculator.enhanceLevel)
+      return !sameEnhance || sameEnhance.result.profitPH <= item.result.profitPH
+    })
   }
 
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
