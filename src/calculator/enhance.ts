@@ -49,7 +49,15 @@ export class EnhanceCalculator extends Calculator {
       [],
       "ask"
     )
-    this.protectionItem = list.reduce((min, item) => item.price < min.price ? item : min, list[0])
+    this.protectionItem = list.reduce((min, item) => {
+      if (min.price === -1) {
+        return item
+      }
+      if (item.price === -1) {
+        return min
+      }
+      return (item.price < min.price) ? item : min
+    }, list[0])
   }
 
   get timeCost() {
