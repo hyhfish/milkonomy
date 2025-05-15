@@ -30,7 +30,8 @@ const ldSearchData = useMemory("jungle-leaderboard-search-data", {
   profitRate: "",
   maxLevel: "",
   minLevel: "",
-  banEquipment: false
+  banEquipment: false,
+  multiple: false
 })
 
 const loadingLD = ref(false)
@@ -192,6 +193,12 @@ const { t } = useI18n()
               <el-form-item :label="t('目标等级从')">
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
+              </el-form-item>
+
+              <el-form-item>
+                <el-checkbox v-model="ldSearchData.multiple" @change="handleSearchLD">
+                  {{ t('2步制作') }}
+                </el-checkbox>
               </el-form-item>
             </el-form>
           </template>
