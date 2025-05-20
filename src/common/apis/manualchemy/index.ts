@@ -52,11 +52,11 @@ function calcAllFlowProfit() {
       const configs: StorageCalculatorItem[] = []
       let c = new ManufactureCalculator({ hrid: item.hrid, project, action })
       let actionItem = c.actionItem
-      if (!actionItem?.upgradeItemHrid || actionItem.upgradeItemHrid === "/items/philosophers_stone") {
+      if (actionItem?.upgradeItemHrid === "/items/philosophers_stone") {
         continue
       }
 
-      while (actionItem.upgradeItemHrid) {
+      while (actionItem?.upgradeItemHrid) {
         configs.unshift(getStorageCalculatorItem(c))
 
         if (configs.length >= 1) {
