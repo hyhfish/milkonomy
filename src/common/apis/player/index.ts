@@ -198,7 +198,7 @@ function initBuffMap() {
     // 职业装备
     const actionConfig = getActionConfigOf(action)
     for (const ac of Object.values(actionConfig)) {
-      if (typeof ac === "object" && !Array.isArray(ac) && ac.hrid) {
+      if (ac && typeof ac === "object" && !Array.isArray(ac) && ac.hrid) {
         const item = getItemDetailOf(ac.hrid)
         item.equipmentDetail?.noncombatStats && Object.entries(item.equipmentDetail.noncombatStats).forEach(([key, value]) => {
           const bonus = item.equipmentDetail?.noncombatEnhancementBonuses[key as NoncombatStatsProp]

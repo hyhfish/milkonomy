@@ -3,7 +3,7 @@ import { EnhanceCalculator } from "@/calculator/enhance"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import locales from "@/locales"
-import { useGameStore } from "@/pinia/stores/game"
+import { useGameStore, useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
@@ -45,8 +45,12 @@ function calcEnhanceProfit() {
       for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
         for (let catalystRank = 0; catalystRank <= 2; catalystRank++) {
           const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
+
+          if (!useGameStoreOutside().checkSecret() && item.itemLevel > 1) {
+            continue
+          }
           // 预筛选，把不可能盈利的去掉
-          if (item.itemLevel > 1 || !enhancer.profitable) {
+          if (!enhancer.profitable) {
             continue
           }
 

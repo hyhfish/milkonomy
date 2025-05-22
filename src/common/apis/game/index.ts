@@ -157,11 +157,18 @@ export function getProcessingProduct(hrid: string) {
 
 // #region enhancelate
 let enhancelateCache = {} as Record<string, EnhancelateResult>
-export function getEnhancelateCache(enhanceLevel: number, protectLevel: number, itemLevel: number) {
-  return enhancelateCache[`${enhanceLevel}-${protectLevel}-${itemLevel}`]
+export interface EnhancelateCacheParams {
+  enhanceLevel: number
+  protectLevel: number
+  itemLevel: number
+  originLevel: number
+  escapeLevel: number
 }
-export function setEnhancelateCache(enhanceLevel: number, protectLevel: number, itemLevel: number, result: EnhancelateResult) {
-  enhancelateCache[`${enhanceLevel}-${protectLevel}-${itemLevel}`] = result
+export function getEnhancelateCache(params: EnhancelateCacheParams) {
+  return enhancelateCache[`${params.originLevel}-${params.enhanceLevel}-${params.protectLevel}-${params.itemLevel}-${params.escapeLevel}`]
+}
+export function setEnhancelateCache(params: EnhancelateCacheParams, result: EnhancelateResult) {
+  enhancelateCache[`${params.originLevel}-${params.enhanceLevel}-${params.protectLevel}-${params.itemLevel}-${params.escapeLevel}`] = result
 }
 export function clearEnhancelateCache() {
   useGameStore().clearEnhanposerCache()

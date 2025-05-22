@@ -69,12 +69,12 @@ const { t } = useI18n()
             </el-table-column>
             <el-table-column :label="t('技能等级')" width="85" align="center">
               <template #default="{ row }">
-                <el-input-number v-model="row.playerLevel" :min="1" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
+                <el-input-number v-model.number="row.playerLevel" :min="1" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
             <el-table-column :label="t('房子等级')" width="85" align="center">
               <template #default="{ row }">
-                <el-input-number v-model="row.houseLevel" :min="0" :max="10" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
+                <el-input-number v-model.number="row.houseLevel" :min="0" :max="10" style="width: 60px" :controls="false" :disabled="!actionConfigActivated" />
               </template>
             </el-table-column>
             <el-table-column :label="t('工具')" align="center" min-width="105">

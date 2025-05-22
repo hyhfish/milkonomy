@@ -10,8 +10,13 @@ import { getTeaIngredientList } from "./utils"
 export interface EnhancelateResult {
   actions: number
   protects: number
+  targetRate: number
+  leapRate: number
+  escapeRate: number
 }
 export interface EnhanceCalculatorConfig extends CalculatorConfig {
+  originLevel?: number
+  escapeLevel?: number
   protectLevel: number
 }
 /**
@@ -23,11 +28,15 @@ export class EnhanceCalculator extends Calculator {
   }
 
   protectLevel: number
+  originLevel: number
+  escapeLevel: number
   protectionItem: IngredientWithPrice
   constructor(config: EnhanceCalculatorConfig) {
     super({ ...config, project: `强化+${config.enhanceLevel}`, action: "enhancing" })
     this.enhanceLevel = config.enhanceLevel!
     this.protectLevel = config.protectLevel
+    this.originLevel = config.originLevel ?? 0
+    this.escapeLevel = config.escapeLevel ?? -1
     let protectionList = [{
       hrid: super.item.hrid,
       count: 1,
@@ -158,6 +167,10 @@ export class EnhanceCalculator extends Calculator {
     return this
   }
 
+  get realEscapeLevel() {
+    return this.protectLevel <= this.escapeLevel + 1 ? this.escapeLevel : 0
+  }
+
   // #region 项目特有属性
 
   /**
@@ -187,18 +200,30 @@ export class EnhanceCalculator extends Calculator {
   }
 
   /**
-   * 用马尔科夫链计算从0级强化到目标等级的期望次数
+   * 用马尔科夫链计算从originLevel级强化到目标等级的期望次数
+   * 其中protectLevel表示从几级开始保护，如果使用保护道具，则失败只会下降1级，否则会下降到0级
+   * escapeLevel表示降到几级就逃跑，逃跑后不会再强化
    */
   enhancelate(): EnhancelateResult {
-    let result = getEnhancelateCache(this.enhanceLevel, this.protectLevel, this.item.itemLevel)
+    let result = getEnhancelateCache({
+      enhanceLevel: this.enhanceLevel,
+      protectLevel: this.protectLevel,
+      itemLevel: this.item.itemLevel,
+      originLevel: this.originLevel,
+      escapeLevel: this.escapeLevel
+    })
     if (result) {
       return result
     }
 
     const targetLevel = this.enhanceLevel
     const successRateTable = getGameDataApi().enhancementLevelSuccessRateTable
-    // 构造20x20的0矩阵
-    const stMatrix = math.matrix(math.zeros(targetLevel, targetLevel))
+
+    const offset = this.escapeLevel + 1
+    const size = targetLevel - offset
+
+    // 构造targetLevel x targetLevel的0矩阵
+    let stMatrix = math.matrix(math.zeros(targetLevel, targetLevel))
     // 在此基础上构造转移矩阵 P
     for (let i = 0; i < targetLevel; i++) {
       if (i < targetLevel - 1) {
@@ -210,21 +235,43 @@ export class EnhanceCalculator extends Calculator {
       stMatrix.set([i, i >= this.protectLevel ? i - 1 : 0], this.failRate(successRateTable[i]))
     }
 
-    // 计算所有level到20级的期望 = (I - P)^-1 * 1
-    const inv = math.inv(math.subtract(math.identity(targetLevel), stMatrix))
-    const all = math.multiply(inv, math.ones(targetLevel, 1)) as math.Matrix
+    // 删除 stMatrix 的前 escapeLevel+1 行和列
+    stMatrix = math.subset(stMatrix, math.index(math.range(offset, targetLevel), math.range(offset, targetLevel)))
+
+    // 计算所有level到targetLevel的期望 = (I - P)^-1 * 1
+    const inv = math.inv(math.subtract(math.identity(size), stMatrix)) as math.Matrix
+    const all = math.multiply(inv, math.ones(size, 1)) as math.Matrix
+
+    // console.log("inv", inv)
+    // console.log("all", all)
 
     // 计算从protectLevel级开始使用垫子的期望
-    const protectVector = math.zeros(targetLevel, 1) as math.Matrix
+    let protectVector = math.zeros(targetLevel, 1) as math.Matrix
     for (let i = this.protectLevel; i < targetLevel; i++) {
       protectVector.set([i, 0], this.failRate(successRateTable[i]))
     }
-    const allMat = math.multiply(inv, protectVector) as math.Matrix
 
-    const actions = all.get([0, 0])
-    const protects = allMat.get([0, 0])
-    result = { actions, protects }
-    setEnhancelateCache(this.enhanceLevel, this.protectLevel, this.item.itemLevel, result)
+    protectVector = math.subset(protectVector, math.index(math.range(offset, targetLevel), 0))
+
+    // console.log("protectVector", protectVector)
+    const allMat = math.multiply(inv, protectVector) as math.Matrix
+    const actions = all.get([this.originLevel - offset, 0])
+    const protects = allMat.get([this.originLevel - offset, 0])
+    const targetRate = this.levelLeapRate(successRateTable[targetLevel - 2]) * (size > 1 ? inv.get([this.originLevel - offset, size - 2]) : 0)
+      + +this.levelUpRate(successRateTable[targetLevel - 1]) * inv.get([this.originLevel - offset, size - 1])
+    const leapRate = this.levelLeapRate(successRateTable[targetLevel - 1]) * inv.get([this.originLevel - offset, size - 1])
+    let escapeRate = 1 - targetRate - leapRate
+    // 消除浮点数误差
+    escapeRate = Math.abs(escapeRate) < 1e-10 ? 0 : escapeRate
+
+    result = { actions, protects, targetRate, leapRate, escapeRate }
+    setEnhancelateCache({
+      enhanceLevel: this.enhanceLevel,
+      protectLevel: this.protectLevel,
+      itemLevel: this.item.itemLevel,
+      originLevel: this.originLevel,
+      escapeLevel: this.escapeLevel
+    }, result)
     return result
   }
 

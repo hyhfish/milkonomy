@@ -79,6 +79,26 @@ export const constantRoutes: RouteRecordRaw[] = [
   {
     path: "/",
     component: Layouts,
+    meta: {
+      hidden: !useGameStoreOutside().checkSecret()
+    },
+    redirect: "/enhancest",
+    children: [
+      {
+        path: "enhancest",
+        component: () => import("@/pages/enhancest/index.vue"),
+        name: "Enhancest",
+        meta: {
+          title: t("超级强化计算"),
+          elIcon: "MagicStick",
+          affix: false
+        }
+      }
+    ]
+  },
+  {
+    path: "/",
+    component: Layouts,
     redirect: "/enhanposer",
     children: [
       {

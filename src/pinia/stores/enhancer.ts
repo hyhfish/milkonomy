@@ -4,11 +4,15 @@ import { defineStore } from "pinia"
 export const useEnhancerStore = defineStore("enhancer", {
   state: () => ({
     config: loadConfig(),
+    advancedConfig: loadAdvancedConfig(),
     favorite: loadFavorite()
   }),
   actions: {
     saveConfig() {
       saveConfig(this.config)
+    },
+    saveAdvancedConfig() {
+      saveAdvancedConfig(this.advancedConfig)
     },
     addFavorite(hrid: string) {
       if (!hrid) return
@@ -37,11 +41,15 @@ export const useEnhancerStore = defineStore("enhancer", {
     enhanceLevel: state => state.config.enhanceLevel,
     hourlyRate: state => state.config.hourlyRate,
     taxRate: state => state.config.taxRate,
-    hrid: state => state.config.hrid
+    hrid: state => state.config.hrid,
+    originLevel: state => state.config.originLevel,
+    escapeLevel: state => state.config.escapeLevel
   }
 })
 
 export interface EnhancerConfig {
+  escapeLevel?: number
+  originLevel?: number
   enhanceLevel?: number
   hourlyRate?: number
   taxRate?: number
@@ -58,6 +66,17 @@ function loadConfig(): EnhancerConfig {
 
 function saveConfig(item: EnhancerConfig) {
   localStorage.setItem(`${KEY_PREFIX}config`, JSON.stringify(item))
+}
+
+function loadAdvancedConfig(): EnhancerConfig {
+  try {
+    return JSON.parse(localStorage.getItem(`${KEY_PREFIX}advancedConfig`) || "{}")
+  } catch {
+    return {}
+  }
+}
+function saveAdvancedConfig(item: EnhancerConfig) {
+  localStorage.setItem(`${KEY_PREFIX}advancedConfig`, JSON.stringify(item))
 }
 
 function loadFavorite(): string[] {
