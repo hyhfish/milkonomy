@@ -215,7 +215,7 @@ const results = computed(() => {
     const hourlyCost = ((productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
 
     // 单件利润
-    const profitPP = productPrice * (targetRate + leapRate) + escapePrice * escapeRate - totalCostNoHourly
+    const profitPP = (productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * 0.98 - totalCostNoHourly
 
     const guidePrice = (totalCost - escapePrice * escapeRate) / (targetRate + leapRate)
     const seconds = actions / calc.actionsPH * 3600
