@@ -143,7 +143,21 @@ const { t } = useI18n()
           </template>
         </el-table-column>
 
-        <el-table-column prop="nickname" :label="t('昵称')" />
+        <el-table-column prop="nickname" :label="t('昵称')">
+          <template #default="{ row }">
+            <!-- 宽度等于字体长度 -->
+            <div
+              :class="{
+                [row.nickname]: true,
+              }"
+              :style="{
+                width: `${row.nickname.length}em`,
+              } "
+            >
+              {{ row.nickname }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="amount" :label="t('金额')">
           <template #default="{ row }">
             <span>¥{{ row.amount }}</span>
@@ -207,5 +221,42 @@ const { t } = useI18n()
 }
 .form {
   margin: 20px;
+}
+
+// 霓虹色效果，从左到右紫色到蓝色到红色渐变，字体有深色边框
+.BBC233 {
+  font-size: 14px;
+  font-weight: bold;
+  background: linear-gradient(to right, #ff00ff, #00ffff, #ff0000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: glow-animation 2s ease-in-out infinite alternate;
+}
+@keyframes glow-animation {
+  0% {
+    filter: hue-rotate(-360deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+// 浅粉色霓虹
+.苏叶叶 {
+  font-size: 14px;
+  font-weight: bold;
+  background-image: -webkit-linear-gradient(left, #d48085, #fff 30%, #d48085 50%);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-background-size: 200% 100%; /* 双倍宽度保证循环 */
+  animation: masked-animation 2s infinite linear;
+}
+
+@keyframes masked-animation {
+  0% {
+    background-position: 100% 0; /* 从右侧开始 */
+  }
+  100% {
+    background-position: -100% 0; /* 移动到左侧 */
+  }
 }
 </style>
