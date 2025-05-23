@@ -225,7 +225,7 @@ const { t } = useI18n()
 
 // 霓虹色效果，从左到右紫色到蓝色到红色渐变，字体有深色边框
 .BBC233 {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: bold;
   background: linear-gradient(to right, #ff00ff, #00ffff, #ff0000);
   -webkit-background-clip: text;
@@ -242,7 +242,7 @@ const { t } = useI18n()
 }
 // 浅粉色霓虹
 .苏叶叶 {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: bold;
   background-image: -webkit-linear-gradient(left, #d48085, #fff 30%, #d48085 50%);
   -webkit-text-fill-color: transparent;
@@ -251,13 +251,26 @@ const { t } = useI18n()
   animation: masked-animation 2s infinite linear;
 }
 .adudu {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: bold;
   background-image: -webkit-linear-gradient(left, #f29b1d, #fff 10%, #f29b1d 20%);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
   -webkit-background-size: 200% 100%; /* 双倍宽度保证循环 */
   animation: masked-animation 3s infinite linear;
+}
+
+.raintower {
+  font-size: 24px;
+  font-weight: 600;
+  /* 彩虹渐变背景 */
+  background-image: -webkit-linear-gradient(left, #ff4757, #ff6b81, #ffa502, #20bf6b, #01a3d4, #5f27cd, #d252e1);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-background-size: 50% 100%;
+  // ffd700
+  -webkit-text-stroke: 0.3px rgba(255, 215, 0, 0.8);
+  // animation: masked-animation 3s infinite linear;
 }
 
 @keyframes masked-animation {
