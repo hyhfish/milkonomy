@@ -99,6 +99,7 @@ export default {
   "材料费用": "Material Cost",
   "材料消耗速率": "Material Consumption Rate",
   "总费用": "Total Cost",
+  "成品售价": "Selling Price",
 
   "挤奶": "Milking",
   "采摘": "Foraging",

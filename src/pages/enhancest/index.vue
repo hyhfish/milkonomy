@@ -607,7 +607,7 @@ watch(menuVisible, (value) => {
                 />
               </div>
             </el-tab-pane>
-            <el-tab-pane label="售价">
+            <el-tab-pane :label="t('成品售价')">
               <div class="flex justify-between items-center">
                 <div class="font-size-14px">
                   {{ t('成品售价') }}

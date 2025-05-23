@@ -65,6 +65,7 @@ interface Ingredient {
 interface Item {
   hrid?: string
   originPrice: number
+  productPrice?: number
   price?: number
   protection?: Ingredient
 }
@@ -174,6 +175,12 @@ const results = computed(() => {
     let totalCost = totalCostNoHourly + (enhancerStore.hourlyRate ?? defaultConfig.hourlyRate) * (actions / calc.actionsPH)
     totalCost *= (1 + (enhancerStore.taxRate ?? defaultConfig.taxRate) / 100)
 
+    const productPrice = typeof currentItem.value.productPrice === "number"
+      ? currentItem.value.productPrice
+      : 0
+
+    const hourlyCost = (productPrice * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
+
     const seconds = actions / calc.actionsPH * 3600
     result.push({
       actions,
@@ -186,7 +193,9 @@ const results = computed(() => {
       totalCostFormatted: Format.money(totalCost),
       totalCost,
       totalCostNoHourly,
-      matCostPH: `${Format.money(matCost / seconds * 3600)} / h`
+      matCostPH: `${Format.money(matCost / seconds * 3600)} / h`,
+      hourlyCost,
+      hourlyCostFormatted: Format.money(hourlyCost)
     })
   }
   return result
@@ -268,8 +277,14 @@ function rowStyle({ row }: { row: any }) {
   // totalcost最小的为半透明浅绿色（内容不要透明）
   // totalCostNoHourly最小的为半透明浅蓝色
 
-  if (row.totalCost === Math.min(...results.value.map(item => item.totalCost))) {
-    return { background: "rgb(34, 68, 34)" }
+  if (enhancerStore.config.tab === "1") {
+    if (row.hourlyCost === Math.max(...results.value.map(item => item.hourlyCost))) {
+      return { background: "rgb(34, 68, 34)" }
+    }
+  } else {
+    if (row.totalCost === Math.min(...results.value.map(item => item.totalCost))) {
+      return { background: "rgb(34, 68, 34)" }
+    }
   }
   if (row.totalCostNoHourly === Math.min(...results.value.map(item => item.totalCostNoHourly))) {
     return { background: "rgb(34, 51, 85)" }
@@ -451,35 +466,71 @@ watch(menuVisible, (value) => {
         </el-card>
 
         <el-card class="mt-2">
-          <div class="flex justify-between items-center">
-            <div class="font-size-14px">
-              {{ t('工时费/h') }}
-            </div>
-            <el-input-number
-              class="w-100px"
-              v-model="enhancerStore.config.hourlyRate"
-              :step="1"
-              :min="0"
-              :max="500000000"
-              :placeholder="defaultConfig.hourlyRate.toString()"
-              :controls="false"
-            />
-          </div>
+          <el-tabs v-model="enhancerStore.config.tab" type="border-card" stretch>
+            <el-tab-pane :label="t('工时费/h')">
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('工时费/h') }}
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="enhancerStore.config.hourlyRate"
+                  :step="1"
+                  :min="0"
+                  :max="500000000"
+                  :placeholder="defaultConfig.hourlyRate.toString()"
+                  :controls="false"
+                />
+              </div>
 
-          <div class="flex justify-between items-center">
-            <div class="font-size-14px">
-              {{ t('税率%') }}
-            </div>
-            <el-input-number
-              class="w-100px"
-              v-model="enhancerStore.config.taxRate"
-              :step="1"
-              :min="0"
-              :max="20"
-              controls-position="right"
-              :placeholder="defaultConfig.taxRate.toString()"
-            />
-          </div>
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('税率%') }}
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="enhancerStore.config.taxRate"
+                  :step="1"
+                  :min="0"
+                  :max="20"
+                  controls-position="right"
+                  :controls="false"
+                  :placeholder="defaultConfig.taxRate.toString()"
+                />
+              </div>
+            </el-tab-pane>
+            <el-tab-pane :label="t('成品售价')">
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('价格') }}
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="currentItem.productPrice"
+                  :step="1"
+                  :min="0"
+                  placeholder="0"
+                  :controls="false"
+                />
+              </div>
+
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('税率%') }}
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  placeholder="2"
+                  :step="1"
+                  :min="0"
+                  :max="20"
+                  controls-position="right"
+                  :controls="false"
+                  disabled
+                />
+              </div>
+            </el-tab-pane>
+          </el-tabs>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">
@@ -580,7 +631,9 @@ watch(menuVisible, (value) => {
         <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
         <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" />
         <el-table-column prop="matCostPH" :label="t('材料消耗速率')" :min-width="120" header-align="center" align="right" />
-        <el-table-column prop="totalCostFormatted" :label="t('总费用')" :min-width="120" header-align="center" align="right" />
+
+        <el-table-column v-if="enhancerStore.config.tab === '1' " prop="hourlyCostFormatted" :label="t('工时费')" :min-width="100" header-align="center" align="right" />
+        <el-table-column v-else prop="totalCostFormatted" :label="t('总费用')" :min-width="120" header-align="center" align="right" />
       </ElTable>
     </el-card>
   </div>
