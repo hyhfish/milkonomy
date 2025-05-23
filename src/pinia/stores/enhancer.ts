@@ -54,6 +54,7 @@ export interface EnhancerConfig {
   hourlyRate?: number
   taxRate?: number
   hrid?: string
+  tab?: string
 }
 const KEY_PREFIX = "enhancer-"
 function loadConfig(): EnhancerConfig {

@@ -70,6 +70,7 @@ interface Item {
   price?: number
   escapePrice?: number
   whitePrice?: number
+  productPrice?: number
   protection?: Ingredient
 }
 
@@ -185,8 +186,9 @@ const results = computed(() => {
     totalCost /= taxRate
 
     /**
-     * 总成本 = 收入
-        材料费用 + 工时费 + 1个初始物品成本 = (成功率*指导价 + 逃逸率*逃逸价格或白板价格) * 98%
+     * tag = 0时，利用工时费计算指导价
+        总成本 = 收入
+        材料费用 + 总工时费 + 1个初始物品成本 = (成功率*指导价 + 逃逸率*逃逸价格或白板价格) * 98%
         因此 指导价 = (总成本 / 98% - 逃逸价格*逃逸率) / 成功率
      */
 
@@ -198,8 +200,26 @@ const results = computed(() => {
           ? currentItem.value.escapePrice
           : currentItem.value.originPrice)
 
-    const guidePrice = (totalCost - escapePrice * escapeRate) / targetRate
+    /**
+     * tag = 1时，利用指导价计算工时费
+     *  总成本 = 收入
+        材料费用 + 总工时费 + 1个初始物品成本 = (成功率*指导价 + 逃逸率*逃逸价格或白板价格) * 98%
+        因此 总工时费 = (成功率*指导价 + 逃逸率*逃逸价格或白板价格) * 98% - 1个初始物品成本 - 材料费用
+        每小时的工时费 = 总工时费  / actions * actionsPH
+     */
+
+    const productPrice = typeof currentItem.value.productPrice === "number"
+      ? currentItem.value.productPrice
+      : 0
+
+    const hourlyCost = ((productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
+
+    // 单件利润
+    const profitPP = productPrice * (targetRate + leapRate) + escapePrice * escapeRate - totalCostNoHourly
+
+    const guidePrice = (totalCost - escapePrice * escapeRate) / (targetRate + leapRate)
     const seconds = actions / calc.actionsPH * 3600
+
     result.push({
       actions,
       actionsFormatted: Format.number(actions, 2),
@@ -213,9 +233,12 @@ const results = computed(() => {
       time: Format.costTime(seconds * 1000000000),
       matCost: Format.money(matCost),
       totalCostFormatted: Format.money(guidePrice),
+      profitPPFormatted: Format.money(profitPP),
+      profitRateFormatted: Format.percent(profitPP / totalCostNoHourly),
       totalCost: guidePrice,
       totalCostNoHourly,
-      matCostPH: `${Format.money(matCost / seconds * 3600)} / h`
+      matCostPH: `${Format.money(matCost / seconds * 3600)} / h`,
+      hourlyCostFormatted: Format.money(hourlyCost)
     })
   }
   return result
@@ -550,37 +573,73 @@ watch(menuVisible, (value) => {
         </el-card>
 
         <el-card class="mt-2">
-          <div class="flex justify-between items-center">
-            <div class="font-size-14px">
-              {{ t('工时费/h') }}
-            </div>
-            <el-input-number
-              class="w-100px"
-              v-model="enhancerStore.advancedConfig.hourlyRate"
-              :step="1"
-              :min="0"
-              :max="500000000"
-              :placeholder="defaultConfig.hourlyRate.toString()"
-              :controls="false"
-            />
-          </div>
+          <el-tabs v-model="enhancerStore.advancedConfig.tab" type="border-card" stretch>
+            <el-tab-pane label="工时费">
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('工时费/h') }}
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="enhancerStore.advancedConfig.hourlyRate"
+                  :step="1"
+                  :min="0"
+                  :max="500000000"
+                  :placeholder="defaultConfig.hourlyRate.toString()"
+                  :controls="false"
+                />
+              </div>
 
-          <div class="flex justify-between items-center">
-            <div class="font-size-14px">
-              {{ t('税率%') }}
-            </div>
-            <el-input-number
-              class="w-100px"
-              v-model="enhancerStore.advancedConfig.taxRate"
-              :step="1"
-              :min="0"
-              :max="20"
-              controls-position="right"
-              :controls="false"
-              disabled
-              :placeholder="defaultConfig.taxRate.toString()"
-            />
-          </div>
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('税率%') }}
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="enhancerStore.advancedConfig.taxRate"
+                  :step="1"
+                  :min="0"
+                  :max="20"
+                  controls-position="right"
+                  :controls="false"
+                  disabled
+                  :placeholder="defaultConfig.taxRate.toString()"
+                />
+              </div>
+            </el-tab-pane>
+            <el-tab-pane label="售价">
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('成品售价') }}
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="currentItem.productPrice"
+                  :step="1"
+                  :min="0"
+                  placeholder="0"
+                  :controls="false"
+                />
+              </div>
+
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('税率%') }}
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="enhancerStore.advancedConfig.taxRate"
+                  :step="1"
+                  :min="0"
+                  :max="20"
+                  controls-position="right"
+                  :controls="false"
+                  disabled
+                  :placeholder="defaultConfig.taxRate.toString()"
+                />
+              </div>
+            </el-tab-pane>
+          </el-tabs>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">
@@ -681,7 +740,31 @@ watch(menuVisible, (value) => {
         <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
         <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" />
         <el-table-column prop="matCostPH" :label="t('材料消耗速率')" :min-width="120" header-align="center" align="right" />
-        <el-table-column prop="totalCostFormatted" :label="t('指导价')" :min-width="120" header-align="center" align="right">
+
+        <template v-if="enhancerStore.advancedConfig.tab === '1'">
+          <el-table-column prop="profitPPFormatted" :label="t('利润/件')" :min-width="100" header-align="center" align="right">
+            <template #header>
+              <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                <div>{{ t('利润/件') }}</div>
+                <el-tooltip placement="top" effect="light">
+                  <template #content>
+                    每买一件初始装备的平均利润
+                  </template>
+                  <el-icon>
+                    <Warning />
+                  </el-icon>
+                </el-tooltip>
+              </div>
+            </template>
+
+            <template #default="{ row }">
+              {{ row.profitPPFormatted }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="hourlyCostFormatted" :label="t('工时费')" :min-width="100" header-align="center" align="right" />
+          <el-table-column prop="profitRateFormatted" :label="t('利润率')" :min-width="100" header-align="center" align="right" />
+        </template>
+        <el-table-column v-else prop="totalCostFormatted" :label="t('指导价')" :min-width="120" header-align="center" align="right">
           <template #header>
             <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
               <div>{{ t('指导价') }}</div>
@@ -707,8 +790,8 @@ watch(menuVisible, (value) => {
         </el-table-column>
         <el-table-column prop="targetRateFormatted" :label="t('成功率')" :min-width="80" header-align="center" align="right" />
         <el-table-column prop="leapRateFormatted" :label="t('祝福率')" :min-width="80" header-align="center" align="right" />
-        <el-table-column prop="escapeRateFormatted" :label="t('逃逸率')" :min-width="80" header-align="center" align="right" />
-        <el-table-column prop="realEscapeLevel" :label="t('实际逃逸等级')" :min-width="120" header-align="center" align="right" />
+        <!-- <el-table-column prop="escapeRateFormatted" :label="t('逃逸率')" :min-width="80" header-align="center" align="right" /> -->
+        <el-table-column prop="realEscapeLevel" :label="t('逃逸等级')" :min-width="90" header-align="center" align="right" />
       </ElTable>
     </el-card>
   </div>
