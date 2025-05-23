@@ -136,6 +136,26 @@ export const constantRoutes: RouteRecordRaw[] = [
   {
     path: "/",
     component: Layouts,
+    redirect: "/junglest",
+    meta: {
+      hidden: !useGameStoreOutside().checkSecret()
+    },
+    children: [
+      {
+        path: "junglest",
+        component: () => import("@/pages/junglest/index.vue"),
+        name: "junglest",
+        meta: {
+          title: t("超级打野工具"),
+          affix: false,
+          svgIcon: "dashboard"
+        }
+      }
+    ]
+  },
+  {
+    path: "/",
+    component: Layouts,
     redirect: "/manualchemy",
     meta: {
       hidden: !useGameStoreOutside().checkSecret()

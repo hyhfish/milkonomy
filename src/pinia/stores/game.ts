@@ -1,8 +1,9 @@
 import type Calculator from "@/calculator"
+import type { EnhanceCalculator } from "@/calculator/enhance"
 import type { WorkflowCalculator } from "@/calculator/workflow"
 import type { Action, GameData, NoncombatStatsKey } from "~/game"
-import type { MarketData, MarketDataLevel } from "~/market"
 
+import type { MarketData, MarketDataLevel } from "~/market"
 import locales from "@/locales"
 import { pinia } from "@/pinia"
 import { defineStore } from "pinia"
@@ -70,6 +71,7 @@ export const useGameStore = defineStore("game", {
     enhanposerCache: {} as { [time: number]: WorkflowCalculator[] },
     manualchemyCache: {} as { [time: number]: Calculator[] },
     jungleCache: {} as { [time: number]: WorkflowCalculator[] },
+    junglestCache: {} as { [time: number]: EnhanceCalculator[] },
     secret: loadSecret(),
     useBid: false
   }),
@@ -136,12 +138,15 @@ export const useGameStore = defineStore("game", {
       }
       ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
       this.marketDataLevel = await response.json()
+      this.clearJungleCache()
+      this.clearJunglestCache()
     },
     setUseBid(_: boolean) {
       this.clearLeaderBoardCache()
       this.clearManualchemyCache()
       this.clearEnhanposerCache()
       this.clearJungleCache()
+      this.clearJunglestCache()
     },
     getLeaderboardCache() {
       return this.leaderboardCache[this.marketData!.time]
@@ -183,6 +188,17 @@ export const useGameStore = defineStore("game", {
     clearJungleCache() {
       this.jungleCache = {}
     },
+    getJunglestCache() {
+      return this.junglestCache[this.marketData!.time]
+    },
+    setJunglestCache(list: EnhanceCalculator[]) {
+      this.clearJunglestCache()
+      this.junglestCache[this.marketData!.time] = list
+    },
+    clearJunglestCache() {
+      this.junglestCache = {}
+    },
+
     setSecret(value: string) {
       this.secret = value
       saveSecret(value)

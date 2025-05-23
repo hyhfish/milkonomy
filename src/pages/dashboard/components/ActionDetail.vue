@@ -62,6 +62,14 @@ const { t } = useI18n()
             </div>
             <div>{{ t('速度') }}：{{ data?.result.speedFormat }}</div>
             <div>{{ t('时间') }}：{{ data?.result.timeCostFormat }}</div>
+            <template v-if="data instanceof EnhanceCalculator">
+              <div>
+                {{ t('强化平均耗时') }}：{{ Format.costTime(1 / data.ingredientList[0].count * data.timeCost) }}
+              </div>
+              <div>
+                {{ t('强化平均次数') }}：{{ Format.number(1 / data.ingredientList[0].count, 3) }}
+              </div>
+            </template>
             <el-icon class="transition" :size="36">
               <DArrowRight />
             </el-icon>

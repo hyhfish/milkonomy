@@ -173,6 +173,7 @@ export function setEnhancelateCache(params: EnhancelateCacheParams, result: Enha
 export function clearEnhancelateCache() {
   useGameStore().clearEnhanposerCache()
   useGameStore().clearJungleCache()
+  useGameStore().clearJunglestCache()
   enhancelateCache = {}
 }
 // #region 游戏内代码

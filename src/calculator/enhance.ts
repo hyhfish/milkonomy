@@ -91,7 +91,7 @@ export class EnhanceCalculator extends Calculator {
         {
           hrid: this.item.hrid,
           count: 1 / actions,
-          marketPrice: getPriceOf(this.item.hrid).ask
+          marketPrice: getPriceOf(this.item.hrid, this.originLevel).ask
         },
         // 垫子
         {
@@ -117,17 +117,29 @@ export class EnhanceCalculator extends Calculator {
   get productList(): Product[] {
     if (!this._productList) {
       // 为了与Calculator的设计理念一致，这里需要将成本和收益转换为单次成本和单次收益
-      const { actions } = this.enhancelate()
+      const { actions, escapeRate, targetRate, leapRate } = this.enhancelate()
+      // 暂不计算最终祝福茶狗叫的额外收益
+      const successRate = targetRate + leapRate
 
       this._productList = [
       // 强化后的本体
-      // todo 考虑物品赋予强化等级字段
         {
           hrid: this.item.hrid,
-          count: 1 / actions,
+          count: 1 / actions * successRate,
           marketPrice: getPriceOf(this.item.hrid, this.enhanceLevel).bid
         }
-      ].concat(getEnhancingRareDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
+      ]
+
+      // 如果有逃逸可能，则加上逃逸的收益
+      if (escapeRate > 0) {
+        this._productList.push({
+          hrid: this.item.hrid,
+          count: 1 / actions * escapeRate,
+          marketPrice: getPriceOf(this.item.hrid, this.realEscapeLevel).bid
+        })
+      }
+
+      this._productList = this._productList.concat(getEnhancingRareDropTable(this.item, getEnhanceTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
         rate: drop.dropRate * (1 + this.rareRatio),
         count: (drop.minCount + drop.maxCount) / 2,
