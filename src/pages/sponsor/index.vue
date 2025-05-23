@@ -250,6 +250,15 @@ const { t } = useI18n()
   -webkit-background-size: 200% 100%; /* 双倍宽度保证循环 */
   animation: masked-animation 2s infinite linear;
 }
+.adudu {
+  font-size: 14px;
+  font-weight: bold;
+  background-image: -webkit-linear-gradient(left, #f29b1d, #fff 10%, #f29b1d 20%);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-background-size: 200% 100%; /* 双倍宽度保证循环 */
+  animation: masked-animation 3s infinite linear;
+}
 
 @keyframes masked-animation {
   0% {
