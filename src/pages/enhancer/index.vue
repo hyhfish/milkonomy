@@ -467,7 +467,7 @@ watch(menuVisible, (value) => {
 
         <el-card class="mt-2">
           <el-tabs v-model="enhancerStore.config.tab" type="border-card" stretch>
-            <el-tab-pane :label="t('工时费/h')">
+            <el-tab-pane :label="t('工时费')">
               <div class="flex justify-between items-center">
                 <div class="font-size-14px">
                   {{ t('工时费/h') }}
