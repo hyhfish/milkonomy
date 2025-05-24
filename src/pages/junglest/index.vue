@@ -274,6 +274,14 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
 
+              <el-table-column :label="t('售价')" align="center">
+                <template #default="{ row }">
+                  <span>
+                    {{ Format.price(row.productListWithPrice[0].price) }}
+                  </span>
+                </template>
+              </el-table-column>
+
               <el-table-column prop="result.targetRateFormat" :label="t('成功率')" align="center">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">

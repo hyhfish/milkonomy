@@ -263,6 +263,13 @@ const { t } = useI18n()
                   </span>
                 </template>
               </el-table-column>
+              <el-table-column :label="t('售价')" align="center">
+                <template #default="{ row }">
+                  <span>
+                    {{ Format.price(row.calculator.productListWithPrice[0].price) }}
+                  </span>
+                </template>
+              </el-table-column>
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
