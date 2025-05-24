@@ -61,6 +61,7 @@ export default {
   "排除装备": "Equipment Excluded",
   "利润率": "Profit Rate",
   "利润 / 天": "Profit / Day",
+  "利润 / h": "Profit / Hour",
   "收藏夹": "Favorites",
   "收藏": "Favorite",
   "自定义价格": "Custom Price",

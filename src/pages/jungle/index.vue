@@ -233,7 +233,7 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
 
-              <el-table-column prop="result.profitPHFormat" :label="t('利润 / 小时')" align="center" min-width="120" />
+              <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120" />
               <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.result.profitRateFormat }}
