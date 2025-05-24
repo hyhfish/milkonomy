@@ -91,7 +91,8 @@ export class EnhanceCalculator extends Calculator {
         {
           hrid: this.item.hrid,
           count: 1 / actions,
-          marketPrice: getPriceOf(this.item.hrid, this.originLevel).ask
+          marketPrice: getPriceOf(this.item.hrid, this.originLevel).ask,
+          level: this.originLevel
         },
         // 垫子
         {
@@ -113,6 +114,11 @@ export class EnhanceCalculator extends Calculator {
     return this._ingredientList
   }
 
+  _targetRate?: number
+  get targetRate() {
+    return this._targetRate
+  }
+
   _productList?: Product[]
   get productList(): Product[] {
     if (!this._productList) {
@@ -120,13 +126,15 @@ export class EnhanceCalculator extends Calculator {
       const { actions, escapeRate, targetRate, leapRate } = this.enhancelate()
       // 暂不计算最终祝福茶狗叫的额外收益
       const successRate = targetRate + leapRate
+      this._targetRate = successRate
 
       this._productList = [
       // 强化后的本体
         {
           hrid: this.item.hrid,
           count: 1 / actions * successRate,
-          marketPrice: getPriceOf(this.item.hrid, this.enhanceLevel).bid
+          marketPrice: getPriceOf(this.item.hrid, this.enhanceLevel).bid,
+          level: this.enhanceLevel
         }
       ]
 
@@ -135,7 +143,8 @@ export class EnhanceCalculator extends Calculator {
         this._productList.push({
           hrid: this.item.hrid,
           count: 1 / actions * escapeRate,
-          marketPrice: getPriceOf(this.item.hrid, this.realEscapeLevel).bid
+          marketPrice: getPriceOf(this.item.hrid, this.realEscapeLevel).bid,
+          level: this.realEscapeLevel
         })
       }
 
@@ -176,6 +185,7 @@ export class EnhanceCalculator extends Calculator {
     const successRate = this.successRateEnhance(getGameDataApi().enhancementLevelSuccessRateTable[0])
     this.result.successRate = successRate
     this.result.successRateFormat = Format.percent(successRate)
+    this.result.targetRateFormat = Format.percent(this.targetRate!)
     return this
   }
 

@@ -272,6 +272,8 @@ export interface Ingredient {
   /** 原料产物抵消的数量 */
   counterCount?: number
   marketPrice: number
+  /** 等级 */
+  level?: number
 }
 export interface IngredientWithPrice extends Ingredient {
   /** 原料产物抵消后的数量 */

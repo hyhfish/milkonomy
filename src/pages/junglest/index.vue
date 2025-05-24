@@ -223,7 +223,7 @@ const { t } = useI18n()
               <el-table-column prop="project" :label="t('动作')" />
               <el-table-column prop="originLevel" :label="t('初始等级')" />
               <el-table-column prop="realEscapeLevel" :label="t('逃逸等级')" />
-              <el-table-column :label="t('利润 / 天')" align="center" min-width="120">
+              <!-- <el-table-column :label="t('利润 / 天')" align="center" min-width="120">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitPDFormat }}&nbsp;
@@ -232,9 +232,18 @@ const { t } = useI18n()
                     {{ t('自定义') }}
                   </el-link>
                 </template>
-              </el-table-column>
+              </el-table-column> -->
 
-              <el-table-column prop="result.profitPHFormat" :label="t('利润 / 小时')" align="center" min-width="120" />
+              <el-table-column prop="result.profitPHFormat" :label="t('利润 / 小时')" align="center" min-width="120">
+                <template #default="{ row }">
+                  <span :class="row.hasManualPrice ? 'manual' : ''">
+                    {{ row.result.profitPHFormat }}&nbsp;
+                  </span>
+                  <el-link type="primary" :icon="Edit" @click="setPrice(row)">
+                    {{ t('自定义') }}
+                  </el-link>
+                </template>
+              </el-table-column>
               <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.result.profitRateFormat }}
@@ -262,6 +271,25 @@ const { t } = useI18n()
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitPPFormat }}&nbsp;
                   </span>
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="result.targetRateFormat" :label="t('成功率')" align="center">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('成功率') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        单件装备的成功率
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  {{ row.result.targetRateFormat }}
                 </template>
               </el-table-column>
               <el-table-column :label="t('详情')" align="center">

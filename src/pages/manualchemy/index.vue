@@ -15,11 +15,11 @@ import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Search, Warning } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep } from "lodash-es"
-import ActionConfig from "./components/ActionConfig.vue"
-import ActionDetail from "./components/ActionDetail.vue"
-import ActionPrice from "./components/ActionPrice.vue"
+import ActionConfig from "../dashboard/components/ActionConfig.vue"
+import ActionDetail from "../dashboard/components/ActionDetail.vue"
+import ActionPrice from "../dashboard/components/ActionPrice.vue"
 
-import SinglePrice from "./components/SinglePrice.vue"
+import SinglePrice from "../dashboard/components/SinglePrice.vue"
 
 // #region 查
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "dashboard-leaderboard-pagination")

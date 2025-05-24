@@ -25,6 +25,9 @@ const { t } = useI18n()
       <el-table-column label="物品">
         <template #default="{ row }">
           {{ t(getItemDetailOf(row.hrid).name) }}
+          <template v-if="row.level">
+            +{{ row.level }}
+          </template>
         </template>
       </el-table-column>
 
