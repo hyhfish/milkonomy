@@ -121,77 +121,106 @@ const { t } = useI18n()
 
 <template>
   <div style="text-align: center;">
-    <h1>{{ t('打赏作者') }}</h1>
-    <p>{{ t('如果您觉得本项目对您有帮助，可以打赏作者一根辣条') }}</p>
-    <div>
-      <el-row :gutter="20" class="img-row">
-        <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
-          <el-card>
-            <img width="80%" :src="logoWechat" alt="微信打赏">
-            <div class="img-alt">
-              {{ t('微信') }}
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
-          <el-card>
-            <img width="80%" :src="logoAlipay" alt="支付宝打赏">
-            <div class="img-alt">
-              {{ t('支付宝') }}
-            </div>
-          </el-card>
-        </el-col>
-        <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
-          <el-card style="cursor:pointer" @click="onPaypal">
-            <img width="80%" :src="logoPaypal" alt="Paypal打赏">
-            <el-link :icon="Link" underline type="primary" class="img-alt" style="display:flex">
-              PayPal
-            </el-link>
-          </el-card>
-        </el-col>
-      </el-row>
+    <div class="font-size-[14px]">
+      <h1>
+        {{ t('打赏作者') }} <span class="luyh7">luyh7</span>
+      </h1>
+      <!-- 浅灰色 -->
+      <p class="color-[#999]">
+        {{ t('如果您觉得本项目对您有帮助，可以打赏作者一根辣条') }}
+      </p>
+      <p class="color-[#999]">
+        {{ t('#联系方式') }}
+      </p>
+      <p>
+        <!-- 粉红色 -->
+        QQ: <span class="color-[#f29b1d]">470103427&nbsp;&nbsp;</span>
+        <!-- 米黄色 -->
+        Discord: <span class="color-[#f29b1d]">whisper0821</span>
+      </p>
+      <p />
+      <p>
+        Email: <span class="color-[#f29b1d]">
+          470103427@qq.com
+        </span>
+      </p>
     </div>
-    <el-card class="sponsor-list">
-      <template #header>
-        {{ t('打赏者名单') }}&nbsp;
-        <el-button type="primary" @click="dialogVisible = true">
-          {{ t('我要上榜') }}
-        </el-button>
-      </template>
-      <el-table v-loading="sponsorLoading" :data="sponsorList">
-        <el-table-column :label="t('排名')" width="60">
-          <template #default="{ $index }">
-            <div class="uno-flex-x-center">
-              <div>{{ ['🥇', '🥈', '🥉'][$index] }}</div>
-              <div v-if="$index >= 3">
-                {{ $index + 1 }}
-              </div>
-            </div>
-          </template>
-        </el-table-column>
 
-        <el-table-column prop="nickname" :label="t('昵称')">
-          <template #default="{ row }">
-            <!-- 宽度等于字体长度 -->
-            <div
-              :class="{
-                [row.nickname]: true,
-              }"
-              :style="{
-                width: `${row.nickname.length}em`,
-              } "
-            >
-              {{ row.nickname }}
-            </div>
+    <el-row :gutter="20">
+      <el-col :sm="24" :md="12">
+        <el-card class="sponsor-list">
+          <template #header>
+            {{ t('感谢以下玩家打赏') }}&nbsp;
+            <el-button type="primary" @click="dialogVisible = true">
+              {{ t('我要上榜') }}
+            </el-button>
           </template>
-        </el-table-column>
-        <el-table-column prop="amount" :label="t('金额')">
-          <template #default="{ row }">
-            <span>¥{{ row.amount }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+          <el-table v-loading="sponsorLoading" :data="sponsorList">
+            <el-table-column :label="t('排名')" width="60">
+              <template #default="{ $index }">
+                <div class="uno-flex-x-center">
+                  <div>{{ ['🥇', '🥈', '🥉'][$index] }}</div>
+                  <div v-if="$index >= 3">
+                    {{ $index + 1 }}
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="nickname" :label="t('昵称')">
+              <template #default="{ row }">
+                <!-- 宽度等于字体长度 -->
+                <div
+                  :class="{
+                    [row.nickname]: true,
+                  }"
+                  :style="{
+                    width: `${row.nickname.length}em`,
+                  } "
+                >
+                  {{ row.nickname }}
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="amount" :label="t('金额')">
+              <template #default="{ row }">
+                <span>¥{{ row.amount }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+
+      <el-col :sm="24" :md="12">
+        <el-row :gutter="20" class="img-row">
+          <el-col :xs="24" :sm="12" :md="24" :lg="12" :xl="8">
+            <el-card>
+              <img width="80%" :src="logoWechat" alt="微信打赏">
+              <div class="img-alt">
+                {{ t('微信') }}
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :xs="12" :sm="12" :md="24" :lg="12" :xl="8">
+            <el-card>
+              <img width="80%" :src="logoAlipay" alt="支付宝打赏">
+              <div class="img-alt">
+                {{ t('支付宝') }}
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :xs="24" :sm="12" :md="24" :lg="12" :xl="8">
+            <el-card style="cursor:pointer" @click="onPaypal">
+              <img width="80%" :src="logoPaypal" alt="Paypal打赏">
+              <el-link :icon="Link" underline type="primary" class="img-alt" style="display:flex">
+                PayPal
+              </el-link>
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-col>
+    </el-row>
+    <div />
 
     <el-dialog class="dialog" v-model="dialogVisible" :title="t('我要上榜')" :show-close="false">
       <el-form :model="form" ref="refForm" class="form" :rules="rules" label-width="80px">
@@ -248,6 +277,15 @@ const { t } = useI18n()
 }
 .form {
   margin: 20px;
+}
+
+.luyh7 {
+  width: 1000px;
+  background: linear-gradient(to right, #ff4757, #ff6b81, #ffa502, #20bf6b, #01a3d4, #5f27cd, #d252e1);
+  animation: glow-animation 2s ease-in-out infinite alternate;
+  -webkit-background-size: 1000px 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 // 霓虹色效果，从左到右紫色到蓝色到红色渐变，字体有深色边框
