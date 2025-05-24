@@ -477,7 +477,7 @@ watch(menuVisible, (value) => {
                   v-model="enhancerStore.config.hourlyRate"
                   :step="1"
                   :min="0"
-                  :max="500000000"
+                  :max="5000000000"
                   :placeholder="defaultConfig.hourlyRate.toString()"
                   :controls="false"
                 />
@@ -494,7 +494,6 @@ watch(menuVisible, (value) => {
                   :min="0"
                   :max="20"
                   controls-position="right"
-                  :controls="false"
                   :placeholder="defaultConfig.taxRate.toString()"
                 />
               </div>
