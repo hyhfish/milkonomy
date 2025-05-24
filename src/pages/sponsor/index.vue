@@ -8,6 +8,7 @@ import { ElLoading, type FormRules } from "element-plus"
 
 const url = "https://script.google.com/macros/s/AKfycbzA8s6SOQDoFi27VuQ9wqqjQDZuLcjGVdfH-3DIO32ayYFI29u3dxWV3Y4_Q6geT3Kr/exec"
 
+const jsonUrl = "https://opensheet.elk.sh/1FX-CENDfBR5hgahQXq5qqB-HnN5gyzIh1L9kYk67eWE/Sheet1"
 const sponsorList = ref<Sponsor[] >([])
 const sponsorLoading = ref(false)
 
@@ -68,16 +69,42 @@ interface Sponsor {
   name?: string
   amount?: number
   date?: Date
+  [key: string]: any
 }
 // 加载审核通过的数据
 function loadData() {
   sponsorLoading.value = true
-  axios.get(url)
+  axios.get(jsonUrl)
     .then(({ data }) => {
-      console.log("data", data)
-      sponsorList.value = data.map(([approved, nickname, platform, name, amount, date]: any) => {
-        return { approved, nickname, platform, name, amount, date: new Date(date) } as Sponsor
-      }).sort((a: Sponsor, b: Sponsor) => b.amount! - a.amount!)
+      const keyMap: { [key: string]: string } = {
+        姓名: "name",
+        审核状态: "approved",
+        昵称: "nickname",
+        平台: "platform",
+        金额: "amount",
+        时间: "date"
+      }
+      sponsorList.value = data.map((item: any) => {
+        const sponsor: Sponsor = {}
+        for (const key in item) {
+          keyMap[key] && (sponsor[keyMap[key]] = item[key])
+        }
+        return sponsor
+      }).filter((item: Sponsor) => item.approved)
+      // 相同nickname的合并，金额相加，相同金额按照出现顺序排序
+      const map = new Map<string, Sponsor>()
+      sponsorList.value.forEach((item: Sponsor) => {
+        if (map.has(item.nickname!)) {
+          const sponsor = map.get(item.nickname!)
+          if (sponsor) {
+            console.log("sponsor.amount", sponsor.amount)
+            sponsor.amount! = +sponsor.amount! + +item.amount!
+          }
+        } else {
+          map.set(item.nickname!, item)
+        }
+      })
+      sponsorList.value = Array.from(map.values()).sort((a: Sponsor, b: Sponsor) => b.amount! - a.amount!)
     })
     .catch((e) => {
       ElMessage.error(e)
