@@ -34,9 +34,9 @@ function calcEnhanceProfit() {
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
   const profitList: EnhanceCalculator[] = []
-  const escapeLevels = [0, 5, 7, 8, 10, 12, 14]
-  const originLevels = [5, 7, 8, 10, 12, 14]
-  const targetLevels = [10, 12, 14, 15, 16]
+  const escapeLevels = [0, 6, 5, 7, 8, 10, 12, 14]
+  const originLevels = [5, 6, 7, 8, 10, 12, 14]
+  const targetLevels = [7, 8, 10, 12, 14, 15, 16]
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (const enhanceLevel of targetLevels) {
       const price = getPriceOf(item.hrid, enhanceLevel)
