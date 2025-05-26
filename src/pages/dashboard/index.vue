@@ -512,7 +512,8 @@ const { t } = useI18n()
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="result.profitRateFormat" :label="t('利润率')" />
+              <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120" />
+              <el-table-column prop="result.profitRateFormat" :label="t('利润率')" align="center" min-width="120" />
               <el-table-column align="center" min-width="120">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
