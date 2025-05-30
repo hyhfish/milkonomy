@@ -244,22 +244,14 @@ const { t } = useI18n()
                   </el-link>
                 </template>
               </el-table-column>
-              <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
-                <template #default="{ row }">
-                  {{ row.result.profitRateFormat }}
-                </template>
-              </el-table-column>
+
               <el-table-column align="center" min-width="120">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
-                    <div>{{ t('利润 / 次') }}</div>
+                    <div>{{ t('利润 / 件') }}</div>
                     <el-tooltip placement="top" effect="light">
                       <template #content>
-                        {{ t('单次动作产生的利润。') }}
-                        <br>
-                        {{ t('#多步动作利润提示') }}
-                        <br>
-                        {{ t('#多步动作利润举例') }}
+                        {{ t('每件初始装备产生的利润。') }}
                       </template>
                       <el-icon>
                         <Warning />
@@ -269,8 +261,14 @@ const { t } = useI18n()
                 </template>
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
-                    {{ row.result.profitPPFormat }}&nbsp;
+                    {{ Format.money(row.result.profitPH / row.ingredientListWithPrice[0].countPH) }}&nbsp;
                   </span>
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
+                <template #default="{ row }">
+                  {{ row.result.profitRateFormat }}
                 </template>
               </el-table-column>
 
