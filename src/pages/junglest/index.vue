@@ -315,10 +315,10 @@ const { t } = useI18n()
                 <template #default="{ row }">
                   <el-tooltip placement="top" effect="light">
                     <template #content>
-                      {{ t('市场时间') }}: {{ new Date(row.calculator.productListWithPrice[0].marketTime * 1000).toLocaleString() }}
+                      {{ t('市场时间') }}: {{ new Date(row.productListWithPrice[0].marketTime * 1000).toLocaleString() }}
                     </template>
                     <span>
-                      {{ Format.number((new Date().getTime() - row.calculator.productListWithPrice[0].marketTime * 1000) / (1000 * 60 * 60), 2) }}h
+                      {{ Format.number((new Date().getTime() - row.productListWithPrice[0].marketTime * 1000) / (1000 * 60 * 60), 2) }}h
                     </span>
                   </el-tooltip>
                 </template>
