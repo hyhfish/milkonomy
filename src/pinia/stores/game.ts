@@ -132,12 +132,51 @@ export const useGameStore = defineStore("game", {
       }
       // const url = import.meta.env.MODE === "development" ? "http://127.0.0.1:5000/data" : "https://154.222.31.158:1145/data"
       const url = "https://154.222.31.158:1145/data"
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error("Response not ok")
+      const mo9ApiUrl = "https://154.222.31.158:1145/marketplace"
+
+      const [re1, re2] = await Promise.all([
+        fetch(url),
+        fetch(mo9ApiUrl)
+      ])
+      let newMarketDataLevel: MarketDataLevel = {}
+      if (re1.ok) {
+        newMarketDataLevel = await re1.json()
       }
+      if (re2.ok) {
+        const mo9Data = await re2.json()
+        // 更新marketDataLevel中的数据
+        for (const hrid in mo9Data.marketData) {
+          const item = this.gameData?.itemDetailMap[hrid]
+          // 排除非装备
+          if (item?.categoryHrid !== "/item_categories/equipment") {
+            continue
+          }
+          const mo9Item = mo9Data.marketData[hrid]
+          if (!newMarketDataLevel[item.name]) {
+            newMarketDataLevel[item.name] = {}
+          }
+          for (const level in mo9Item) {
+            const price = mo9Item[level]
+            const priceItem = newMarketDataLevel[item.name][level] || {}
+            if (!priceItem?.ask?.time || mo9Data.timestamp > priceItem.ask.time) {
+              priceItem.ask = {
+                price: price.a,
+                time: mo9Data.timestamp
+              }
+            }
+            if (!priceItem?.bid?.time || mo9Data.timestamp > priceItem.bid.time) {
+              priceItem.bid = {
+                price: price.b,
+                time: mo9Data.timestamp
+              }
+            }
+            newMarketDataLevel[item.name][level] = priceItem
+          }
+        }
+      }
+      this.marketDataLevel = newMarketDataLevel
+
       ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
-      this.marketDataLevel = await response.json()
       this.clearJungleCache()
       this.clearJunglestCache()
     },

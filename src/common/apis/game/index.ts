@@ -71,9 +71,12 @@ export function getPriceOf(hrid: string, level?: number): MarketItem {
     const marketDataLevel = game.marketDataLevel
     const marketItem = marketDataLevel ? marketDataLevel[item.name] : undefined
     const priceItem = marketItem ? marketItem[level] : undefined
+
     return {
       ask: priceItem?.ask?.price || 0,
-      bid: priceItem?.bid?.price || 0
+      bid: priceItem?.bid?.price || 0,
+      askTime: priceItem?.ask?.time,
+      bidTime: priceItem?.bid?.time
     }
   }
 

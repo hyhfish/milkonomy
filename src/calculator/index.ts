@@ -272,6 +272,7 @@ export interface Ingredient {
   /** 原料产物抵消的数量 */
   counterCount?: number
   marketPrice: number
+  marketTime?: number
   /** 等级 */
   level?: number
 }

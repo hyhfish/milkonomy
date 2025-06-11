@@ -10,6 +10,8 @@ export interface Market {
 export interface MarketItem {
   ask: number
   bid: number
+  askTime?: number
+  bidTime?: number
   vendor?: number
 }
 

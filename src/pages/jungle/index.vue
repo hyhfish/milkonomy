@@ -270,6 +270,32 @@ const { t } = useI18n()
                   </span>
                 </template>
               </el-table-column>
+
+              <el-table-column :label="t('时效')" align="center">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('时效') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        {{ t('收单市场时间距离现在多久') }}
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  <el-tooltip placement="top" effect="light">
+                    <template #content>
+                      {{ t('市场时间') }}: {{ new Date(row.calculator.productListWithPrice[0].marketTime * 1000).toLocaleString() }}
+                    </template>
+                    <span>
+                      {{ Format.number((new Date().getTime() - row.calculator.productListWithPrice[0].marketTime * 1000) / (1000 * 60 * 60), 2) }}h
+                    </span>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">

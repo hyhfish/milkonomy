@@ -134,6 +134,7 @@ export class EnhanceCalculator extends Calculator {
           hrid: this.item.hrid,
           count: 1 / actions * successRate,
           marketPrice: getPriceOf(this.item.hrid, this.enhanceLevel).bid,
+          marketTime: getPriceOf(this.item.hrid, this.enhanceLevel).bidTime,
           level: this.enhanceLevel
         }
       ]
