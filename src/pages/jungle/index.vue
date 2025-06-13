@@ -179,7 +179,7 @@ const { t } = useI18n()
       </div>
     </div>
     <el-row :gutter="20" class="row">
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
@@ -234,9 +234,35 @@ const { t } = useI18n()
               </el-table-column>
 
               <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120" />
-              <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
+              <el-table-column :label="t('损耗 / h')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
-                  {{ row.result.profitRateFormat }}
+                  {{ row.calculator.result.cost4MatPHFormat }}
+                </template>
+              </el-table-column>
+              <el-table-column align="center" min-width="120">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('风险系数') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        {{ t('损耗 / 利润') }}
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  <!-- 7以上是红色，5以下是绿色 -->
+                  <span
+                    :class="{
+                      error: (row.calculator.result.cost4MatPH) / row.result.profitPH > 7,
+                      success: (row.calculator.result.cost4MatPH) / row.result.profitPH < 5,
+                    }"
+                  >
+                    {{ Format.number((row.calculator.result.cost4MatPH) / row.result.profitPH, 2) }}
+                  </span>
                 </template>
               </el-table-column>
               <el-table-column align="center" min-width="120">
@@ -322,7 +348,7 @@ const { t } = useI18n()
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="10">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="8">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="priceSearchFormRef" :inline="true" :model="priceSearchData">
@@ -411,12 +437,12 @@ const { t } = useI18n()
   flex-wrap: wrap;
   font-size: 14px;
   gap: 10px 20px;
-  .error {
-    color: #f56c6c;
-  }
-  .success {
-    color: #67c23a;
-  }
+}
+.error {
+  color: #f56c6c;
+}
+.success {
+  color: #67c23a;
 }
 .rank-card {
   display: flex;

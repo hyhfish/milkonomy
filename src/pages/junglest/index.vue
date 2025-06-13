@@ -179,7 +179,7 @@ const { t } = useI18n()
       </div>
     </div>
     <el-row :gutter="20" class="row">
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
@@ -242,6 +242,63 @@ const { t } = useI18n()
                   <el-link type="primary" :icon="Edit" @click="setPrice(row)">
                     {{ t('自定义') }}
                   </el-link>
+                </template>
+              </el-table-column>
+
+              <!-- <el-table-column prop="result.cost4MatPHFormat" :label="t('材料损耗 / h')" align="center" min-width="120" />
+              <el-table-column :label="t('逃逸损耗 / h')" align="center" min-width="120">
+                <template #default="{ row }">
+                  <span>
+                    {{ Format.money(row.cost4EscapePH) }}
+                  </span>
+                </template>
+              </el-table-column> -->
+
+              <el-table-column align="center" min-width="120">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('损耗 / h') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        {{ t('材料损耗+逃逸损耗') }}
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  <span>
+                    {{ Format.money(row.result.cost4MatPH + row.cost4EscapePH) }}
+                  </span>
+                </template>
+              </el-table-column>
+
+              <el-table-column align="center" min-width="120">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('风险系数') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        {{ t('损耗 / 利润') }}
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  <!-- 7以上是红色，5以下是绿色 -->
+                  <span
+                    :class="{
+                      error: (row.result.cost4MatPH + row.cost4EscapePH) / row.result.profitPH > 7,
+                      success: (row.result.cost4MatPH + row.cost4EscapePH) / row.result.profitPH < 5,
+                    }"
+                  >
+                    {{ Format.number((row.result.cost4MatPH + row.cost4EscapePH) / row.result.profitPH, 2) }}
+                  </span>
                 </template>
               </el-table-column>
 
@@ -349,7 +406,7 @@ const { t } = useI18n()
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="10">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="priceSearchFormRef" :inline="true" :model="priceSearchData">
@@ -438,12 +495,12 @@ const { t } = useI18n()
   flex-wrap: wrap;
   font-size: 14px;
   gap: 10px 20px;
-  .error {
-    color: #f56c6c;
-  }
-  .success {
-    color: #67c23a;
-  }
+}
+.error {
+  color: #f56c6c;
+}
+.success {
+  color: #67c23a;
 }
 .rank-card {
   display: flex;

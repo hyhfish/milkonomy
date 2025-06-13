@@ -200,6 +200,9 @@ const results = computed(() => {
           ? currentItem.value.escapePrice
           : currentItem.value.originPrice)
 
+    // 逃逸损耗
+    const fallingRate = (curentItemPrice - escapePrice * 0.98) * escapeRate / actions * calc.actionsPH
+
     /**
      * tag = 1时，利用指导价计算工时费
      *  总成本 = 收入
@@ -238,6 +241,7 @@ const results = computed(() => {
       totalCost: guidePrice,
       totalCostNoHourly,
       matCostPH: `${Format.money(matCost / seconds * 3600)} / h`,
+      fallingRatePH: `${Format.money(fallingRate)} / h`,
       hourlyCostFormatted: Format.money(hourlyCost)
     })
   }
@@ -739,8 +743,8 @@ watch(menuVisible, (value) => {
 
         <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
         <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" />
-        <el-table-column prop="matCostPH" :label="t('材料消耗速率')" :min-width="120" header-align="center" align="right" />
-
+        <el-table-column prop="matCostPH" :label="t('材料损耗')" :min-width="120" header-align="center" align="right" />
+        <el-table-column prop="fallingRatePH" :label="t('逃逸损耗')" :min-width="120" header-align="center" align="right" />
         <template v-if="enhancerStore.advancedConfig.tab === '1'">
           <el-table-column prop="profitPPFormatted" :label="t('利润/件')" :min-width="100" header-align="center" align="right">
             <template #header>

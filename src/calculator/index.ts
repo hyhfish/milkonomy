@@ -136,6 +136,21 @@ export default abstract class Calculator {
     }, 0)
   }
 
+  /** 本体之外的消耗，一般仅用于强化 */
+  get cost4Mat(): number {
+    // 从第2个原料开始计算
+    return this.ingredientListWithPrice.slice(1).reduce((acc, ingredient) => {
+      return acc + ingredient.count * ingredient.price
+    }, 0)
+  }
+
+  /** 装备逃逸造成的资产折损，一般仅用于强化 */
+  get cost4EscapePH(): number {
+    const item = this.ingredientListWithPrice[0]
+    const escape = this.productListWithPrice[1]
+    return escape.countPH! * (item.price - escape.price * 0.98)
+  }
+
   /**
    * 单次成功行动的收益
    * - 不包括一切 buff
@@ -185,6 +200,7 @@ export default abstract class Calculator {
 
   run() {
     const costPH = this.cost * this.consumePH
+    const cost4MatPH = this.cost4Mat * this.consumePH
     const incomePH = this.income * this.gainPH
     let profitPH = incomePH - costPH
     // 单次利润
@@ -201,12 +217,14 @@ export default abstract class Calculator {
       project: this.project,
       successRate: this.successRate,
       costPH,
+      cost4MatPH,
       consumePH: this.consumePH,
       gainPH: this.gainPH,
       incomePH,
       profitPH,
       profitRate,
       costPHFormat: Format.money(costPH),
+      cost4MatPHFormat: Format.money(cost4MatPH),
       incomePHFormat: Format.money(incomePH),
       profitPHFormat: Format.money(profitPH),
       profitPDFormat: Format.money(profitPH * 24),
