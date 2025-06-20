@@ -17,8 +17,10 @@ export class ManufactureCalculator extends Calculator {
     return !!this.actionItem
   }
 
+  originLevel: number
   constructor(config: CalculatorConfig) {
     super(config)
+    this.originLevel = config.originLevel || 0
   }
 
   get actionItem() {
@@ -30,12 +32,13 @@ export class ManufactureCalculator extends Calculator {
   }
 
   get ingredientList(): Ingredient[] {
-    let list = []
+    let list: Ingredient[] = []
     if (this.actionItem.upgradeItemHrid) {
       list.push({
         hrid: this.actionItem.upgradeItemHrid,
         count: 1,
-        marketPrice: getPriceOf(this.actionItem.upgradeItemHrid).ask
+        level: this.originLevel,
+        marketPrice: getPriceOf(this.actionItem.upgradeItemHrid, this.originLevel).ask
       })
     }
     const artisanBuff = getBuffOf(this.action, "Artisan")
@@ -52,12 +55,42 @@ export class ManufactureCalculator extends Calculator {
 
   get productList(): Product[] {
     const gourmetBuff = getBuffOf(this.action, "Gourmet")
-    let list = this.actionItem.outputItems.map(output => ({
-      hrid: output.itemHrid,
-      // 双倍茶补正
-      count: output.count * (1 + gourmetBuff),
-      marketPrice: getPriceOf(output.itemHrid).bid
-    }))
+    let list: Product[] = []
+    // 需要消除浮点数误差
+    const targetLevel = Math.round(this.originLevel * 0.7 * 100) / 100
+    const levelUpRate = targetLevel % 1
+    if (targetLevel % 1 === 0) {
+      list = this.actionItem.outputItems.map(output => ({
+        hrid: output.itemHrid,
+        // 双倍茶补正
+        count: output.count * (1 + gourmetBuff),
+        marketPrice: getPriceOf(output.itemHrid).bid,
+        marketTime: getPriceOf(output.itemHrid).bidTime
+      }))
+      // 如果targetLevel不是整数，则再添加一个level为targetLevel+1的产品
+    } else {
+      let levelUpPrice = getPriceOf(this.item.hrid, Math.ceil(targetLevel)).bid
+      if (levelUpPrice <= 0) {
+        levelUpPrice = getPriceOf(this.item.hrid, Math.floor(targetLevel)).bid
+      }
+      list = list.concat([
+        {
+          hrid: this.item.hrid,
+          count: 1 - levelUpRate,
+          level: Math.floor(targetLevel),
+          marketPrice: getPriceOf(this.item.hrid, Math.floor(targetLevel)).bid,
+          marketTime: getPriceOf(this.item.hrid, Math.floor(targetLevel)).bidTime
+        },
+        {
+          hrid: this.item.hrid,
+          count: levelUpRate,
+          level: Math.ceil(targetLevel),
+          marketPrice: levelUpPrice,
+          marketTime: getPriceOf(this.item.hrid, Math.ceil(targetLevel)).bidTime
+        }
+      ])
+    }
+
     list = list.concat(this.actionItem.essenceDropTable?.map(essence => ({
       hrid: essence.itemHrid,
       count: essence.maxCount,

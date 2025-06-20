@@ -16,6 +16,7 @@ export interface CalculatorConfig {
   /** 催化剂 1普通 2主要催化剂 */
   catalystRank?: number
   enhanceLevel?: number
+  originLevel?: number
 }
 export default abstract class Calculator {
   static COIN_HRID = "/items/coin"

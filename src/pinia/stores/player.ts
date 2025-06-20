@@ -13,6 +13,7 @@ export const usePlayerStore = defineStore("player", {
       save(this.config)
       useGameStore().clearLeaderBoardCache()
       useGameStore().clearManualchemyCache()
+      useGameStore().clearInheritCache()
       clearEnhancelateCache()
     },
     setActionConfig(list: ActionConfigItem[], sepecial: PlayerEquipmentItem[]) {

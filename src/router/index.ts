@@ -118,7 +118,9 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: Layouts,
     redirect: "/jungle",
     meta: {
-      hidden: !useGameStoreOutside().checkSecret()
+      title: t("打野工具"),
+      hidden: !useGameStoreOutside().checkSecret(),
+      elIcon: "Compass"
     },
     children: [
       {
@@ -128,19 +130,9 @@ export const constantRoutes: RouteRecordRaw[] = [
         meta: {
           title: t("打野工具"),
           affix: false,
-          svgIcon: "dashboard"
+          elIcon: "Compass"
         }
-      }
-    ]
-  },
-  {
-    path: "/",
-    component: Layouts,
-    redirect: "/junglest",
-    meta: {
-      hidden: !useGameStoreOutside().checkSecret()
-    },
-    children: [
+      },
       {
         path: "junglest",
         component: () => import("@/pages/junglest/index.vue"),
@@ -148,9 +140,20 @@ export const constantRoutes: RouteRecordRaw[] = [
         meta: {
           title: t("超级打野工具"),
           affix: false,
-          svgIcon: "dashboard"
+          elIcon: "Compass"
+        }
+      },
+      {
+        path: "inherit",
+        component: () => import("@/pages/inherit/index.vue"),
+        name: "inherit",
+        meta: {
+          title: t("强化继承"),
+          affix: false,
+          elIcon: "Compass"
         }
       }
+
     ]
   },
   {

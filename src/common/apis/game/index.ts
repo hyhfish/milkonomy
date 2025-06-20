@@ -93,6 +93,8 @@ export function getPriceOf(hrid: string, level?: number): MarketItem {
   }
   const shopItem = getGameDataApi().shopItemDetailMap[`/shop_items/${item.hrid.split("/").pop()}`]
   const price = getMarketDataApi().market[item.name] || { ask: -1, bid: -1 }
+  price.askTime = getMarketDataApi().time
+  price.bidTime = getMarketDataApi().time
   if (shopItem && shopItem.costs[0].itemHrid === Calculator.COIN_HRID) {
     price.ask = shopItem.costs[0].count
   }

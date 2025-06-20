@@ -1,8 +1,9 @@
 import type Calculator from "@/calculator"
 import type { EnhanceCalculator } from "@/calculator/enhance"
+import type { ManufactureCalculator } from "@/calculator/manufacture"
 import type { WorkflowCalculator } from "@/calculator/workflow"
-import type { Action, GameData, NoncombatStatsKey } from "~/game"
 
+import type { Action, GameData, NoncombatStatsKey } from "~/game"
 import type { MarketData, MarketDataLevel } from "~/market"
 import locales from "@/locales"
 import { pinia } from "@/pinia"
@@ -72,6 +73,7 @@ export const useGameStore = defineStore("game", {
     manualchemyCache: {} as { [time: number]: Calculator[] },
     jungleCache: {} as { [time: number]: WorkflowCalculator[] },
     junglestCache: {} as { [time: number]: EnhanceCalculator[] },
+    inheritCache: {} as { [time: number]: ManufactureCalculator[] },
     secret: loadSecret(),
     useBid: false
   }),
@@ -179,6 +181,7 @@ export const useGameStore = defineStore("game", {
       ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
       this.clearJungleCache()
       this.clearJunglestCache()
+      this.clearInheritCache()
     },
     setUseBid(_: boolean) {
       this.clearLeaderBoardCache()
@@ -186,6 +189,7 @@ export const useGameStore = defineStore("game", {
       this.clearEnhanposerCache()
       this.clearJungleCache()
       this.clearJunglestCache()
+      this.clearInheritCache()
     },
     getLeaderboardCache() {
       return this.leaderboardCache[this.marketData!.time]
@@ -237,7 +241,16 @@ export const useGameStore = defineStore("game", {
     clearJunglestCache() {
       this.junglestCache = {}
     },
-
+    getInheritCache() {
+      return this.inheritCache[this.marketData!.time]
+    },
+    setInheritCache(list: ManufactureCalculator[]) {
+      this.clearInheritCache()
+      this.inheritCache[this.marketData!.time] = list
+    },
+    clearInheritCache() {
+      this.inheritCache = {}
+    },
     setSecret(value: string) {
       this.secret = value
       saveSecret(value)
