@@ -229,11 +229,12 @@ const results = computed(() => {
       protects,
       protectsFormatted: Format.number(protects, 2),
       protectLevel,
-      targetRateFormatted: Format.percent(targetRate),
+      targetRateFormatted: Format.percent(targetRate + leapRate),
       leapRateFormatted: Format.percent(leapRate),
       escapeRateFormatted: Format.percent(escapeRate),
       realEscapeLevel: calc.realEscapeLevel,
       time: Format.costTime(seconds * 1000000000),
+      successTime: Format.costTime(seconds * 1000000000 / (targetRate + leapRate)),
       matCost: Format.money(matCost),
       totalCostFormatted: Format.money(guidePrice),
       profitPPFormatted: Format.money(profitPP),
@@ -742,7 +743,7 @@ watch(menuVisible, (value) => {
         </el-table-column>
 
         <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
-        <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" />
+        <!-- <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" /> -->
         <el-table-column prop="matCostPH" :label="t('材料损耗')" :min-width="120" header-align="center" align="right" />
         <el-table-column prop="fallingRatePH" :label="t('逃逸损耗')" :min-width="120" header-align="center" align="right" />
         <template v-if="enhancerStore.advancedConfig.tab === '1'">
@@ -793,8 +794,9 @@ watch(menuVisible, (value) => {
           </template>
         </el-table-column>
         <el-table-column prop="targetRateFormatted" :label="t('成功率')" :min-width="80" header-align="center" align="right" />
-        <el-table-column prop="leapRateFormatted" :label="t('祝福率')" :min-width="80" header-align="center" align="right" />
+        <!-- <el-table-column prop="leapRateFormatted" :label="t('祝福率')" :min-width="80" header-align="center" align="right" /> -->
         <!-- <el-table-column prop="escapeRateFormatted" :label="t('逃逸率')" :min-width="80" header-align="center" align="right" /> -->
+        <el-table-column prop="successTime" :label="t('期望耗时')" :min-width="columnWidths.successTime" header-align="center" align="right" />
         <el-table-column prop="realEscapeLevel" :label="t('逃逸等级')" :min-width="90" header-align="center" align="right" />
       </ElTable>
     </el-card>
