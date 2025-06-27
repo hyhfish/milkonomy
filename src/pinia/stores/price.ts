@@ -14,6 +14,7 @@ export const usePriceStore = defineStore("price", {
       clearEnhancelateCache()
       useGameStore().clearManualchemyCache()
       useGameStore().clearInheritCache()
+      useGameStore().clearDecomposeCache()
     },
     setPrice(row: StoragePriceItem) {
       let price = this.map.get(row.hrid)

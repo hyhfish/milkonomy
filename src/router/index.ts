@@ -152,6 +152,16 @@ export const constantRoutes: RouteRecordRaw[] = [
           affix: false,
           elIcon: "Compass"
         }
+      },
+      {
+        path: "decompose",
+        component: () => import("@/pages/decompose/index.vue"),
+        name: "decompose",
+        meta: {
+          title: t("分解"),
+          affix: false,
+          elIcon: "Compass"
+        }
       }
 
     ]

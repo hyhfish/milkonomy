@@ -1,0 +1,46 @@
+import { DecomposeCalculator } from "@/calculator/alchemy"
+
+import locales from "@/locales"
+import { useGameStore } from "@/pinia/stores/game"
+import { getGameDataApi, getPriceOf } from "../game"
+import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
+
+const { t } = locales.global
+/** 查 */
+export async function getDataApi(params: any) {
+  let profitList: DecomposeCalculator[] = []
+  if (useGameStore().getDecomposeCache()) {
+    profitList = useGameStore().getDecomposeCache()
+  } else {
+    await new Promise(resolve => setTimeout(resolve, 300))
+    const startTime = Date.now()
+    try {
+      profitList = profitList.concat(calcProfit())
+    } catch (e: any) {
+      console.error(e)
+    }
+    useGameStore().setDecomposeCache(profitList)
+    ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
+  }
+
+  return handlePage(handleSort(handleSearch(profitList, params), params), params)
+}
+
+function calcProfit() {
+  const gameData = getGameDataApi()
+  // 所有物品列表
+  const list = Object.values(gameData.itemDetailMap)
+  const profitList: DecomposeCalculator[] = []
+  list.filter(item => item.enhancementCosts).forEach((item) => {
+    for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
+      const price = getPriceOf(item.hrid, enhanceLevel)
+      if (price.ask <= 0) {
+        continue
+      }
+      console.log(item.hrid, "price", price)
+      const c = new DecomposeCalculator({ hrid: item.hrid, enhanceLevel })
+      handlePush(profitList, c)
+    }
+  })
+  return profitList
+}

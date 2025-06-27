@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
-import { getActionConfigOf } from "@/common/apis/player"
+import { getDataApi } from "@/common/apis/jungle/decompose"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
 import * as Format from "@/common/utils/format"
@@ -9,34 +9,35 @@ import { useGameStore } from "@/pinia/stores/game"
 
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
-import { getLeaderboardDataApi } from "@@/apis/manualchemy"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
-import { Delete, Edit, Search, Warning } from "@element-plus/icons-vue"
+import { Delete, Edit, Search } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep } from "lodash-es"
-import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
-
 import SinglePrice from "../dashboard/components/SinglePrice.vue"
+import ActionConfig from "./components/ActionConfig.vue"
 
 // #region 查
-const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "dashboard-leaderboard-pagination")
+const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "decompose-leaderboard-pagination")
 const leaderboardData = ref<Calculator[]>([])
 const ldSearchFormRef = ref<FormInstance | null>(null)
 
-const ldSearchData = useMemory("dashboard-manualchemy-search-data", {
+const ldSearchData = useMemory("decompose-leaderboard-search-data", {
   name: "",
   project: "",
-  profitRate: 10,
-  banEquipment: true
+  profitRate: "",
+  maxLevel: "",
+  minLevel: "",
+  banEquipment: false,
+  bestManufacture: false
 })
 
 const loadingLD = ref(false)
 function getLeaderboardData() {
   loadingLD.value = true
-  getLeaderboardDataApi({
+  getDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
     ...ldSearchData.value,
@@ -66,17 +67,16 @@ watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
   () => useGameStore().marketData,
+  () => useGameStore().marketDataLevel,
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated,
   () => useGameStore().useBid
 ], getLeaderboardData, { immediate: true })
 
-// 监听分页参数的变化
-
-const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "dashboard-price-pagination")
+const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "decompose-price-pagination")
 const priceData = ref<StoragePriceItem[]>([])
 const priceSearchFormRef = ref<FormInstance | null>(null)
-const priceSearchData = useMemory("manualchemy-price-search-data", {
+const priceSearchData = useMemory("decompose-price-search-data", {
   name: ""
 })
 
@@ -101,15 +101,16 @@ function getPriceData() {
 function handleSearchPrice() {
   paginationDataPrice.currentPage === 1 ? getPriceData() : (paginationDataPrice.currentPage = 1)
 }
-
 // 监听分页参数的变化
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => useGameStore().marketData
+  () => useGameStore().marketData,
+  () => useGameStore().useBid
 ], getPriceData, { immediate: true })
-
 // #endregion
+
+// #region deepWatch
 
 watch(() => usePriceStore(), () => {
   getLeaderboardData()
@@ -123,6 +124,7 @@ async function showDetail(row: Calculator) {
   currentRow.value = cloneDeep(row)
   detailVisible.value = true
 }
+
 const priceVisible = ref<boolean>(false)
 const currentPriceRow = ref<Calculator>()
 function setPrice(row: Calculator) {
@@ -147,6 +149,7 @@ function deletePrice(row: StoragePriceItem) {
     ElMessage.error(e.message)
   }
 }
+
 const { t } = useI18n()
 </script>
 
@@ -165,14 +168,18 @@ const { t } = useI18n()
       <div>
         <ActionConfig />
       </div>
+
       <div v-if="useGameStore().checkSecret()">
         <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
           {{ t('右价买') }}
         </el-checkbox>
       </div>
+      <div>
+        {{ t('打野爽！') }}
+      </div>
     </div>
     <el-row :gutter="20" class="row">
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
@@ -182,29 +189,10 @@ const { t } = useI18n()
               <el-form-item prop="name" :label="t('物品')">
                 <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" />
               </el-form-item>
-              <el-form-item prop="phone" :label="t('动作')">
-                <el-select v-model="ldSearchData.project" :placeholder="t('请选择')" style="width:100px" clearable @change="handleSearchLD">
-                  <el-option :label="t('挤奶')" :value="t('挤奶')" />
-                  <el-option :label="t('采摘')" :value="t('采摘')" />
-                  <el-option :label="t('伐木')" :value="t('伐木')" />
-                  <el-option :label="t('锻造')" :value="t('锻造')" />
-                  <el-option :label="t('制造')" :value="t('制造')" />
-                  <el-option :label="t('裁缝')" :value="t('裁缝')" />
-                  <el-option :label="t('烹饪')" :value="t('烹饪')" />
-                  <el-option :label="t('冲泡')" :value="t('冲泡')" />
-                  <el-option :label="t('点金')" :value="t('点金')" />
-                  <el-option :label="t('分解')" :value="t('分解')" />
-                  <el-option :label="t('转化')" :value="t('转化')" />
-                </el-select>
-              </el-form-item>
 
-              <el-form-item prop="name" :label="`${t('利润率')} >`">
-                <el-input style="width:60px" v-model="ldSearchData.profitRate" :placeholder="t('请输入')" clearable @input="handleSearchLD" />&nbsp;%
-              </el-form-item>
-              <el-form-item>
-                <el-checkbox v-model="ldSearchData.banEquipment" @change="handleSearchLD">
-                  {{ t('排除装备') }}
-                </el-checkbox>
+              <el-form-item :label="t('目标等级从')">
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
             </el-form>
           </template>
@@ -215,34 +203,21 @@ const { t } = useI18n()
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="result.name" :label="t('物品')" />
-              <el-table-column width="54">
+              <el-table-column :label="t('物品')" min-width="120">
                 <template #default="{ row }">
-                  <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
+                  {{ row.result.name }}+{{ row.enhanceLevel }}
                 </template>
               </el-table-column>
               <el-table-column prop="project" :label="t('动作')" />
-              <el-table-column prop="actionLevel" :label="t('要求等级')" align="center">
-                <template #default="{ row }">
-                  <div :class="row.actionLevel > getActionConfigOf(row.action).playerLevel ? 'red' : ''">
-                    {{ row.actionLevel }}
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column :label="t('利润 / 天')" align="center" min-width="120">
+
+              <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
-                    {{ row.result.profitPDFormat }}&nbsp;
+                    {{ row.result.profitPHFormat }}&nbsp;
                   </span>
                   <el-link type="primary" :icon="Edit" @click="setPrice(row)">
                     {{ t('自定义') }}
                   </el-link>
-                </template>
-              </el-table-column>
-              <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120" />
-              <el-table-column prop="result.profitRate" :label="t('利润率')" min-width="120" align="center" sortable="custom" :sort-orders="['descending', null]">
-                <template #default="{ row }">
-                  {{ row.result.profitRateFormat }}
                 </template>
               </el-table-column>
 
@@ -271,6 +246,45 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
 
+              <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
+                <template #default="{ row }">
+                  {{ row.result.profitRateFormat }}
+                </template>
+              </el-table-column>
+
+              <el-table-column :label="t('买价')" align="center">
+                <template #default="{ row }">
+                  <span>
+                    {{ Format.price(row.ingredientListWithPrice[0].price) }}
+                  </span>
+                </template>
+              </el-table-column>
+
+              <el-table-column :label="t('时效')" align="center">
+                <template #header>
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ t('时效') }}</div>
+                    <el-tooltip placement="top" effect="light">
+                      <template #content>
+                        {{ t('收单市场时间距离现在多久') }}
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+                <template #default="{ row }">
+                  <el-tooltip placement="top" effect="light">
+                    <template #content>
+                      {{ t('市场时间') }}: {{ new Date(row.ingredientListWithPrice[0].marketTime * 1000).toLocaleString() }}
+                    </template>
+                    <span>
+                      {{ Format.number((new Date().getTime() - row.ingredientListWithPrice[0].marketTime * 1000) / (1000 * 60 * 60), 2) }}h
+                    </span>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
@@ -297,7 +311,7 @@ const { t } = useI18n()
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="10">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="8">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="priceSearchFormRef" :inline="true" :model="priceSearchData">
@@ -386,12 +400,12 @@ const { t } = useI18n()
   flex-wrap: wrap;
   font-size: 14px;
   gap: 10px 20px;
-  .error {
-    color: #f56c6c;
-  }
-  .success {
-    color: #67c23a;
-  }
+}
+.error {
+  color: #f56c6c;
+}
+.success {
+  color: #67c23a;
 }
 .rank-card {
   display: flex;
@@ -415,12 +429,5 @@ const { t } = useI18n()
 // 蓝色
 .manual {
   color: #409eff;
-}
-
-.red {
-  color: #f56c6c;
-}
-.green {
-  color: #67c23a;
 }
 </style>

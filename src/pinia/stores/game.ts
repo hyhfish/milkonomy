@@ -1,8 +1,9 @@
 import type Calculator from "@/calculator"
+import type { DecomposeCalculator } from "@/calculator/alchemy"
 import type { EnhanceCalculator } from "@/calculator/enhance"
 import type { ManufactureCalculator } from "@/calculator/manufacture"
-import type { WorkflowCalculator } from "@/calculator/workflow"
 
+import type { WorkflowCalculator } from "@/calculator/workflow"
 import type { Action, GameData, NoncombatStatsKey } from "~/game"
 import type { MarketData, MarketDataLevel } from "~/market"
 import locales from "@/locales"
@@ -74,6 +75,7 @@ export const useGameStore = defineStore("game", {
     jungleCache: {} as { [time: number]: WorkflowCalculator[] },
     junglestCache: {} as { [time: number]: EnhanceCalculator[] },
     inheritCache: {} as { [time: number]: ManufactureCalculator[] },
+    decomposeCache: {} as { [time: number]: DecomposeCalculator[] },
     secret: loadSecret(),
     useBid: false
   }),
@@ -250,6 +252,16 @@ export const useGameStore = defineStore("game", {
     },
     clearInheritCache() {
       this.inheritCache = {}
+    },
+    getDecomposeCache() {
+      return this.decomposeCache[this.marketData!.time]
+    },
+    setDecomposeCache(list: DecomposeCalculator[]) {
+      this.clearDecomposeCache()
+      this.decomposeCache[this.marketData!.time] = list
+    },
+    clearDecomposeCache() {
+      this.decomposeCache = {}
     },
     setSecret(value: string) {
       this.secret = value

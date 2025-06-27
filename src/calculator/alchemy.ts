@@ -157,7 +157,9 @@ export class DecomposeCalculator extends AlchemyCalculator {
       {
         hrid: this.item.hrid,
         count: this.item.alchemyDetail.bulkMultiplier,
-        marketPrice: getPriceOf(this.item.hrid).ask
+        marketPrice: getPriceOf(this.item.hrid, this.enhanceLevel).ask,
+        marketTime: getPriceOf(this.item.hrid, this.enhanceLevel).askTime,
+        level: this.enhanceLevel
       },
       {
         hrid: Calculator.COIN_HRID,

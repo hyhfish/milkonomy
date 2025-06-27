@@ -17,7 +17,7 @@ import { cloneDeep } from "lodash-es"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
 import SinglePrice from "../dashboard/components/SinglePrice.vue"
-import ActionConfig from "../enhancer/components/ActionConfig.vue"
+import ActionConfig from "./components/ActionConfig.vue"
 
 // #region 查
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "jungle-leaderboard-pagination")
@@ -222,10 +222,11 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
               <el-table-column prop="project" :label="t('动作')" />
-              <el-table-column :label="t('利润 / 天')" align="center" min-width="120">
+
+              <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
-                    {{ row.result.profitPDFormat }}&nbsp;
+                    {{ row.result.profitPHFormat }}&nbsp;
                   </span>
                   <el-link type="primary" :icon="Edit" @click="setPrice(row)">
                     {{ t('自定义') }}
@@ -233,7 +234,6 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
 
-              <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120" />
               <el-table-column :label="t('损耗 / h')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.calculator.result.cost4MatPHFormat }}
