@@ -8,8 +8,10 @@ export function usePriceStatus(key: string) {
     sellStatus: PriceStatus.BID
   }, 0)
 
-  useGameStoreOutside().buyStatus = priceStatus.value.buyStatus
-  useGameStoreOutside().sellStatus = priceStatus.value.sellStatus
+  onBeforeMount(() => {
+    useGameStoreOutside().buyStatus = priceStatus.value.buyStatus
+    useGameStoreOutside().sellStatus = priceStatus.value.sellStatus
+  })
 
   // 离开页面时重置
   onBeforeRouteLeave(() => {
