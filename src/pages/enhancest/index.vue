@@ -30,7 +30,6 @@ const currentItem = ref<Item>({
   protection: {} as Ingredient,
   originPrice: 0
 })
-const manufactureIngredients = ref<Ingredient[]>([])
 const enhancementCosts = ref<Ingredient[]>([])
 const protectionList = ref<Ingredient[]>([])
 
@@ -44,10 +43,6 @@ const defaultConfig = {
 
 onMounted(() => {
   enhancerStore.advancedConfig.hrid && onSelect(getItemDetailOf(enhancerStore.advancedConfig.hrid))
-
-  // 此页面强制左价
-  useGameStore().useBid = false
-  useGameStore().setUseBid(false)
 })
 
 watch(
@@ -73,12 +68,6 @@ interface Item {
   productPrice?: number
   protection?: Ingredient
 }
-
-const gearManufacture = ref(false)
-watch([
-  () => manufactureIngredients.value,
-  () => gearManufacture.value
-], resetPrice, { deep: true })
 
 function onSelect(item: ItemDetail) {
   if (!item) {
@@ -106,13 +95,6 @@ function onSelect(item: ItemDetail) {
       break
     }
   }
-  manufactureIngredients.value = calc!.available
-    ? calc!.ingredientList.filter(item => getItemDetailOf(item.hrid).categoryHrid !== "/item_categories/drink").map(item => ({
-        hrid: item.hrid,
-        count: item.count,
-        originPrice: getPriceOf(item.hrid).ask
-      }))
-    : []
 
   enhancementCosts.value = item.enhancementCosts!.map(item => ({
     hrid: item.itemHrid,
@@ -150,6 +132,18 @@ function onSelect(item: ItemDetail) {
   })
 }
 
+const currentItemOriginPrice = computed(() => {
+  return getPriceOf(currentItem.value.hrid!, enhancerStore.advancedConfig.originLevel ?? defaultConfig.originLevel).ask
+})
+
+const currentItemWhitePrice = computed(() => {
+  return getPriceOf(currentItem.value.hrid!).ask
+})
+
+const currentItemEscapePrice = computed(() => {
+  return getPriceOf(currentItem.value.hrid!, Math.max(enhancerStore.advancedConfig.escapeLevel ?? defaultConfig.escapeLevel, 0)).ask
+})
+
 const results = computed(() => {
   if (!currentItem.value.hrid) {
     return []
@@ -179,7 +173,7 @@ const results = computed(() => {
     const curentItemPrice
           = typeof currentItem.value.price === "number"
             ? currentItem.value.price
-            : currentItem.value.originPrice
+            : currentItemOriginPrice.value
     const totalCostNoHourly = matCost + curentItemPrice
     let totalCost = totalCostNoHourly + (enhancerStore.advancedConfig.hourlyRate ?? defaultConfig.hourlyRate) * (actions / calc.actionsPH)
     const taxRate = (1 - (enhancerStore.advancedConfig.taxRate ?? defaultConfig.taxRate) / 100)
@@ -195,10 +189,10 @@ const results = computed(() => {
     const escapePrice = calc.realEscapeLevel === 0
       ? typeof currentItem.value.whitePrice === "number"
         ? currentItem.value.whitePrice
-        : currentItem.value.originPrice
+        : currentItemWhitePrice.value
       : (typeof currentItem.value.escapePrice === "number"
           ? currentItem.value.escapePrice
-          : currentItem.value.originPrice)
+          : currentItemEscapePrice.value)
 
     // 逃逸损耗
     const fallingRate = (curentItemPrice - escapePrice * 0.98) * escapeRate / actions * calc.actionsPH
@@ -213,7 +207,7 @@ const results = computed(() => {
 
     const productPrice = typeof currentItem.value.productPrice === "number"
       ? currentItem.value.productPrice
-      : 0
+      : getPriceOf(currentItem.value.hrid, enhanceLevel).bid
 
     const hourlyCost = ((productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
 
@@ -290,36 +284,8 @@ const tableWidth = computed(() => {
 watch([
   () => getMarketDataApi(),
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated,
-  () => useGameStore().useBid
+  () => usePlayerStore().actionConfigActivated
 ], () => enhancerStore.advancedConfig.hrid && onSelect(getItemDetailOf(enhancerStore.advancedConfig.hrid)), { immediate: false })
-
-function resetPrice() {
-  if (!currentItem.value.hrid) {
-    return
-  }
-  // 触发一次computed
-  currentItem.value = JSON.parse(JSON.stringify(currentItem.value))
-
-  if (!gearManufacture.value) {
-    currentItem.value.originPrice = getPriceOf(currentItem.value.hrid!).ask
-    return
-  }
-  const val = manufactureIngredients.value
-  currentItem.value.originPrice = val.length
-    ? val.reduce((acc, item) => {
-        const price = typeof item.price === "number" ? item.price : item.originPrice
-        return acc + (price * item.count)
-      }, 0)
-    : getPriceOf(currentItem.value.hrid!).ask
-
-  manufactureIngredients.value.forEach((item) => {
-    item.originPrice = getPriceOf(item.hrid).ask
-  })
-  enhancementCosts.value.forEach((item) => {
-    item.originPrice = getPriceOf(item.hrid).ask
-  })
-}
 
 function rowStyle({ row }: { row: any }) {
   // totalcost最小的为半透明浅绿色（内容不要透明）
@@ -386,11 +352,6 @@ watch(menuVisible, (value) => {
       <div>
         <ActionConfig />
       </div>
-      <!-- <div v-if="useGameStore().checkSecret()">
-        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
-          {{ t('右价买') }}
-        </el-checkbox>
-      </div> -->
     </div>
     <el-row :gutter="20" class="row max-w-1100px mx-auto!">
       <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">
@@ -398,32 +359,9 @@ watch(menuVisible, (value) => {
           <template #header>
             <div class="flex justify-between items-center">
               <span>{{ t('装备成本') }}</span>
-              <el-checkbox v-model="gearManufacture">
-                {{ t('制作装备') }}
-              </el-checkbox>
             </div>
           </template>
-          <template v-if="gearManufacture && manufactureIngredients.length">
-            <ElTable :data="manufactureIngredients" style="--el-table-border-color:none" :cell-style="{ padding: '0' }">
-              <el-table-column :label="t('物品')">
-                <template #default="{ row }">
-                  <ItemIcon :hrid="row.hrid" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="count" :label="t('数量')">
-                <template #default="{ row }">
-                  {{ Format.number(row.count, 2) }}
-                </template>
-              </el-table-column>
 
-              <el-table-column :label="t('价格')" align="center" min-width="120">
-                <template #default="{ row }">
-                  <el-input-number v-if="row.hrid !== Calculator.COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
-                </template>
-              </el-table-column>
-            </ElTable>
-            <el-divider class="mt-2 mb-2" />
-          </template>
           <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default="{ row }">
@@ -433,7 +371,7 @@ watch(menuVisible, (value) => {
             <el-table-column prop="count" />
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                <el-input-number class="max-w-100%" v-model="row.price" :placeholder="Format.number(currentItemOriginPrice)" :controls="false" />
               </template>
             </el-table-column>
           </ElTable>
@@ -489,7 +427,7 @@ watch(menuVisible, (value) => {
             <el-table-column />
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.escapePrice" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                <el-input-number class="max-w-100%" v-model="row.escapePrice" :placeholder="Format.number(currentItemEscapePrice)" :controls="false" />
               </template>
             </el-table-column>
           </ElTable>
@@ -503,7 +441,7 @@ watch(menuVisible, (value) => {
             <el-table-column />
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.whitePrice" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                <el-input-number class="max-w-100%" v-model="row.whitePrice" :placeholder="Format.number(currentItemWhitePrice)" :controls="false" />
               </template>
             </el-table-column>
           </ElTable>
@@ -585,7 +523,7 @@ watch(menuVisible, (value) => {
                   {{ t('工时费/h') }}
                 </div>
                 <el-input-number
-                  class="w-100px"
+                  class="w-120px"
                   v-model="enhancerStore.advancedConfig.hourlyRate"
                   :step="1"
                   :min="0"
@@ -600,7 +538,7 @@ watch(menuVisible, (value) => {
                   {{ t('税率%') }}
                 </div>
                 <el-input-number
-                  class="w-100px"
+                  class="w-120px"
                   v-model="enhancerStore.advancedConfig.taxRate"
                   :step="1"
                   :min="0"
@@ -615,14 +553,14 @@ watch(menuVisible, (value) => {
             <el-tab-pane :label="t('成品售价')">
               <div class="flex justify-between items-center">
                 <div class="font-size-14px">
-                  {{ t('成品售价') }}
+                  {{ t('价格') }}
                 </div>
                 <el-input-number
-                  class="w-100px"
+                  class="w-130px"
                   v-model="currentItem.productPrice"
                   :step="1"
                   :min="0"
-                  placeholder="0"
+                  :placeholder="Format.number(getPriceOf(currentItem.hrid!, enhancerStore.advancedConfig.enhanceLevel ?? defaultConfig.enhanceLevel).bid)"
                   :controls="false"
                 />
               </div>
@@ -632,7 +570,7 @@ watch(menuVisible, (value) => {
                   {{ t('税率%') }}
                 </div>
                 <el-input-number
-                  class="w-100px"
+                  class="w-130px"
                   v-model="enhancerStore.advancedConfig.taxRate"
                   :step="1"
                   :min="0"

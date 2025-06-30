@@ -4,9 +4,10 @@ import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/gam
 import { getActionConfigOf } from "@/common/apis/player"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
+import { usePriceStatus } from "@/common/composables/usePriceStatus"
 import * as Format from "@/common/utils/format"
-import { useGameStore } from "@/pinia/stores/game"
 
+import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/manualchemy"
@@ -17,8 +18,9 @@ import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep } from "lodash-es"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
-import ActionPrice from "../dashboard/components/ActionPrice.vue"
 
+import ActionPrice from "../dashboard/components/ActionPrice.vue"
+import PriceStatusSelect from "../dashboard/components/PriceStatusSelect.vue"
 import SinglePrice from "../dashboard/components/SinglePrice.vue"
 
 // #region 查
@@ -68,7 +70,8 @@ watch([
   () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated,
-  () => useGameStore().useBid
+  () => useGameStore().buyStatus,
+  () => useGameStore().sellStatus
 ], getLeaderboardData, { immediate: true })
 
 // 监听分页参数的变化
@@ -106,7 +109,9 @@ function handleSearchPrice() {
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => useGameStore().marketData
+  () => useGameStore().marketData,
+  () => useGameStore().buyStatus,
+  () => useGameStore().sellStatus
 ], getPriceData, { immediate: true })
 
 // #endregion
@@ -148,6 +153,7 @@ function deletePrice(row: StoragePriceItem) {
   }
 }
 const { t } = useI18n()
+const onPriceStatusChange = usePriceStatus("manualchemy-price-status")
 </script>
 
 <template>
@@ -165,11 +171,10 @@ const { t } = useI18n()
       <div>
         <ActionConfig />
       </div>
-      <div v-if="useGameStore().checkSecret()">
-        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
-          {{ t('右价买') }}
-        </el-checkbox>
-      </div>
+
+      <PriceStatusSelect
+        @change="onPriceStatusChange"
+      />
     </div>
     <el-row :gutter="20" class="row">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">

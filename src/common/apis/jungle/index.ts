@@ -30,6 +30,8 @@ export async function getDataApi(params: any) {
 
   profitList = profitList.filter(item => params.maxLevel ? (item.calculator as DecomposeCalculator).enhanceLevel <= params.maxLevel : true)
   profitList = profitList.filter(item => params.minLevel ? (item.calculator as DecomposeCalculator).enhanceLevel >= params.minLevel : true)
+  profitList = profitList.filter(item => params.minSellPrice ? item.calculator.productListWithPrice[0].price > params.minSellPrice * 1e6 : true)
+  profitList = profitList.filter(item => params.maxSellPrice ? item.calculator.productListWithPrice[0].price < params.maxSellPrice * 1e6 : true)
 
   if (params.bestManufacture) {
     const maxProfitMap: Record<string, WorkflowCalculator> = {}

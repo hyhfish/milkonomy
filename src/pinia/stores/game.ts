@@ -64,6 +64,24 @@ export const HOUSE_MAP: Record<Action, Partial<Record<NoncombatStatsKey, number>
   }
 }
 
+export enum PriceStatus {
+  // 左价
+  ASK = "ASK",
+  // 右价
+  BID = "BID",
+  // 比左价低一档
+  ASK_LOW = "ASK_LOW",
+  // 比右价高一档
+  BID_HIGH = "BID_HIGH"
+}
+
+export const PRICE_STATUS_LIST = [
+  { value: PriceStatus.ASK, label: t("左价") },
+  { value: PriceStatus.ASK_LOW, label: t("左价-") },
+  { value: PriceStatus.BID, label: t("右价") },
+  { value: PriceStatus.BID_HIGH, label: t("右价+") }
+]
+
 export const useGameStore = defineStore("game", {
   state: () => ({
     gameData: getGameData(),
@@ -77,7 +95,8 @@ export const useGameStore = defineStore("game", {
     inheritCache: {} as { [time: number]: ManufactureCalculator[] },
     decomposeCache: {} as { [time: number]: DecomposeCalculator[] },
     secret: loadSecret(),
-    useBid: false
+    buyStatus: loadBuyStatus(),
+    sellStatus: loadSellStatus()
   }),
   actions: {
     async tryFetchData() {
@@ -185,13 +204,19 @@ export const useGameStore = defineStore("game", {
       this.clearJunglestCache()
       this.clearInheritCache()
     },
-    setUseBid(_: boolean) {
+    savePriceStatus() {
+      // saveBuyStatus(this.buyStatus)
+      // saveSellStatus(this.sellStatus)
       this.clearLeaderBoardCache()
       this.clearManualchemyCache()
       this.clearEnhanposerCache()
       this.clearJungleCache()
       this.clearJunglestCache()
       this.clearInheritCache()
+    },
+    resetPriceStatus() {
+      this.buyStatus = loadBuyStatus()
+      this.sellStatus = loadSellStatus()
     },
     getLeaderboardCache() {
       return this.leaderboardCache[this.marketData!.time]
@@ -322,6 +347,13 @@ function loadSecret() {
 
 function saveSecret(value: string) {
   localStorage.setItem(`${KEY_PREFIX}secrete`, value)
+}
+
+function loadBuyStatus() {
+  return PriceStatus.ASK
+}
+function loadSellStatus() {
+  return PriceStatus.BID
 }
 
 export function useGameStoreOutside() {

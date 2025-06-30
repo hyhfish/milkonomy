@@ -68,8 +68,7 @@ watch([
   () => paginationDataLD.pageSize,
   () => getMarketDataApi(),
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated,
-  () => useGameStore().useBid
+  () => usePlayerStore().actionConfigActivated
 ], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "enhanposer-price-pagination")
@@ -104,8 +103,7 @@ function handleSearchPrice() {
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => getMarketDataApi(),
-  () => useGameStore().useBid
+  () => getMarketDataApi()
 ], getPriceData, { immediate: true })
 // #endregion
 
@@ -167,12 +165,6 @@ const { t } = useI18n()
       </div>
       <div>
         <ActionConfig />
-      </div>
-
-      <div v-if="useGameStore().checkSecret()">
-        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
-          {{ t('右价买') }}
-        </el-checkbox>
       </div>
 
       <div>

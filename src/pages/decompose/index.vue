@@ -69,8 +69,7 @@ watch([
   () => useGameStore().marketData,
   () => useGameStore().marketDataLevel,
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated,
-  () => useGameStore().useBid
+  () => usePlayerStore().actionConfigActivated
 ], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "decompose-price-pagination")
@@ -105,8 +104,7 @@ function handleSearchPrice() {
 watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
-  () => useGameStore().marketData,
-  () => useGameStore().useBid
+  () => useGameStore().marketData
 ], getPriceData, { immediate: true })
 // #endregion
 
@@ -169,13 +167,8 @@ const { t } = useI18n()
         <ActionConfig />
       </div>
 
-      <div v-if="useGameStore().checkSecret()">
-        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
-          {{ t('右价买') }}
-        </el-checkbox>
-      </div>
       <div>
-        {{ t('打野爽！') }}
+        {{ t('分解爽！') }}
       </div>
     </div>
     <el-row :gutter="20" class="row">

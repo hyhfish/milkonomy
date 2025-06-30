@@ -1,0 +1,26 @@
+import { PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
+
+import { useMemory } from "./useMemory"
+// 自定义 Hook
+export function usePriceStatus(key: string) {
+  const priceStatus = useMemory(key, {
+    buyStatus: PriceStatus.ASK,
+    sellStatus: PriceStatus.BID
+  }, 0)
+
+  useGameStoreOutside().buyStatus = priceStatus.value.buyStatus
+  useGameStoreOutside().sellStatus = priceStatus.value.sellStatus
+
+  // 离开页面时重置
+  onBeforeRouteLeave(() => {
+    useGameStoreOutside().resetPriceStatus()
+  })
+
+  function onChange() {
+    priceStatus.value = {
+      buyStatus: useGameStoreOutside().buyStatus,
+      sellStatus: useGameStoreOutside().sellStatus
+    }
+  }
+  return onChange
+}

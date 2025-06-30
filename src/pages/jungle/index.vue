@@ -4,9 +4,10 @@ import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/gam
 import { getDataApi } from "@/common/apis/jungle"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
+import { usePriceStatus } from "@/common/composables/usePriceStatus"
 import * as Format from "@/common/utils/format"
-import { useGameStore } from "@/pinia/stores/game"
 
+import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
@@ -16,6 +17,7 @@ import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep } from "lodash-es"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
+import PriceStatusSelect from "../dashboard/components/PriceStatusSelect.vue"
 import SinglePrice from "../dashboard/components/SinglePrice.vue"
 import ActionConfig from "./components/ActionConfig.vue"
 
@@ -70,7 +72,9 @@ watch([
   () => useGameStore().marketDataLevel,
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated,
-  () => useGameStore().useBid
+  () => useGameStore().buyStatus,
+  () => useGameStore().sellStatus
+
 ], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "jungle-price-pagination")
@@ -106,7 +110,8 @@ watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
   () => useGameStore().marketData,
-  () => useGameStore().useBid
+  () => useGameStore().buyStatus,
+  () => useGameStore().sellStatus
 ], getPriceData, { immediate: true })
 // #endregion
 
@@ -151,6 +156,8 @@ function deletePrice(row: StoragePriceItem) {
 }
 
 const { t } = useI18n()
+
+const onPriceStatusChange = usePriceStatus("jungle-price-status")
 </script>
 
 <template>
@@ -168,12 +175,9 @@ const { t } = useI18n()
       <div>
         <ActionConfig />
       </div>
-
-      <div v-if="useGameStore().checkSecret()">
-        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
-          {{ t('右价买') }}
-        </el-checkbox>
-      </div>
+      <PriceStatusSelect
+        @change="onPriceStatusChange"
+      />
       <div>
         {{ t('打野爽！') }}
       </div>
@@ -193,6 +197,10 @@ const { t } = useI18n()
               <el-form-item :label="t('目标等级从')">
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
+              </el-form-item>
+
+              <el-form-item :label="t('售价 >')">
+                <el-input-number style="width:80px" v-model="ldSearchData.minSellPrice" placeholder="0" clearable @change="handleSearchLD" :controls="false" />&nbsp;M
               </el-form-item>
 
               <el-form-item>

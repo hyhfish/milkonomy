@@ -6,10 +6,11 @@ import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/gam
 import { getActionConfigOf } from "@/common/apis/player"
 import { getPriceDataApi } from "@/common/apis/price"
 import { useMemory } from "@/common/composables/useMemory"
+import { usePriceStatus } from "@/common/composables/usePriceStatus"
 import * as Format from "@/common/utils/format"
 import { useFavoriteStore } from "@/pinia/stores/favorite"
-import { useGameStore } from "@/pinia/stores/game"
 
+import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { type StoragePriceItem, usePriceStore } from "@/pinia/stores/price"
 import { getLeaderboardDataApi } from "@@/apis/leaderboard"
@@ -22,6 +23,7 @@ import ActionConfig from "./components/ActionConfig.vue"
 import ActionDetail from "./components/ActionDetail.vue"
 
 import ActionPrice from "./components/ActionPrice.vue"
+import PriceStatusSelect from "./components/PriceStatusSelect.vue"
 import SinglePrice from "./components/SinglePrice.vue"
 
 // #region 查
@@ -85,7 +87,8 @@ watch([
   () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated,
-  () => useGameStore().useBid
+  () => useGameStore().buyStatus,
+  () => useGameStore().sellStatus
 ], getLeaderboardData, { immediate: true })
 
 const { paginationData: paginationDataMN, handleCurrentChange: handleCurrentChangeFR, handleSizeChange: handleSizeChangeFR } = usePagination({}, "dashboard-favorite-pagination")
@@ -123,7 +126,8 @@ watch([
   () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => usePlayerStore().actionConfigActivated,
-  () => useGameStore().useBid
+  () => useGameStore().buyStatus,
+  () => useGameStore().sellStatus
 ], getFavoriteData, { immediate: true })
 
 const { paginationData: paginationDataPrice, handleCurrentChange: handleCurrentChangePrice, handleSizeChange: handleSizeChangePrice } = usePagination({}, "dashboard-price-pagination")
@@ -160,8 +164,8 @@ watch([
   () => paginationDataPrice.currentPage,
   () => paginationDataPrice.pageSize,
   () => useGameStore().marketData,
-  () => useGameStore().useBid
-
+  () => useGameStore().buyStatus,
+  () => useGameStore().sellStatus
 ], getPriceData, { immediate: true })
 
 // #endregion
@@ -229,6 +233,9 @@ function deletePrice(row: StoragePriceItem) {
 
 const router = useRouter()
 const { t } = useI18n()
+
+const onPriceStatusChange = usePriceStatus("dashboard-price-status")
+// 离开页面时重置
 </script>
 
 <template>
@@ -246,11 +253,10 @@ const { t } = useI18n()
       <div>
         <ActionConfig />
       </div>
-      <div v-if="useGameStore().checkSecret()">
-        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
-          {{ t('右价买') }}
-        </el-checkbox>
-      </div>
+
+      <PriceStatusSelect
+        @change="onPriceStatusChange"
+      />
     </div>
     <el-row :gutter="20" class="row">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">

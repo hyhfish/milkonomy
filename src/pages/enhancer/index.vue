@@ -42,10 +42,6 @@ const defaultConfig = {
 
 onMounted(() => {
   enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid))
-
-  // 此页面强制左价
-  useGameStore().useBid = false
-  useGameStore().setUseBid(false)
 })
 
 watch(
@@ -177,7 +173,7 @@ const results = computed(() => {
 
     const productPrice = typeof currentItem.value.productPrice === "number"
       ? currentItem.value.productPrice
-      : 0
+      : getPriceOf(currentItem.value.hrid, enhanceLevel).bid
 
     const hourlyCost = (productPrice * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
 
@@ -242,8 +238,7 @@ const tableWidth = computed(() => {
 watch([
   () => getMarketDataApi(),
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated,
-  () => useGameStore().useBid
+  () => usePlayerStore().actionConfigActivated
 ], () => enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid)), { immediate: false })
 
 function resetPrice() {
@@ -344,11 +339,6 @@ watch(menuVisible, (value) => {
       <div>
         <ActionConfig />
       </div>
-      <!-- <div v-if="useGameStore().checkSecret()">
-        <el-checkbox v-model="useGameStore().useBid" @input="useGameStore().setUseBid">
-          {{ t('右价买') }}
-        </el-checkbox>
-      </div> -->
     </div>
     <el-row :gutter="20" class="row max-w-1100px mx-auto!">
       <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">
@@ -473,12 +463,12 @@ watch(menuVisible, (value) => {
                   {{ t('工时费/h') }}
                 </div>
                 <el-input-number
-                  class="w-100px"
+                  class="w-120px"
                   v-model="enhancerStore.config.hourlyRate"
                   :step="1"
                   :min="0"
                   :max="5000000000"
-                  :placeholder="defaultConfig.hourlyRate.toString()"
+                  :placeholder="Format.number(defaultConfig.hourlyRate)"
                   :controls="false"
                 />
               </div>
@@ -488,7 +478,7 @@ watch(menuVisible, (value) => {
                   {{ t('税率%') }}
                 </div>
                 <el-input-number
-                  class="w-100px"
+                  class="w-120px"
                   v-model="enhancerStore.config.taxRate"
                   :step="1"
                   :min="0"
@@ -504,11 +494,11 @@ watch(menuVisible, (value) => {
                   {{ t('价格') }}
                 </div>
                 <el-input-number
-                  class="w-100px"
+                  class="w-130px"
                   v-model="currentItem.productPrice"
                   :step="1"
                   :min="0"
-                  placeholder="0"
+                  :placeholder="Format.number(getPriceOf(currentItem.hrid!, enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel).bid)"
                   :controls="false"
                 />
               </div>
@@ -518,7 +508,7 @@ watch(menuVisible, (value) => {
                   {{ t('税率%') }}
                 </div>
                 <el-input-number
-                  class="w-100px"
+                  class="w-130px"
                   placeholder="2"
                   :step="1"
                   :min="0"
