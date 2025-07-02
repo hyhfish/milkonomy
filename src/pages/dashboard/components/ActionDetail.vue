@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type Calculator from "@/calculator"
+import ItemIcon from "@@/components/ItemIcon/index.vue"
+import * as Format from "@@/utils/format"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import { getActionConfigOf } from "@/common/apis/player"
-import ItemIcon from "@@/components/ItemIcon/index.vue"
-import * as Format from "@@/utils/format"
 import ActionDetailCard from "./ActionDetailCard.vue"
 
 const props = defineProps<{

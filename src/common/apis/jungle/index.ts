@@ -55,7 +55,7 @@ function calcEnhanceProfit() {
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
       const price = getPriceOf(item.hrid, enhanceLevel)
-      if (!price.bid) {
+      if (price.bid === -1) {
         continue
       }
       let bestProfit = -Infinity

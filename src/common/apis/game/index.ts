@@ -155,8 +155,8 @@ export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStat
     const priceItem = marketItem ? marketItem[level] : undefined
 
     const price = {
-      ask: priceItem?.ask?.price || 0,
-      bid: priceItem?.bid?.price || 0,
+      ask: priceItem?.ask?.price || -1,
+      bid: priceItem?.bid?.price || -1,
       askTime: priceItem?.ask?.time,
       bidTime: priceItem?.bid?.time
     }

@@ -186,7 +186,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
               </el-table-column>
               <el-table-column prop="project" :label="t('动作')" />
 
-              <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120">
+              <el-table-column prop="result.profitPH" :label="t('利润 / h')" align="center" min-width="120" sortable="custom" :sort-orders="['ascending', null]">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitPHFormat }}&nbsp;
@@ -197,7 +197,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                 </template>
               </el-table-column>
 
-              <el-table-column :label="t('损耗 / h')" align="center" sortable="custom" :sort-orders="['descending', null]">
+              <el-table-column :label="t('损耗 / h')" align="center">
                 <template #default="{ row }">
                   {{ row.calculator.result.cost4MatPHFormat }}
                 </template>
