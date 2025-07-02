@@ -63,6 +63,7 @@ export class ManufactureCalculator extends Calculator {
         hrid: output.itemHrid,
         // 双倍茶补正
         count: output.count * (1 + gourmetBuff),
+        level: Math.floor(targetLevel),
         marketPrice: getPriceOf(output.itemHrid).bid,
         marketTime: getPriceOf(output.itemHrid).bidTime
       }))
