@@ -1,9 +1,9 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getAlchemyDecomposeEnhancingEssenceOutput, getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
-import { getAlchemySuccessRatio, getBuffOf } from "@/common/apis/player"
+import { getAlchemySuccessRatio, getBuffOf, getTeaIngredientList } from "@/common/apis/player"
 import locales from "@/locales"
+import { COIN_HRID } from "@/pinia/stores/game"
 import Calculator from "."
-import { getTeaIngredientList } from "./utils"
 
 const { t } = locales.global
 
@@ -74,7 +74,7 @@ export class TransmuteCalculator extends AlchemyCalculator {
         marketPrice: getPriceOf(this.item.hrid).ask
       },
       {
-        hrid: Calculator.COIN_HRID,
+        hrid: COIN_HRID,
         count: this.item.alchemyDetail.bulkMultiplier,
         marketPrice: Math.max(Math.floor(this.item.sellPrice / 5), 50)
       }
@@ -162,7 +162,7 @@ export class DecomposeCalculator extends AlchemyCalculator {
         level: this.enhanceLevel
       },
       {
-        hrid: Calculator.COIN_HRID,
+        hrid: COIN_HRID,
         count: this.item.alchemyDetail.bulkMultiplier,
         marketPrice: 50 + 5 * this.item.itemLevel
       }
@@ -263,7 +263,7 @@ export class CoinifyCalculator extends AlchemyCalculator {
 
   get productList(): Product[] {
     return [{
-      hrid: Calculator.COIN_HRID,
+      hrid: COIN_HRID,
       count: 1,
       marketPrice: this.item.sellPrice * 5 * this.item.alchemyDetail.bulkMultiplier
     }].concat(getAlchemyRareDropTable(this.item, getCoinifyTimeCost()).map(drop => ({

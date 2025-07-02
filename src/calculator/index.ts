@@ -19,7 +19,6 @@ export interface CalculatorConfig {
   originLevel?: number
 }
 export default abstract class Calculator {
-  static COIN_HRID = "/items/coin"
   hrid: string
   project: string
   action: Action
@@ -80,7 +79,7 @@ export default abstract class Calculator {
     for (let i = 0; i < list.length; i++) {
       const item = list[i]
       const priceConfig = priceConfigList[i]
-      const hasManualPrice = this.enhanceLevel > 0 ? false : getManualPriceOf(item.hrid, item.level)?.[type]?.manual && getManualPriceActivated()
+      const hasManualPrice = getManualPriceOf(item.hrid, item.level)?.[type]?.manual && getManualPriceActivated()
       const manualPrice = getManualPriceOf(item.hrid, item.level)?.[type]?.manualPrice
       if (!priceConfig?.immutable && hasManualPrice) {
         this.hasManualPrice = true

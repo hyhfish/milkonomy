@@ -1,8 +1,9 @@
 import type { DropTableItem, GameData, ItemDetail } from "../../types/game.d.ts"
 import type { MarketData, MarketItem } from "../../types/market.d.ts"
 import type { Ingredient } from "./calculator.ts"
+import type Calculator from "./calculator.ts"
 import axios from "axios"
-import Calculator from "./calculator.ts"
+import { COIN_HRID } from "@/pinia/stores/game.ts"
 
 const data = {
   gameData: null as GameData | null,
@@ -110,7 +111,7 @@ export function getPriceOf(hrid: string): MarketItem {
   const item = getGameDataApi().itemDetailMap[hrid]
   const shopItem = getGameDataApi().shopItemDetailMap[`/shop_items/${item.hrid.split("/").pop()}`]
   const price = getMarketDataApi().market[item.name]
-  if (shopItem && shopItem.costs[0].itemHrid === Calculator.COIN_HRID) {
+  if (shopItem && shopItem.costs[0].itemHrid === COIN_HRID) {
     price.ask = shopItem.costs[0].count
   }
   return price

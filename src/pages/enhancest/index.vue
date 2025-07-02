@@ -1,18 +1,17 @@
 <script lang="ts" setup>
 import type { Action, ItemDetail } from "~/game"
-import Calculator from "@/calculator"
+import ItemIcon from "@@/components/ItemIcon/index.vue"
 
+import * as Format from "@@/utils/format"
+import { Star, StarFilled } from "@element-plus/icons-vue"
+import { ElTable } from "element-plus"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getEquipmentList } from "@/common/apis/player"
 import { useEnhancerStore } from "@/pinia/stores/enhancer"
-import { useGameStore } from "@/pinia/stores/game"
+import { COIN_HRID, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
-import ItemIcon from "@@/components/ItemIcon/index.vue"
-import * as Format from "@@/utils/format"
-import { Star, StarFilled } from "@element-plus/icons-vue"
-import { ElTable } from "element-plus"
 import ActionConfig from "../enhancer/components/ActionConfig.vue"
 
 const enhancerStore = useEnhancerStore()
@@ -601,7 +600,7 @@ watch(menuVisible, (value) => {
 
             <el-table-column :label="t('价格')" align="center" min-width="120">
               <template #default="{ row }">
-                <el-input-number v-if="row.hrid !== Calculator.COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                <el-input-number v-if="row.hrid !== COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
               </template>
             </el-table-column>
           </ElTable>

@@ -1,4 +1,5 @@
 import type { CalculatorConfig, Ingredient, Product } from "./calculator.ts"
+import { COIN_HRID } from "@/pinia/stores/game.ts"
 import Calculator from "./calculator.ts"
 import { getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTeaIngredientList, getTransmuteTimeCost } from "./utils.ts"
 
@@ -52,7 +53,7 @@ export class TransmuteCalculator extends Calculator {
         marketPrice: getPriceOf(this.item.hrid).ask
       },
       {
-        hrid: Calculator.COIN_HRID,
+        hrid: COIN_HRID,
         count: this.item.alchemyDetail.bulkMultiplier,
         marketPrice: Math.max(Math.floor(this.item.sellPrice / 5), 50)
       }
@@ -154,7 +155,7 @@ export class DecomposeCalculator extends Calculator {
         marketPrice: getPriceOf(this.item.hrid).ask
       },
       {
-        hrid: Calculator.COIN_HRID,
+        hrid: COIN_HRID,
         count: this.item.alchemyDetail.bulkMultiplier,
         marketPrice: 50 + 5 * this.item.itemLevel
       }
@@ -263,7 +264,7 @@ export class CoinifyCalculator extends Calculator {
 
   get productList(): Product[] {
     return [{
-      hrid: Calculator.COIN_HRID,
+      hrid: COIN_HRID,
       count: 1,
       marketPrice: this.item.sellPrice * 5 * this.item.alchemyDetail.bulkMultiplier
     }].concat(getAlchemyRareDropTable(this.item, getCoinifyTimeCost()).map(drop => ({

@@ -6,11 +6,13 @@ import type { ManufactureCalculator } from "@/calculator/manufacture"
 import type { WorkflowCalculator } from "@/calculator/workflow"
 import type { Action, GameData, NoncombatStatsKey } from "~/game"
 import type { MarketData, MarketDataLevel } from "~/market"
+import { defineStore } from "pinia"
 import locales from "@/locales"
 import { pinia } from "@/pinia"
-import { defineStore } from "pinia"
 
 const { t } = locales.global
+
+export const COIN_HRID = "/items/coin"
 
 export const ACTION_LIST = [
   "milking",

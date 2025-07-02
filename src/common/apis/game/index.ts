@@ -1,9 +1,8 @@
 import type { EnhancelateResult } from "@/calculator/enhance"
 import type { DropTableItem, GameData, ItemDetail } from "~/game"
 import type { MarketData, MarketDataLevel, MarketItem } from "~/market"
-import Calculator from "@/calculator"
-import { PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
 import deepFreeze from "deep-freeze-strict"
+import { COIN_HRID, PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
 
 // 把Proxy扒下来，提高性能
 const game = {
@@ -179,7 +178,7 @@ export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStat
   const price = getMarketDataApi().market[item.name] || { ask: -1, bid: -1 }
   price.askTime = getMarketDataApi().time
   price.bidTime = getMarketDataApi().time
-  if (shopItem && shopItem.costs[0].itemHrid === Calculator.COIN_HRID) {
+  if (shopItem && shopItem.costs[0].itemHrid === COIN_HRID) {
     price.ask = shopItem.costs[0].count
   }
   _priceCache[hrid] = convertPriceOfStatus(price, buyStatus, sellStatus)

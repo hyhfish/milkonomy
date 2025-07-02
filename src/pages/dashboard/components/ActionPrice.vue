@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import type Calculator from "@/calculator"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import * as Format from "@@/utils/format"
-import Calculator from "@/calculator"
 import { getItemDetailOf, getPriceOf } from "@/common/apis/game"
 import { getManualPriceOf, setPriceApi } from "@/common/apis/price"
+import { COIN_HRID } from "@/pinia/stores/game"
 
 const props = defineProps<{
   modelValue: boolean
@@ -78,7 +79,7 @@ const { t } = useI18n()
             </el-table-column>
             <el-table-column prop="price" :label="t('市场价格')">
               <template #default="{ row }">
-                <div v-if="row.hrid === Calculator.COIN_HRID">
+                <div v-if="row.hrid === COIN_HRID">
                   {{ Format.price(row.price) }}
                 </div>
                 <div v-else>
@@ -89,7 +90,7 @@ const { t } = useI18n()
 
             <el-table-column :label="t('自定义价格')">
               <template #default="{ row }">
-                <el-checkbox style="margin-right: 10px;" v-show="row.hrid !== Calculator.COIN_HRID" v-model="row.manual" />
+                <el-checkbox style="margin-right: 10px;" v-show="row.hrid !== COIN_HRID" v-model="row.manual" />
                 <el-input-number v-show="row.manual" v-model="row.price" :controls="false" />
               </template>
             </el-table-column>
@@ -112,7 +113,7 @@ const { t } = useI18n()
             </el-table-column>
             <el-table-column prop="price" :label="t('市场价格')">
               <template #default="{ row }">
-                <div v-if="row.hrid === Calculator.COIN_HRID">
+                <div v-if="row.hrid === COIN_HRID">
                   {{ Format.price(row.price) }}
                 </div>
                 <div v-else>
@@ -122,7 +123,7 @@ const { t } = useI18n()
             </el-table-column>
             <el-table-column :label="t('自定义价格')">
               <template #default="{ row }">
-                <el-checkbox style="margin-right: 10px;" v-show="row.hrid !== Calculator.COIN_HRID" v-model="row.manual" />
+                <el-checkbox style="margin-right: 10px;" v-show="row.hrid !== COIN_HRID" v-model="row.manual" />
                 <el-input-number v-show="row.manual" v-model="row.price" :controls="false" />
               </template>
             </el-table-column>

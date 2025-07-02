@@ -1,4 +1,5 @@
 import type { RequestData } from "../leaderboard/type"
+import type Calculator from "@/calculator"
 import type { ActionConfigItem, PlayerEquipmentItem } from "@/pinia/stores/player"
 import type { StoragePriceItem } from "@/pinia/stores/price"
 import type { Action, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
@@ -7,7 +8,7 @@ import { getEquipmentTypeOf } from "@/common/utils/game"
 import { ACTION_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStoreOutside } from "@/pinia/stores/game"
 import { usePlayerStoreOutside } from "@/pinia/stores/player"
 import { usePriceStoreOutside } from "@/pinia/stores/price"
-import { getGameDataApi, getItemDetailOf } from "../game"
+import { getGameDataApi, getItemDetailOf, getPriceOf } from "../game"
 
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
@@ -174,6 +175,14 @@ export function getSpecialEquipmentOf(type: Equipment, activated: boolean) {
 // #region 茶
 export function getTeaListOf(action: Action) {
   return teaList.filter(item => item.consumableDetail?.usableInActionTypeMap[`/action_types/${action}`]).sort((a, b) => a.itemLevel - b.itemLevel).sort((a, b) => Number(a.hrid.includes(action)) - Number(b.hrid.includes(action)))
+}
+
+export function getTeaIngredientList(cal: Calculator) {
+  return (getActionConfigOf(cal.action).tea || []).map(hrid => ({
+    hrid,
+    count: 3600 / 300 / cal.consumePH * (1 + getDrinkConcentration()),
+    marketPrice: getPriceOf(hrid).ask
+  }))
 }
 // #endregion
 

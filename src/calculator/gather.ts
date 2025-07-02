@@ -1,8 +1,7 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getActionDetailOf, getPriceOf, getProcessingProduct } from "@/common/apis/game"
-import { getBuffOf } from "@/common/apis/player"
+import { getBuffOf, getTeaIngredientList } from "@/common/apis/player"
 import Calculator from "."
-import { getTeaIngredientList } from "./utils"
 
 export class GatherCalculator extends Calculator {
   get className() {
