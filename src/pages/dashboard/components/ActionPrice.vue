@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import ItemIcon from "@@/components/ItemIcon/index.vue"
+import * as Format from "@@/utils/format"
 import Calculator from "@/calculator"
 import { getItemDetailOf, getPriceOf } from "@/common/apis/game"
 import { getManualPriceOf, setPriceApi } from "@/common/apis/price"
-import ItemIcon from "@@/components/ItemIcon/index.vue"
-import * as Format from "@@/utils/format"
 
 const props = defineProps<{
   modelValue: boolean
@@ -35,12 +35,12 @@ watch(() => props.data, (row) => {
 function getPriceConfigList(row: Calculator, type: "product" | "ingredient") {
   return row[`${type}ListWithPrice`].map((item, i) => {
     const priceConfig = row[`${type}PriceConfigList`][i]
-    const hasManualPrice = getManualPriceOf(item.hrid)?.[type === "ingredient" ? "ask" : "bid"]?.manual
-    const manualPrice = getManualPriceOf(item.hrid)?.[type === "ingredient" ? "ask" : "bid"]?.manualPrice
+    const hasManualPrice = getManualPriceOf(item.hrid, item.level)?.[type === "ingredient" ? "ask" : "bid"]?.manual
+    const manualPrice = getManualPriceOf(item.hrid, item.level)?.[type === "ingredient" ? "ask" : "bid"]?.manualPrice
     const price = priceConfig?.immutable ? priceConfig.price! : hasManualPrice ? manualPrice! : item.marketPrice
-
     return {
       hrid: item.hrid,
+      level: item.level,
       price,
       manual: priceConfig?.manual || hasManualPrice || false,
       immutable: priceConfig?.immutable
@@ -73,6 +73,7 @@ const { t } = useI18n()
             <el-table-column :label="t('物品')">
               <template #default="{ row }">
                 {{ t(getItemDetailOf(row.hrid).name) }}
+                {{ row.level ? `+${row.level}` : '' }}
               </template>
             </el-table-column>
             <el-table-column prop="price" :label="t('市场价格')">
@@ -81,7 +82,7 @@ const { t } = useI18n()
                   {{ Format.price(row.price) }}
                 </div>
                 <div v-else>
-                  {{ Format.price(getPriceOf(row.hrid).ask) }} / {{ Format.price(getPriceOf(row.hrid).bid) }}
+                  {{ Format.price(getPriceOf(row.hrid, row.level).ask) }} / {{ Format.price(getPriceOf(row.hrid, row.level).bid) }}
                 </div>
               </template>
             </el-table-column>
@@ -106,6 +107,7 @@ const { t } = useI18n()
             <el-table-column prop="name" :label="t('物品')">
               <template #default="{ row }">
                 {{ t(getItemDetailOf(row.hrid).name) }}
+                {{ row.level ? `+${row.level}` : '' }}
               </template>
             </el-table-column>
             <el-table-column prop="price" :label="t('市场价格')">
@@ -114,7 +116,7 @@ const { t } = useI18n()
                   {{ Format.price(row.price) }}
                 </div>
                 <div v-else>
-                  {{ Format.price(getPriceOf(row.hrid).ask) }} / {{ Format.price(getPriceOf(row.hrid).bid) }}
+                  {{ Format.price(getPriceOf(row.hrid, row.level).ask) }} / {{ Format.price(getPriceOf(row.hrid, row.level).bid) }}
                 </div>
               </template>
             </el-table-column>

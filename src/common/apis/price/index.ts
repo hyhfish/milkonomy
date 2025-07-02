@@ -3,7 +3,7 @@ import type { IngredientPriceConfig, ProductPriceConfig } from "@/calculator"
 import type Calculator from "@/calculator"
 import type { StoragePriceItem } from "@/pinia/stores/price"
 import locales from "@/locales"
-import { usePriceStoreOutside } from "@/pinia/stores/price"
+import { priceKeyOf, usePriceStoreOutside } from "@/pinia/stores/price"
 import { getItemDetailOf } from "../game"
 
 const { t } = locales.global
@@ -30,11 +30,13 @@ export function setPriceApi(row: Calculator, ingredientPriceConfigList: Ingredie
 function setPrice(row: Calculator, priceConfigList: IngredientPriceConfig[], type: "ingredient" | "product") {
   for (let i = 0; i < priceConfigList.length; i++) {
     const hrid = row[`${type}ListWithPrice`][i].hrid
+    const level = row[`${type}ListWithPrice`][i].level
     const hasPrice = hasManualPriceOf(hrid)
     const hasManualPrice = !!priceConfigList[i].manual
     if (hasManualPrice || hasPrice) {
       usePriceStoreOutside().setPrice({
         hrid,
+        level,
         [type === "ingredient" ? "ask" : "bid"]: {
           manual: hasManualPrice,
           manualPrice: priceConfigList[i].price!
@@ -61,11 +63,11 @@ watch(() => usePriceStoreOutside().activated, () => {
   price.activated = usePriceStoreOutside().activated
 })
 
-export function getManualPriceOf(hrid: string) {
-  return price.map.get(hrid)
+export function getManualPriceOf(hrid: string, level?: number) {
+  return price.map.get(priceKeyOf(hrid, level))
 }
-export function hasManualPriceOf(hrid: string) {
-  return price.map.has(hrid)
+export function hasManualPriceOf(hrid: string, level?: number) {
+  return price.map.has(priceKeyOf(hrid, level))
 }
 export function getManualPriceActivated() {
   return price.activated

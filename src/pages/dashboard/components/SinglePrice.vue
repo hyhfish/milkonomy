@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { StoragePriceItem } from "@/pinia/stores/price"
-import { setSinglePriceApi } from "@/common/apis/price"
 import { ElPopover } from "element-plus"
+import { setSinglePriceApi } from "@/common/apis/price"
 
 const props = defineProps<{
   data?: StoragePriceItem
@@ -27,7 +27,7 @@ function onShow() {
   Object.assign(form.value.bid, props.data?.bid)
 }
 function onConfirm() {
-  setSinglePriceApi({ ...form.value, hrid: props.data!.hrid })
+  setSinglePriceApi({ ...form.value, hrid: props.data!.hrid, level: props.data!.level })
   refPopover.value?.hide()
   emit("confirm")
 }

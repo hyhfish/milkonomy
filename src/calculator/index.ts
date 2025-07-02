@@ -1,9 +1,9 @@
 import type { Action, ItemDetail } from "~/game"
+import * as Format from "@@/utils/format"
 import { getItemDetailOf } from "@/common/apis/game"
 import { getBuffOf, getPlayerLevelOf } from "@/common/apis/player"
 import { getManualPriceActivated, getManualPriceOf } from "@/common/apis/price"
 import locales from "@/locales"
-import * as Format from "@@/utils/format"
 
 const { t } = locales.global
 
@@ -80,8 +80,8 @@ export default abstract class Calculator {
     for (let i = 0; i < list.length; i++) {
       const item = list[i]
       const priceConfig = priceConfigList[i]
-      const hasManualPrice = this.enhanceLevel > 0 ? false : getManualPriceOf(item.hrid)?.[type]?.manual && getManualPriceActivated()
-      const manualPrice = getManualPriceOf(item.hrid)?.[type]?.manualPrice
+      const hasManualPrice = this.enhanceLevel > 0 ? false : getManualPriceOf(item.hrid, item.level)?.[type]?.manual && getManualPriceActivated()
+      const manualPrice = getManualPriceOf(item.hrid, item.level)?.[type]?.manualPrice
       if (!priceConfig?.immutable && hasManualPrice) {
         this.hasManualPrice = true
       }

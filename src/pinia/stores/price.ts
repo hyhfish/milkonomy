@@ -13,14 +13,15 @@ export const usePriceStore = defineStore("price", {
       useGameStoreOutside().clearAllCaches()
     },
     setPrice(row: StoragePriceItem) {
-      let price = this.map.get(row.hrid)
+      let price = this.map.get(priceKeyOf(row.hrid, row.level))
       if (!price) {
         price = {
           hrid: row.hrid,
+          level: row.level,
           ask: { manual: false, manualPrice: undefined },
           bid: { manual: false, manualPrice: undefined }
         }
-        this.map.set(row.hrid, price)
+        this.map.set(priceKeyOf(row.hrid, row.level), price)
       }
       Object.assign(price.ask!, row.ask)
       Object.assign(price.bid!, row.bid)
@@ -31,7 +32,7 @@ export const usePriceStore = defineStore("price", {
       }
     },
     deletePrice(row: StoragePriceItem) {
-      this.map.delete(row.hrid)
+      this.map.delete(priceKeyOf(row.hrid, row.level))
       this.commit()
     },
     setActivated(value: boolean) {
@@ -44,6 +45,7 @@ export const usePriceStore = defineStore("price", {
 const KEY = "price-list"
 export interface StoragePriceItem {
   hrid: string
+  level?: number
   ask?: StoragePriceItemValue
   bid?: StoragePriceItemValue
 }
@@ -56,7 +58,7 @@ function load(): Map<string, StoragePriceItem> {
   try {
     const data = JSON.parse(localStorage.getItem(KEY) || "[]")
     for (const item of data) {
-      map.set(item.hrid, item)
+      map.set(priceKeyOf(item.hrid, item.level), item)
     }
   } catch {
   }
@@ -74,6 +76,10 @@ function getActivated() {
 }
 function setActivated(value: string) {
   localStorage.setItem(ACTIVATED_KEY, value)
+}
+
+export function priceKeyOf(hrid: string, level?: number) {
+  return level ? `${hrid}-${level}` : hrid
 }
 
 export function usePriceStoreOutside() {

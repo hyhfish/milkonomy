@@ -1,7 +1,7 @@
-import type { StorageCalculatorItem } from "@/pinia/stores/favorite"
 import type { Ingredient, IngredientWithPrice, Product, ProductWithPrice } from "."
-import locales from "@/locales"
+import type { StorageCalculatorItem } from "@/pinia/stores/favorite"
 import * as Format from "@@/utils/format"
+import locales from "@/locales"
 import Calculator from "."
 
 import { getCalculatorInstance } from "./utils"
@@ -68,7 +68,7 @@ export class WorkflowCalculator extends Calculator {
       )
       const merged = this.mergeIngredient(list)
       const map = new Map<string, number>()
-      merged.forEach(item => map.set(item.hrid, item.countPH!))
+      merged.forEach(item => map.set(`${item.hrid}-${item.level || 0}`, item.countPH!))
       this._ingredientPreprocess = { list: merged, map }
     }
     return this._ingredientPreprocess
@@ -85,7 +85,7 @@ export class WorkflowCalculator extends Calculator {
       )
       const merged = this.mergeIngredient(list)
       const map = new Map<string, number>()
-      merged.forEach(item => map.set(item.hrid, item.countPH!))
+      merged.forEach(item => map.set(`${item.hrid}-${item.level || 0}`, item.countPH!))
       this._productPreprocess = { list: merged, map }
     }
     return this._productPreprocess
@@ -97,9 +97,9 @@ export class WorkflowCalculator extends Calculator {
     const { map: rightMap } = this.productListWithPricePreprocess
     const sameItemMap = new Map<string, number>()
 
-    rightMap.forEach((rightCount, hrid) => {
-      if (leftMap.has(hrid)) {
-        sameItemMap.set(hrid, Math.min(leftMap.get(hrid)!, rightCount))
+    rightMap.forEach((rightCount, key) => {
+      if (leftMap.has(key)) {
+        sameItemMap.set(key, Math.min(leftMap.get(key)!, rightCount))
       }
     })
     return sameItemMap
@@ -113,7 +113,7 @@ export class WorkflowCalculator extends Calculator {
     return list
       .map(item => ({
         ...item,
-        countPH: item.countPH! - (sameItemMap.get(item.hrid) || 0)
+        countPH: item.countPH! - (sameItemMap.get(`${item.hrid}-${item.level || 0}`) || 0)
       }))
       .filter(item => item.countPH! > 1e-8)
   }
@@ -122,20 +122,19 @@ export class WorkflowCalculator extends Calculator {
   get productListWithPrice(): ProductWithPrice[] {
     const { list } = this.productListWithPricePreprocess
     const sameItemMap = this.sameItemCounterMap
-
     return list
       .map(item => ({
         ...item,
-        countPH: item.countPH! - (sameItemMap.get(item.hrid) || 0)
+        countPH: item.countPH! - (sameItemMap.get(`${item.hrid}-${item.level || 0}`) || 0)
       }))
       .filter(item => item.countPH! > 1e-8)
   }
 
-  // 合并逻辑保持不变
+  // 把相同hrid的原料合并，用于左右抵消
   mergeIngredient(list: IngredientWithPrice[]): IngredientWithPrice[] {
     const map = new Map<string, IngredientWithPrice>()
     list.forEach((item) => {
-      const key = item.hrid
+      const key = `${item.hrid}-${item.level || 0}`
       if (map.has(key)) {
         const target = map.get(key)!
         target.count += item.count
