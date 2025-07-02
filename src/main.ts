@@ -13,7 +13,7 @@ import "nprogress/nprogress.css"
 import "element-plus/theme-chalk/dark/css-vars.css"
 import "@@/assets/styles/index.scss"
 import "virtual:uno.css"
-import { useGameStore } from "./pinia/stores/game"
+import { useGameStoreOutside } from "./pinia/stores/game"
 
 import locales from "@/locales"
 
@@ -34,8 +34,8 @@ app.use(pinia).use(router)
 
 // 定时获取数据
 setInterval(() => {
-  useGameStore().tryFetchData()
-  useGameStore().fetchMarketDataLevel()
+  useGameStoreOutside().tryFetchData()
+  useGameStoreOutside().fetchMarketDataLevel()
 }, 300 * 1000)
 
 app.use(VueGtag, {
@@ -44,8 +44,8 @@ app.use(VueGtag, {
   }
 })
 
-useGameStore().fetchMarketDataLevel()
-useGameStore().tryFetchData().then(() => {
+useGameStoreOutside().fetchMarketDataLevel()
+useGameStoreOutside().tryFetchData().then(() => {
   router.isReady().then(() => {
     app.mount("#app")
   })

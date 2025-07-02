@@ -1,6 +1,5 @@
-import { clearEnhancelateCache } from "@/common/apis/game"
 import { defineStore } from "pinia"
-import { useGameStore } from "./game"
+import { useGameStoreOutside } from "./game"
 
 export const usePriceStore = defineStore("price", {
   state: () => ({
@@ -10,11 +9,7 @@ export const usePriceStore = defineStore("price", {
   actions: {
     commit() {
       save(this.map)
-      useGameStore().clearLeaderBoardCache()
-      clearEnhancelateCache()
-      useGameStore().clearManualchemyCache()
-      useGameStore().clearInheritCache()
-      useGameStore().clearDecomposeCache()
+      useGameStoreOutside().clearAllCaches()
     },
     setPrice(row: StoragePriceItem) {
       let price = this.map.get(row.hrid)
@@ -41,9 +36,7 @@ export const usePriceStore = defineStore("price", {
     setActivated(value: boolean) {
       this.activated = value
       setActivated(String(value))
-      useGameStore().clearLeaderBoardCache()
-      clearEnhancelateCache()
-      useGameStore().clearManualchemyCache()
+      useGameStoreOutside().clearAllCaches()
     }
   }
 })

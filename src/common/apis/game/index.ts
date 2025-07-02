@@ -2,7 +2,7 @@ import type { EnhancelateResult } from "@/calculator/enhance"
 import type { DropTableItem, GameData, ItemDetail } from "~/game"
 import type { MarketData, MarketDataLevel, MarketItem } from "~/market"
 import Calculator from "@/calculator"
-import { PriceStatus, useGameStore } from "@/pinia/stores/game"
+import { PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
 import deepFreeze from "deep-freeze-strict"
 
 // 把Proxy扒下来，提高性能
@@ -14,26 +14,26 @@ const game = {
 
 let _processingProductMap: Record<string, string> = {}
 let _priceCache = {} as Record<string, MarketItem>
-watch(() => useGameStore().gameData, () => {
-  const data = structuredClone(toRaw(useGameStore().gameData))
+watch(() => useGameStoreOutside().gameData, () => {
+  const data = structuredClone(toRaw(useGameStoreOutside().gameData))
   game.gameData = data ? deepFreeze(data) : data
   _priceCache = {}
   initProcessingProductMap()
 }, { immediate: true })
-watch(() => useGameStore().marketData, () => {
+watch(() => useGameStoreOutside().marketData, () => {
   console.log("raw marketData changed")
-  const data = Object.freeze(structuredClone(toRaw(useGameStore().marketData)))
+  const data = Object.freeze(structuredClone(toRaw(useGameStoreOutside().marketData)))
   game.marketData = data
   _priceCache = {}
 }, { immediate: true })
 
-watch(() => useGameStore().marketDataLevel, () => {
+watch(() => useGameStoreOutside().marketDataLevel, () => {
   console.log("raw marketDataLevel changed")
-  game.marketDataLevel = Object.freeze(structuredClone(toRaw(useGameStore().marketDataLevel)))
+  game.marketDataLevel = Object.freeze(structuredClone(toRaw(useGameStoreOutside().marketDataLevel)))
   _priceCache = {}
 }, { immediate: true })
 
-watch([() => useGameStore().buyStatus, () => useGameStore().sellStatus], () => {
+watch([() => useGameStoreOutside().buyStatus, () => useGameStoreOutside().sellStatus], () => {
   _priceCache = {}
 }, { immediate: true })
 
@@ -140,7 +140,7 @@ function priceStepOf(price: number, high: boolean = true) {
   return high ? (price + priceStep[highStepIndex][1]) * 10 ** dec : (price - priceStep[lowStepIndex][1]) * 10 ** dec
 }
 
-export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStatus = useGameStore().buyStatus, sellStatus: PriceStatus = useGameStore().sellStatus): MarketItem {
+export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStatus = useGameStoreOutside().buyStatus, sellStatus: PriceStatus = useGameStoreOutside().sellStatus): MarketItem {
   if (!hrid) {
     return {
       ask: -1,
@@ -259,9 +259,6 @@ export function setEnhancelateCache(params: EnhancelateCacheParams, result: Enha
   enhancelateCache[`${params.originLevel}-${params.enhanceLevel}-${params.protectLevel}-${params.itemLevel}-${params.escapeLevel}`] = result
 }
 export function clearEnhancelateCache() {
-  useGameStore().clearEnhanposerCache()
-  useGameStore().clearJungleCache()
-  useGameStore().clearJunglestCache()
   enhancelateCache = {}
 }
 // #region 游戏内代码

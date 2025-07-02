@@ -207,12 +207,7 @@ export const useGameStore = defineStore("game", {
     savePriceStatus() {
       // saveBuyStatus(this.buyStatus)
       // saveSellStatus(this.sellStatus)
-      this.clearLeaderBoardCache()
-      this.clearManualchemyCache()
-      this.clearEnhanposerCache()
-      this.clearJungleCache()
-      this.clearJunglestCache()
-      this.clearInheritCache()
+      this.clearAllCaches()
     },
     resetPriceStatus() {
       this.buyStatus = loadBuyStatus()
@@ -294,6 +289,16 @@ export const useGameStore = defineStore("game", {
     },
     checkSecret() {
       return btoa(this.secret) === "MTE0NTE0QA=="
+    },
+
+    clearAllCaches() {
+      this.clearLeaderBoardCache()
+      this.clearManualchemyCache()
+      this.clearInheritCache()
+      this.clearDecomposeCache()
+      this.clearEnhanposerCache()
+      this.clearJungleCache()
+      this.clearJunglestCache()
     }
 
   }

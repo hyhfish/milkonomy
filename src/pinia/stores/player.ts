@@ -1,7 +1,7 @@
 import type { Action, Equipment } from "~/game"
 import { clearEnhancelateCache } from "@/common/apis/game"
 import { defineStore } from "pinia"
-import { useGameStore } from "./game"
+import { useGameStoreOutside } from "./game"
 
 export const usePlayerStore = defineStore("player", {
   state: () => ({
@@ -11,10 +11,8 @@ export const usePlayerStore = defineStore("player", {
   actions: {
     commit() {
       save(this.config)
-      useGameStore().clearLeaderBoardCache()
-      useGameStore().clearManualchemyCache()
-      useGameStore().clearInheritCache()
-      useGameStore().clearDecomposeCache()
+      useGameStoreOutside().clearAllCaches()
+      // 目前只有更新玩家数据时需要清除强化缓存
       clearEnhancelateCache()
     },
     setActionConfig(list: ActionConfigItem[], sepecial: PlayerEquipmentItem[]) {
