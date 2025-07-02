@@ -1,18 +1,18 @@
+import type { RequestData } from "../leaderboard/type"
 import type { ActionConfigItem, PlayerEquipmentItem } from "@/pinia/stores/player"
 import type { StoragePriceItem } from "@/pinia/stores/price"
-import type { RequestData } from "../leaderboard/type"
 import type { Action, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
 import { DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
 import { getEquipmentTypeOf } from "@/common/utils/game"
-import { ACTION_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStore } from "@/pinia/stores/game"
-import { usePlayerStore } from "@/pinia/stores/player"
-import { usePriceStore } from "@/pinia/stores/price"
+import { ACTION_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStoreOutside } from "@/pinia/stores/game"
+import { usePlayerStoreOutside } from "@/pinia/stores/player"
+import { usePriceStoreOutside } from "@/pinia/stores/price"
 import { getGameDataApi, getItemDetailOf } from "../game"
 
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
   await new Promise(resolve => setTimeout(resolve, 0))
-  let list: StoragePriceItem[] = Array.from(usePriceStore().map.values())
+  let list: StoragePriceItem[] = Array.from(usePriceStoreOutside().map.values())
   params.name && (list = list.filter(item => getItemDetailOf(item.hrid).name.toLocaleLowerCase().includes(params.name!.toLowerCase())))
   return { list: list.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: list.length }
 }
@@ -20,29 +20,29 @@ export async function getPriceDataApi(params: RequestData) {
 /** 改 */
 export function setActionConfigApi(list: ActionConfigItem[], sepecial: PlayerEquipmentItem[], activated: boolean) {
   if (activated) {
-    usePlayerStore().setActionConfig(list, sepecial)
+    usePlayerStoreOutside().setActionConfig(list, sepecial)
   }
-  usePlayerStore().setActivated(activated)
-  usePlayerStore().commit()
+  usePlayerStoreOutside().setActivated(activated)
+  usePlayerStoreOutside().commit()
 }
 
 // #region 性能优化
 
-let playerConfig = structuredClone(toRaw(usePlayerStore().config))
-const defaultPlayerConfig = structuredClone(toRaw(usePlayerStore().config))
-let actionConfigActivated = usePlayerStore().actionConfigActivated
+let playerConfig = structuredClone(toRaw(usePlayerStoreOutside().config))
+const defaultPlayerConfig = structuredClone(toRaw(usePlayerStoreOutside().config))
+let actionConfigActivated = usePlayerStoreOutside().actionConfigActivated
 let equipmentList = [] as ItemDetail[]
 let allEquipmentList = [] as ItemDetail[]
 let teaList = [] as ItemDetail[]
 let buffs = {} as Record<NoncombatStatsProp, number>
 
-watch (() => useGameStore().gameData, () => {
-  if (!useGameStore().gameData) return
-  equipmentList = Object.freeze(structuredClone(Object.values(toRaw(useGameStore().gameData!.itemDetailMap))))
+watch (() => useGameStoreOutside().gameData, () => {
+  if (!useGameStoreOutside().gameData) return
+  equipmentList = Object.freeze(structuredClone(Object.values(toRaw(useGameStoreOutside().gameData!.itemDetailMap))))
     .filter(item => item.equipmentDetail?.noncombatStats && Object.keys(item.equipmentDetail?.noncombatStats).length > 0)
-  allEquipmentList = Object.freeze(structuredClone(Object.values(toRaw(useGameStore().gameData!.itemDetailMap))))
+  allEquipmentList = Object.freeze(structuredClone(Object.values(toRaw(useGameStoreOutside().gameData!.itemDetailMap))))
     .filter(item => item.equipmentDetail)
-  teaList = Object.freeze(structuredClone(Object.values(toRaw(useGameStore().gameData!.itemDetailMap))))
+  teaList = Object.freeze(structuredClone(Object.values(toRaw(useGameStoreOutside().gameData!.itemDetailMap))))
     .filter(item => item.categoryHrid === "/item_categories/drink")
   initDefaultActionConfigMap()
   initDefaultSpecialEquipmentMap()
@@ -51,7 +51,7 @@ watch (() => useGameStore().gameData, () => {
 }, { immediate: true })
 
 watch(
-  () => usePlayerStore().config,
+  () => usePlayerStoreOutside().config,
   (value) => {
     playerConfig = structuredClone(toRaw(value))
     initBuffMap()
@@ -102,7 +102,7 @@ function initDefaultSpecialEquipmentMap() {
   return map
 }
 
-watch(() => usePlayerStore().actionConfigActivated, (value) => {
+watch(() => usePlayerStoreOutside().actionConfigActivated, (value) => {
   actionConfigActivated = value
   initBuffMap()
 })

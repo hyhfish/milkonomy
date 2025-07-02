@@ -1,14 +1,14 @@
-import type Calculator from "@/calculator"
-
 import type * as Leaderboard from "../leaderboard/type"
+
+import type Calculator from "@/calculator"
 import type { Action, ItemDetail } from "~/game"
 import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import locales from "@/locales"
-import { type StorageCalculatorItem, useFavoriteStore } from "@/pinia/stores/favorite"
-import { useGameStore } from "@/pinia/stores/game"
+import { type StorageCalculatorItem, useFavoriteStoreOutside } from "@/pinia/stores/favorite"
+import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
@@ -16,8 +16,8 @@ const { t } = locales.global
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   let profitList: Calculator[] = []
-  if (useGameStore().getManualchemyCache()) {
-    profitList = useGameStore().getManualchemyCache()
+  if (useGameStoreOutside().getManualchemyCache()) {
+    profitList = useGameStoreOutside().getManualchemyCache()
   } else {
     await new Promise(resolve => setTimeout(resolve, 0))
     const startTime = Date.now()
@@ -27,10 +27,10 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
       console.error(e)
     }
 
-    useGameStore().setManualchemyCache(profitList)
+    useGameStoreOutside().setManualchemyCache(profitList)
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
-  profitList.forEach(item => item.favorite = useFavoriteStore().hasFavorite(item))
+  profitList.forEach(item => item.favorite = useFavoriteStoreOutside().hasFavorite(item))
 
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }

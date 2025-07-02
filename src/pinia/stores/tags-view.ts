@@ -1,12 +1,12 @@
 import type { RouteLocationNormalized } from "vue-router"
-import { pinia } from "@/pinia"
 import { getCachedViews, getVisitedViews, setCachedViews, setVisitedViews } from "@@/utils/cache/local-storage"
-import { useSettingsStore } from "./settings"
+import { pinia } from "@/pinia"
+import { useSettingsStoreOutside } from "./settings"
 
 export type TagView = Partial<RouteLocationNormalized>
 
 export const useTagsViewStore = defineStore("tags-view", () => {
-  const { cacheTagsView } = useSettingsStore()
+  const { cacheTagsView } = useSettingsStoreOutside()
   const visitedViews = ref<TagView[]>(cacheTagsView ? getVisitedViews() : [])
   const cachedViews = ref<string[]>(cacheTagsView ? getCachedViews() : [])
 

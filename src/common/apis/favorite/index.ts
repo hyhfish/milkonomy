@@ -1,7 +1,7 @@
-import type Calculator from "@/calculator"
 import type { RequestData } from "../leaderboard/type"
+import type Calculator from "@/calculator"
 import { calculatorConstructable, getCalculatorInstance, getStorageCalculatorItem } from "@/calculator/utils"
-import { useFavoriteStore } from "@/pinia/stores/favorite"
+import { useFavoriteStoreOutside } from "@/pinia/stores/favorite"
 /** 查 */
 export async function getFavoriteDataApi(params: RequestData) {
   await new Promise(resolve => setTimeout(resolve, 300))
@@ -22,7 +22,7 @@ export async function getFavoriteDataApi(params: RequestData) {
 
 function calcProfit() {
   // 所有物品列表
-  const list = useFavoriteStore().list
+  const list = useFavoriteStoreOutside().list
   const profitList: Calculator[] = []
   list.filter(item => calculatorConstructable(item.className!)).forEach((item) => {
     const instance = getCalculatorInstance(item)
@@ -34,11 +34,11 @@ function calcProfit() {
 /** 增 */
 export function addFavoriteApi(row: Calculator) {
   const storageItem = getStorageCalculatorItem(row)
-  useFavoriteStore().addFavorite(storageItem)
+  useFavoriteStoreOutside().addFavorite(storageItem)
 }
 /** 删 */
 export function deleteFavoriteApi(row: Calculator) {
-  useFavoriteStore().deleteFavorite({
+  useFavoriteStoreOutside().deleteFavorite({
     id: row.id,
     hrid: row.item.hrid,
     project: row.project,

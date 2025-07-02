@@ -1,7 +1,7 @@
-import { useSettingsStore } from "@/pinia/stores/settings"
 import { LayoutModeEnum } from "@@/constants/app-key"
+import { useSettingsStoreOutside } from "@/pinia/stores/settings"
 
-const settingsStore = useSettingsStore()
+const settingsStore = useSettingsStoreOutside()
 
 const isLeft = computed(() => settingsStore.layoutMode === LayoutModeEnum.Left)
 const isTop = computed(() => settingsStore.layoutMode === LayoutModeEnum.Top)

@@ -1,4 +1,5 @@
 import { defineStore } from "pinia"
+import { pinia } from "@/pinia"
 import { useGameStoreOutside } from "./game"
 
 export const usePriceStore = defineStore("price", {
@@ -73,4 +74,8 @@ function getActivated() {
 }
 function setActivated(value: string) {
   localStorage.setItem(ACTIVATED_KEY, value)
+}
+
+export function usePriceStoreOutside() {
+  return usePriceStore(pinia)
 }

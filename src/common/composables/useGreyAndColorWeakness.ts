@@ -1,4 +1,4 @@
-import { useSettingsStore } from "@/pinia/stores/settings"
+import { useSettingsStoreOutside } from "@/pinia/stores/settings"
 
 const GREY_MODE = "grey-mode"
 const COLOR_WEAKNESS = "color-weakness"
@@ -7,7 +7,7 @@ const classList = document.documentElement.classList
 
 /** 初始化 */
 function initGreyAndColorWeakness() {
-  const settingsStore = useSettingsStore()
+  const settingsStore = useSettingsStoreOutside()
   watchEffect(() => {
     classList.toggle(GREY_MODE, settingsStore.showGreyMode)
     classList.toggle(COLOR_WEAKNESS, settingsStore.showColorWeakness)

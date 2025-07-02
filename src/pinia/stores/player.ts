@@ -1,6 +1,7 @@
 import type { Action, Equipment } from "~/game"
-import { clearEnhancelateCache } from "@/common/apis/game"
 import { defineStore } from "pinia"
+import { clearEnhancelateCache } from "@/common/apis/game"
+import { pinia } from "@/pinia"
 import { useGameStoreOutside } from "./game"
 
 export const usePlayerStore = defineStore("player", {
@@ -93,4 +94,8 @@ function getActivated() {
 }
 function setActivated(value: string) {
   localStorage.setItem(ACTIVATED_KEY, value)
+}
+
+export function usePlayerStoreOutside() {
+  return usePlayerStore(pinia)
 }

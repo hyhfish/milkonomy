@@ -2,6 +2,7 @@ import type { CalculatorConfig } from "@/calculator"
 import type { Action } from "~/game"
 import { find } from "lodash-es"
 import { defineStore } from "pinia"
+import { pinia } from "@/pinia"
 
 export const useFavoriteStore = defineStore("favorite", {
   state: () => ({
@@ -50,4 +51,8 @@ function loadList(): StorageCalculatorItem[] {
 
 function saveList(list: StorageCalculatorItem[]) {
   localStorage.setItem(LIST_KEY, JSON.stringify(list))
+}
+
+export function useFavoriteStoreOutside() {
+  return useFavoriteStore(pinia)
 }

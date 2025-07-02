@@ -3,7 +3,7 @@ import { EnhanceCalculator } from "@/calculator/enhance"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import locales from "@/locales"
-import { useGameStore, useGameStoreOutside } from "@/pinia/stores/game"
+import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
@@ -12,8 +12,8 @@ const { t } = locales.global
 /** 查 */
 export async function getEnhanposerDataApi(params: any) {
   let profitList: WorkflowCalculator[] = []
-  if (useGameStore().getEnhanposerCache()) {
-    profitList = useGameStore().getEnhanposerCache()
+  if (useGameStoreOutside().getEnhanposerCache()) {
+    profitList = useGameStoreOutside().getEnhanposerCache()
   } else {
     await new Promise(resolve => setTimeout(resolve, 300))
     const startTime = Date.now()
@@ -22,7 +22,7 @@ export async function getEnhanposerDataApi(params: any) {
     } catch (e: any) {
       console.error(e)
     }
-    useGameStore().setEnhanposerCache(profitList)
+    useGameStoreOutside().setEnhanposerCache(profitList)
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
 

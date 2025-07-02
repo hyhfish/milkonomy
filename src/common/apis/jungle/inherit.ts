@@ -2,7 +2,7 @@ import type { Action } from "~/game"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import locales from "@/locales"
 
-import { useGameStore } from "@/pinia/stores/game"
+import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi, getPriceOf } from "../game"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
@@ -10,8 +10,8 @@ const { t } = locales.global
 /** 查 */
 export async function getDataApi(params: any) {
   let profitList: ManufactureCalculator[] = []
-  if (useGameStore().getInheritCache()) {
-    profitList = useGameStore().getInheritCache()
+  if (useGameStoreOutside().getInheritCache()) {
+    profitList = useGameStoreOutside().getInheritCache()
   } else {
     await new Promise(resolve => setTimeout(resolve, 300))
     const startTime = Date.now()
@@ -20,7 +20,7 @@ export async function getDataApi(params: any) {
     } catch (e: any) {
       console.error(e)
     }
-    useGameStore().setInheritCache(profitList)
+    useGameStoreOutside().setInheritCache(profitList)
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
 
