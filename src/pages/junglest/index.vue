@@ -1,19 +1,19 @@
 <script lang="ts" setup>
 import type Calculator from "@/calculator"
-import ItemIcon from "@@/components/ItemIcon/index.vue"
-import { usePagination } from "@@/composables/usePagination"
-import { Edit, Search } from "@element-plus/icons-vue"
-import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
-import { cloneDeep } from "lodash-es"
-
 import { getMarketDataApi } from "@/common/apis/game"
 import { getDataApi } from "@/common/apis/jungle/junglest"
 import { useMemory } from "@/common/composables/useMemory"
 import { usePriceStatus } from "@/common/composables/usePriceStatus"
 import * as Format from "@/common/utils/format"
+
 import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { usePriceStore } from "@/pinia/stores/price"
+import ItemIcon from "@@/components/ItemIcon/index.vue"
+import { usePagination } from "@@/composables/usePagination"
+import { Edit, Search } from "@element-plus/icons-vue"
+import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
+import { cloneDeep } from "lodash-es"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
 import ManualPriceCard from "../dashboard/components/ManualPriceCard.vue"
@@ -163,7 +163,7 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
               <el-table-column prop="result.name" :label="t('物品')">
                 <template #default="{ row }">
                   {{ row.result.name }}
-                  {{ row.result.originLevel ? `+${row.result.enhanceLevel}` : '' }}
+                  {{ row.originLevel ? `+${row.originLevel}` : '' }}
                 </template>
               </el-table-column>
               <el-table-column min-width="70">
