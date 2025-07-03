@@ -1,6 +1,6 @@
 import type { RequestData } from "../leaderboard/type"
 import type Calculator from "@/calculator"
-import type { ActionConfigItem, PlayerEquipmentItem } from "@/pinia/stores/player"
+import type { ActionConfig, PlayerEquipmentItem } from "@/pinia/stores/player"
 import type { StoragePriceItem } from "@/pinia/stores/price"
 import type { Action, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
 import { DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
@@ -19,11 +19,8 @@ export async function getPriceDataApi(params: RequestData) {
 }
 
 /** 改 */
-export function setActionConfigApi(list: ActionConfigItem[], sepecial: PlayerEquipmentItem[], activated: boolean) {
-  if (activated) {
-    usePlayerStoreOutside().setActionConfig(list, sepecial)
-  }
-  usePlayerStoreOutside().setActivated(activated)
+export function setActionConfigApi(config: ActionConfig, index: number) {
+  usePlayerStoreOutside().setActionConfig(config, index)
   usePlayerStoreOutside().commit()
 }
 
@@ -31,7 +28,6 @@ export function setActionConfigApi(list: ActionConfigItem[], sepecial: PlayerEqu
 
 let playerConfig = structuredClone(toRaw(usePlayerStoreOutside().config))
 const defaultPlayerConfig = structuredClone(toRaw(usePlayerStoreOutside().config))
-let actionConfigActivated = usePlayerStoreOutside().actionConfigActivated
 let equipmentList = [] as ItemDetail[]
 let allEquipmentList = [] as ItemDetail[]
 let teaList = [] as ItemDetail[]
@@ -103,24 +99,12 @@ function initDefaultSpecialEquipmentMap() {
   return map
 }
 
-watch(() => usePlayerStoreOutside().actionConfigActivated, (value) => {
-  actionConfigActivated = value
-  initBuffMap()
-})
-
-export function getActionConfigActivated() {
-  return actionConfigActivated
-}
 /**
  * 获取用户穿戴的action对应的配置
  * @param action
  */
-export function getActionConfigOf(action: Action, activated: boolean = actionConfigActivated) {
-  return activated
-    ? playerConfig.actionConfigMap.get(action)
-      ? playerConfig.actionConfigMap.get(action)!
-      : defaultPlayerConfig.actionConfigMap.get(action)!
-    : defaultPlayerConfig.actionConfigMap.get(action)!
+export function getActionConfigOf(action: Action) {
+  return playerConfig.actionConfigMap.get(action) ?? defaultPlayerConfig.actionConfigMap.get(action)!
 }
 
 export function getToolListOf(action: Action) {
@@ -162,12 +146,8 @@ export function getSpecialEquipmentListOf(type: string) {
  * 获取用户穿戴的special装备
  * @param type
  */
-export function getSpecialEquipmentOf(type: Equipment, activated: boolean) {
-  return activated
-    ? playerConfig.specialEquimentMap.get(type)
-      ? playerConfig.specialEquimentMap.get(type)!
-      : defaultPlayerConfig.specialEquimentMap.get(type)
-    : defaultPlayerConfig.specialEquimentMap.get(type)
+export function getSpecialEquipmentOf(type: Equipment) {
+  return playerConfig.specialEquimentMap.get(type) ?? defaultPlayerConfig.specialEquimentMap.get(type)!
 }
 
 // #endregion
@@ -193,7 +173,7 @@ function initBuffMap() {
   const enhanceMultiplier = getGameDataApi().enhancementLevelTotalBonusMultiplierTable
   // 特殊装备
   for (const equipment of EQUIPMENT_LIST) {
-    const eq = getSpecialEquipmentOf(equipment, actionConfigActivated)
+    const eq = getSpecialEquipmentOf(equipment)
     if (eq && eq.hrid) {
       const item = getItemDetailOf(eq.hrid!)
       item.equipmentDetail?.noncombatStats && Object.entries(item.equipmentDetail.noncombatStats).forEach(([key, value]) => {

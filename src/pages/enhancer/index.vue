@@ -12,7 +12,7 @@ import { getEquipmentList } from "@/common/apis/player"
 import { useEnhancerStore } from "@/pinia/stores/enhancer"
 import { COIN_HRID, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
-import ActionConfig from "./components/ActionConfig.vue"
+import ActionConfig from "../dashboard/components/ActionConfig.vue"
 
 const enhancerStore = useEnhancerStore()
 const { t } = useI18n()
@@ -236,8 +236,7 @@ const tableWidth = computed(() => {
 
 watch([
   () => getMarketDataApi(),
-  () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated
+  () => usePlayerStore().config
 ], () => enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid)), { immediate: false })
 
 function resetPrice() {
@@ -335,8 +334,9 @@ watch(menuVisible, (value) => {
       >
         {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
       </div>
+
       <div>
-        <ActionConfig />
+        <ActionConfig :actions="['enhancing']" :equipments="['hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>
     </div>
     <el-row :gutter="20" class="row max-w-1100px mx-auto!">

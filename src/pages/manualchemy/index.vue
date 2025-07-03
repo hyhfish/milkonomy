@@ -68,7 +68,6 @@ watch([
   () => paginationDataLD.pageSize,
   () => useGameStore().marketData,
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated,
   () => useGameStore().buyStatus,
   () => useGameStore().sellStatus
 ], getLeaderboardData, { immediate: true })

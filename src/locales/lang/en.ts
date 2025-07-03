@@ -133,6 +133,11 @@ export default {
   "市场数据更新时间": "Market data update at",
 
   // 自定义装备
+  "预设": "Preset",
+  "预设名称": "Preset Name",
+  "预设颜色": "Preset Color",
+  "{0}新预设": "{0} New Preset",
+
   "技能等级": "Skill Level",
   "房子等级": "House Level",
 

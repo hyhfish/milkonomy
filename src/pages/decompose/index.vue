@@ -13,10 +13,10 @@ import * as Format from "@/common/utils/format"
 import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { usePriceStore } from "@/pinia/stores/price"
+import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
 import ManualPriceCard from "../dashboard/components/ManualPriceCard.vue"
-import ActionConfig from "./components/ActionConfig.vue"
 
 // #region 查
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "decompose-leaderboard-pagination")
@@ -68,8 +68,7 @@ watch([
   () => paginationDataLD.pageSize,
   () => useGameStore().marketData,
   () => useGameStore().marketDataLevel,
-  () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated
+  () => usePlayerStore().config
 ], getLeaderboardData, { immediate: true })
 
 // #endregion
@@ -122,7 +121,7 @@ const { t } = useI18n()
         {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
       </div>
       <div>
-        <ActionConfig />
+        <ActionConfig :actions="['alchemy']" :equipments="['hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>
 
       <div>

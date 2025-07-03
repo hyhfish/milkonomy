@@ -1,48 +1,99 @@
 import type { Action, Equipment } from "~/game"
 import { defineStore } from "pinia"
 import { clearEnhancelateCache } from "@/common/apis/game"
+import { DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
 import { pinia } from "@/pinia"
-import { useGameStoreOutside } from "./game"
+import { ACTION_LIST, useGameStoreOutside } from "./game"
 
+export const MAX_PRESETS = 5
 export const usePlayerStore = defineStore("player", {
   state: () => ({
     config: load(),
-    actionConfigActivated: getActivated()
+    presets: loadPresets(),
+    presetIndex: getPresetIndex()
   }),
   actions: {
     commit() {
-      save(this.config)
-      useGameStoreOutside().clearAllCaches()
-      // 目前只有更新玩家数据时需要清除强化缓存
-      clearEnhancelateCache()
+      savePresets(this.presets)
     },
-    setActionConfig(list: ActionConfigItem[], sepecial: PlayerEquipmentItem[]) {
-      // this.config = {
-      //   actionConfigMap: new Map(list.map(item => [item.action, toRaw(item)])),
-      //   specialEquimentMap: new Map(sepecial.map(item => [item.type, toRaw(item)]))
-      // }
-
-      for (const item of list) {
-        this.config.actionConfigMap.set(item.action, toRaw(item))
-      }
-
-      for (const item of sepecial) {
-        this.config.specialEquimentMap.set(item.type, toRaw(item))
-      }
-
-      // 触发更新
-      this.config = {
-        actionConfigMap: new Map(Array.from(this.config.actionConfigMap.entries()).map(([key, value]) => [key, toRaw(value)])),
-        specialEquimentMap: new Map(Array.from(this.config.specialEquimentMap.entries()).map(([key, value]) => [key, toRaw(value)]))
-      }
+    setActionConfig(config: ActionConfig, index: number) {
+      this.config = config
+      this.presets[index] = config
+      this.commit()
+      this.setPresetIndex(index)
     },
-    setActivated(value: boolean) {
-      this.actionConfigActivated = value
-      setActivated(String(value))
+    switchTo(index: number) {
+      this.config = this.presets[index]
+      this.setPresetIndex(index)
+    },
+    setPresetIndex(index: number) {
+      this.presetIndex = index
+      setPresetIndex(index)
+      clearCaches()
+    },
+    isOverflow() {
+      return this.presets.length >= MAX_PRESETS
     }
   }
 })
+
+function clearCaches() {
+  useGameStoreOutside().clearAllCaches()
+  // 只有更新玩家数据时需要清除强化缓存
+  clearEnhancelateCache()
+}
+
+/**
+ * 获取默认预设
+ */
+export function defaultActionConfig(name: string, color: string) {
+  const actionConfigMap = new Map<Action, ActionConfigItem>()
+  for (const action of Object.values(ACTION_LIST)) {
+    const defaultTool = Object.values(useGameStoreOutside().gameData!.itemDetailMap)
+      .filter(item => item.equipmentDetail?.noncombatStats && Object.keys(item.equipmentDetail?.noncombatStats).length > 0)
+      .filter(item => item.equipmentDetail?.type === `/equipment_types/${action}_tool`)
+      // .sort((a, b) => a.itemLevel - b.itemLevel)
+      .find(item => item.itemLevel === 80)
+    actionConfigMap.set(action, {
+      action,
+      playerLevel: 100,
+      tool: {
+        type: `${action}_tool`,
+        hrid: defaultTool?.hrid,
+        enhanceLevel: 10
+      },
+      legs: {
+        type: `legs`,
+        hrid: undefined,
+        enhanceLevel: undefined
+      },
+      body: {
+        type: `body`,
+        hrid: undefined,
+        enhanceLevel: undefined
+      },
+      houseLevel: 4,
+      tea: structuredClone(DEFAULT_TEA[action])
+    })
+  }
+  const specialEquimentMap = new Map<Equipment, PlayerEquipmentItem>()
+  for (const item of Object.values(DEFAULT_SEPCIAL_EQUIPMENT_LIST)) {
+    specialEquimentMap.set(item.type, {
+      type: item.type,
+      hrid: item.hrid,
+      enhanceLevel: item.enhanceLevel
+    })
+  }
+  return {
+    actionConfigMap,
+    specialEquimentMap,
+    name,
+    color
+  }
+}
+
 const KEY = "player-action-config"
+const PRESETS_KEY = "player-action-config-presets"
 export interface ActionConfigItem {
   action: Action
   playerLevel: number
@@ -58,14 +109,19 @@ export interface PlayerEquipmentItem {
   enhanceLevel?: number
 }
 export interface ActionConfig {
+  name?: string
+  color?: string
   actionConfigMap: Map<Action, ActionConfigItem>
   specialEquimentMap: Map<Equipment, PlayerEquipmentItem>
 }
 
-function load(): ActionConfig {
+// 向前兼容
+function loadLegacyConfig() {
   const config = {
     actionConfigMap: new Map<Action, ActionConfigItem>(),
-    specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>()
+    specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(),
+    name: "0",
+    color: "#11BF11"
   }
   try {
     const data = JSON.parse(localStorage.getItem(KEY) || "{}")
@@ -75,25 +131,64 @@ function load(): ActionConfig {
   }
   return config
 }
-function save(config: ActionConfig) {
-  // localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(map.entries())))
-  const object: Record<string, any> = {}
-  for (const [key, value] of Object.entries(config)) {
-    if (value instanceof Map) {
-      object[key] = Object.fromEntries(value.entries())
-    } else {
-      object[key] = value
-    }
-  }
-  localStorage.setItem(KEY, JSON.stringify(object))
+
+function load(): ActionConfig {
+  const presets = loadPresets()
+  const presetIndex = Math.min(getPresetIndex(), presets.length - 1)
+  return presets[presetIndex]
 }
 
-const ACTIVATED_KEY = "player-action-activated"
-function getActivated() {
-  return localStorage.getItem(ACTIVATED_KEY) === "true"
+function loadPresets(): ActionConfig[] {
+  const presets: ActionConfig[] = []
+  try {
+    const data = JSON.parse(localStorage.getItem(PRESETS_KEY) || "[]")
+    for (const item of data) {
+      const actionConfig: ActionConfig = {
+        name: item.name,
+        color: item.color,
+        actionConfigMap: new Map<Action, ActionConfigItem>(Object.entries(item.actionConfigMap || {}) as [Action, ActionConfigItem][]),
+        specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(Object.entries(item.specialEquimentMap || {}) as [Equipment, PlayerEquipmentItem][])
+      }
+      presets.push(actionConfig)
+    }
+
+    // 如果没有预设，就尝试获取旧版自定义设置
+    if (presets.length === 0) {
+      presets.push(loadLegacyConfig())
+    }
+  } catch {
+  }
+
+  // 如果预设和旧版自定义设置都没有，就用默认的作为预设
+  if (presets.length === 0) {
+    presets.push(defaultActionConfig("0", "#11BF11"))
+  }
+  return presets
 }
-function setActivated(value: string) {
-  localStorage.setItem(ACTIVATED_KEY, value)
+
+function savePresets(presets: ActionConfig[]) {
+  const r = presets.map((preset) => {
+    const object: Record<string, any> = {}
+    for (const [key, value] of Object.entries(preset)) {
+      if (value instanceof Map) {
+        object[key] = Object.fromEntries(value.entries())
+      } else {
+        object[key] = value
+      }
+    }
+    return object
+  })
+  localStorage.setItem(PRESETS_KEY, JSON.stringify(r))
+}
+
+const PRESET_INDEX_KEY = "player-action-preset-index"
+function getPresetIndex() {
+  const value = localStorage.getItem(PRESET_INDEX_KEY)
+  return value ? Number.parseInt(value, 10) : 0
+}
+
+function setPresetIndex(value: number) {
+  localStorage.setItem(PRESET_INDEX_KEY, String(value))
 }
 
 export function usePlayerStoreOutside() {

@@ -14,11 +14,11 @@ import * as Format from "@/common/utils/format"
 import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { usePriceStore } from "@/pinia/stores/price"
+import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
 import ManualPriceCard from "../dashboard/components/ManualPriceCard.vue"
 import PriceStatusSelect from "../dashboard/components/PriceStatusSelect.vue"
-import ActionConfig from "./components/ActionConfig.vue"
 
 // #region 查
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "jungle-leaderboard-pagination")
@@ -71,7 +71,6 @@ watch([
   () => useGameStore().marketData,
   () => useGameStore().marketDataLevel,
   () => usePlayerStore().config,
-  () => usePlayerStore().actionConfigActivated,
   () => useGameStore().buyStatus,
   () => useGameStore().sellStatus
 
@@ -129,7 +128,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
         {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
       </div>
       <div>
-        <ActionConfig />
+        <ActionConfig :actions="['enhancing', 'cheesesmithing', 'crafting', 'tailoring']" :equipments="['off_hand', 'hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>
       <PriceStatusSelect
         @change="onPriceStatusChange"
