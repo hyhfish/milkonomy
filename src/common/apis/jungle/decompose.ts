@@ -37,9 +37,17 @@ function calcProfit() {
       if (price.ask <= 0) {
         continue
       }
-      console.log(item.hrid, "price", price)
-      const c = new DecomposeCalculator({ hrid: item.hrid, enhanceLevel })
-      handlePush(profitList, c)
+      let bestProfit = -Infinity
+      let bestCal: DecomposeCalculator | undefined
+      for (let catalystRank = 0; catalystRank <= 2; ++catalystRank) {
+        const c = new DecomposeCalculator({ hrid: item.hrid, enhanceLevel, catalystRank })
+        c.run()
+        if (c.result.profitPH > bestProfit) {
+          bestProfit = c.result.profitPH
+          bestCal = c
+        }
+      }
+      bestCal && handlePush(profitList, bestCal)
     }
   })
   return profitList

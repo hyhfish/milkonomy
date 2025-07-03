@@ -158,6 +158,13 @@ const { t } = useI18n()
                   {{ row.result.name }}+{{ row.enhanceLevel }}
                 </template>
               </el-table-column>
+              <el-table-column min-width="70">
+                <template #default="{ row }">
+                  <div style="display:flex;">
+                    <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
+                  </div>
+                </template>
+              </el-table-column>
               <el-table-column prop="project" :label="t('动作')" />
 
               <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120">
