@@ -2,17 +2,15 @@ import type { RequestData } from "../leaderboard/type"
 import type { IngredientPriceConfig, ProductPriceConfig } from "@/calculator"
 import type Calculator from "@/calculator"
 import type { StoragePriceItem } from "@/pinia/stores/price"
-import locales from "@/locales"
+import { getTrans } from "@/locales"
 import { priceKeyOf, usePriceStoreOutside } from "@/pinia/stores/price"
 import { getItemDetailOf } from "../game"
-
-const { t } = locales.global
 
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
   await new Promise(resolve => setTimeout(resolve, 0))
   let list: StoragePriceItem[] = Array.from(usePriceStoreOutside().map.values())
-  params.name && (list = list.filter(item => t(getItemDetailOf(item.hrid).name).toLocaleLowerCase().includes(params.name!.toLowerCase())))
+  params.name && (list = list.filter(item => getTrans(getItemDetailOf(item.hrid).name).toLocaleLowerCase().includes(params.name!.toLowerCase())))
   return { list: list.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: list.length }
 }
 
@@ -31,7 +29,7 @@ function setPrice(row: Calculator, priceConfigList: IngredientPriceConfig[], typ
   for (let i = 0; i < priceConfigList.length; i++) {
     const hrid = row[`${type}ListWithPrice`][i].hrid
     const level = row[`${type}ListWithPrice`][i].level
-    const hasPrice = hasManualPriceOf(hrid)
+    const hasPrice = hasManualPriceOf(hrid, level)
     const hasManualPrice = !!priceConfigList[i].manual
     if (hasManualPrice || hasPrice) {
       usePriceStoreOutside().setPrice({
@@ -64,7 +62,7 @@ watch(() => usePriceStoreOutside().activated, () => {
 })
 
 export function getManualPriceOf(hrid: string, level?: number) {
-  return price.map.get(priceKeyOf(hrid, level))
+  return getManualPriceActivated() ? price.map.get(priceKeyOf(hrid, level)) : null
 }
 export function hasManualPriceOf(hrid: string, level?: number) {
   return price.map.has(priceKeyOf(hrid, level))
@@ -72,4 +70,5 @@ export function hasManualPriceOf(hrid: string, level?: number) {
 export function getManualPriceActivated() {
   return price.activated
 }
+
 // #endregion

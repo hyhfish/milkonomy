@@ -5,7 +5,7 @@ import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Search, Star, StarFilled, Warning } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, debounce } from "lodash-es"
 import { WorkflowCalculator } from "@/calculator/workflow"
 
 import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
@@ -38,7 +38,8 @@ const ldSearchData = useMemory("dashboard-leaderboard-search-data", {
 })
 
 const loadingLD = ref(false)
-function getLeaderboardData() {
+
+const getLeaderboardData = debounce(() => {
   loadingLD.value = true
   getLeaderboardDataApi({
     currentPage: paginationDataLD.currentPage,
@@ -54,7 +55,7 @@ function getLeaderboardData() {
   }).finally(() => {
     loadingLD.value = false
   })
-}
+}, 300)
 
 function handleInput(val: string) {
   if (val && val.includes("@")) {

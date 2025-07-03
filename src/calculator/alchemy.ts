@@ -1,11 +1,9 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getAlchemyDecomposeEnhancingEssenceOutput, getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
 import { getAlchemySuccessRatio, getBuffOf, getTeaIngredientList } from "@/common/apis/player"
-import locales from "@/locales"
+import { getTrans } from "@/locales"
 import { COIN_HRID } from "@/pinia/stores/game"
 import Calculator from "."
-
-const { t } = locales.global
 
 export interface AlchemyCalculatorConfig extends CalculatorConfig {
 
@@ -41,7 +39,7 @@ export class TransmuteCalculator extends AlchemyCalculator {
   }
 
   constructor(config: AlchemyCalculatorConfig) {
-    super({ ...config, project: t("转化") })
+    super({ ...config, project: getTrans("转化") })
   }
 
   get catalyst(): AlchemyCatalyst | undefined {
@@ -127,7 +125,7 @@ export class DecomposeCalculator extends AlchemyCalculator {
 
   enhanceLevel: number
   constructor(config: AlchemyCalculatorConfig) {
-    super({ ...config, project: t("分解") })
+    super({ ...config, project: getTrans("分解") })
     this.enhanceLevel = config.enhanceLevel || 0
   }
 
@@ -217,7 +215,7 @@ export class CoinifyCalculator extends AlchemyCalculator {
   }
 
   constructor(config: AlchemyCalculatorConfig) {
-    super({ ...config, project: t("点金") })
+    super({ ...config, project: getTrans("点金") })
   }
 
   get catalyst(): AlchemyCatalyst | undefined {

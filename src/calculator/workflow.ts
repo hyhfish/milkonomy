@@ -1,12 +1,10 @@
 import type { Ingredient, IngredientWithPrice, Product, ProductWithPrice } from "."
 import type { StorageCalculatorItem } from "@/pinia/stores/favorite"
 import * as Format from "@@/utils/format"
-import locales from "@/locales"
+import { getTrans } from "@/locales"
 import Calculator from "."
 
 import { getCalculatorInstance } from "./utils"
-
-const { t } = locales.global
 
 export class WorkflowCalculator extends Calculator {
   get ingredientList(): Ingredient[] {
@@ -215,7 +213,7 @@ export class WorkflowCalculator extends Calculator {
     this.result = {
       workMultiplier: this.workMultiplier,
       hrid: item.hrid,
-      name: t(item.name),
+      name: getTrans(item.name),
       project: this.project,
       successRate: 1,
       costPH,

@@ -4,10 +4,11 @@ import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
-import locales from "@/locales"
+import locales, { getTrans } from "@/locales"
 
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi, getPriceOf } from "../game"
+import { getManualPriceOf } from "../price"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 const { t } = locales.global
@@ -26,6 +27,7 @@ export async function getDataApi(params: any) {
     }
     useGameStoreOutside().setJungleCache(profitList)
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
+    console.log(`计算完成，耗时秒${(Date.now() - startTime) / 1000}`)
   }
 
   profitList = profitList.filter(item => params.maxLevel ? (item.calculator as DecomposeCalculator).enhanceLevel <= params.maxLevel : true)
@@ -54,7 +56,7 @@ function calcEnhanceProfit() {
   const profitList: WorkflowCalculator[] = []
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
-      const price = getPriceOf(item.hrid, enhanceLevel)
+      const price = getManualPriceOf(item.hrid, enhanceLevel) ?? getPriceOf(item.hrid, enhanceLevel)
       if (price.bid === -1) {
         continue
       }
@@ -65,9 +67,9 @@ function calcEnhanceProfit() {
       for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
         const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
         const projects: [string, Action][] = [
-          [t("锻造"), "cheesesmithing"],
-          [t("制造"), "crafting"],
-          [t("裁缝"), "tailoring"]
+          [getTrans("锻造"), "cheesesmithing"],
+          [getTrans("制造"), "crafting"],
+          [getTrans("裁缝"), "tailoring"]
         ]
         for (const [projectLast, actionLast] of projects) {
           for (const [project, action] of projects) {
@@ -82,7 +84,7 @@ function calcEnhanceProfit() {
             const c = new WorkflowCalculator([
               getStorageCalculatorItem(manual),
               getStorageCalculatorItem(enhancer)
-            ], `${project}${t("强化")}+${enhanceLevel}`)
+            ], `${project}${getTrans("强化")}+${enhanceLevel}`)
 
             c.run()
             let cStep2
@@ -91,7 +93,7 @@ function calcEnhanceProfit() {
                 getStorageCalculatorItem(manualLast),
                 getStorageCalculatorItem(manual),
                 getStorageCalculatorItem(enhancer)
-              ], `2步${project}${t("强化")}+${enhanceLevel}`)
+              ], `2步${project}${getTrans("强化")}+${enhanceLevel}`)
               cStep2.run()
             }
 

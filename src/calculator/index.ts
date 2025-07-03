@@ -2,10 +2,8 @@ import type { Action, ItemDetail } from "~/game"
 import * as Format from "@@/utils/format"
 import { getItemDetailOf } from "@/common/apis/game"
 import { getBuffOf, getPlayerLevelOf } from "@/common/apis/player"
-import { getManualPriceActivated, getManualPriceOf } from "@/common/apis/price"
-import locales from "@/locales"
-
-const { t } = locales.global
+import { getManualPriceOf } from "@/common/apis/price"
+import { getTrans } from "@/locales"
 
 export interface CalculatorConfig {
   hrid: string
@@ -79,7 +77,7 @@ export default abstract class Calculator {
     for (let i = 0; i < list.length; i++) {
       const item = list[i]
       const priceConfig = priceConfigList[i]
-      const hasManualPrice = getManualPriceOf(item.hrid, item.level)?.[type]?.manual && getManualPriceActivated()
+      const hasManualPrice = getManualPriceOf(item.hrid, item.level)?.[type]?.manual
       const manualPrice = getManualPriceOf(item.hrid, item.level)?.[type]?.manualPrice
       if (!priceConfig?.immutable && hasManualPrice) {
         this.hasManualPrice = true
@@ -213,7 +211,7 @@ export default abstract class Calculator {
 
     this.result = {
       hrid: this.item.hrid,
-      name: t(this.item.name),
+      name: getTrans(this.item.name),
       project: this.project,
       successRate: this.successRate,
       costPH,

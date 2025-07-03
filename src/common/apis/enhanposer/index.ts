@@ -2,7 +2,7 @@ import { DecomposeCalculator } from "@/calculator/alchemy"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
-import locales from "@/locales"
+import locales, { getTrans } from "@/locales"
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 
@@ -58,7 +58,7 @@ function calcEnhanceProfit() {
           const c = new WorkflowCalculator([
             getStorageCalculatorItem(enhancer),
             getStorageCalculatorItem(new DecomposeCalculator({ enhanceLevel, hrid: item.hrid, catalystRank }))
-          ], `${t("强化分解")}+${enhanceLevel}`)
+          ], `${getTrans("强化分解")}+${enhanceLevel}`)
 
           c.run()
 

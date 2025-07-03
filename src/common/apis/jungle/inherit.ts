@@ -1,6 +1,6 @@
 import type { Action } from "~/game"
 import { ManufactureCalculator } from "@/calculator/manufacture"
-import locales from "@/locales"
+import locales, { getTrans } from "@/locales"
 
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi, getPriceOf } from "../game"
@@ -38,9 +38,9 @@ function calcProfit() {
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (let originLevel = 1; originLevel <= 20; originLevel++) {
       const projects: [string, Action][] = [
-        [t("锻造"), "cheesesmithing"],
-        [t("制造"), "crafting"],
-        [t("裁缝"), "tailoring"]
+        [getTrans("锻造"), "cheesesmithing"],
+        [getTrans("制造"), "crafting"],
+        [getTrans("裁缝"), "tailoring"]
       ]
       for (const [project, action] of projects) {
         const c = new ManufactureCalculator({ hrid: item.hrid, project, action, originLevel })

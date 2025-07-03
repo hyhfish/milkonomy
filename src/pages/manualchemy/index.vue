@@ -5,7 +5,7 @@ import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { usePagination } from "@@/composables/usePagination"
 import { Edit, Search, Warning } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, debounce } from "lodash-es"
 
 import { getMarketDataApi } from "@/common/apis/game"
 import { getActionConfigOf } from "@/common/apis/player"
@@ -34,7 +34,7 @@ const ldSearchData = useMemory("dashboard-manualchemy-search-data", {
 })
 
 const loadingLD = ref(false)
-function getLeaderboardData() {
+const getLeaderboardData = debounce(() => {
   loadingLD.value = true
   getLeaderboardDataApi({
     currentPage: paginationDataLD.currentPage,
@@ -50,7 +50,8 @@ function getLeaderboardData() {
   }).finally(() => {
     loadingLD.value = false
   })
-}
+}, 300)
+
 function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
 }

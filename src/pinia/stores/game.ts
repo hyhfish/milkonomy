@@ -7,7 +7,7 @@ import type { WorkflowCalculator } from "@/calculator/workflow"
 import type { Action, GameData, NoncombatStatsKey } from "~/game"
 import type { MarketData, MarketDataLevel } from "~/market"
 import { defineStore } from "pinia"
-import locales from "@/locales"
+import locales, { getTrans } from "@/locales"
 import { pinia } from "@/pinia"
 
 const { t } = locales.global
@@ -78,10 +78,10 @@ export enum PriceStatus {
 }
 
 export const PRICE_STATUS_LIST = [
-  { value: PriceStatus.ASK, label: t("左价") },
-  { value: PriceStatus.ASK_LOW, label: t("左价-") },
-  { value: PriceStatus.BID, label: t("右价") },
-  { value: PriceStatus.BID_HIGH, label: t("右价+") }
+  { value: PriceStatus.ASK, label: getTrans("左价") },
+  { value: PriceStatus.ASK_LOW, label: getTrans("左价-") },
+  { value: PriceStatus.BID, label: getTrans("右价") },
+  { value: PriceStatus.BID_HIGH, label: getTrans("右价+") }
 ]
 
 export const useGameStore = defineStore("game", {

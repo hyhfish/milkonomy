@@ -6,7 +6,7 @@ import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/c
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
-import locales from "@/locales"
+import locales, { getTrans } from "@/locales"
 import { type StorageCalculatorItem, useFavoriteStoreOutside } from "@/pinia/stores/favorite"
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
@@ -42,11 +42,11 @@ function calcAllFlowProfit() {
   const profitList: Calculator[] = []
   list.forEach((item) => {
     const projects: [string, Action][] = [
-      [t("锻造"), "cheesesmithing"],
-      [t("制造"), "crafting"],
-      [t("裁缝"), "tailoring"],
-      [t("烹饪"), "cooking"],
-      [t("冲泡"), "brewing"]
+      [getTrans("锻造"), "cheesesmithing"],
+      [getTrans("制造"), "crafting"],
+      [getTrans("裁缝"), "tailoring"],
+      [getTrans("烹饪"), "cooking"],
+      [getTrans("冲泡"), "brewing"]
     ]
     for (const [project, action] of projects) {
       const configs: StorageCalculatorItem[] = []

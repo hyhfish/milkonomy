@@ -7,7 +7,7 @@ import { GatherCalculator } from "@/calculator/gather"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
-import locales from "@/locales"
+import locales, { getTrans } from "@/locales"
 import { type StorageCalculatorItem, useFavoriteStoreOutside } from "@/pinia/stores/favorite"
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
@@ -60,11 +60,11 @@ function calcProfit() {
     }
     cList.forEach(c => handlePush(profitList, c))
     const projects: [string, Action][] = [
-      [t("锻造"), "cheesesmithing"],
-      [t("制造"), "crafting"],
-      [t("裁缝"), "tailoring"],
-      [t("烹饪"), "cooking"],
-      [t("冲泡"), "brewing"]
+      [getTrans("锻造"), "cheesesmithing"],
+      [getTrans("制造"), "crafting"],
+      [getTrans("裁缝"), "tailoring"],
+      [getTrans("烹饪"), "cooking"],
+      [getTrans("冲泡"), "brewing"]
     ]
     for (const [project, action] of projects) {
       const c = new ManufactureCalculator({ hrid: item.hrid, project, action })
@@ -72,9 +72,9 @@ function calcProfit() {
     }
 
     const gatherings: [string, Action][] = [
-      [t("挤奶"), "milking"],
-      [t("采摘"), "foraging"],
-      [t("伐木"), "woodcutting"]
+      [getTrans("挤奶"), "milking"],
+      [getTrans("采摘"), "foraging"],
+      [getTrans("伐木"), "woodcutting"]
     ]
     for (const [project, action] of gatherings) {
       const c = new GatherCalculator({ hrid: item.hrid, project, action })
@@ -91,11 +91,11 @@ function calcAllFlowProfit() {
   const profitList: Calculator[] = []
   list.forEach((item) => {
     const projects: [string, Action][] = [
-      [t("锻造"), "cheesesmithing"],
-      [t("制造"), "crafting"],
-      [t("裁缝"), "tailoring"],
-      [t("烹饪"), "cooking"],
-      [t("冲泡"), "brewing"]
+      [getTrans("锻造"), "cheesesmithing"],
+      [getTrans("制造"), "crafting"],
+      [getTrans("裁缝"), "tailoring"],
+      [getTrans("烹饪"), "cooking"],
+      [getTrans("冲泡"), "brewing"]
     ]
     for (const [project, action] of projects) {
       const configs: StorageCalculatorItem[] = []
