@@ -65,6 +65,13 @@ function deletePrice(row: StoragePriceItem) {
     ElMessage.error(e.message)
   }
 }
+
+function deleteBatch() {
+  const selectedRows = priceData.value.filter((row: any) => row.selected)
+  for (const row of selectedRows) {
+    deletePrice(row)
+  }
+}
 const { t } = useI18n()
 </script>
 
@@ -87,6 +94,18 @@ const { t } = useI18n()
     </template>
     <template #default>
       <el-table :data="priceData" v-loading="loadingPrice">
+        <el-table-column width="44">
+          <template #header>
+            <el-link v-if="priceData.some((item:any) => item.selected)" type="danger" :icon=" Delete" @click="deleteBatch">
+              <!-- {{ t('删除') }} -->
+            </el-link>
+          </template>
+          <template #default="{ row }">
+            <el-checkbox
+              v-model="row.selected"
+            />
+          </template>
+        </el-table-column>
         <el-table-column width="54">
           <template #default="{ row }">
             <ItemIcon :hrid="row.hrid" />
