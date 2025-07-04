@@ -285,6 +285,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                   </el-tooltip>
                 </template>
               </el-table-column>
+              <el-table-column prop="result.expPHFormat" :label="t('强化经验 / h')" min-width="120" align="center" />
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">

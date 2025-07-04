@@ -239,6 +239,9 @@ function initBuffMap() {
         if (buff.typeHrid === "/buff_types/processing") {
           buffs[`${action}Processing`] = (buffs[`${action}Processing`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
+        if (buff.typeHrid === "/buff_types/wisdom") {
+          buffs[`${action}Experience`] = (buffs[`${action}Experience`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
+        }
       })
     }
   }

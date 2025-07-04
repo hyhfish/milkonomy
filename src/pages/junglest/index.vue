@@ -336,6 +336,7 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                   </el-tooltip>
                 </template>
               </el-table-column>
+              <el-table-column prop="result.expPHFormat" :label="t('经验 / h')" />
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">

@@ -175,12 +175,12 @@ const { t } = useI18n()
                 </template>
               </el-table-column>
               <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120" />
-              <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
+              <el-table-column prop="result.profitRate" :label="t('利润率')" min-width="100" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.result.profitRateFormat }}
                 </template>
               </el-table-column>
-              <el-table-column align="center" min-width="120">
+              <el-table-column align="center" min-width="100">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
                     <div>{{ t('利润 / 次') }}</div>
@@ -204,6 +204,7 @@ const { t } = useI18n()
                   </span>
                 </template>
               </el-table-column>
+              <el-table-column prop="result.expPHFormat" :label="t('强化经验 / h')" min-width="120" align="center" />
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">

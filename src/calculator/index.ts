@@ -196,7 +196,15 @@ export default abstract class Calculator {
     return true
   }
 
+  /**
+   * 单次动作经验
+   */
+  get exp(): number {
+    return 0
+  }
+
   run() {
+    const expPH = this.exp * this.actionsPH
     const costPH = this.cost * this.consumePH
     const cost4MatPH = this.cost4Mat * this.consumePH
     const incomePH = this.income * this.gainPH
@@ -231,7 +239,9 @@ export default abstract class Calculator {
       efficiencyFormat: Format.percent(this.efficiency - 1),
       speedFormat: Format.percent(this.speed - 1),
       timeCostFormat: Format.costTime(this.timeCost),
-      successRateFormat: Format.percent(this.successRate)
+      successRateFormat: Format.percent(this.successRate),
+      expPH,
+      expPHFormat: Format.money(expPH)
     }
     return this
   }

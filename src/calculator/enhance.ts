@@ -12,6 +12,7 @@ export interface EnhancelateResult {
   targetRate: number
   leapRate: number
   escapeRate: number
+  exp: number
 }
 export interface EnhanceCalculatorConfig extends CalculatorConfig {
   originLevel?: number
@@ -179,6 +180,12 @@ export class EnhanceCalculator extends Calculator {
     return this.item.itemLevel
   }
 
+  get exp(): number {
+    const { exp, actions } = this.enhancelate()
+    const totalExp = exp * (1 + getBuffOf(this.action, "Experience"))
+    return totalExp / actions
+  }
+
   run() {
     super.run()
     // 0->1 的成功率显示出来
@@ -275,7 +282,16 @@ export class EnhanceCalculator extends Calculator {
 
     protectVector = math.subset(protectVector, math.index(math.range(offset, targetLevel), 0))
 
-    // console.log("protectVector", protectVector)
+    let expVector = math.zeros(targetLevel, 1) as math.Matrix
+    for (let i = 0; i < targetLevel; i++) {
+      expVector.set([i, 0], (this.successRateEnhance(successRateTable[i]) + 0.1 * (1 - this.successRateEnhance(successRateTable[i]))) * cal_exp(this.item.itemLevel, i))
+    }
+
+    expVector = math.subset(expVector, math.index(math.range(offset, targetLevel), 0))
+
+    const allExp = math.multiply(inv, expVector) as math.Matrix
+    const exp = allExp.get([this.originLevel - offset, 0])
+
     const allMat = math.multiply(inv, protectVector) as math.Matrix
     const actions = all.get([this.originLevel - offset, 0])
     const protects = allMat.get([this.originLevel - offset, 0])
@@ -286,7 +302,7 @@ export class EnhanceCalculator extends Calculator {
     // 消除浮点数误差
     escapeRate = Math.abs(escapeRate) < 1e-10 ? 0 : escapeRate
 
-    result = { actions, protects, targetRate, leapRate, escapeRate }
+    result = { actions, protects, targetRate, leapRate, escapeRate, exp }
     setEnhancelateCache({
       enhanceLevel: this.enhanceLevel,
       protectLevel: this.protectLevel,
@@ -315,4 +331,8 @@ export class EnhanceCalculator extends Calculator {
   }
 
   // #endregion
+}
+
+function cal_exp(item_level: number, enhance_level: number) {
+  return 1.4 * (1 + enhance_level) * (10 + item_level)
 }

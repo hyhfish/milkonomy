@@ -203,6 +203,7 @@ export class WorkflowCalculator extends Calculator {
     if (this.calculatorList.some(cal => !cal.valid)) {
       profitPH = -1 / 24
     }
+    const expPH = this.resultList.reduce((acc, curr) => acc + (curr.expPH || 0), 0)
 
     // 计算最后一个动作整体执行一次的利润
     const lastCal = this.calculatorList[this.calculatorList.length - 1]
@@ -230,7 +231,8 @@ export class WorkflowCalculator extends Calculator {
       profitRateFormat: Format.percent(profitRate),
       efficiencyFormat: Format.percent(0),
       timeCostFormat: Format.costTime(this.timeCost),
-      successRateFormat: Format.percent(1)
+      successRateFormat: Format.percent(1),
+      expPHFormat: Format.money(expPH)
     }
     return this
   }
@@ -250,6 +252,7 @@ export class WorkflowCalculator extends Calculator {
         gainPH: result.gainPH * workMultiplier[i],
         incomePH: result.incomePH * workMultiplier[i],
         profitPH: result.profitPH * workMultiplier[i],
+        expPH: result.expPH * workMultiplier[i],
         profitRate: result.profitRate,
         costPHFormat: Format.money(result.costPH * workMultiplier[i]),
         incomePHFormat: Format.money(result.incomePH * workMultiplier[i]),

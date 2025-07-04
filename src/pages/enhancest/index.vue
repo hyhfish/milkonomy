@@ -228,6 +228,7 @@ const results = computed(() => {
       realEscapeLevel: calc.realEscapeLevel,
       time: Format.costTime(seconds * 1000000000),
       successTime: Format.costTime(seconds * 1000000000 / (targetRate + leapRate)),
+      expPHFormat: Format.money(calc.exp * calc.actionsPH),
       matCost: Format.money(matCost),
       totalCostFormatted: Format.money(guidePrice),
       profitPPFormatted: Format.money(profitPP),
@@ -668,6 +669,7 @@ watch(menuVisible, (value) => {
         <el-table-column prop="protectLevel" :label="t('Prot')" :min-width="columnWidths.protectLevel" header-align="center" align="right" />
         <el-table-column prop="actionsFormatted" :label="t('次数')" :min-width="columnWidths.actionsFormatted" header-align="center" align="right" />
         <el-table-column prop="time" :label="t('时间')" :min-width="columnWidths.time" align="right" />
+        <el-table-column prop="expPHFormat" :label="t('经验 / h')" :min-width="100" align="right" />
 
         <el-table-column v-for="item in enhancementCosts" :key="item.hrid" :min-width="100" header-align="center" align="right">
           <template #header>
