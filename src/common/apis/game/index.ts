@@ -348,4 +348,18 @@ export function getEnhancingRareDropTable(item: ItemDetail, timeCost: number) {
   }]
 }
 
+export function getEnhancementExp(item: ItemDetail, enhancementLevel: number) {
+  return 1.4 * (1 + enhancementLevel) * (10 + item.itemLevel)
+}
+
+export function getCoinifyExp(item: ItemDetail) {
+  return 1 * (10 + item.itemLevel)
+}
+export function getDecomposeExp(item: ItemDetail) {
+  return 1.4 * (10 + item.itemLevel)
+}
+export function getTransmuteExp(item: ItemDetail) {
+  return 1.6 * (10 + item.itemLevel)
+}
+
 // #endregion

@@ -1,7 +1,7 @@
 import type { CalculatorConfig, Ingredient, IngredientWithPrice, Product } from "."
 import * as Format from "@@/utils/format"
 import * as math from "mathjs"
-import { getEnhancelateCache, getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getPriceOf, setEnhancelateCache } from "@/common/apis/game"
+import { getEnhancelateCache, getEnhancementExp, getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getPriceOf, setEnhancelateCache } from "@/common/apis/game"
 import { getBuffOf, getEnhanceSuccessRatio, getTeaIngredientList } from "@/common/apis/player"
 import Calculator from "."
 import { DecomposeCalculator } from "./alchemy"
@@ -284,7 +284,7 @@ export class EnhanceCalculator extends Calculator {
 
     let expVector = math.zeros(targetLevel, 1) as math.Matrix
     for (let i = 0; i < targetLevel; i++) {
-      expVector.set([i, 0], (this.successRateEnhance(successRateTable[i]) + 0.1 * (1 - this.successRateEnhance(successRateTable[i]))) * cal_exp(this.item.itemLevel, i))
+      expVector.set([i, 0], (this.successRateEnhance(successRateTable[i]) + 0.1 * (1 - this.successRateEnhance(successRateTable[i]))) * getEnhancementExp(this.item, i))
     }
 
     expVector = math.subset(expVector, math.index(math.range(offset, targetLevel), 0))
@@ -331,8 +331,4 @@ export class EnhanceCalculator extends Calculator {
   }
 
   // #endregion
-}
-
-function cal_exp(item_level: number, enhance_level: number) {
-  return 1.4 * (1 + enhance_level) * (10 + item_level)
 }

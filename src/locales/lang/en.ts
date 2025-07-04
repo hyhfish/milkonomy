@@ -79,6 +79,8 @@ export default {
   "#多步动作利润提示": "If it is a multi-step action, the profit of all steps is calculated based on the last step executed once.",
   "#多步动作利润举例": "For example, 7 steps to smith a holy needle, this shows the total profit of producing 1 holy needle in the whole process.",
 
+  "#经验提示": "If it is a multi-step action, it shows the total experience of all actions.",
+
   // 强化分解
   "强化分解": "Enhance Decompose",
   "目标等级从": "Target Level from",

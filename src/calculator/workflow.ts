@@ -160,6 +160,18 @@ export class WorkflowCalculator extends Calculator {
     return this.calculatorList[this.calculatorList.length - 1]
   }
 
+  get expList() {
+    const map = new Map<string, number>()
+    this.resultList.forEach((item) => {
+      map.set(item.action, map.get(item.project) || 0 + item.expPH)
+    })
+    return Array.from(map.entries()).map(([action, expPH]) => ({
+      action,
+      expPH,
+      expPHFormat: Format.money(expPH)
+    }))
+  }
+
   /**
    * 工作流阶段倍率\
    * 以第一阶段为基准，第一阶段产生的产物作为原料，后面的阶段刚好消耗完毕\
@@ -242,6 +254,7 @@ export class WorkflowCalculator extends Calculator {
     return this.calculatorList.map((cal, i) => {
       const result = cal.result
       return {
+        action: cal.action,
         workMultiplier: workMultiplier[i],
         hrid: cal.item.hrid,
         name: cal.item.name,
@@ -261,7 +274,8 @@ export class WorkflowCalculator extends Calculator {
         profitRateFormat: Format.percent(result.profitRate),
         efficiencyFormat: Format.percent(cal.efficiency - 1),
         timeCostFormat: Format.costTime(cal.timeCost),
-        successRateFormat: Format.percent(result.successRate)
+        successRateFormat: Format.percent(result.successRate),
+        expPHFormat: Format.money(result.expPH * workMultiplier[i])
       }
     })
   }

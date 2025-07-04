@@ -1,4 +1,4 @@
-import type { Action, ItemDetail } from "~/game"
+import type { Action, ActionDetail, ItemDetail } from "~/game"
 import * as Format from "@@/utils/format"
 import { getItemDetailOf } from "@/common/apis/game"
 import { getBuffOf, getPlayerLevelOf } from "@/common/apis/player"
@@ -196,11 +196,15 @@ export default abstract class Calculator {
     return true
   }
 
+  get actionItem(): ActionDetail | undefined {
+    return undefined
+  }
+
   /**
    * 单次动作经验
    */
   get exp(): number {
-    return 0
+    return this.actionItem?.experienceGain?.value || 0
   }
 
   run() {

@@ -1,5 +1,5 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
-import { getAlchemyDecomposeEnhancingEssenceOutput, getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyTimeCost, getDecomposeTimeCost, getPriceOf, getTransmuteTimeCost } from "@/common/apis/game"
+import { getAlchemyDecomposeEnhancingEssenceOutput, getAlchemyEssenceDropTable, getAlchemyRareDropTable, getCoinifyExp, getCoinifyTimeCost, getDecomposeExp, getDecomposeTimeCost, getPriceOf, getTransmuteExp, getTransmuteTimeCost } from "@/common/apis/game"
 import { getAlchemySuccessRatio, getBuffOf, getTeaIngredientList } from "@/common/apis/player"
 import { getTrans } from "@/locales"
 import { COIN_HRID } from "@/pinia/stores/game"
@@ -27,9 +27,14 @@ abstract class AlchemyCalculator extends Calculator {
   }
 
   abstract get baseSuccessRate(): number
+  abstract get baseExp(): number
 
   get successRate(): number {
     return Math.min(1, this.baseSuccessRate * (1 + getAlchemySuccessRatio(this.item) + this.catalystRatio))
+  }
+
+  get exp(): number {
+    return this.baseExp * (1 + getBuffOf(this.action, "Experience"))
   }
 }
 
@@ -61,6 +66,10 @@ export class TransmuteCalculator extends AlchemyCalculator {
 
   get baseSuccessRate(): number {
     return this.item.alchemyDetail.transmuteSuccessRate
+  }
+
+  get baseExp(): number {
+    return getTransmuteExp(this.item)
   }
 
   get ingredientList(): Ingredient[] {
@@ -150,6 +159,10 @@ export class DecomposeCalculator extends AlchemyCalculator {
     return 0.6
   }
 
+  get baseExp(): number {
+    return getDecomposeExp(this.item)
+  }
+
   get ingredientList(): Ingredient[] {
     let list = [
       {
@@ -237,6 +250,10 @@ export class CoinifyCalculator extends AlchemyCalculator {
 
   get baseSuccessRate(): number {
     return 0.7
+  }
+
+  get baseExp(): number {
+    return getCoinifyExp(this.item)
   }
 
   get ingredientList(): Ingredient[] {

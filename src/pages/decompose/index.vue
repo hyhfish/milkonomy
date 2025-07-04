@@ -242,6 +242,28 @@ const { t } = useI18n()
                   </el-tooltip>
                 </template>
               </el-table-column>
+              <el-table-column min-width="120" :label="t('经验 / h')" align="center">
+                <template #default="{ row }">
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ row.result.expPHFormat }}</div>
+                    <el-tooltip v-if="row.expList?.length > 1" placement="top" effect="light">
+                      <template #content>
+                        <div v-for="(item, i) in row.expList" :key="i" style="display: flex; gap:10px">
+                          <div>
+                            {{ t(item.action) }}
+                          </div>
+                          <div>
+                            {{ item.expPHFormat }}
+                          </div>
+                        </div>
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+              </el-table-column>
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
