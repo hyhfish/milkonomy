@@ -1,22 +1,11 @@
-import type { RequestData } from "../leaderboard/type"
 import type Calculator from "@/calculator"
 import type { ActionConfig, PlayerEquipmentItem } from "@/pinia/stores/player"
-import type { StoragePriceItem } from "@/pinia/stores/price"
 import type { Action, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
 import { DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
 import { getEquipmentTypeOf } from "@/common/utils/game"
 import { ACTION_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStoreOutside } from "@/pinia/stores/game"
 import { usePlayerStoreOutside } from "@/pinia/stores/player"
-import { usePriceStoreOutside } from "@/pinia/stores/price"
 import { getGameDataApi, getItemDetailOf, getPriceOf } from "../game"
-
-/** 查 */
-export async function getPriceDataApi(params: RequestData) {
-  await new Promise(resolve => setTimeout(resolve, 0))
-  let list: StoragePriceItem[] = Array.from(usePriceStoreOutside().map.values())
-  params.name && (list = list.filter(item => getItemDetailOf(item.hrid).name.toLocaleLowerCase().includes(params.name!.toLowerCase())))
-  return { list: list.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: list.length }
-}
 
 /** 改 */
 export function setActionConfigApi(config: ActionConfig, index: number) {

@@ -9,7 +9,7 @@ import { getItemDetailOf, getPriceOf } from "../game"
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
   await new Promise(resolve => setTimeout(resolve, 0))
-  let list: StoragePriceItem[] = Array.from(usePriceStoreOutside().map.values())
+  let list: StoragePriceItem[] = structuredClone(Array.from(toRaw(usePriceStoreOutside().map).values()))
   params.name && (list = list.filter(item => getTrans(getItemDetailOf(item.hrid).name).toLocaleLowerCase().includes(params.name!.toLowerCase())))
   return { list: list.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: list.length }
 }

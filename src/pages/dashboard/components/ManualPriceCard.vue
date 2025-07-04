@@ -39,6 +39,7 @@ function getPriceData() {
     priceData.value = []
   }).finally(() => {
     loadingPrice.value = false
+    priceData.value.forEach((item: any) => item.selected = false)
   })
 }
 
@@ -101,9 +102,7 @@ const { t } = useI18n()
             </el-link>
           </template>
           <template #default="{ row }">
-            <el-checkbox
-              v-model="row.selected"
-            />
+            <el-checkbox v-model="row.selected" />
           </template>
         </el-table-column>
         <el-table-column width="54">
