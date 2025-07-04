@@ -3,7 +3,8 @@ import { ManufactureCalculator } from "@/calculator/manufacture"
 import locales, { getTrans } from "@/locales"
 
 import { useGameStoreOutside } from "@/pinia/stores/game"
-import { getGameDataApi, getPriceOf } from "../game"
+import { getGameDataApi } from "../game"
+import { getUsedPriceOf } from "../price"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 const { t } = locales.global
@@ -48,12 +49,10 @@ function calcProfit() {
         if (!actionItem?.upgradeItemHrid || actionItem.upgradeItemHrid === "/items/philosophers_stone") {
           continue
         }
-        const originPrice = getPriceOf(actionItem.upgradeItemHrid, originLevel)
-        if (originPrice.ask <= 0) {
+        if (getUsedPriceOf(actionItem.upgradeItemHrid, originLevel, "ask") === -1) {
           continue
         }
-        const targetPrice = getPriceOf(item.hrid, Math.floor(originLevel * 0.7))
-        if (targetPrice.bid <= 0) {
+        if (getUsedPriceOf(item.hrid, Math.floor(originLevel * 0.7), "bid") === -1) {
           continue
         }
         handlePush(profitList, c)

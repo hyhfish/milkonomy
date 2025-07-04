@@ -2,7 +2,8 @@ import { DecomposeCalculator } from "@/calculator/alchemy"
 
 import locales from "@/locales"
 import { useGameStoreOutside } from "@/pinia/stores/game"
-import { getGameDataApi, getPriceOf } from "../game"
+import { getGameDataApi } from "../game"
+import { getUsedPriceOf } from "../price"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 const { t } = locales.global
@@ -33,8 +34,7 @@ function calcProfit() {
   const profitList: DecomposeCalculator[] = []
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
-      const price = getPriceOf(item.hrid, enhanceLevel)
-      if (price.ask <= 0) {
+      if (getUsedPriceOf(item.hrid, enhanceLevel, "ask") === -1) {
         continue
       }
       let bestProfit = -Infinity

@@ -2,7 +2,8 @@ import { EnhanceCalculator } from "@/calculator/enhance"
 import locales from "@/locales"
 
 import { useGameStoreOutside } from "@/pinia/stores/game"
-import { getGameDataApi, getPriceOf } from "../game"
+import { getGameDataApi } from "../game"
+import { getUsedPriceOf } from "../price"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 const { t } = locales.global
@@ -39,8 +40,7 @@ function calcEnhanceProfit() {
   const targetLevels = [7, 8, 10, 11, 12, 13, 14, 15, 16, 17]
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (const enhanceLevel of targetLevels) {
-      const price = getPriceOf(item.hrid, enhanceLevel)
-      if (price.bid <= 0) {
+      if (getUsedPriceOf(item.hrid, enhanceLevel, "bid") === -1) {
         continue
       }
 
@@ -48,8 +48,7 @@ function calcEnhanceProfit() {
       let bestCal: EnhanceCalculator | undefined
 
       for (const originLevel of originLevels) {
-        const originPrice = getPriceOf(item.hrid, originLevel)
-        if (originPrice.ask <= 0) {
+        if (getUsedPriceOf(item.hrid, originLevel, "ask") === -1) {
           continue
         }
         for (const escapeLevel of escapeLevels) {

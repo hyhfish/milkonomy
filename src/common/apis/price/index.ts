@@ -4,7 +4,7 @@ import type Calculator from "@/calculator"
 import type { StoragePriceItem } from "@/pinia/stores/price"
 import { getTrans } from "@/locales"
 import { priceKeyOf, usePriceStoreOutside } from "@/pinia/stores/price"
-import { getItemDetailOf } from "../game"
+import { getItemDetailOf, getPriceOf } from "../game"
 
 /** 查 */
 export async function getPriceDataApi(params: RequestData) {
@@ -69,6 +69,13 @@ export function hasManualPriceOf(hrid: string, level?: number) {
 }
 export function getManualPriceActivated() {
   return price.activated
+}
+
+/** 计算时实际使用的价格 */
+export function getUsedPriceOf(hrid: string, level: number, type: "ask" | "bid") {
+  const hasManualPrice = getManualPriceOf(hrid, level)?.[type]?.manual
+  const manualPrice = getManualPriceOf(hrid, level)?.[type]?.manualPrice
+  return hasManualPrice ? manualPrice : getPriceOf(hrid, level)[type]
 }
 
 // #endregion

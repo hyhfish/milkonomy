@@ -7,8 +7,8 @@ import { WorkflowCalculator } from "@/calculator/workflow"
 import locales, { getTrans } from "@/locales"
 
 import { useGameStoreOutside } from "@/pinia/stores/game"
-import { getGameDataApi, getPriceOf } from "../game"
-import { getManualPriceOf } from "../price"
+import { getGameDataApi } from "../game"
+import { getUsedPriceOf } from "../price"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 const { t } = locales.global
@@ -56,10 +56,10 @@ function calcEnhanceProfit() {
   const profitList: WorkflowCalculator[] = []
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
-      const price = getManualPriceOf(item.hrid, enhanceLevel) ?? getPriceOf(item.hrid, enhanceLevel)
-      if (price.bid === -1) {
+      if (getUsedPriceOf(item.hrid, enhanceLevel, "bid") === -1) {
         continue
       }
+
       let bestProfit = -Infinity
       let bestCal: WorkflowCalculator | undefined
       let bestProfitStep2 = -Infinity
