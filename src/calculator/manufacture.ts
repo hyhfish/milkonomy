@@ -64,8 +64,8 @@ export class ManufactureCalculator extends Calculator {
         // 双倍茶补正
         count: output.count * (1 + gourmetBuff),
         level: Math.floor(targetLevel),
-        marketPrice: getPriceOf(output.itemHrid).bid,
-        marketTime: getPriceOf(output.itemHrid).bidTime
+        marketPrice: getPriceOf(output.itemHrid, Math.floor(targetLevel)).bid,
+        marketTime: getPriceOf(output.itemHrid, Math.floor(targetLevel)).bidTime
       }))
       // 如果targetLevel不是整数，则再添加一个level为targetLevel+1的产品
     } else {
