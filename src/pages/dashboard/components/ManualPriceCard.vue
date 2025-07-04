@@ -94,7 +94,7 @@ const { t } = useI18n()
     </template>
     <template #default>
       <el-table :data="priceData" v-loading="loadingPrice">
-        <el-table-column width="44">
+        <el-table-column width="40">
           <template #header>
             <el-link v-if="priceData.some((item:any) => item.selected)" type="danger" :icon=" Delete" @click="deleteBatch">
               <!-- {{ t('删除') }} -->
@@ -125,14 +125,16 @@ const { t } = useI18n()
         </el-table-column>
         <el-table-column :label="t('自定义价格')" min-width="120">
           <template #default="{ row }">
-            {{ row.ask?.manual ? Format.price(row.ask?.manualPrice) : '-' }} / {{ row.bid?.manual ? Format.price(row.bid?.manualPrice) : '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column min-width="80">
-          <template #default="{ row }">
             <SinglePrice :data="row">
-              <el-link type="primary" :icon="Edit">
-                {{ t('修改') }}
+              <el-link>
+                <div class="flex flex-wrap items-center">
+                  <div>
+                    {{ row.ask?.manual ? Format.price(row.ask?.manualPrice) : '-' }} / {{ row.bid?.manual ? Format.price(row.bid?.manualPrice) : '-' }}
+                  </div>
+                  <el-icon class=" el-icon--right color-[#409EFF] ">
+                    <Edit />
+                  </el-icon>
+                </div>
               </el-link>
             </SinglePrice>
           </template>

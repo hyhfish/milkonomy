@@ -146,7 +146,7 @@ const { t } = useI18n()
           </template>
           <template #default>
             <el-table :data="leaderboardData" v-loading="loadingLD" @sort-change="handleSortLD">
-              <el-table-column width="54">
+              <el-table-column width="54" fixed="left">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
                 </template>

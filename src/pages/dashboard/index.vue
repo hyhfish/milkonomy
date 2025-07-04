@@ -210,7 +210,7 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
       />
     </div>
     <el-row :gutter="20" class="row">
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
@@ -248,7 +248,7 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
           </template>
           <template #default>
             <el-table :data="leaderboardData" v-loading="loadingLD" @sort-change="handleSortLD">
-              <el-table-column width="54">
+              <el-table-column width="54" fixed="left">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
                 </template>
@@ -367,11 +367,11 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="10">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="8">
         <ManualPriceCard memory-key="dashboard" />
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="frSearchFormRef" :inline="true" :model="frSearchData">
@@ -400,7 +400,7 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
           </template>
           <template #default>
             <el-table :data="favoriteData" v-loading="loadingFR">
-              <el-table-column width="54">
+              <el-table-column width="54" fixed="left">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
                 </template>
