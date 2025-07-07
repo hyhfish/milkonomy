@@ -200,6 +200,10 @@ export default abstract class Calculator {
     return undefined
   }
 
+  get calculator() {
+    return this as Calculator
+  }
+
   /**
    * 单次动作经验
    */

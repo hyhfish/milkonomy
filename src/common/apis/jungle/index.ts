@@ -1,4 +1,3 @@
-import type { DecomposeCalculator } from "@/calculator/alchemy"
 import type { Action } from "~/game"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
@@ -30,10 +29,12 @@ export async function getDataApi(params: any) {
     console.log(`计算完成，耗时秒${(Date.now() - startTime) / 1000}`)
   }
 
-  profitList = profitList.filter(item => params.maxLevel ? (item.calculator as DecomposeCalculator).enhanceLevel <= params.maxLevel : true)
-  profitList = profitList.filter(item => params.minLevel ? (item.calculator as DecomposeCalculator).enhanceLevel >= params.minLevel : true)
-  profitList = profitList.filter(item => params.minSellPrice ? item.calculator.productListWithPrice[0].price > params.minSellPrice * 1e6 : true)
-  profitList = profitList.filter(item => params.maxSellPrice ? item.calculator.productListWithPrice[0].price < params.maxSellPrice * 1e6 : true)
+  profitList = profitList.filter(item => params.maxLevel ? item.calculator.enhanceLevel <= params.maxLevel : true)
+  profitList = profitList.filter(item => params.minLevel ? item.calculator.enhanceLevel >= params.minLevel : true)
+  profitList = profitList.filter(item => params.minSellPrice ? item.calculator.productListWithPrice[0].price >= params.minSellPrice * 1e6 : true)
+  profitList = profitList.filter(item => params.maxSellPrice ? item.calculator.productListWithPrice[0].price <= params.maxSellPrice * 1e6 : true)
+
+  profitList = profitList.filter(item => params.minItemLevel ? (item.calculator.item.itemLevel >= params.minItemLevel) : true)
 
   if (params.bestManufacture) {
     const maxProfitMap: Record<string, WorkflowCalculator> = {}
@@ -64,6 +65,10 @@ function calcEnhanceProfit() {
       let bestCal: WorkflowCalculator | undefined
       let bestProfitStep2 = -Infinity
       let bestCalStep2: WorkflowCalculator | undefined
+
+      let bestProfitStep0 = -Infinity
+      let bestCalStep0: EnhanceCalculator | undefined
+
       for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
         const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
         const projects: [string, Action][] = [
@@ -97,6 +102,12 @@ function calcEnhanceProfit() {
               cStep2.run()
             }
 
+            enhancer.run()
+            if (enhancer.result.profitPH > bestProfitStep0) {
+              bestProfitStep0 = enhancer.result.profitPH
+              bestCalStep0 = enhancer
+            }
+
             if (c.result.profitPH > bestProfit) {
               bestProfit = c.result.profitPH
               bestCal = c
@@ -112,6 +123,7 @@ function calcEnhanceProfit() {
       // 只取最优的保护情况
       bestCal && handlePush(profitList, bestCal)
       bestCalStep2 && handlePush(profitList, bestCalStep2)
+      bestCalStep0 && handlePush(profitList, bestCalStep0)
     }
   })
   return profitList

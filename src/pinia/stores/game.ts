@@ -148,7 +148,7 @@ export const useGameStore = defineStore("game", {
         this.gameData = newGameData
       }
 
-      this.marketData = updateMarketData(this.marketData, newMarketData)
+      this.marketData = updateMarketData(this.marketData, newMarketData, newGameData)
       setGameData(newGameData)
     },
     async fetchMarketDataLevel() {
@@ -306,10 +306,22 @@ export const useGameStore = defineStore("game", {
   }
 })
 
-function updateMarketData(oldData: MarketData | null, newData: MarketData) {
+function updateMarketData(oldData: MarketData | null, newData: MarketData, newGameData: GameData): MarketData {
   const oldMarket = oldData?.market || {}
   const newMarket = newData.market || {}
+
+  // 取得name->isEquipment的映射
+  const itemDetailMap = newGameData.itemDetailMap
+  const isEquipmentMap: Record<string, boolean> = {}
+  for (const key in itemDetailMap) {
+    const item = itemDetailMap[key]
+    isEquipmentMap[item.name] = item.categoryHrid === "/item_categories/equipment"
+  }
   for (const key in newMarket) {
+    // 如果是装备，则不保留旧值
+    if (isEquipmentMap[key]) {
+      continue
+    }
     if (newMarket[key].ask === -1) {
       newMarket[key].ask = oldMarket[key]?.ask || -1
     }
@@ -320,7 +332,7 @@ function updateMarketData(oldData: MarketData | null, newData: MarketData) {
 
   // 有些物品可能是oldMarket有的，newMarket没有的
   for (const key in oldMarket) {
-    if (!newMarket[key]) {
+    if (!newMarket[key] && !isEquipmentMap[key]) {
       newMarket[key] = JSON.parse(JSON.stringify(oldMarket[key]))
     }
   }

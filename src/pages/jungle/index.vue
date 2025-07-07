@@ -154,8 +154,12 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
 
-              <el-form-item :label="t('售价 >')">
+              <el-form-item :label="t('售价 ≥')">
                 <el-input-number style="width:80px" v-model="ldSearchData.minSellPrice" placeholder="0" clearable @change="handleSearchLD" :controls="false" />&nbsp;M
+              </el-form-item>
+
+              <el-form-item :label="t('物品等级 ≥')">
+                <el-input-number style="width:80px" v-model="ldSearchData.minItemLevel" placeholder="0" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
 
               <el-form-item>
@@ -177,10 +181,15 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                 <template #default="{ row }">
                   <div style="display:flex;">
                     <ItemIcon v-if="row.calculatorList && row.calculatorList[row.calculatorList.length - 1].protectLevel < row.calculatorList[row.calculatorList.length - 1].enhanceLevel" :hrid="row.calculatorList[row.calculatorList.length - 1].protectionItem.hrid" />
+                    <ItemIcon v-if=" row.protectLevel < row.enhanceLevel" :hrid="row.protectionItem.hrid" />
                     <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
                   </div>
                   <div v-if="row.calculatorList && row.calculatorList[row.calculatorList.length - 1].protectLevel < row.calculatorList[row.calculatorList.length - 1].enhanceLevel">
                     {{ t('从{0}保护', [row.calculatorList[row.calculatorList.length - 1].protectLevel]) }}
+                  </div>
+
+                  <div v-if="row.protectLevel < row.enhanceLevel">
+                    {{ t('从{0}保护', [row.protectLevel]) }}
                   </div>
                 </template>
               </el-table-column>
@@ -224,7 +233,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                       success: (row.calculator.result.cost4MatPH) / row.result.profitPH < 5,
                     }"
                   >
-                    {{ Format.number((row.calculator.result.cost4MatPH) / row.result.profitPH, 2) }}
+                    {{ row.result.profitPH > 0 ? Format.number((row.calculator.result.cost4MatPH) / row.result.profitPH, 2) : '' }}
                   </span>
                 </template>
               </el-table-column>
