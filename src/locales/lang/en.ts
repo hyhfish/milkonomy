@@ -92,6 +92,8 @@ export default {
 
   // 强化计算
   "强化计算": "Enhance Calculator",
+  "右键/长按取消收藏": "Right-click/Long-press to Unfavorite",
+  "搜索": "Search",
   "装备成本": "Gear Cost",
   "制作装备": "Craft Gear",
   "工时费/h": "Hourly Rate",
@@ -142,6 +144,7 @@ export default {
   "预设名称": "Preset Name",
   "预设颜色": "Preset Color",
   "{0}新预设": "{0} New Preset",
+  "确定删除该预设吗？": "Are you sure to delete this preset?",
 
   "技能等级": "Skill Level",
   "房子等级": "House Level",

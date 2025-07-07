@@ -470,7 +470,7 @@ watch(menuVisible, (value) => {
                 <div class="mb-2 color-gray-500">
                   {{ t('收藏') }}
                   <span color-gray-600>
-                    ({{ t('右键取消收藏') }})</span>
+                    ({{ t('右键/长按取消收藏') }})</span>
                 </div>
                 <div class="flex flex-wrap">
                   <el-button

@@ -3,6 +3,7 @@ import type { ActionConfig, ActionConfigItem, PlayerEquipmentItem } from "@/pini
 import type { Action, Equipment } from "~/game"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { Plus } from "@element-plus/icons-vue"
+import { ElMessageBox } from "element-plus"
 import { getEquipmentListOf, getSpecialEquipmentListOf, getTeaListOf, getToolListOf, setActionConfigApi } from "@/common/apis/player"
 import { useTheme } from "@/common/composables/useTheme"
 import { DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
@@ -76,19 +77,72 @@ function onConfirm() {
     ElMessage.error(e.message)
   }
 }
+
+const menuVisible = ref(false)
+const top = ref(0)
+const left = ref(0)
+const menuPreset = ref<ActionConfig>()
+const menuIndex = ref(0)
+
+function openMenu(preset: ActionConfig, index: number, e: MouseEvent) {
+  const menuMinWidth = 100
+  // 当前页面宽度
+  const offsetWidth = document.body.offsetWidth
+  // 面板的最大左边距
+  const maxLeft = offsetWidth - menuMinWidth
+  // 面板距离鼠标指针的距离
+  const left15 = e.clientX + 10
+  left.value = left15 > maxLeft ? maxLeft : left15
+  top.value = e.clientY
+  // 显示面板
+  menuVisible.value = true
+  menuIndex.value = index
+  // 更新当前正在右键操作的标签页
+  menuPreset.value = preset
+}
+
+/** 关闭右键菜单面板 */
+function closeMenu() {
+  menuVisible.value = false
+}
+
+watch(menuVisible, (value) => {
+  value ? document.body.addEventListener("click", closeMenu) : document.body.removeEventListener("click", closeMenu)
+})
+
+function onCopy() {
+  onDialog(menuPreset.value!, playerStore.presets.length)
+}
+
+function onRemove() {
+  ElMessageBox.confirm(t("确定删除该预设吗？"), "", {
+    confirmButtonText: t("确定"),
+    cancelButtonText: t("取消"),
+    type: "warning"
+  }).then(() => {
+    playerStore.removePreset(menuIndex.value)
+  }).catch(() => {
+    // 取消删除
+  })
+}
+
 const { t } = useI18n()
 const { activeThemeName } = useTheme()
 </script>
 
 <template>
-  <!-- <el-button @click="onDialog" :type="playerStore.actionConfigActivated ? 'success' : 'info'">
-    {{ t('我的等级/装备') }}({{ playerStore.actionConfigActivated ? t('已开启') : t('已关闭') }})
-  </el-button> -->
-  <!-- 做成多个按钮表示不同预设的形式 -->
+  <ul v-show="menuVisible" class="contextmenu" :style="{ left: `${left}px`, top: `${top}px` }">
+    <li @click="onCopy" v-if="!playerStore.isOverflow()">
+      复制
+    </li>
+    <li v-if="playerStore.presets.length > 1" @click="onRemove">
+      删除
+    </li>
+  </ul>
 
   <div class="flex items-center  p-1 pl-2 pr-2" style="border:1px solid var(--el-border-color);border-radius: 4px;">
     <div>{{ t('预设') }}:</div>
-
+    <!-- 长按打开右键菜单 -->
     <el-button
       v-for="(preset, index) in playerStore.presets"
       class="ml-1 w-32px"
@@ -97,6 +151,7 @@ const { activeThemeName } = useTheme()
       :dark="activeThemeName.includes('dark')"
       :key="index"
       @click="onSelect(preset, index)"
+      @contextmenu.prevent="openMenu(preset, index, $event)"
     >
       {{ preset.name?.substring(0, 1) }}
     </el-button>
@@ -302,6 +357,28 @@ const { activeThemeName } = useTheme()
   }
   div {
     width: 120px;
+  }
+}
+
+.contextmenu {
+  margin: 0;
+  z-index: 3000;
+  position: fixed;
+  list-style-type: none;
+  padding: 5px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--v3-tagsview-contextmenu-text-color);
+  background-color: var(--v3-tagsview-contextmenu-bg-color);
+  box-shadow: var(--v3-tagsview-contextmenu-box-shadow);
+  li {
+    margin: 0;
+    padding: 7px 16px;
+    cursor: pointer;
+    &:hover {
+      color: var(--v3-tagsview-contextmenu-hover-text-color);
+      background-color: var(--v3-tagsview-contextmenu-hover-bg-color);
+    }
   }
 }
 </style>

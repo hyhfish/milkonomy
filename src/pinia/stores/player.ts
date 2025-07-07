@@ -26,6 +26,21 @@ export const usePlayerStore = defineStore("player", {
       this.config = this.presets[index]
       this.setPresetIndex(index)
     },
+    removePreset(index: number) {
+      if (this.presets.length <= 1) {
+        return
+      }
+      this.presets.splice(index, 1)
+      this.commit()
+      // 如果删除的是当前预设，切换到第一个预设
+      if (this.presetIndex === index) {
+        this.setPresetIndex(0)
+      } else if (this.presetIndex > index) {
+        // 如果删除的是当前预设之前的预设，更新索引
+        this.setPresetIndex(this.presetIndex - 1)
+      }
+      this.config = this.presets[this.presetIndex]
+    },
     setPresetIndex(index: number) {
       this.presetIndex = index
       setPresetIndex(index)
