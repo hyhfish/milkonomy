@@ -148,7 +148,7 @@ const results = computed(() => {
 
   const result = []
   const enhanceLevel = enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel
-  for (let i = 2; i <= enhanceLevel; ++i) {
+  for (let i = 1; i <= enhanceLevel; ++i) {
     const calc = new EnhanceCalculator({
       hrid: currentItem.value.hrid,
       enhanceLevel,
