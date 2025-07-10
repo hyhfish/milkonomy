@@ -9,12 +9,12 @@ import { getEnhanposerDataApi } from "@/common/apis/enhanposer"
 
 import { getMarketDataApi } from "@/common/apis/game"
 import { useMemory } from "@/common/composables/useMemory"
-import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { usePriceStore } from "@/pinia/stores/price"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
+import GameInfo from "../dashboard/components/GameInfo.vue"
 import ManualPriceCard from "../dashboard/components/ManualPriceCard.vue"
 // #region 查
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "enhanposer-leaderboard-pagination")
@@ -109,15 +109,7 @@ const { t } = useI18n()
 <template>
   <div class="app-container">
     <div class="game-info">
-      <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
-      <div
-        :class="{
-          error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
-          success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
-        }"
-      >
-        {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
-      </div>
+      <GameInfo />
       <div>
         <ActionConfig :actions="['enhancing']" :equipments="['hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>

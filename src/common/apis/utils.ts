@@ -3,6 +3,7 @@ import type Calculator from "@/calculator"
 export function handleSort(profitList: Calculator[], params: any) {
   // 首先进行一次利润排序
   profitList.sort((a, b) => b.result.profitPH - a.result.profitPH)
+
   // 排序
   if (params.sort && params.sort.order) {
     const props = params.sort.prop.split(".")

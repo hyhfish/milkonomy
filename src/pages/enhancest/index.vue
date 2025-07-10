@@ -13,6 +13,7 @@ import { useEnhancerStore } from "@/pinia/stores/enhancer"
 import { COIN_HRID, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
+import GameInfo from "../dashboard/components/GameInfo.vue"
 
 const enhancerStore = useEnhancerStore()
 const { t } = useI18n()
@@ -339,15 +340,7 @@ watch(menuVisible, (value) => {
       </li>
     </ul>
     <div class="game-info">
-      <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
-      <div
-        :class="{
-          error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
-          success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
-        }"
-      >
-        {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
-      </div>
+      <GameInfo />
       <div>
         <ActionConfig :actions="['enhancing']" :equipments="['hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>

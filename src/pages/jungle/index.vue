@@ -5,7 +5,6 @@ import { usePagination } from "@@/composables/usePagination"
 import { Edit, Search } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep, debounce } from "lodash-es"
-import { getMarketDataApi } from "@/common/apis/game"
 
 import { getDataApi } from "@/common/apis/jungle"
 import { useMemory } from "@/common/composables/useMemory"
@@ -17,6 +16,7 @@ import { usePriceStore } from "@/pinia/stores/price"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
+import GameInfo from "../dashboard/components/GameInfo.vue"
 import ManualPriceCard from "../dashboard/components/ManualPriceCard.vue"
 import PriceStatusSelect from "../dashboard/components/PriceStatusSelect.vue"
 
@@ -69,7 +69,6 @@ watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
   () => useGameStore().marketData,
-  () => useGameStore().marketDataLevel,
   () => usePlayerStore().config,
   () => useGameStore().buyStatus,
   () => useGameStore().sellStatus
@@ -118,15 +117,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
 <template>
   <div class="app-container">
     <div class="game-info">
-      <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
-      <div
-        :class="{
-          error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
-          success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
-        }"
-      >
-        {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
-      </div>
+      <GameInfo />
       <div>
         <ActionConfig :actions="['enhancing', 'cheesesmithing', 'crafting', 'tailoring']" :equipments="['off_hand', 'hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>
@@ -269,7 +260,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                 </template>
               </el-table-column>
 
-              <el-table-column :label="t('时效')" align="center">
+              <!-- <el-table-column :label="t('时效')" align="center">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
                     <div>{{ t('时效') }}</div>
@@ -293,7 +284,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                     </span>
                   </el-tooltip>
                 </template>
-              </el-table-column>
+              </el-table-column> -->
               <el-table-column min-width="120" :label="t('经验 / h')" align="center">
                 <template #default="{ row }">
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">

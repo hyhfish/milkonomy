@@ -1,18 +1,17 @@
 import type { EnhancelateResult } from "@/calculator/enhance"
 import type { DropTableItem, GameData, ItemDetail } from "~/game"
-import type { MarketData, MarketDataLevel, MarketItem } from "~/market"
+import type { MarketData, MarketItemPrice } from "~/market"
 import deepFreeze from "deep-freeze-strict"
 import { COIN_HRID, PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
 
 // 把Proxy扒下来，提高性能
 const game = {
   gameData: null as GameData | null,
-  marketData: null as MarketData | null,
-  marketDataLevel: null as MarketDataLevel | null
+  marketData: null as MarketData | null
 }
 
 let _processingProductMap: Record<string, string> = {}
-let _priceCache = {} as Record<string, MarketItem>
+let _priceCache = {} as Record<string, MarketItemPrice>
 watch(() => useGameStoreOutside().gameData, () => {
   const data = structuredClone(toRaw(useGameStoreOutside().gameData))
   game.gameData = data ? deepFreeze(data) : data
@@ -23,12 +22,6 @@ watch(() => useGameStoreOutside().marketData, () => {
   console.log("raw marketData changed")
   const data = Object.freeze(structuredClone(toRaw(useGameStoreOutside().marketData)))
   game.marketData = data
-  _priceCache = {}
-}, { immediate: true })
-
-watch(() => useGameStoreOutside().marketDataLevel, () => {
-  console.log("raw marketDataLevel changed")
-  game.marketDataLevel = Object.freeze(structuredClone(toRaw(useGameStoreOutside().marketDataLevel)))
   _priceCache = {}
 }, { immediate: true })
 
@@ -45,7 +38,7 @@ export function getMarketDataApi() {
   const res = game.marketData
   return res!
 }
-const SPECIAL_PRICE: Record<string, () => MarketItem> = {
+const SPECIAL_PRICE: Record<string, () => MarketItemPrice> = {
   "/items/cowbell": () => ({
     ask: getPriceOf("/items/bag_of_10_cowbells").ask / 10 || 40000,
     bid: getPriceOf("/items/bag_of_10_cowbells").bid / 10 || 40000
@@ -56,28 +49,24 @@ const SPECIAL_PRICE: Record<string, () => MarketItem> = {
   })
 }
 
-function convertPriceOfStatus(price: MarketItem, buyStatus: PriceStatus, sellStatus: PriceStatus) {
+function convertPriceOfStatus(price: MarketItemPrice, buyStatus: PriceStatus, sellStatus: PriceStatus) {
   function convert(status: PriceStatus) {
-    const result = { price: -1, time: -1 }
+    const result = { price: -1 }
     switch (status) {
       case PriceStatus.ASK:
         result.price = price.ask
-        result.time = price.askTime!
         break
       case PriceStatus.BID:
         result.price = price.bid
-        result.time = price.bidTime!
         break
       case PriceStatus.ASK_LOW:
         result.price = price.ask
-        result.time = price.askTime!
         if (result.price > 0) {
           result.price = priceStepOf(result.price, false)
         }
         break
       case PriceStatus.BID_HIGH:
         result.price = price.bid
-        result.time = price.bidTime!
         if (result.price > 0) {
           result.price = priceStepOf(result.price, true)
         }
@@ -88,9 +77,7 @@ function convertPriceOfStatus(price: MarketItem, buyStatus: PriceStatus, sellSta
 
   return {
     ask: convert(buyStatus).price,
-    askTime: convert(buyStatus).time,
-    bid: convert(sellStatus).price,
-    bidTime: convert(sellStatus).time
+    bid: convert(sellStatus).price
   }
 }
 
@@ -139,26 +126,21 @@ function priceStepOf(price: number, high: boolean = true) {
   return high ? (price + priceStep[highStepIndex][1]) * 10 ** dec : (price - priceStep[lowStepIndex][1]) * 10 ** dec
 }
 
-export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStatus = useGameStoreOutside().buyStatus, sellStatus: PriceStatus = useGameStoreOutside().sellStatus): MarketItem {
+export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStatus = useGameStoreOutside().buyStatus, sellStatus: PriceStatus = useGameStoreOutside().sellStatus): MarketItemPrice {
   if (!hrid) {
     return {
       ask: -1,
-      bid: -1,
-      askTime: -1,
-      bidTime: -1
+      bid: -1
     }
   }
   const item = getItemDetailOf(hrid)
   if (level) {
-    const marketDataLevel = game.marketDataLevel
-    const marketItem = marketDataLevel ? marketDataLevel[item.name] : undefined
+    const marketItem = game.marketData?.marketData[hrid]
     const priceItem = marketItem ? marketItem[level] : undefined
 
     const price = {
-      ask: priceItem?.ask?.price || -1,
-      bid: priceItem?.bid?.price || -1,
-      askTime: priceItem?.ask?.time,
-      bidTime: priceItem?.bid?.time
+      ask: priceItem?.ask || -1,
+      bid: priceItem?.bid || -1
     }
     return convertPriceOfStatus(price, buyStatus, sellStatus)
   }
@@ -175,13 +157,13 @@ export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStat
     return _priceCache[hrid]
   }
   const shopItem = getGameDataApi().shopItemDetailMap[`/shop_items/${item.hrid.split("/").pop()}`]
-  const price = getMarketDataApi().market[item.name] || { ask: -1, bid: -1 }
-  price.askTime = getMarketDataApi().time
-  price.bidTime = getMarketDataApi().time
+  const price = (getMarketDataApi().marketData[item.hrid]?.[0]) || { ask: -1, bid: -1 }
+
   if (shopItem && shopItem.costs[0].itemHrid === COIN_HRID) {
-    price.ask = shopItem.costs[0].count
+    price.ask = price.ask === -1 ? shopItem.costs[0].count : Math.min(price.ask, shopItem.costs[0].count)
   }
   _priceCache[hrid] = convertPriceOfStatus(price, buyStatus, sellStatus)
+
   return _priceCache[hrid]
 }
 
@@ -189,7 +171,7 @@ function isLoot(hrid: string) {
   return getItemDetailOf(hrid).categoryHrid === "/item_categories/loot"
 }
 
-function getLootPrice(hrid: string): MarketItem {
+function getLootPrice(hrid: string): MarketItemPrice {
   const drop = getGameDataApi().openableLootDropMap[hrid]
   return drop.reduce((acc, cur) => {
     const count = (cur.maxCount + cur.minCount) / 2

@@ -20,7 +20,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   if (useGameStoreOutside().getLeaderboardCache()) {
     profitList = useGameStoreOutside().getLeaderboardCache()
   } else {
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise(resolve => setTimeout(resolve, 100))
     const startTime = Date.now()
     try {
       profitList = calcProfit()

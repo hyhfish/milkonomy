@@ -1,31 +1,29 @@
 export interface MarketData {
-  market: Market
-  time: number
+  marketData: Market
+  timestamp: number
 }
 
 export interface Market {
-  [key: string]: MarketItem
+  [hrid: string]: MarketItem
 }
 
 export interface MarketItem {
-  ask: number
-  bid: number
-  askTime?: number
-  bidTime?: number
-  vendor?: number
+  [level: string]: MarketItemPrice
 }
 
-export interface MarketDataLevel {
-  [name: string]: {
-    [level: string]: {
-      bid: {
-        time: number
-        price: number
-      }
-      ask: {
-        time: number
-        price: number
+export interface MarketItemPrice {
+  ask: number
+  bid: number
+}
+
+export interface MarketDataPlain {
+  marketData: {
+    [hrid: string]: {
+      [level: string]: {
+        a: number
+        b: number
       }
     }
   }
+  timestamp: number
 }

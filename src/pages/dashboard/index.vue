@@ -9,7 +9,6 @@ import { cloneDeep, debounce } from "lodash-es"
 import { WorkflowCalculator } from "@/calculator/workflow"
 
 import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
-import { getMarketDataApi } from "@/common/apis/game"
 import { getActionConfigOf } from "@/common/apis/player"
 import { useMemory } from "@/common/composables/useMemory"
 import { usePriceStatus } from "@/common/composables/usePriceStatus"
@@ -21,6 +20,7 @@ import ActionConfig from "./components/ActionConfig.vue"
 import ActionDetail from "./components/ActionDetail.vue"
 
 import ActionPrice from "./components/ActionPrice.vue"
+import GameInfo from "./components/GameInfo.vue"
 import ManualPriceCard from "./components/ManualPriceCard.vue"
 import PriceStatusSelect from "./components/PriceStatusSelect.vue"
 
@@ -62,7 +62,6 @@ function handleInput(val: string) {
     useGameStore().setSecret(val)
     if (useGameStore().checkSecret()) {
       useGameStore().clearJungleCache()
-      useGameStore().fetchMarketDataLevel()
       router.push({ path: "/jungle" })
     }
   }
@@ -192,15 +191,7 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
 <template>
   <div class="app-container">
     <div class="game-info">
-      <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
-      <div
-        :class="{
-          error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
-          success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
-        }"
-      >
-        {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
-      </div>
+      <GameInfo />
       <div>
         <ActionConfig />
       </div>
@@ -495,12 +486,6 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
   flex-wrap: wrap;
   font-size: 14px;
   gap: 10px 20px;
-  .error {
-    color: #f56c6c;
-  }
-  .success {
-    color: #67c23a;
-  }
 }
 .rank-card {
   display: flex;

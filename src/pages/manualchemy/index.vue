@@ -7,7 +7,6 @@ import { Edit, Search, Warning } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep, debounce } from "lodash-es"
 
-import { getMarketDataApi } from "@/common/apis/game"
 import { getActionConfigOf } from "@/common/apis/player"
 import { useMemory } from "@/common/composables/useMemory"
 import { usePriceStatus } from "@/common/composables/usePriceStatus"
@@ -18,6 +17,7 @@ import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import ActionDetail from "../dashboard/components/ActionDetail.vue"
 
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
+import GameInfo from "../dashboard/components/GameInfo.vue"
 import ManualPriceCard from "../dashboard/components/ManualPriceCard.vue"
 import PriceStatusSelect from "../dashboard/components/PriceStatusSelect.vue"
 
@@ -109,15 +109,7 @@ const onPriceStatusChange = usePriceStatus("manualchemy-price-status")
 <template>
   <div class="app-container">
     <div class="game-info">
-      <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
-      <div
-        :class="{
-          error: getMarketDataApi()?.time * 1000 < Date.now() - 1000 * 60 * 120,
-          success: getMarketDataApi()?.time * 1000 > Date.now() - 1000 * 60 * 120,
-        }"
-      >
-        {{ t('市场数据更新时间') }}: {{ new Date(useGameStore().marketData?.time! * 1000).toLocaleString() }}
-      </div>
+      <GameInfo />
       <div>
         <ActionConfig />
       </div>

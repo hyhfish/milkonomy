@@ -19,7 +19,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   if (useGameStoreOutside().getManualchemyCache()) {
     profitList = useGameStoreOutside().getManualchemyCache()
   } else {
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise(resolve => setTimeout(resolve, 300))
     const startTime = Date.now()
     try {
       profitList = profitList.concat(calcAllFlowProfit())

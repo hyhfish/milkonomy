@@ -5,7 +5,7 @@ import type { ManufactureCalculator } from "@/calculator/manufacture"
 
 import type { WorkflowCalculator } from "@/calculator/workflow"
 import type { Action, GameData, NoncombatStatsKey } from "~/game"
-import type { MarketData, MarketDataLevel } from "~/market"
+import type { Market, MarketData, MarketDataPlain, MarketItemPrice } from "~/market"
 import { defineStore } from "pinia"
 import locales, { getTrans } from "@/locales"
 import { pinia } from "@/pinia"
@@ -88,7 +88,6 @@ export const useGameStore = defineStore("game", {
   state: () => ({
     gameData: getGameData(),
     marketData: getMarketData(),
-    marketDataLevel: {} as MarketDataLevel,
     leaderboardCache: {} as { [time: number]: Calculator[] },
     enhanposerCache: {} as { [time: number]: WorkflowCalculator[] },
     manualchemyCache: {} as { [time: number]: Calculator[] },
@@ -123,15 +122,12 @@ export const useGameStore = defineStore("game", {
     },
     async fetchData(offset: number) {
       // 如果数据time晚于30min前，无需更新，减少流量
-      // if (this.gameData && this.marketData && this.marketData.time * 1000 > Date.now() - 1000 * 60 * 30) {
+      // if (this.gameData && this.marketData && this.marketData.timestamp * 1000 > Date.now() - 1000 * 60 * 30) {
       //   return
       // }
       const url = import.meta.env.MODE === "development" ? "/" : "./"
       const MARKET_URLS = [
-        // "https://cdn.jsdmirror.cn/gh/holychikenz/MWIApi@main/milkyapi.json",
-        "https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
-        "https://gh-proxy.470103427.workers.dev/raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json",
-        "https://hub.gitmirror.com/https://raw.githubusercontent.com/holychikenz/MWIApi/main/milkyapi.json"
+        "https://mooket.qi-e.top/market/api.json"
       ]
       // const LAST_MARKET_URL = `${url}data/market.json`
       const DATA_URL = `${url}data/data.json`
@@ -147,65 +143,16 @@ export const useGameStore = defineStore("game", {
       if (!this.gameData) {
         this.gameData = newGameData
       }
-
-      this.marketData = updateMarketData(this.marketData, newMarketData, newGameData)
       setGameData(newGameData)
-    },
-    async fetchMarketDataLevel() {
-      if (!this.checkSecret()) {
+
+      // 如果缓存数据的时间戳与新数据相同，则不更新
+      if (this.marketData?.timestamp && this.marketData?.timestamp === newMarketData.timestamp) {
         return
       }
-      // const url = import.meta.env.MODE === "development" ? "http://127.0.0.1:5000/data" : "https://154.222.31.158:1145/data"
-      const url = "https://154.222.31.158:1145/data"
-      const mo9ApiUrl = "https://154.222.31.158:1145/marketplace"
 
-      const [re1, re2] = await Promise.all([
-        fetch(url),
-        fetch(mo9ApiUrl)
-      ])
-      let newMarketDataLevel: MarketDataLevel = {}
-      if (re1.ok) {
-        newMarketDataLevel = await re1.json()
-      }
-      if (re2.ok) {
-        const mo9Data = await re2.json()
-        // 更新marketDataLevel中的数据
-        for (const hrid in mo9Data.marketData) {
-          const item = this.gameData?.itemDetailMap[hrid]
-          // 排除非装备
-          if (item?.categoryHrid !== "/item_categories/equipment") {
-            continue
-          }
-          const mo9Item = mo9Data.marketData[hrid]
-          if (!newMarketDataLevel[item.name]) {
-            newMarketDataLevel[item.name] = {}
-          }
-          for (const level in mo9Item) {
-            const price = mo9Item[level]
-            const priceItem = newMarketDataLevel[item.name][level] || {}
-            if (!priceItem?.ask?.time || mo9Data.timestamp > priceItem.ask.time) {
-              priceItem.ask = {
-                price: price.a,
-                time: mo9Data.timestamp
-              }
-            }
-            if (!priceItem?.bid?.time || mo9Data.timestamp > priceItem.bid.time) {
-              priceItem.bid = {
-                price: price.b,
-                time: mo9Data.timestamp
-              }
-            }
-            newMarketDataLevel[item.name][level] = priceItem
-          }
-        }
-      }
-      this.marketDataLevel = newMarketDataLevel
-
-      ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
-      this.clearJungleCache()
-      this.clearJunglestCache()
-      this.clearInheritCache()
+      this.marketData = updateMarketData(this.marketData, newMarketData, newGameData)
     },
+
     savePriceStatus() {
       // saveBuyStatus(this.buyStatus)
       // saveSellStatus(this.sellStatus)
@@ -216,71 +163,71 @@ export const useGameStore = defineStore("game", {
       this.sellStatus = loadSellStatus()
     },
     getLeaderboardCache() {
-      return this.leaderboardCache[this.marketData!.time]
+      return this.leaderboardCache[this.marketData!.timestamp]
     },
     setLeaderBoardCache(list: Calculator[]) {
       this.clearLeaderBoardCache()
-      this.leaderboardCache[this.marketData!.time] = list
+      this.leaderboardCache[this.marketData!.timestamp] = list
     },
     clearLeaderBoardCache() {
       this.leaderboardCache = {}
     },
     getEnhanposerCache() {
-      return this.enhanposerCache[this.marketData!.time]
+      return this.enhanposerCache[this.marketData!.timestamp]
     },
     setEnhanposerCache(list: WorkflowCalculator[]) {
       this.clearEnhanposerCache()
-      this.enhanposerCache[this.marketData!.time] = list
+      this.enhanposerCache[this.marketData!.timestamp] = list
     },
     clearEnhanposerCache() {
       this.enhanposerCache = {}
     },
     getManualchemyCache() {
-      return this.manualchemyCache[this.marketData!.time]
+      return this.manualchemyCache[this.marketData!.timestamp]
     },
     setManualchemyCache(list: Calculator[]) {
       this.clearManualchemyCache()
-      this.manualchemyCache[this.marketData!.time] = list
+      this.manualchemyCache[this.marketData!.timestamp] = list
     },
     clearManualchemyCache() {
       this.manualchemyCache = {}
     },
     getJungleCache() {
-      return this.jungleCache[this.marketData!.time]
+      return this.jungleCache[this.marketData!.timestamp]
     },
     setJungleCache(list: WorkflowCalculator[]) {
       this.clearJungleCache()
-      this.jungleCache[this.marketData!.time] = list
+      this.jungleCache[this.marketData!.timestamp] = list
     },
     clearJungleCache() {
       this.jungleCache = {}
     },
     getJunglestCache() {
-      return this.junglestCache[this.marketData!.time]
+      return this.junglestCache[this.marketData!.timestamp]
     },
     setJunglestCache(list: EnhanceCalculator[]) {
       this.clearJunglestCache()
-      this.junglestCache[this.marketData!.time] = list
+      this.junglestCache[this.marketData!.timestamp] = list
     },
     clearJunglestCache() {
       this.junglestCache = {}
     },
     getInheritCache() {
-      return this.inheritCache[this.marketData!.time]
+      return this.inheritCache[this.marketData!.timestamp]
     },
     setInheritCache(list: ManufactureCalculator[]) {
       this.clearInheritCache()
-      this.inheritCache[this.marketData!.time] = list
+      this.inheritCache[this.marketData!.timestamp] = list
     },
     clearInheritCache() {
       this.inheritCache = {}
     },
     getDecomposeCache() {
-      return this.decomposeCache[this.marketData!.time]
+      return this.decomposeCache[this.marketData!.timestamp]
     },
     setDecomposeCache(list: DecomposeCalculator[]) {
       this.clearDecomposeCache()
-      this.decomposeCache[this.marketData!.time] = list
+      this.decomposeCache[this.marketData!.timestamp] = list
     },
     clearDecomposeCache() {
       this.decomposeCache = {}
@@ -302,46 +249,66 @@ export const useGameStore = defineStore("game", {
       this.clearJungleCache()
       this.clearJunglestCache()
     }
-
   }
 })
 
-function updateMarketData(oldData: MarketData | null, newData: MarketData, newGameData: GameData): MarketData {
-  const oldMarket = oldData?.market || {}
-  const newMarket = newData.market || {}
+function updateMarketData(oldData: MarketData | null, newData: MarketDataPlain, newGameData: GameData): MarketData {
+  const oldMarket = oldData?.marketData || {}
+  const newMarket: Market = { }
+
+  // 将 MarketDataPlain 转成 MarketData 的结构
+  for (const hrid in newData.marketData) {
+    if (newData.marketData[hrid]) {
+      newMarket[hrid] = {}
+    }
+    for (const level in newData.marketData[hrid]) {
+      newMarket[hrid][level] = {
+        ask: newData.marketData[hrid][level].a,
+        bid: newData.marketData[hrid][level].b
+      }
+    }
+  }
 
   // 取得name->isEquipment的映射
   const itemDetailMap = newGameData.itemDetailMap
   const isEquipmentMap: Record<string, boolean> = {}
   for (const key in itemDetailMap) {
     const item = itemDetailMap[key]
-    isEquipmentMap[item.name] = item.categoryHrid === "/item_categories/equipment"
+    isEquipmentMap[item.hrid] = item.categoryHrid === "/item_categories/equipment"
   }
-  for (const key in newMarket) {
+  for (const hrid in newMarket) {
     // 如果是装备，则不保留旧值
-    if (isEquipmentMap[key]) {
+    if (isEquipmentMap[hrid] || oldMarket[hrid]) {
       continue
     }
-    if (newMarket[key].ask === -1) {
-      newMarket[key].ask = oldMarket[key]?.ask || -1
-    }
-    if (newMarket[key].bid === -1) {
-      newMarket[key].bid = oldMarket[key]?.bid || -1
+    for (const level in newMarket[hrid]) {
+      const price = newMarket[hrid][level]
+      if (price.ask === -1) {
+        price.ask = (oldMarket[hrid]?.[level] as MarketItemPrice)?.ask || -1
+      }
+      if (price.bid === -1) {
+        price.bid = (oldMarket[hrid]?.[level] as MarketItemPrice)?.bid || -1
+      }
     }
   }
 
   // 有些物品可能是oldMarket有的，newMarket没有的
-  for (const key in oldMarket) {
-    if (!newMarket[key] && !isEquipmentMap[key]) {
-      newMarket[key] = JSON.parse(JSON.stringify(oldMarket[key]))
-    }
-  }
+  // for (const key in oldMarket) {
+  //   if (!newMarket[key] && !isEquipmentMap[key]) {
+  //     newMarket[key] = JSON.parse(JSON.stringify(oldMarket[key]))
+  //   }
+  // }
 
-  if (oldData?.time !== newData.time) {
-    ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
+  // if (oldData?.timestamp !== newData.timestamp) {
+  //   ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
+  // }
+  const result = {
+    timestamp: newData.timestamp,
+    marketData: newMarket
   }
-  setMarketData(newData)
-  return newData
+  setMarketData(result)
+
+  return result
 }
 
 const KEY_PREFIX = "game-"

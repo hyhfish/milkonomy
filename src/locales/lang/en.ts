@@ -137,7 +137,7 @@ export default {
   "计算完成，耗时{0}秒": "Calculation completed, run {0}s",
 
   "MWI版本": "MWI Version",
-  "市场数据更新时间": "Market data update at",
+  "市场数据来源(Mooket)": "Market Data Source (Mooket)",
 
   // 自定义装备
   "预设": "Preset",

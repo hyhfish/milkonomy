@@ -219,10 +219,11 @@ export default abstract class Calculator {
     let profitPH = incomePH - costPH
     // 单次利润
     const profitPP = profitPH / this.actionsPH
-    const profitRate = costPH ? profitPH / costPH : 0
+    let profitRate = costPH ? profitPH / costPH : 0
 
     if (!this.valid) {
       profitPH = -1 / 24
+      profitRate = -1
     }
 
     this.result = {
