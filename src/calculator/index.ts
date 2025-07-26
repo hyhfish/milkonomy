@@ -208,7 +208,7 @@ export default abstract class Calculator {
    * 单次动作经验
    */
   get exp(): number {
-    return this.actionItem?.experienceGain?.value || 0
+    return (this.actionItem?.experienceGain?.value || 0) * (1 + getBuffOf(this.action, "Experience"))
   }
 
   run() {
