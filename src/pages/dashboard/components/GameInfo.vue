@@ -2,11 +2,12 @@
 import { getMarketDataApi } from "@/common/apis/game"
 import { useGameStore } from "@/pinia/stores/game"
 
+const version = __APP_VERSION__
 const { t } = useI18n()
 </script>
 
 <template>
-  <div> {{ t('MWI版本') }}: {{ useGameStore().gameData?.gameVersion }}</div>
+  <div> {{ t('Milkonomy') }} v{{ version }}</div>
   <div
     :class="{
       error: getMarketDataApi()?.timestamp * 1000 < Date.now() - 1000 * 60 * 120,
