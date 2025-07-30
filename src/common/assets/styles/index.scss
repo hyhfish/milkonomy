@@ -17,7 +17,22 @@
 
 // 业务页面几乎都应该在根元素上挂载 class="app-container"，以保持页面美观
 .app-container {
-  padding: 20px;
+  padding: 10px;
+}
+.game-info {
+  display: flex;
+  margin-bottom: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 14px;
+  gap: 10px 20px;
+
+  .error {
+    color: #f56c6c;
+  }
+  .success {
+    color: #67c23a;
+  }
 }
 
 html {
@@ -38,8 +53,9 @@ body {
   background-color: var(--v3-body-bg-color);
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-  font-family: Inter, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑",
-    Arial, sans-serif;
+  font-family:
+    Inter, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial,
+    sans-serif;
   @extend %scrollbar;
 }
 

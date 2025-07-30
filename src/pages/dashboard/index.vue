@@ -230,6 +230,18 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
               <el-form-item prop="name" :label="`${t('利润率')} >`">
                 <el-input style="width:60px" v-model="ldSearchData.profitRate" :placeholder="t('请输入')" clearable @input="handleSearchLD" />&nbsp;%
               </el-form-item>
+              <!-- 要求等级 >= -->
+              <el-form-item :label="`${t('要求等级')} ≥`">
+                <el-input-number
+                  v-model="ldSearchData.actionLevel"
+                  :min="0"
+                  :max="120"
+                  :controls="false"
+                  @change="handleSearchLD"
+                  style="width: 60px;"
+                />
+              </el-form-item>
+
               <el-form-item>
                 <el-checkbox v-model="ldSearchData.banEquipment" @change="handleSearchLD">
                   {{ t('排除装备') }}
@@ -479,14 +491,6 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
 </template>
 
 <style lang="scss" scoped>
-.game-info {
-  display: flex;
-  margin-bottom: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-  font-size: 14px;
-  gap: 10px 20px;
-}
 .rank-card {
   display: flex;
   align-items: baseline;

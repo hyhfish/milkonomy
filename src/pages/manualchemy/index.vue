@@ -278,20 +278,6 @@ const onPriceStatusChange = usePriceStatus("manualchemy-price-status")
 </template>
 
 <style lang="scss" scoped>
-.game-info {
-  display: flex;
-  margin-bottom: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-  font-size: 14px;
-  gap: 10px 20px;
-  .error {
-    color: #f56c6c;
-  }
-  .success {
-    color: #67c23a;
-  }
-}
 .rank-card {
   display: flex;
   align-items: baseline;

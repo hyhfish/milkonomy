@@ -33,6 +33,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
   profitList.forEach(item => item.favorite = useFavoriteStoreOutside().hasFavorite(item))
+  profitList = profitList.filter(item => item.actionLevel >= (params.actionLevel || 0))
 
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }

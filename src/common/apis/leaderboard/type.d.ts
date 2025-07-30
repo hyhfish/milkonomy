@@ -1,5 +1,5 @@
-import type Calculator from "@/calculator"
 import type { Sort } from "element-plus"
+import type Calculator from "@/calculator"
 
 export interface RequestData {
   /** 当前页码 */
@@ -16,6 +16,7 @@ export interface RequestData {
   banEquipment?: boolean
   enhanposer?: boolean
   sort?: Sort
+  actionLevel?: number
 }
 
 export type ResponseData = ApiResponseData<{
