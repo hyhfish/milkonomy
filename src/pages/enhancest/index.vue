@@ -451,7 +451,7 @@ watch(menuVisible, (value) => {
             </el-button>
             <div v-if="currentItem?.hrid" class="absolute bottom-0 right-0">
               <el-link v-if="!enhancerStore.hasFavorite(currentItem.hrid)" :underline="false" type="info" :icon="Star" @click="enhancerStore.addFavorite(currentItem.hrid)" style="font-size:42px" />
-              <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="enhancerStore.removeFavorite(currentItem.hrid)" style="font-size:42px" />
+              <el-link v-else :underline="false" :icon="StarFilled" type="primary" @click="enhancerStore.removeFavorite(currentItem.hrid)" style="font-size:42px" />
             </div>
             <el-dialog
               v-model="dialogVisible"
@@ -479,7 +479,7 @@ watch(menuVisible, (value) => {
                     />
 
                     <div class="absolute bottom-0 right-0">
-                      <el-link :underline="false" :icon="StarFilled" type="warning" style="font-size:16px" />
+                      <el-link :underline="false" :icon="StarFilled" type="primary" style="font-size:16px" />
                     </div>
                   </el-button>
                 </div>
@@ -499,7 +499,7 @@ watch(menuVisible, (value) => {
                   />
 
                   <div v-if="enhancerStore.hasFavorite(item.hrid)" class="absolute bottom-0 right-0">
-                    <el-link :underline="false" :icon="StarFilled" type="warning" style="font-size:16px" />
+                    <el-link :underline="false" :icon="StarFilled" type="primary" style="font-size:16px" />
                   </div>
                 </el-button>
               </div>

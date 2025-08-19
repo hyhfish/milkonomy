@@ -127,7 +127,8 @@ export const useGameStore = defineStore("game", {
       // }
       const url = import.meta.env.MODE === "development" ? "/" : "./"
       const MARKET_URLS = [
-        "https://mooket.qi-e.top/market/api.json"
+        // "https://mooket.qi-e.top/market/api.json",
+        "https://www.milkywayidle.com/game_data/marketplace.json"
       ]
       // const LAST_MARKET_URL = `${url}data/market.json`
       const DATA_URL = `${url}data/data.json`

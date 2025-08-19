@@ -14,7 +14,7 @@ const { t } = useI18n()
       success: getMarketDataApi()?.timestamp * 1000 > Date.now() - 1000 * 60 * 120,
     }"
   >
-    {{ t('市场数据来源(Mooket)') }}: {{ new Date(useGameStore().marketData?.timestamp! * 1000).toLocaleString() }}
+    {{ t('市场数据来源(MilkyWayIdle)') }}: {{ new Date(useGameStore().marketData?.timestamp! * 1000).toLocaleString() }}
   </div>
 </template>
 
