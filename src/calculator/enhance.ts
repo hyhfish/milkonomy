@@ -219,6 +219,9 @@ export class EnhanceCalculator extends Calculator {
       catalystRank: 2,
       enhanceLevel: this.enhanceLevel
     })
+    if (!decomposeCal.available) {
+      return -1
+    }
 
     const product = decomposeCal.productListWithPrice[0]
     // 收益
