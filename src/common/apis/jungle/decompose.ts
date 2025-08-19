@@ -41,6 +41,7 @@ function calcProfit() {
       let bestCal: DecomposeCalculator | undefined
       for (let catalystRank = 0; catalystRank <= 2; ++catalystRank) {
         const c = new DecomposeCalculator({ hrid: item.hrid, enhanceLevel, catalystRank })
+        if (!c.available) continue
         c.run()
         if (c.result.profitPH > bestProfit) {
           bestProfit = c.result.profitPH
