@@ -43,7 +43,25 @@ export class WorkflowCalculator extends Calculator {
       if (i < configs.length - 1) {
         config.productPriceConfigList = [{ immutable: true, price: 0, hrid: config.hrid }]
       }
-      const cal = getCalculatorInstance(config)
+      let cal = getCalculatorInstance(config)
+
+      let modified = false
+      if (cal.available && i > 0) {
+        // 如果cal的第k个原料和第0个原料相同，则第k个原料的价格也为0
+        const firstIng = cal.ingredientList[0]
+        for (const k in cal.ingredientList) {
+          const ing = cal.ingredientList[k]
+          if (ing.hrid === firstIng.hrid && (ing.level || 0) === (firstIng.level || 0)) {
+            config.ingredientPriceConfigList![k] = { immutable: true, price: 0, hrid: config.hrid }
+            modified = true
+          }
+        }
+
+        if (modified) {
+          cal = getCalculatorInstance(config)
+        }
+      }
+
       cal.available && cal.run()
       if (cal.hasManualPrice) {
         this.hasManualPrice = true
@@ -191,8 +209,10 @@ export class WorkflowCalculator extends Calculator {
       const target = cal.hrid
       const targetProduct = cal.productList.find(p => p.hrid === target)!
       const targetOutput = targetProduct.count * (targetProduct.rate || 1) * resultList[i].gainPH
-      const targetIngredient = next.ingredientList.find(i => i.hrid === target)!
-      const targetInput = targetIngredient.count * resultList[i + 1].consumePH
+      // 下一阶段的原料有可能同时出现多次，例如护符
+      const targetIngredientList = next.ingredientList.filter(i => i.hrid === target)
+      const targetIngredientCount = targetIngredientList.reduce((acc, curr) => acc + curr.count!, 0)
+      const targetInput = targetIngredientCount * resultList[i + 1].consumePH
 
       singleMultiplier.push(targetOutput / targetInput)
     }

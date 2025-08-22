@@ -102,7 +102,6 @@ function calcAllFlowProfit() {
       const configs: StorageCalculatorItem[] = []
       let c = new ManufactureCalculator({ hrid: item.hrid, project, action })
       let actionItem = c.actionItem
-      console.log("ca", c.actionItem)
       if (!actionItem?.upgradeItemHrid) {
         continue
       }
