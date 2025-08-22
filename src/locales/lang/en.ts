@@ -98,7 +98,7 @@ export default {
   "制作装备": "Craft Gear",
   "工时费/h": "Hourly Rate",
   "工时费": "Hourly Rate",
-  "税率%": "% Rate",
+  "溢价率%": "% Rate",
   "数量": "Count",
   "价格": "Price",
   "强化消耗": "Enhance Cost",
