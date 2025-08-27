@@ -12,21 +12,23 @@ import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 const { t } = locales.global
 /** 查 */
-export async function getDataApi(params: any) {
+export async function getDataApi(params: any, onProgress?: (progress: number) => void) {
   let profitList: WorkflowCalculator[] = []
   if (useGameStoreOutside().getJungleCache()) {
     profitList = useGameStoreOutside().getJungleCache()
+    // 从缓存获取数据时不需要进度条
   } else {
+    onProgress?.(0)
     await new Promise(resolve => setTimeout(resolve, 300))
     const startTime = Date.now()
     try {
-      profitList = profitList.concat(calcEnhanceProfit())
+      profitList = profitList.concat(await calcEnhanceProfit(onProgress))
     } catch (e: any) {
       console.error(e)
     }
     useGameStoreOutside().setJungleCache(profitList)
+    onProgress?.(100)
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
-    console.log(`计算完成，耗时秒${(Date.now() - startTime) / 1000}`)
   }
 
   profitList = profitList.filter(item => params.maxLevel ? item.calculator.enhanceLevel <= params.maxLevel : true)
@@ -50,12 +52,18 @@ export async function getDataApi(params: any) {
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }
 
-function calcEnhanceProfit() {
+async function calcEnhanceProfit(onProgress?: (progress: number) => void) {
   const gameData = getGameDataApi()
   // 所有物品列表
-  const list = Object.values(gameData.itemDetailMap)
+  const validItems = Object.values(gameData.itemDetailMap).filter(item => item.enhancementCosts)
   const profitList: WorkflowCalculator[] = []
-  list.filter(item => item.enhancementCosts).forEach((item) => {
+
+  let processedItems = 0
+  const totalItems = validItems.length
+
+  onProgress?.(5)
+
+  for (const item of validItems) {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
       if (getUsedPriceOf(item.hrid, enhanceLevel, "bid") === -1) {
         continue
@@ -172,6 +180,18 @@ function calcEnhanceProfit() {
         bestCal && handlePush(profitList, bestCal)
       }
     }
-  })
+
+    // 更新进度
+    processedItems++
+    const progress = Math.round((processedItems / totalItems) * 90) + 5 // 5-95%的范围
+    onProgress?.(progress)
+
+    // 每处理10个物品时让出控制权，避免阻塞UI
+    if (processedItems % 10 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    }
+  }
+
+  onProgress?.(95)
   return profitList
 }
