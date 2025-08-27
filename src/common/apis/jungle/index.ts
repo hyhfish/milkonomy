@@ -63,11 +63,18 @@ function calcEnhanceProfit() {
 
       let bestProfit = -Infinity
       let bestCal: WorkflowCalculator | undefined
-      let bestProfitStep2 = -Infinity
-      let bestCalStep2: WorkflowCalculator | undefined
 
       let bestProfitStep0 = -Infinity
       let bestCalStep0: EnhanceCalculator | undefined
+
+      // 为支持更多步数的工作流，使用数组存储各步数的最佳结果
+      const bestMultiStepProfits: number[] = []
+      const bestMultiStepCals: (WorkflowCalculator | undefined)[] = []
+      const maxSteps = item.hrid.includes("charm") ? 7 : 2
+      for (let i = 0; i <= maxSteps; i++) {
+        bestMultiStepProfits[i] = -Infinity
+        bestMultiStepCals[i] = undefined
+      }
 
       for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
         const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
@@ -83,8 +90,6 @@ function calcEnhanceProfit() {
               continue
             }
 
-            const manualLast = new ManufactureCalculator({ hrid: manual.actionItem.upgradeItemHrid, project: projectLast, action: actionLast })
-
             // protectLevel = enhanceLevel 时表示不用垫子
             const c = new WorkflowCalculator([
               getStorageCalculatorItem(manual),
@@ -92,14 +97,45 @@ function calcEnhanceProfit() {
             ], `${project}${getTrans("强化")}+${enhanceLevel}`)
 
             c.run()
-            let cStep2
-            if (manual.actionItem.upgradeItemHrid && manualLast.available) {
-              cStep2 = new WorkflowCalculator([
-                getStorageCalculatorItem(manualLast),
-                getStorageCalculatorItem(manual),
+
+            // 循环构建多步工作流
+            const multiStepWorkflows: WorkflowCalculator[] = []
+            let currentManual = manual
+            const manualChain: ManufactureCalculator[] = [manual]
+            let stepCount = 1
+
+            // 护符最多7步，其他最多2步
+            const maxSteps = item.hrid.includes("charm") ? 7 : 2
+
+            // 继续添加步骤，只要还有 upgradeItemHrid 且未达到最大步数
+            while (currentManual.actionItem?.upgradeItemHrid && stepCount < maxSteps) {
+              const nextManual = new ManufactureCalculator({
+                hrid: currentManual.actionItem.upgradeItemHrid,
+                project: projectLast,
+                action: actionLast
+              })
+
+              if (!nextManual.available) {
+                break
+              }
+
+              manualChain.unshift(nextManual) // 在开头添加，因为我们需要反向构建
+              stepCount++
+
+              // 创建当前步数的工作流
+              const stepItems = [
+                ...manualChain.map(m => getStorageCalculatorItem(m)),
                 getStorageCalculatorItem(enhancer)
-              ], `2步${project}${getTrans("强化")}+${enhanceLevel}`)
-              cStep2.run()
+              ]
+
+              const cStep = new WorkflowCalculator(
+                stepItems,
+                `${stepCount}步${project}${getTrans("强化")}+${enhanceLevel}`
+              )
+              cStep.run()
+              multiStepWorkflows.push(cStep)
+
+              currentManual = nextManual
             }
 
             enhancer.run()
@@ -113,17 +149,28 @@ function calcEnhanceProfit() {
               bestCal = c
             }
 
-            if (cStep2 && cStep2.result.profitPH > bestProfitStep2) {
-              bestProfitStep2 = cStep2.result.profitPH
-              bestCalStep2 = cStep2
-            }
+            // 处理多步工作流的最佳结果
+            multiStepWorkflows.forEach((workflow) => {
+              const steps = workflow.calculatorList.length - 1 // 减去enhancer的1步
+              if (steps >= 2 && steps <= maxSteps) {
+                if (workflow.result.profitPH > bestMultiStepProfits[steps]) {
+                  bestMultiStepProfits[steps] = workflow.result.profitPH
+                  bestMultiStepCals[steps] = workflow
+                }
+              }
+            })
           }
         }
       }
       // 只取最优的保护情况
       bestCal && handlePush(profitList, bestCal)
-      bestCalStep2 && handlePush(profitList, bestCalStep2)
       bestCalStep0 && handlePush(profitList, bestCalStep0)
+
+      // 添加所有多步工作流的最佳结果（2步及以上）
+      for (let i = 2; i <= maxSteps; i++) {
+        const bestCal = bestMultiStepCals[i]
+        bestCal && handlePush(profitList, bestCal)
+      }
     }
   })
   return profitList
