@@ -36,45 +36,24 @@ const ldSearchData = useMemory("jungle-leaderboard-search-data", {
 })
 
 const loadingLD = ref(false)
-const calculationProgress = ref(0)
-const showProgress = ref(false)
 
 // 防抖处理
 const getLeaderboardData = debounce(() => {
   loadingLD.value = true
-
-  // 检查是否有缓存，决定是否显示进度条
-  const hasCache = useGameStore().getJungleCache()
-  showProgress.value = !hasCache
-  calculationProgress.value = 0
 
   getDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
     ...ldSearchData.value,
     sort: sortLD.value
-  }, (progress: number) => {
-    // 进度回调 - 只在没有缓存时更新进度
-    if (!hasCache) {
-      calculationProgress.value = progress
-    }
   }).then((data) => {
     paginationDataLD.total = data.total
     leaderboardData.value = data.list
-    if (showProgress.value) {
-      calculationProgress.value = 100
-    }
   }).catch((e) => {
     console.error(e)
     leaderboardData.value = []
   }).finally(() => {
     loadingLD.value = false
-    // 延迟隐藏进度条，让用户看到完成状态（只在显示进度条时）
-    if (showProgress.value) {
-      setTimeout(() => {
-        showProgress.value = false
-      }, 1000)
-    }
   })
 }, 300)
 function handleSearchLD() {
@@ -184,19 +163,8 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
             </el-form>
           </template>
           <template #default>
-            <!-- 进度条显示 - 替代表格位置 -->
-            <div v-if="showProgress" class="progress-container-main">
-              <el-progress
-                :percentage="calculationProgress"
-                :status="calculationProgress === 100 ? 'success' : undefined"
-                :text-inside="true"
-                :stroke-width="24"
-                class="progress-bar-main"
-              />
-            </div>
-
             <!-- 数据表格 -->
-            <el-table v-else :data="leaderboardData" v-loading="loadingLD" @sort-change="handleSortLD">
+            <el-table :data="leaderboardData" v-loading="loadingLD" @sort-change="handleSortLD">
               <el-table-column width="54">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
@@ -395,19 +363,54 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
   }
 }
 
-.progress-container-main {
-  padding: 40px 20px;
+.calculation-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 350px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  margin: 20px 0;
 
-  .progress-bar-main {
-    :deep(.el-progress-bar__outer) {
-      background-color: #e4e7ed;
-      border-radius: 10px;
+  .loading-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 400px;
+
+    .loading-icon {
+      font-size: 56px;
+      color: #409eff;
+      margin-bottom: 24px;
+      animation: rotate 2s linear infinite;
     }
 
-    :deep(.el-progress-bar__inner) {
-      border-radius: 10px;
-      transition: width 0.3s ease;
+    .loading-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 20px;
     }
+
+    .loading-tips {
+      font-size: 14px;
+      color: #606266;
+      line-height: 1.8;
+      text-align: left;
+
+      div {
+        margin-bottom: 8px;
+        padding-left: 8px;
+      }
+    }
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 .pager-wrapper {
