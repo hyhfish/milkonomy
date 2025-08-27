@@ -162,6 +162,16 @@ export const constantRoutes: RouteRecordRaw[] = [
           affix: false,
           elIcon: "Compass"
         }
+      },
+      {
+        path: "pickout",
+        component: () => import("@/pages/jungle/pickout.vue"),
+        name: "Pickout",
+        meta: {
+          title: t("捡漏工具"),
+          affix: false,
+          elIcon: "Compass"
+        }
       }
 
     ]

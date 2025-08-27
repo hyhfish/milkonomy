@@ -2,10 +2,10 @@ import { PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
 
 import { useMemory } from "./useMemory"
 // 自定义 Hook
-export function usePriceStatus(key: string) {
+export function usePriceStatus(key: string, defaultValue?: { buyStatus?: PriceStatus, sellStatus?: PriceStatus }) {
   const priceStatus = useMemory(key, {
-    buyStatus: PriceStatus.ASK,
-    sellStatus: PriceStatus.BID
+    buyStatus: defaultValue?.buyStatus || PriceStatus.ASK,
+    sellStatus: defaultValue?.sellStatus || PriceStatus.BID
   }, 0)
 
   onBeforeMount(() => {
