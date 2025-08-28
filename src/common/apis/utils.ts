@@ -35,9 +35,11 @@ export function handlePush(profitList: Calculator[], cal: Calculator) {
 }
 
 export function handleSearch(profitList: Calculator[], params: any) {
-  params.name && (profitList = profitList.filter(cal =>
-    cal.result.name.toLowerCase().includes(params.name!.toLowerCase())
-  ))
+  params.name && (profitList = profitList.filter((cal) => {
+    const nameRegex = new RegExp(params.name!, "i")
+    return cal.result.name.match(nameRegex)
+  })
+  )
 
   params.project && (profitList = profitList.filter(cal => cal.project.match(params.project!)))
   params.banEquipment && (profitList = profitList.filter(cal => !cal.isEquipment))
