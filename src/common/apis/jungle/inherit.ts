@@ -52,7 +52,7 @@ function calcProfit() {
         if (getUsedPriceOf(actionItem.upgradeItemHrid, originLevel, "ask") === -1) {
           continue
         }
-        if (getUsedPriceOf(item.hrid, Math.floor(originLevel * 0.7), "bid") === -1) {
+        if (getUsedPriceOf(item.hrid, Math.floor(c.targetLevel), "bid") === -1) {
           continue
         }
         handlePush(profitList, c)

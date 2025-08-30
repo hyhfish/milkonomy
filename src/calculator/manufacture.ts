@@ -52,37 +52,44 @@ export class ManufactureCalculator extends Calculator {
     return list
   }
 
+  get targetLevel(): number {
+    let targetLevel = Math.round(this.originLevel * 0.7 * 100) / 100
+    // 精炼继承保留原等级
+    if (this.item.hrid.endsWith("_refined")) {
+      targetLevel = this.originLevel
+    }
+    return targetLevel
+  }
+
   get productList(): Product[] {
     const gourmetBuff = getBuffOf(this.action, "Gourmet")
     let list: Product[] = []
-    // 需要消除浮点数误差
-    const targetLevel = Math.round(this.originLevel * 0.7 * 100) / 100
-    const levelUpRate = targetLevel % 1
-    if (targetLevel % 1 === 0) {
+    const levelUpRate = this.targetLevel % 1
+    if (this.targetLevel % 1 === 0) {
       list = this.actionItem.outputItems.map(output => ({
         hrid: output.itemHrid,
         // 双倍茶补正
         count: output.count * (1 + gourmetBuff),
-        level: Math.floor(targetLevel),
-        marketPrice: getPriceOf(output.itemHrid, Math.floor(targetLevel)).bid
+        level: Math.floor(this.targetLevel),
+        marketPrice: getPriceOf(output.itemHrid, Math.floor(this.targetLevel)).bid
       }))
       // 如果targetLevel不是整数，则再添加一个level为targetLevel+1的产品
     } else {
-      let levelUpPrice = getPriceOf(this.item.hrid, Math.ceil(targetLevel)).bid
+      let levelUpPrice = getPriceOf(this.item.hrid, Math.ceil(this.targetLevel)).bid
       if (levelUpPrice <= 0) {
-        levelUpPrice = getPriceOf(this.item.hrid, Math.floor(targetLevel)).bid
+        levelUpPrice = getPriceOf(this.item.hrid, Math.floor(this.targetLevel)).bid
       }
       list = list.concat([
         {
           hrid: this.item.hrid,
           count: 1 - levelUpRate,
-          level: Math.floor(targetLevel),
-          marketPrice: getPriceOf(this.item.hrid, Math.floor(targetLevel)).bid
+          level: Math.floor(this.targetLevel),
+          marketPrice: getPriceOf(this.item.hrid, Math.floor(this.targetLevel)).bid
         },
         {
           hrid: this.item.hrid,
           count: levelUpRate,
-          level: Math.ceil(targetLevel),
+          level: Math.ceil(this.targetLevel),
           marketPrice: levelUpPrice
         }
       ])

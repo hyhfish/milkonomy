@@ -170,7 +170,7 @@ const onPriceStatusChange = usePriceStatus("inherit-price-status")
               </el-table-column>
               <el-table-column :label="t('目标')" min-width="120">
                 <template #default="{ row }">
-                  {{ row.result.name }}+{{ Math.round(row.originLevel * 0.7 * 100) / 100 }}
+                  {{ row.result.name }}+{{ row.targetLevel }}
                 </template>
               </el-table-column>
               <el-table-column prop="project" :label="t('动作')" />
@@ -220,7 +220,7 @@ const onPriceStatusChange = usePriceStatus("inherit-price-status")
               </el-table-column>
               <el-table-column :label="t('售价')" align="center">
                 <template #default="{ row }">
-                  <span v-if="Math.round(row.originLevel * 0.7 * 100) / 100 % 1 === 0">
+                  <span v-if="row.targetLevel % 1 === 0">
                     {{ Format.price(row.productListWithPrice[0].price) }}
                   </span>
                   <span v-else>
