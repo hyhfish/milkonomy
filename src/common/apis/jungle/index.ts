@@ -58,6 +58,7 @@ async function calcEnhanceProfit() {
   for (const item of validItems) {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
       const key = useGameStoreOutside().sellStatus.match(/ask/i) ? "ask" : "bid"
+
       if (getUsedPriceOf(item.hrid, enhanceLevel, key) === -1) {
         continue
       }
@@ -87,7 +88,18 @@ async function calcEnhanceProfit() {
         for (const [projectLast, actionLast] of projects) {
           for (const [project, action] of projects) {
             const manual = new ManufactureCalculator({ hrid: item.hrid, project, action })
-            if (!enhancer.available || !manual.available) {
+
+            if (!enhancer.available) {
+              continue
+            }
+
+            enhancer.run()
+            if (enhancer.result.profitPH > bestProfitStep0) {
+              bestProfitStep0 = enhancer.result.profitPH
+              bestCalStep0 = enhancer
+            }
+
+            if (!manual.available) {
               continue
             }
 
@@ -137,12 +149,6 @@ async function calcEnhanceProfit() {
               multiStepWorkflows.push(cStep)
 
               currentManual = nextManual
-            }
-
-            enhancer.run()
-            if (enhancer.result.profitPH > bestProfitStep0) {
-              bestProfitStep0 = enhancer.result.profitPH
-              bestCalStep0 = enhancer
             }
 
             if (c.result.profitPH > bestProfit) {
