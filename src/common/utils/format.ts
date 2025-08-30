@@ -2,13 +2,13 @@ export function number(value: number, decimal = 0) {
   // 如果value~(0,100),保留decimal位小数
   // 否则保留整数
   if (value >= 0 && value < 2) {
-    value = Math.floor(value * (10 ** decimal)) / (10 ** decimal)
+    value = Math.round(value * (10 ** decimal)) / (10 ** decimal)
   } else if (value >= 0 && value < 10) {
-    value = Math.floor(value * (10 ** Math.min(decimal, 2))) / (10 ** Math.min(decimal, 2))
+    value = Math.round(value * (10 ** Math.min(decimal, 2))) / (10 ** Math.min(decimal, 2))
   } else if (value >= 10 && value < 100) {
-    value = Math.floor(value * (10 ** Math.min(decimal, 1))) / (10 ** Math.min(decimal, 1))
+    value = Math.round(value * (10 ** Math.min(decimal, 1))) / (10 ** Math.min(decimal, 1))
   } else {
-    value = Math.floor(value)
+    value = Math.round(value)
   }
   return value.toLocaleString("en-US")
 }
@@ -16,10 +16,10 @@ export function costTime(value: number) {
   // return `${Math.floor(value / 10000000) / 100}s`
   let result = ""
   value /= 1000000000
-  const h = Math.floor(value / 3600)
-  const m = Math.floor(value % 3600 / 60)
+  const h = Math.round(value / 3600)
+  const m = Math.round(value % 3600 / 60)
   const decimal = h || m ? 0 : 2
-  const s = Math.floor(value % 60 * (10 ** decimal)) / (10 ** decimal)
+  const s = Math.round(value % 60 * (10 ** decimal)) / (10 ** decimal)
   if (h) {
     result += `${h}h`
   }
@@ -34,7 +34,7 @@ export function costTime(value: number) {
 }
 
 export function percent(value: number, decimal = 2) {
-  return `${Math.floor(value * 100 * (10 ** decimal)) / (10 ** decimal)}%`
+  return `${Math.round(value * 100 * (10 ** decimal)) / (10 ** decimal)}%`
 }
 
 const priceConfig = ["", "K", "M", "B", "T"]

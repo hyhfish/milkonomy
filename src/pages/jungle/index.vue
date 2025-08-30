@@ -231,6 +231,13 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                   </span>
                 </template>
               </el-table-column>
+              <el-table-column align="center" label="利润率">
+                <template #default="{ row }">
+                  <span :class="row.hasManualPrice ? 'manual' : ''">
+                    {{ row.result.profitRateFormat }}&nbsp;
+                  </span>
+                </template>
+              </el-table-column>
               <el-table-column align="center" min-width="120">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">

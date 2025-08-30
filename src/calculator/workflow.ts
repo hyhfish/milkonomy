@@ -4,6 +4,7 @@ import * as Format from "@@/utils/format"
 import { getTrans } from "@/locales"
 import Calculator from "."
 
+import { EnhanceCalculator } from "./enhance"
 import { getCalculatorInstance } from "./utils"
 
 export class WorkflowCalculator extends Calculator {
@@ -241,7 +242,11 @@ export class WorkflowCalculator extends Calculator {
     const lastCal = this.calculatorList[this.calculatorList.length - 1]
     const lastRes = this.resultList[this.resultList.length - 1]
     const ac = lastCal.actionsPH * lastRes.workMultiplier
-    const profitPP = profitPH / ac
+    let profitPP = profitPH / ac
+    // 如果最后一步是强化，则乘以单个成品的强化次数
+    if (lastCal instanceof EnhanceCalculator) {
+      profitPP *= lastCal.enhancelate().actions
+    }
 
     this.result = {
       workMultiplier: this.workMultiplier,

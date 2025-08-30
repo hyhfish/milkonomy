@@ -177,6 +177,8 @@ const results = computed(() => {
 
     const hourlyCost = (productPrice * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
 
+    const profitPP = productPrice * 0.98 - totalCostNoHourly
+
     const seconds = actions / calc.actionsPH * 3600
     result.push({
       actions,
@@ -192,7 +194,8 @@ const results = computed(() => {
       totalCostNoHourly,
       matCostPH: `${Format.money(matCost / seconds * 3600)} / h`,
       hourlyCost,
-      hourlyCostFormatted: Format.money(hourlyCost)
+      hourlyCostFormatted: Format.money(hourlyCost),
+      profitPPFormatted: Format.money(profitPP)
     })
   }
   return result
@@ -617,6 +620,7 @@ watch(menuVisible, (value) => {
         <el-table-column prop="matCostPH" :label="t('材料消耗速率')" :min-width="120" header-align="center" align="right" />
 
         <el-table-column v-if="enhancerStore.config.tab === '1' " prop="hourlyCostFormatted" :label="t('工时费')" :min-width="100" header-align="center" align="right" />
+        <el-table-column v-if="enhancerStore.config.tab === '1' " prop="profitPPFormatted" :label="t('单个利润')" :min-width="100" header-align="center" align="right" />
         <el-table-column v-else prop="totalCostFormatted" :label="t('总费用')" :min-width="120" header-align="center" align="right" />
       </ElTable>
     </el-card>
