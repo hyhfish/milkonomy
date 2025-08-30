@@ -1,4 +1,4 @@
-import type { ItemDetail } from "~/game"
+import type { Equipment, ItemDetail } from "~/game"
 
 export function getKeyOf(hrid?: string) {
   return hrid?.split("/").pop()
@@ -12,6 +12,6 @@ export function getIconOf(hrid?: string) {
   return `${import.meta.env.BASE_URL}sprites/${type}.svg#${key}`
 }
 
-export function getEquipmentTypeOf(item: ItemDetail) {
-  return item.equipmentDetail?.type?.split("/").pop()
+export function getEquipmentTypeOf(item: ItemDetail): Equipment {
+  return item.equipmentDetail?.type?.split("/").pop() as Equipment
 }

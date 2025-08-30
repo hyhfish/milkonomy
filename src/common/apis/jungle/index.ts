@@ -3,8 +3,9 @@ import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
-import locales, { getTrans } from "@/locales"
+import { getEquipmentTypeOf } from "@/common/utils/game"
 
+import locales, { getTrans } from "@/locales"
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 import { getUsedPriceOf } from "../price"
@@ -72,7 +73,7 @@ async function calcEnhanceProfit() {
       // 为支持更多步数的工作流，使用数组存储各步数的最佳结果
       const bestMultiStepProfits: number[] = []
       const bestMultiStepCals: (WorkflowCalculator | undefined)[] = []
-      const maxSteps = item.hrid.includes("charm") ? 7 : 2
+      const maxSteps = getEquipmentTypeOf(item) === "charm" ? 7 : 2
       for (let i = 0; i <= maxSteps; i++) {
         bestMultiStepProfits[i] = -Infinity
         bestMultiStepCals[i] = undefined
@@ -116,9 +117,6 @@ async function calcEnhanceProfit() {
             let currentManual = manual
             const manualChain: ManufactureCalculator[] = [manual]
             let stepCount = 1
-
-            // 护符最多7步，其他最多2步
-            const maxSteps = item.hrid.includes("charm") ? 7 : 2
 
             // 继续添加步骤，只要还有 upgradeItemHrid 且未达到最大步数
             while (currentManual.actionItem?.upgradeItemHrid && stepCount < maxSteps) {

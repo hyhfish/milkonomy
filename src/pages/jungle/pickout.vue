@@ -33,6 +33,7 @@ const ldSearchData = useMemory("pickout-leaderboard-search-data", {
   minLevel: "",
   minItemLevel: 90,
   banEquipment: false,
+  banJewelry: true,
   bestManufacture: true
 })
 
@@ -153,10 +154,6 @@ const onPriceStatusChange = usePriceStatus("pickout-price-status", {
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
 
-              <el-form-item :label="t('售价 ≥')">
-                <el-input-number style="width:80px" v-model="ldSearchData.minSellPrice" placeholder="0" clearable @change="handleSearchLD" :controls="false" />&nbsp;M
-              </el-form-item>
-
               <el-form-item :label="t('物品等级 ≥')">
                 <el-input-number style="width:80px" v-model="ldSearchData.minItemLevel" placeholder="0" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
@@ -164,6 +161,12 @@ const onPriceStatusChange = usePriceStatus("pickout-price-status", {
               <el-form-item>
                 <el-checkbox v-model="ldSearchData.bestManufacture" @change="handleSearchLD" disabled>
                   {{ t('最佳制作方案') }}
+                </el-checkbox>
+              </el-form-item>
+
+              <el-form-item>
+                <el-checkbox v-model="ldSearchData.banJewelry" @change="handleSearchLD">
+                  {{ t('排除首饰') }}
                 </el-checkbox>
               </el-form-item>
             </el-form>
@@ -209,32 +212,6 @@ const onPriceStatusChange = usePriceStatus("pickout-price-status", {
               <el-table-column :label="t('损耗 / h')" align="center">
                 <template #default="{ row }">
                   {{ row.calculator.result.cost4MatPHFormat }}
-                </template>
-              </el-table-column>
-              <el-table-column align="center" min-width="120">
-                <template #header>
-                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
-                    <div>{{ t('风险系数') }}</div>
-                    <el-tooltip placement="top" effect="light">
-                      <template #content>
-                        {{ t('损耗 / 利润') }}
-                      </template>
-                      <el-icon>
-                        <Warning />
-                      </el-icon>
-                    </el-tooltip>
-                  </div>
-                </template>
-                <template #default="{ row }">
-                  <!-- 7以上是红色，5以下是绿色 -->
-                  <span
-                    :class="{
-                      error: (row.calculator.result.cost4MatPH) / row.result.profitPH > 7,
-                      success: (row.calculator.result.cost4MatPH) / row.result.profitPH < 5,
-                    }"
-                  >
-                    {{ row.result.profitPH > 0 ? Format.number((row.calculator.result.cost4MatPH) / row.result.profitPH, 2) : '' }}
-                  </span>
                 </template>
               </el-table-column>
               <el-table-column align="center" min-width="120">

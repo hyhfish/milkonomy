@@ -39,8 +39,9 @@ export const EQUIPMENT_LIST = [
   "earrings",
   "back",
   "off_hand",
-  "pouch"
+  "pouch",
   // 'main_hand'
+  "charm"
 ] as const
 
 const DEFAULT_HOUSE = {

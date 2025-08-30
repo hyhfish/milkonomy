@@ -1,4 +1,5 @@
 import type Calculator from "@/calculator"
+import { getEquipmentTypeOf } from "../utils/game"
 
 export function handleSort(profitList: Calculator[], params: any) {
   // 首先进行一次利润排序
@@ -43,6 +44,9 @@ export function handleSearch(profitList: Calculator[], params: any) {
 
   params.project && (profitList = profitList.filter(cal => cal.project.match(params.project!)))
   params.banEquipment && (profitList = profitList.filter(cal => !cal.isEquipment))
+  params.banJewelry && (profitList = profitList.filter(cal =>
+    getEquipmentTypeOf(cal.item) !== "neck" && getEquipmentTypeOf(cal.item) !== "ring" && getEquipmentTypeOf(cal.item) !== "earrings"))
+
   params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
   return profitList
 }
