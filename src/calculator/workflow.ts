@@ -248,6 +248,7 @@ export class WorkflowCalculator extends Calculator {
       profitPP *= lastCal.enhancelate().actions
     }
 
+    const risk = this.calculator.result.cost4MatPH / profitPH
     this.result = {
       workMultiplier: this.workMultiplier,
       hrid: item.hrid,
@@ -269,7 +270,9 @@ export class WorkflowCalculator extends Calculator {
       efficiencyFormat: Format.percent(0),
       timeCostFormat: Format.costTime(this.timeCost),
       successRateFormat: Format.percent(1),
-      expPHFormat: Format.money(expPH)
+      expPHFormat: Format.money(expPH),
+      risk,
+      riskFormat: Format.number(risk, 2)
     }
     return this
   }

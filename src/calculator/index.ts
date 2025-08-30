@@ -226,6 +226,8 @@ export default abstract class Calculator {
       profitRate = -1
     }
 
+    const risk = (cost4MatPH + this.cost4EscapePH) / profitPH
+
     this.result = {
       hrid: this.item.hrid,
       name: getTrans(this.item.name),
@@ -250,7 +252,9 @@ export default abstract class Calculator {
       timeCostFormat: Format.costTime(this.timeCost),
       successRateFormat: Format.percent(this.successRate),
       expPH,
-      expPHFormat: Format.money(expPH)
+      expPHFormat: Format.money(expPH),
+      risk,
+      riskFormat: Format.number(risk, 2)
     }
     return this
   }

@@ -155,6 +155,10 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                 <el-input-number style="width:80px" v-model="ldSearchData.minItemLevel" placeholder="0" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
 
+              <el-form-item :label="t('风险 <=')">
+                <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
+              </el-form-item>
+
               <el-form-item>
                 <el-checkbox v-model="ldSearchData.bestManufacture" @change="handleSearchLD">
                   {{ t('最佳制作方案') }}
@@ -223,11 +227,11 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                   <!-- 7以上是红色，5以下是绿色 -->
                   <span
                     :class="{
-                      error: (row.calculator.result.cost4MatPH) / row.result.profitPH > 7,
-                      success: (row.calculator.result.cost4MatPH) / row.result.profitPH < 5,
+                      error: row.result.risk > 7,
+                      success: row.result.risk < 5,
                     }"
                   >
-                    {{ row.result.profitPH > 0 ? Format.number((row.calculator.result.cost4MatPH) / row.result.profitPH, 2) : '' }}
+                    {{ row.result.profitPH > 0 ? row.result.riskFormat : '' }}
                   </span>
                 </template>
               </el-table-column>

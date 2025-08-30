@@ -143,6 +143,10 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
+
+              <el-form-item :label="t('风险 <=')">
+                <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
+              </el-form-item>
             </el-form>
           </template>
           <template #default>
@@ -236,15 +240,16 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                     </el-tooltip>
                   </div>
                 </template>
+
                 <template #default="{ row }">
                   <!-- 7以上是红色，5以下是绿色 -->
                   <span
                     :class="{
-                      error: (row.result.cost4MatPH + row.cost4EscapePH) / row.result.profitPH > 7,
-                      success: (row.result.cost4MatPH + row.cost4EscapePH) / row.result.profitPH < 5,
+                      error: row.result.risk > 7,
+                      success: row.result.risk < 5,
                     }"
                   >
-                    {{ Format.number((row.result.cost4MatPH + row.cost4EscapePH) / row.result.profitPH, 2) }}
+                    {{ row.result.profitPH > 0 ? row.result.riskFormat : '' }}
                   </span>
                 </template>
               </el-table-column>
