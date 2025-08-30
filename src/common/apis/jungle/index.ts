@@ -12,10 +12,10 @@ import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 const { t } = locales.global
 /** 查 */
-export async function getDataApi(params: any) {
+export async function getDataApi(params: any, cacheKey: string = "jungle") {
   let profitList: WorkflowCalculator[] = []
-  if (useGameStoreOutside().getJungleCache()) {
-    profitList = useGameStoreOutside().getJungleCache()
+  if (useGameStoreOutside().getJungleCache(cacheKey)) {
+    profitList = useGameStoreOutside().getJungleCache(cacheKey)
   } else {
     await new Promise(resolve => setTimeout(resolve, 300))
     const startTime = Date.now()
@@ -24,7 +24,7 @@ export async function getDataApi(params: any) {
     } catch (e: any) {
       console.error(e)
     }
-    useGameStoreOutside().setJungleCache(profitList)
+    useGameStoreOutside().setJungleCache(profitList, cacheKey)
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
 
@@ -57,7 +57,8 @@ async function calcEnhanceProfit() {
 
   for (const item of validItems) {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
-      if (getUsedPriceOf(item.hrid, enhanceLevel, "bid") === -1) {
+      const key = useGameStoreOutside().sellStatus.match(/ask/i) ? "ask" : "bid"
+      if (getUsedPriceOf(item.hrid, enhanceLevel, key) === -1) {
         continue
       }
 

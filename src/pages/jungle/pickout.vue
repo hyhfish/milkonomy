@@ -47,7 +47,7 @@ const getLeaderboardData = debounce(() => {
     size: paginationDataLD.pageSize,
     ...ldSearchData.value,
     sort: sortLD.value
-  }).then((data) => {
+  }, "pickout").then((data) => {
     paginationDataLD.total = data.total
     leaderboardData.value = data.list
   }).catch((e) => {
