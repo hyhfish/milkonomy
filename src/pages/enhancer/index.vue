@@ -501,7 +501,7 @@ watch(menuVisible, (value) => {
 
               <div class="flex justify-between items-center">
                 <div class="font-size-14px">
-                  {{ t('溢价率%') }}
+                  {{ t('税率%') }}
                 </div>
                 <el-input-number
                   class="w-130px"
