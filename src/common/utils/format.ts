@@ -1,11 +1,11 @@
 export function number(value: number, decimal = 0) {
   // 如果value~(0,100),保留decimal位小数
   // 否则保留整数
-  if (value >= 0 && value < 2) {
+  if (Math.abs(value) >= 0 && Math.abs(value) < 2) {
     value = Math.round(value * (10 ** decimal)) / (10 ** decimal)
-  } else if (value >= 0 && value < 10) {
+  } else if (Math.abs(value) >= 0 && Math.abs(value) < 10) {
     value = Math.round(value * (10 ** Math.min(decimal, 2))) / (10 ** Math.min(decimal, 2))
-  } else if (value >= 10 && value < 100) {
+  } else if (Math.abs(value) >= 10 && Math.abs(value) < 100) {
     value = Math.round(value * (10 ** Math.min(decimal, 1))) / (10 ** Math.min(decimal, 1))
   } else {
     value = Math.round(value)
