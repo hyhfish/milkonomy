@@ -146,6 +146,9 @@ export default abstract class Calculator {
   get cost4EscapePH(): number {
     const item = this.ingredientListWithPrice[0]
     const escape = this.productListWithPrice[1]
+    if (escape.hrid !== item.hrid) {
+      return 0
+    }
     return escape.countPH! * (item.price - escape.price * 0.98)
   }
 
