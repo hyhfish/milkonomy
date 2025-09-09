@@ -233,11 +233,13 @@ const results = computed(() => {
       matCost: Format.money(matCost),
       totalCostFormatted: Format.money(guidePrice),
       profitPPFormatted: Format.money(profitPP),
+      profitRate: profitPP / totalCostNoHourly,
       profitRateFormatted: Format.percent(profitPP / totalCostNoHourly),
       totalCost: guidePrice,
       totalCostNoHourly,
       matCostPH: `${Format.money(matCost / seconds * 3600)} / h`,
       fallingRatePH: `${Format.money(fallingRate)} / h`,
+      hourlyCost,
       hourlyCostFormatted: Format.money(hourlyCost)
     })
   }
@@ -288,13 +290,12 @@ watch([
 ], () => enhancerStore.advancedConfig.hrid && onSelect(getItemDetailOf(enhancerStore.advancedConfig.hrid)), { immediate: false })
 
 function rowStyle({ row }: { row: any }) {
-  // totalcost最小的为半透明浅绿色（内容不要透明）
-  // totalCostNoHourly最小的为半透明浅蓝色
+  // 利润率最高的为绿色，工时费最高的为蓝色
 
-  if (row.totalCost === Math.min(...results.value.map(item => item.totalCost))) {
+  if (row.profitRate === Math.max(...results.value.map(item => item.profitRate))) {
     return { background: "rgb(34, 68, 34)" }
   }
-  if (row.totalCostNoHourly === Math.min(...results.value.map(item => item.totalCostNoHourly))) {
+  if (row.hourlyCost === Math.max(...results.value.map(item => item.hourlyCost))) {
     return { background: "rgb(34, 51, 85)" }
   }
 }
