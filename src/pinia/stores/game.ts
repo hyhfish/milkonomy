@@ -200,8 +200,12 @@ export const useGameStore = defineStore("game", {
     setJungleCache(list: WorkflowCalculator[], key: string) {
       this.jungleCache[key] = list
     },
-    clearJungleCache() {
-      this.jungleCache = {}
+    clearJungleCache(key?: string) {
+      if (key) {
+        delete this.jungleCache[key]
+      } else {
+        this.jungleCache = {}
+      }
     },
     getJunglestCache() {
       return this.junglestCache[this.marketData!.timestamp]

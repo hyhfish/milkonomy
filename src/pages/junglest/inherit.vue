@@ -62,6 +62,11 @@ function handleSortLD(sort: Sort) {
   sortLD.value = sort
   getLeaderboardData()
 }
+function handleChangeEscape() {
+  paginationDataLD.currentPage = 1
+  useGameStore().clearJungleCache("junglerit")
+  getLeaderboardData()
+}
 
 // 监听分页参数的变化
 watch([
@@ -145,6 +150,11 @@ const onPriceStatusChange = usePriceStatus("junglerit-price-status")
 
               <el-form-item :label="t('风险 <=')">
                 <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
+              </el-form-item>
+              <el-form-item>
+                <el-checkbox v-model="ldSearchData.noEscape" @change="handleChangeEscape">
+                  {{ t('不逃逸') }}
+                </el-checkbox>
               </el-form-item>
             </el-form>
           </template>
@@ -274,55 +284,32 @@ const onPriceStatusChange = usePriceStatus("junglerit-price-status")
               <el-table-column :label="t('售价')" align="center">
                 <template #default="{ row }">
                   <span>
-                    {{ Format.price(row.productListWithPrice[0].price) }}
+                    {{ Format.price(row.calculator.productListWithPrice[0].price) }}
                   </span>
                 </template>
               </el-table-column>
-
-              <el-table-column prop="result.targetRateFormat" :label="t('成功率')" align="center">
-                <template #header>
+              <el-table-column min-width="120" :label="t('经验 / h')" align="center">
+                <template #default="{ row }">
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
-                    <div>{{ t('成功率') }}</div>
-                    <el-tooltip placement="top" effect="light">
+                    <div>{{ row.result.expPHFormat }}</div>
+                    <el-tooltip v-if="row.expList?.length > 1" placement="top" effect="light">
                       <template #content>
-                        单件装备的成功率
+                        <div v-for="(item, i) in row.expList" :key="i" style="display: flex; gap:10px">
+                          <div>
+                            {{ t(item.action) }}
+                          </div>
+                          <div>
+                            {{ item.expPHFormat }}
+                          </div>
+                        </div>
                       </template>
                       <el-icon>
                         <Warning />
                       </el-icon>
                     </el-tooltip>
                   </div>
-                </template>
-                <template #default="{ row }">
-                  {{ row.result.targetRateFormat }}
                 </template>
               </el-table-column>
-              <!-- <el-table-column :label="t('时效')" align="center">
-                <template #header>
-                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
-                    <div>{{ t('时效') }}</div>
-                    <el-tooltip placement="top" effect="light">
-                      <template #content>
-                        {{ t('收单市场时间距离现在多久') }}
-                      </template>
-                      <el-icon>
-                        <Warning />
-                      </el-icon>
-                    </el-tooltip>
-                  </div>
-                </template>
-                <template #default="{ row }">
-                  <el-tooltip placement="top" effect="light">
-                    <template #content>
-                      {{ t('市场时间') }}: {{ new Date(row.productListWithPrice[0].marketTime * 1000).toLocaleString() }}
-                    </template>
-                    <span>
-                      {{ Format.number((new Date().getTime() - row.productListWithPrice[0].marketTime * 1000) / (1000 * 60 * 60), 2) }}h
-                    </span>
-                  </el-tooltip>
-                </template>
-              </el-table-column> -->
-              <el-table-column prop="result.expPHFormat" :label="t('经验 / h')" />
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
