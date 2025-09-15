@@ -56,7 +56,7 @@ function calcEnhanceProfit(params: any) {
         for (const [project, action] of projects) {
           const mc = new ManufactureCalculator({ hrid: item.hrid, project, action, originLevel: inheritOrgLvl })
           const actionItem = mc.actionItem
-          if (!actionItem?.upgradeItemHrid || actionItem.upgradeItemHrid === "/items/philosophers_stone") {
+          if (!actionItem?.upgradeItemHrid) {
             continue
           }
           if (getUsedPriceOf(actionItem.upgradeItemHrid, inheritOrgLvl, "ask") === -1) {
