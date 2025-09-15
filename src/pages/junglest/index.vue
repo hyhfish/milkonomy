@@ -196,15 +196,6 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                 </template>
               </el-table-column>
 
-              <!-- <el-table-column prop="result.cost4MatPHFormat" :label="t('材料损耗 / h')" align="center" min-width="120" />
-              <el-table-column :label="t('逃逸损耗 / h')" align="center" min-width="120">
-                <template #default="{ row }">
-                  <span>
-                    {{ Format.money(row.cost4EscapePH) }}
-                  </span>
-                </template>
-              </el-table-column> -->
-
               <el-table-column align="center" min-width="120">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
@@ -221,7 +212,7 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                 </template>
                 <template #default="{ row }">
                   <span>
-                    {{ Format.money(row.result.cost4MatPH + row.cost4EscapePH) }}
+                    {{ row.result.cost4EnhancePHFormat }}
                   </span>
                 </template>
               </el-table-column>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type Calculator from "@/calculator"
+import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { getItemDetailOf } from "@/common/apis/game"
 import * as Format from "@/common/utils/format"
-import ItemIcon from "@@/components/ItemIcon/index.vue"
 
 defineProps<{
   data: Calculator

@@ -142,14 +142,64 @@ export default abstract class Calculator {
     }, 0)
   }
 
-  /** 装备逃逸造成的资产折损，一般仅用于强化 */
-  get cost4EscapePH(): number {
+  /**
+   * 装备逃逸造成的资产折损，一般仅用于强化
+   * 实际意义代表强化一直不成功的情况下的损失速度
+   * 算法可简化为：总成本-100%逃逸概率时的总产出?
+   * 具体公式如下：
+   * 逃逸:   xAi + M = yAn + zAj   ······ ①
+   * 损耗:   M + x(Ai - Aj)        ······ ②
+   *
+   * 不逃逸: xAi + M = xAn         ······ ③
+   * 损耗:   M + x(Ai - A0)
+   *      ≈ M                     ······ ④ 推导详见下文
+   * 其中A为装备价值，i为初始等级, n为目标等级, j为逃逸等级,
+   *    M为单位时间材料消耗，x为单位时间装备消耗数量，y为单位时间成功数量，z为单位时间逃逸数量
+   * 由此可见，③是①式在 z = 0, j = 0, x = y 时的特例
+   * 可推导以下特殊情况：
+   * 当i = 0时，损耗 = M + x(A0-A0) = M，A0相互抵消，此为普通强化
+   * 当i ≠ 0 且不逃逸时, 损耗 = M + x(Ai - A0)，此为逃逸强化 逃逸等级为-1的情况
+   *    此情况需要特殊讨论，因为③式中不存在A0的价值，也无法将其消元
+   *    为了简化计算，可以认为A0和Ai的价值差距很小，否则不如直接从A0开始强化
+   *    所以此种情况简化为 损耗 = M
+   * 将所有不逃逸的情况统一简化为 损耗 = M
+   *
+   * 其他情况皆为逃逸强化，符合①式
+   *
+   * 如果考虑继承，将①式扩展为:
+   * xak + M1 = x1Ai + x2A_i+1
+   * x1Ai + M2 = y1An + z1Aj
+   * x2A_i+1 + M3 = y2An + z2Aj
+   * 其中 a为继承前的装备价值, k为继承前的装备等级, M1为继承消耗, 其他符号含义同上
+   * 上述三式相加
+   * => xak + M1 + M2 + M3 = (y1+y2)An + (z1+z2)Aj
+   * => xak + M = yAn + zAj
+   * => 损耗 = M + x(ak - Aj)       ······ ⑤
+   * 类推可得不逃逸的特例为:
+   * => 损耗 = M + x(ak - A0)
+   *        = M + x(ak - a0+M1/x)
+   *        = M + x(ak - a0) - M1
+   *        = M2 + M3 + x(ak - a0)
+   *        ≈ M2 + M3               ······ ⑥ 参考④式
+   *
+   * 大一统公式推导如下:
+   * 根据②和④:
+   * 非继承时,
+   * 损耗 = M + xAi - xAj 或 M
+   *     = Mall - xAj 或 Mall - xAi
+   * 其中 Mall 为单位时间总成本
+   * 继承时,根据⑤和⑥式,
+   * 损耗 = M + x(ak - Aj) 或 M2 + M3
+   *     = Mall - xAj 或 M2 + M3
+   */
+  get gainEscapePH(): number {
     const item = this.ingredientListWithPrice[0]
     const escape = this.productListWithPrice[1]
     if (!escape || !item || escape.hrid !== item.hrid) {
-      return 0
+      // 不逃逸时，等价于逃逸到初始装备
+      return item.countPH! * item.price
     }
-    return escape.countPH! * (item.price - escape.price * 0.98)
+    return item.countPH! * escape.price * 0.98
   }
 
   /**
@@ -229,7 +279,9 @@ export default abstract class Calculator {
       profitRate = -1
     }
 
-    const risk = (cost4MatPH + this.cost4EscapePH) / profitPH
+    const cost4EnhancePH = costPH - this.gainEscapePH
+
+    const risk = cost4EnhancePH / profitPH
 
     this.result = {
       hrid: this.item.hrid,
@@ -256,6 +308,7 @@ export default abstract class Calculator {
       successRateFormat: Format.percent(this.successRate),
       expPH,
       expPHFormat: Format.money(expPH),
+      cost4EnhancePHFormat: Format.money(cost4EnhancePH),
       risk,
       riskFormat: Format.number(risk, 2)
     }

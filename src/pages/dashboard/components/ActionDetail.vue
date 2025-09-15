@@ -82,9 +82,9 @@ const { t } = useI18n()
       </el-row>
 
       <template v-else>
-        <el-row v-for="(calculator, i) in (simple ? [data] : data.calculatorList)" :key="i" :gutter="10" align="middle" style="padding: 10px 20px">
+        <el-row v-for="(calculator, i) in (simple ? [data] : data.calculatorList.flat())" :key="i" :gutter="10" align="middle" style="padding: 10px 20px">
           <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
-            <ActionDetailCard :data="calculator" type="ingredient" :simple="simple" :work-multiplier="simple ? 1 : data.workMultiplier[i]" />
+            <ActionDetailCard :data="calculator" type="ingredient" :simple="simple" :work-multiplier="simple ? 1 : data.workMultiplier.flat()[i]" />
           </el-col>
 
           <el-col :xs="24" :sm="24" :md="24" :lg="4" :xl="4">
@@ -101,7 +101,7 @@ const { t } = useI18n()
                 </div>
                 <div>{{ t('速度') }}：{{ calculator?.result.speedFormat }}</div>
                 <div>{{ t('时间') }}：{{ calculator?.result.timeCostFormat }}</div>
-                <div>{{ t('时间占比') }}：{{ Format.percent(data.workMultiplier![i]!) }}</div>
+                <div>{{ t('时间占比') }}：{{ Format.percent(data.workMultiplier.flat()[i]!) }}</div>
                 <template v-if="calculator instanceof EnhanceCalculator">
                   <div>
                     {{ t('强化平均耗时') }}：{{ Format.costTime(1 / calculator.ingredientList[0].count * calculator.timeCost) }}
@@ -119,7 +119,7 @@ const { t } = useI18n()
           </el-col>
 
           <el-col :xs="24" :sm="24" :md="24" :lg="10" :xl="10">
-            <ActionDetailCard :data="calculator" type="product" :simple="simple" :work-multiplier="simple ? 1 : data.workMultiplier[i]" />
+            <ActionDetailCard :data="calculator" type="product" :simple="simple" :work-multiplier="simple ? 1 : data.workMultiplier.flat()[i]" />
           </el-col>
         </el-row>
         <el-row v-if="!simple" :gutter="10" style="padding:0 20px">

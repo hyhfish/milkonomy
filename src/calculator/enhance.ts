@@ -169,6 +169,9 @@ export class EnhanceCalculator extends Calculator {
 
   get available(): boolean {
     return !!this.item.enhancementCosts
+      && this.originLevel < this.enhanceLevel
+      && this.escapeLevel < this.originLevel
+      && this.protectLevel <= this.enhanceLevel
   }
 
   get isEnhance(): boolean {
@@ -196,7 +199,14 @@ export class EnhanceCalculator extends Calculator {
   }
 
   get realEscapeLevel() {
-    return this.protectLevel <= this.escapeLevel + 1 ? this.escapeLevel : 0
+    if (this.escapeLevel === -1) {
+      return -1
+    }
+    /**
+     * 当保护等级大于等于逃逸等级+1时
+     * 如果此时装备低于保护等级，则失败会掉到0级，不会在逃逸等级逃逸
+     */
+    return this.protectLevel > this.escapeLevel + 1 ? 0 : this.escapeLevel
   }
 
   // #region 项目特有属性

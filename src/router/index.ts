@@ -144,6 +144,16 @@ export const constantRoutes: RouteRecordRaw[] = [
         }
       },
       {
+        path: "junglerit",
+        component: () => import("@/pages/junglest/inherit.vue"),
+        name: "junglerit",
+        meta: {
+          title: t("继承打野工具"),
+          affix: false,
+          elIcon: "Compass"
+        }
+      },
+      {
         path: "inherit",
         component: () => import("@/pages/inherit/index.vue"),
         name: "inherit",

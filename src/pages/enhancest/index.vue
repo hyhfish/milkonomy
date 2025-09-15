@@ -195,7 +195,7 @@ const results = computed(() => {
           : currentItemEscapePrice.value)
 
     // 逃逸损耗
-    const fallingRate = (curentItemPrice - escapePrice * 0.98) * escapeRate / actions * calc.actionsPH
+    const fallingRate = (curentItemPrice - escapePrice * 0.98) / actions * calc.actionsPH
 
     /**
      * tag = 1时，利用指导价计算工时费

@@ -1,9 +1,10 @@
+import type { Arrayable } from "unocss"
 import type { Ingredient, IngredientWithPrice, Product, ProductWithPrice } from "."
 import type { StorageCalculatorItem } from "@/pinia/stores/favorite"
 import * as Format from "@@/utils/format"
 import { getTrans } from "@/locales"
-import Calculator from "."
 
+import Calculator from "."
 import { EnhanceCalculator } from "./enhance"
 import { getCalculatorInstance } from "./utils"
 
@@ -24,24 +25,57 @@ export class WorkflowCalculator extends Calculator {
     return (this.calculatorList[this.calculatorList.length - 1] as any).catalyst
   }
 
-  calculatorList: Calculator[] = []
+  calculatorList: Arrayable<Calculator>[] = []
+  configs: Arrayable<StorageCalculatorItem>[] = []
 
   /**
    * configs为工作流顺序排列
    */
-  constructor(configs: StorageCalculatorItem[], project: string) {
-    const last = configs[configs.length - 1]
+  constructor(configs: Arrayable<StorageCalculatorItem>[], project: string) {
+    let last = configs[configs.length - 1]
+    if (Array.isArray(last)) {
+      last = last[0]
+    }
     super({
       hrid: last.hrid,
       project,
       action: last.action
     })
-    for (let i = 0; i < configs.length; i++) {
+    this.configs = configs
+
+    for (let i = configs.length - 1; i >= 0; i--) {
       const config = configs[i]
+      /**
+       * 扩展:最后一步处理多个产物
+       * 目前只实现了继承->强化的组合
+       */
+      if (Array.isArray(config)) {
+        if (i !== configs.length - 1) {
+          throw new Error("Workflow只支持最后一个阶段为数组")
+        }
+        const prev = configs[i - 1] as StorageCalculatorItem
+        prev.productPriceConfigList = config.map(c => ({ immutable: true, price: 0, hrid: c.hrid }))
+
+        const cList = [] as Calculator[]
+        config.forEach((c) => {
+          c.ingredientPriceConfigList = [{ immutable: true, price: 0, hrid: prev.hrid }]
+          const cal = getCalculatorInstance(c)
+          cal.available && cal.run()
+
+          if (cal.hasManualPrice) {
+            this.hasManualPrice = true
+          }
+          cList.push(cal)
+        })
+        this.calculatorList.push(cList)
+        continue
+      }
+
       if (i > 0) {
         config.ingredientPriceConfigList = [{ immutable: true, price: 0, hrid: config.hrid }]
       }
-      if (i < configs.length - 1) {
+      // 适配继承强化
+      if (i < configs.length - 1 && !config.productPriceConfigList) {
         config.productPriceConfigList = [{ immutable: true, price: 0, hrid: config.hrid }]
       }
       let cal = getCalculatorInstance(config)
@@ -69,6 +103,7 @@ export class WorkflowCalculator extends Calculator {
       }
       this.calculatorList.push(cal)
     }
+    this.calculatorList.reverse()
   }
 
   private _ingredientPreprocess?: { list: IngredientWithPrice[], map: Map<string, number> }
@@ -77,10 +112,10 @@ export class WorkflowCalculator extends Calculator {
   // 预处理并缓存原料列表及数量映射
   get ingredientListPreprocess(): { list: IngredientWithPrice[], map: Map<string, number> } {
     if (!this._ingredientPreprocess) {
-      const list = this.calculatorList.map(cal => cal.ingredientListWithPrice).flatMap(
+      const list = this.calculatorList.flat().map(cal => cal.ingredientListWithPrice).flatMap(
         (list, i) => list.map(item => ({
           ...item,
-          countPH: item.countPH! * this.workMultiplier[i]
+          countPH: item.countPH! * this.workMultiplier.flat()[i]
         }))
       )
       const merged = this.mergeIngredient(list)
@@ -94,10 +129,10 @@ export class WorkflowCalculator extends Calculator {
   // 预处理并缓存产品列表及数量映射
   get productListWithPricePreprocess(): { list: ProductWithPrice[], map: Map<string, number> } {
     if (!this._productPreprocess) {
-      const list = this.calculatorList.map(cal => cal.productListWithPrice).flatMap(
+      const list = this.calculatorList.flat().map(cal => cal.productListWithPrice).flatMap(
         (list, i) => list.map(item => ({
           ...item,
-          countPH: item.countPH! * this.workMultiplier[i]
+          countPH: item.countPH! * this.workMultiplier.flat()[i]
         }))
       )
       const merged = this.mergeIngredient(list)
@@ -164,24 +199,24 @@ export class WorkflowCalculator extends Calculator {
   }
 
   get available(): boolean {
-    return this.calculatorList.every(cal => cal.available)
+    return this.calculatorList.flat().every(cal => cal.available)
   }
 
   get actionLevel(): number {
-    return Math.max(...this.calculatorList.map(cal => cal.actionLevel))
+    return Math.max(...this.calculatorList.flat().map(cal => cal.actionLevel))
   }
 
   get timeCost() {
-    return this.calculatorList[0].timeCost / this.workMultiplier[0]
+    return this.calculatorList.flat()[0].timeCost / this.workMultiplier.flat()[0]
   }
 
   get calculator() {
-    return this.calculatorList[this.calculatorList.length - 1]
+    return this.calculatorList.flat()[this.calculatorList.flat().length - 1]
   }
 
   get expList() {
     const map = new Map<string, number>()
-    this.resultList.forEach((item) => {
+    this.resultList.flat().forEach((item) => {
       map.set(item.action, map.get(item.project) || 0 + item.expPH)
     })
     return Array.from(map.entries()).map(([action, expPH]) => ({
@@ -197,15 +232,41 @@ export class WorkflowCalculator extends Calculator {
    *
    * 假设四个阶段原料->产品为 a->2b, b->3c, c->5d, d->7e 耗时都为 1h\
    * 那么按照本算法计算出来的单步倍率为 [1, 2, 3, 5], 整体倍率为[1, 1x2, 1x2x3, 1x2x3x5]\
-   * 最终以整个工作流 1h 计算, 三个阶段的耗时为分别为 [1/39h, 2/39h, 6/39h, 30/39h]\
+   * 最终以整个工作流 1h 计算, 所有阶段的耗时为分别为 [1/39h, 2/39h, 6/39h, 30/39h]\
+   *
+   * 如果最后一个阶段为数组
+   * 假设四个阶段原料->产品为 a->2b, b->3c, c->5d\6e, [d->f, e->g], 耗时都为 1h
+   * 那么按照本算法计算出来的单步倍率为 [1, 2, 3, [5, 6]], 整体倍率为[1, 1x2, 1x2x3, [1x2x3x5, 1x2x3x6]]\
+   * 最终以整个工作流 1h 计算, 所有阶段的耗时为分别为 [1/75h, 2/75h, 6/75h, [30/75h, 36/75h]]\
+   *
+   *
    */
   get workMultiplier() {
-    const singleMultiplier = [1]
-    const resultList = this.calculatorList.map(cal => cal.result)
+    const singleMultiplier: Arrayable<number>[] = [1]
+
+    const resultList = this.calculatorList.map(cal => Array.isArray(cal) ? cal.map(c => c.result) : cal.result)
     for (let i = 0; i < this.calculatorList.length; i++) {
-      const cal = this.calculatorList[i]
+      const cal = this.calculatorList[i] as Calculator
       const next = this.calculatorList[i + 1]
       if (!next) break
+      if (Array.isArray(next)) {
+        const multi = []
+        for (let j = 0; j < next.length; ++j) {
+          const n = next[j]
+          const nIList = n.ingredientList
+          const targetProduct = cal.productList.find(p =>
+            p.hrid === nIList[0].hrid && (p.level || 0) === (nIList[0].level || 0)
+          )!
+          const targetOutput = targetProduct.count * (targetProduct.rate || 1) * resultList[i].gainPH
+
+          const targetIngredientList = nIList.filter(i => i.hrid === nIList[0].hrid && (i.level || 0) === (nIList[0].level || 0))
+          const targetIngredientCount = targetIngredientList.reduce((acc, curr) => acc + curr.count!, 0)
+          const targetInput = targetIngredientCount * resultList[i + 1][j].consumePH
+          multi.push(targetOutput / targetInput)
+        }
+        singleMultiplier.push(multi)
+        continue
+      }
       // todo 未来 target 可能不固定
       const target = cal.hrid
       const targetProduct = cal.productList.find(p => p.hrid === target)!
@@ -218,29 +279,37 @@ export class WorkflowCalculator extends Calculator {
       singleMultiplier.push(targetOutput / targetInput)
     }
 
-    const multiplier: number[] = []
+    const multiplier: Arrayable<number>[] = []
     for (let i = 0; i < singleMultiplier.length; i++) {
-      multiplier[i] = singleMultiplier[i] * (multiplier[i - 1] || 1)
+      const sm = singleMultiplier[i]
+      multiplier[i] = Array.isArray(sm)
+        ? sm.map(m => m * ((multiplier[i - 1] as number) || 1))
+        : sm * ((multiplier[i - 1] as number) || 1)
     }
-    const total = multiplier.reduce((prev, curr) => prev + curr, 0)
-    return multiplier.map(m => m / total)
+    const total = multiplier.flat().reduce((prev, curr) => prev + curr, 0)
+    return multiplier.map(m => Array.isArray(m) ? m.map(j => j / total) : m / total)
   }
 
   run() {
     const item = this.calculator.item
-    const costPH = this.resultList.reduce((acc, curr) => acc + curr.costPH, 0)
-    const incomePH = this.resultList.reduce((acc, curr) => acc + curr.incomePH, 0)
-    let profitPH = this.resultList.reduce((acc, curr) => acc + curr.profitPH, 0)
+    const costPH = this.resultList.flat().reduce((acc, curr) => acc + curr.costPH, 0)
+    const incomePH = this.resultList.flat().reduce((acc, curr) => acc + curr.incomePH, 0)
+    let profitPH = this.resultList.flat().reduce((acc, curr) => acc + curr.profitPH, 0)
     const profitRate = profitPH / costPH
 
-    if (this.calculatorList.some(cal => !cal.valid)) {
+    if (this.calculatorList.flat().some(cal => !cal.valid)) {
       profitPH = -1 / 24
     }
-    const expPH = this.resultList.reduce((acc, curr) => acc + (curr.expPH || 0), 0)
+    const expPH = this.resultList.flat().reduce((acc, curr) => acc + (curr.expPH || 0), 0)
 
     // 计算最后一个动作整体执行一次的利润
-    const lastCal = this.calculatorList[this.calculatorList.length - 1]
-    const lastRes = this.resultList[this.resultList.length - 1]
+    // 如果最后一个动作为数组，则以倒数第二个动作为准
+    let lastCal = this.calculatorList[this.calculatorList.length - 1]
+    let lastRes = this.resultList[this.resultList.length - 1] as any
+    if (Array.isArray(lastCal)) {
+      lastCal = this.calculatorList[this.calculatorList.length - 2] as Calculator
+      lastRes = this.resultList[this.resultList.length - 2] as any
+    }
     const ac = lastCal.actionsPH * lastRes.workMultiplier
     let profitPP = profitPH / ac
     // 如果最后一步是强化，则乘以单个成品的强化次数
@@ -248,7 +317,19 @@ export class WorkflowCalculator extends Calculator {
       profitPP *= lastCal.enhancelate().actions
     }
 
-    const risk = this.calculator.result.cost4MatPH / profitPH
+    const lastEnhance = this.calculatorList[this.calculatorList.length - 1]
+    const lastEnhanceRes = this.resultList[this.resultList.length - 1]
+    const isEscape = ([lastEnhance].flat()[0] as EnhanceCalculator).escapeLevel !== -1
+    /**
+     * 逃逸时损耗  = 总成本 - 强化步骤逃逸收益
+     * 不逃逸时损耗 = 强化步骤cost4Mat
+     */
+    const cost4EnhancePH = isEscape
+      ? costPH - [lastEnhanceRes].flat().reduce((acc, curr) => acc + curr.gainEscapePH, 0)
+      : [lastEnhanceRes].flat().reduce((acc, curr) => acc + curr.cost4MatPH, 0)
+
+    const risk = cost4EnhancePH / profitPH
+
     this.result = {
       workMultiplier: this.workMultiplier,
       hrid: item.hrid,
@@ -271,40 +352,50 @@ export class WorkflowCalculator extends Calculator {
       timeCostFormat: Format.costTime(this.timeCost),
       successRateFormat: Format.percent(1),
       expPHFormat: Format.money(expPH),
+      cost4EnhancePHFormat: Format.money(cost4EnhancePH),
       risk,
       riskFormat: Format.number(risk, 2)
     }
     return this
   }
 
+  constructResult(cal: Calculator, workMultiplier: number) {
+    const result = cal.result
+    return {
+      action: cal.action,
+      workMultiplier,
+      hrid: cal.item.hrid,
+      name: cal.item.name,
+      project: cal.project,
+      successRate: cal.successRate,
+      costPH: result.costPH * workMultiplier,
+      consumePH: result.consumePH * workMultiplier,
+      gainPH: result.gainPH * workMultiplier,
+      incomePH: result.incomePH * workMultiplier,
+      profitPH: result.profitPH * workMultiplier,
+      expPH: result.expPH * workMultiplier,
+      profitRate: result.profitRate,
+      gainEscapePH: cal.gainEscapePH * workMultiplier,
+      cost4MatPH: result.cost4MatPH * workMultiplier,
+      costPHFormat: Format.money(result.costPH * workMultiplier),
+      incomePHFormat: Format.money(result.incomePH * workMultiplier),
+      profitPHFormat: Format.money(result.profitPH * workMultiplier),
+      profitPDFormat: Format.money(result.profitPH * 24 * workMultiplier),
+      profitRateFormat: Format.percent(result.profitRate),
+      efficiencyFormat: Format.percent(cal.efficiency - 1),
+      timeCostFormat: Format.costTime(cal.timeCost),
+      successRateFormat: Format.percent(result.successRate),
+      expPHFormat: Format.money(result.expPH * workMultiplier)
+    }
+  }
+
   get resultList() {
-    const workMultiplier = this.workMultiplier
     return this.calculatorList.map((cal, i) => {
-      const result = cal.result
-      return {
-        action: cal.action,
-        workMultiplier: workMultiplier[i],
-        hrid: cal.item.hrid,
-        name: cal.item.name,
-        project: cal.project,
-        successRate: cal.successRate,
-        costPH: result.costPH * workMultiplier[i],
-        consumePH: result.consumePH * workMultiplier[i],
-        gainPH: result.gainPH * workMultiplier[i],
-        incomePH: result.incomePH * workMultiplier[i],
-        profitPH: result.profitPH * workMultiplier[i],
-        expPH: result.expPH * workMultiplier[i],
-        profitRate: result.profitRate,
-        costPHFormat: Format.money(result.costPH * workMultiplier[i]),
-        incomePHFormat: Format.money(result.incomePH * workMultiplier[i]),
-        profitPHFormat: Format.money(result.profitPH * workMultiplier[i]),
-        profitPDFormat: Format.money(result.profitPH * 24 * workMultiplier[i]),
-        profitRateFormat: Format.percent(result.profitRate),
-        efficiencyFormat: Format.percent(cal.efficiency - 1),
-        timeCostFormat: Format.costTime(cal.timeCost),
-        successRateFormat: Format.percent(result.successRate),
-        expPHFormat: Format.money(result.expPH * workMultiplier[i])
+      if (!Array.isArray(cal)) {
+        return this.constructResult(cal, this.workMultiplier[i] as number)
       }
+      const workMultiplier = this.workMultiplier[i] as number[]
+      return cal.map((c, j) => this.constructResult(c, workMultiplier[j]))
     })
   }
 }
