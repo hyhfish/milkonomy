@@ -226,6 +226,7 @@ export class WorkflowCalculator extends Calculator {
     }))
   }
 
+  _workMultiplier?: Arrayable<number>[]
   /**
    * 工作流阶段倍率\
    * 以第一阶段为基准，第一阶段产生的产物作为原料，后面的阶段刚好消耗完毕\
@@ -242,6 +243,9 @@ export class WorkflowCalculator extends Calculator {
    *
    */
   get workMultiplier() {
+    if (this._workMultiplier) {
+      return this._workMultiplier
+    }
     const singleMultiplier: Arrayable<number>[] = [1]
 
     const resultList = this.calculatorList.map(cal => Array.isArray(cal) ? cal.map(c => c.result) : cal.result)
@@ -287,7 +291,8 @@ export class WorkflowCalculator extends Calculator {
         : sm * ((multiplier[i - 1] as number) || 1)
     }
     const total = multiplier.flat().reduce((prev, curr) => prev + curr, 0)
-    return multiplier.map(m => Array.isArray(m) ? m.map(j => j / total) : m / total)
+    this._workMultiplier = multiplier.map(m => Array.isArray(m) ? m.map(j => j / total) : m / total)
+    return this._workMultiplier
   }
 
   run() {
@@ -389,13 +394,19 @@ export class WorkflowCalculator extends Calculator {
     }
   }
 
+  _resultList?: Arrayable<ReturnType<WorkflowCalculator["constructResult"]>>[]
   get resultList() {
-    return this.calculatorList.map((cal, i) => {
+    if (this._resultList) {
+      return this._resultList
+    }
+
+    this._resultList = this.calculatorList.map((cal, i) => {
       if (!Array.isArray(cal)) {
         return this.constructResult(cal, this.workMultiplier[i] as number)
       }
       const workMultiplier = this.workMultiplier[i] as number[]
       return cal.map((c, j) => this.constructResult(c, workMultiplier[j]))
     })
+    return this._resultList
   }
 }
