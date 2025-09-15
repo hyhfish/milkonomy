@@ -15,3 +15,7 @@ export function getIconOf(hrid?: string) {
 export function getEquipmentTypeOf(item: ItemDetail): Equipment {
   return item.equipmentDetail?.type?.split("/").pop() as Equipment
 }
+
+export function isRefined(item: ItemDetail) {
+  return item.hrid.endsWith("_refined")
+}

@@ -4,7 +4,7 @@ import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
-import { getEquipmentTypeOf } from "@/common/utils/game"
+import { getEquipmentTypeOf, isRefined } from "@/common/utils/game"
 import locales, { getTrans } from "@/locales"
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
@@ -44,6 +44,7 @@ function calcEnhanceProfit(params: any) {
     escapeLevels = [-1]
   }
   list.filter(item => item.enhancementCosts)
+    .filter(item => !isRefined(item))
     .filter(item => getEquipmentTypeOf(item) === "charm" || item.itemLevel >= 90)
     .forEach((item) => {
       for (let inheritOrgLvl = 1; inheritOrgLvl <= 20; inheritOrgLvl++) {

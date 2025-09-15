@@ -1,6 +1,7 @@
 import type { CalculatorConfig, Ingredient, Product } from "."
 import { getActionDetailOf, getPriceOf } from "@/common/apis/game"
 import { getBuffOf, getTeaIngredientList } from "@/common/apis/player"
+import { isRefined } from "@/common/utils/game"
 import Calculator from "."
 
 export class ManufactureCalculator extends Calculator {
@@ -55,7 +56,7 @@ export class ManufactureCalculator extends Calculator {
   get targetLevel(): number {
     let targetLevel = Math.round(this.originLevel * 0.7 * 100) / 100
     // 精炼继承保留原等级
-    if (this.item.hrid.endsWith("_refined")) {
+    if (isRefined(this.item)) {
       targetLevel = this.originLevel
     }
     return targetLevel
