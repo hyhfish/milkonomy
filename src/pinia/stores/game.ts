@@ -153,6 +153,7 @@ export const useGameStore = defineStore("game", {
       }
 
       this.marketData = updateMarketData(this.marketData, newMarketData, newGameData)
+      this.clearAllCaches()
     },
 
     savePriceStatus() {
@@ -304,9 +305,6 @@ function updateMarketData(oldData: MarketData | null, newData: MarketDataPlain, 
   //   }
   // }
 
-  // if (oldData?.timestamp !== newData.timestamp) {
-  //   ElMessage.success(t("已于{0}更新最新数据", [new Date().toLocaleTimeString()]))
-  // }
   const result = {
     timestamp: newData.timestamp,
     marketData: newMarket
