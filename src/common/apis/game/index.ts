@@ -12,6 +12,8 @@ const game = {
 
 let _processingProductMap: Record<string, string> = {}
 let _priceCache = {} as Record<string, MarketItemPrice>
+let currentBuyStatus = useGameStoreOutside().buyStatus
+let currentSellStatus = useGameStoreOutside().sellStatus
 watch(() => useGameStoreOutside().gameData, () => {
   const data = structuredClone(toRaw(useGameStoreOutside().gameData))
   game.gameData = data ? deepFreeze(data) : data
@@ -27,6 +29,14 @@ watch(() => useGameStoreOutside().marketData, () => {
 
 watch([() => useGameStoreOutside().buyStatus, () => useGameStoreOutside().sellStatus], () => {
   _priceCache = {}
+}, { immediate: true })
+
+watch(() => useGameStoreOutside().buyStatus, (newVal) => {
+  currentBuyStatus = newVal
+}, { immediate: true })
+
+watch(() => useGameStoreOutside().sellStatus, (newVal) => {
+  currentSellStatus = newVal
 }, { immediate: true })
 
 /** 查 */
@@ -126,7 +136,7 @@ function priceStepOf(price: number, high: boolean = true) {
   return high ? (price + priceStep[highStepIndex][1]) * 10 ** dec : (price - priceStep[lowStepIndex][1]) * 10 ** dec
 }
 
-export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStatus = useGameStoreOutside().buyStatus, sellStatus: PriceStatus = useGameStoreOutside().sellStatus): MarketItemPrice {
+export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStatus = currentBuyStatus, sellStatus: PriceStatus = currentSellStatus): MarketItemPrice {
   if (!hrid) {
     return {
       ask: -1,
