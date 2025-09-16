@@ -4,6 +4,7 @@ import { getItemDetailOf } from "@/common/apis/game"
 import { getBuffOf, getPlayerLevelOf } from "@/common/apis/player"
 import { getManualPriceOf } from "@/common/apis/price"
 import { getTrans } from "@/locales"
+import { COIN_HRID } from "@/pinia/stores/game"
 
 export interface CalculatorConfig {
   hrid: string
@@ -209,7 +210,8 @@ export default abstract class Calculator {
    */
   get income(): number {
     const income = this.productListWithPrice.reduce((acc, product) => {
-      return acc + product.count * (product.rate || 1) * product.price
+      const coinRate = product.hrid === COIN_HRID ? 0.98 : 1
+      return acc + product.count * (product.rate || 1) * product.price / coinRate
     }, 0)
     return income * 0.98
   }
