@@ -40,29 +40,40 @@ function calcAllFlowProfit() {
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
   const profitList: Calculator[] = []
+  const projects: [string, Action][] = [
+    [getTrans("锻造"), "cheesesmithing"],
+    [getTrans("制造"), "crafting"],
+    [getTrans("裁缝"), "tailoring"],
+    [getTrans("烹饪"), "cooking"],
+    [getTrans("冲泡"), "brewing"]
+  ]
+
+  // t提前映射，加快运算速度
+  const tMap = new Map<string, string>()
+
+  function getT(key: string, args: (string | number)[] = []) {
+    const mapKey = [key, ...args].join(",")
+    if (tMap.has(mapKey)) {
+      return tMap.get(mapKey)!
+    }
+    const value = t(key, args)
+    tMap.set(mapKey, value)
+    return value
+  }
+
   list.forEach((item) => {
-    const projects: [string, Action][] = [
-      [getTrans("锻造"), "cheesesmithing"],
-      [getTrans("制造"), "crafting"],
-      [getTrans("裁缝"), "tailoring"],
-      [getTrans("烹饪"), "cooking"],
-      [getTrans("冲泡"), "brewing"]
-    ]
     for (const [project, action] of projects) {
       const configs: StorageCalculatorItem[] = []
       let c = new ManufactureCalculator({ hrid: item.hrid, project, action })
       let actionItem = c.actionItem
-      if (actionItem?.upgradeItemHrid === "/items/philosophers_stone") {
-        continue
-      }
 
       while (actionItem?.upgradeItemHrid) {
         configs.unshift(getStorageCalculatorItem(c))
 
         if (configs.length >= 1) {
-          let projectName = t("{0}步{1}", [configs.length, project])
+          let projectName = getT("{0}步{1}", [configs.length, project])
           const otherProject = configs.find(conf => conf.project !== project)
-          otherProject && (projectName += t("({0})", [otherProject?.project]))
+          otherProject && (projectName += getT("({0})", [otherProject!.project!]))
           // handlePush(profitList, new WorkflowCalculator(configs, projectName))
           calcManualchemyProfit({
             item,
@@ -84,9 +95,9 @@ function calcAllFlowProfit() {
       }
       configs.unshift(getStorageCalculatorItem(c))
 
-      let projectName = t("{0}步{1}", [configs.length, project])
+      let projectName = getT("{0}步{1}", [configs.length, project])
       const otherProject = configs.find(conf => conf.project !== project)
-      otherProject && (projectName += t("({0})", [otherProject?.project]))
+      otherProject && (projectName += getT("({0})", [otherProject!.project!]))
       // handlePush(profitList, new WorkflowCalculator(configs, projectName))
 
       calcManualchemyProfit({

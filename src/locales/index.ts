@@ -20,7 +20,7 @@ export function setLang(value: string) {
  * @param key 翻译键
  */
 export function getTrans(key: string) {
-  const messages = lang[i18n.global.locale.value] as Record<string, string>
+  const messages = toRaw(lang[i18n.global.locale.value]) as Record<string, string>
   return messages[key] || key
 }
 
