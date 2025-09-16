@@ -195,7 +195,8 @@ export default abstract class Calculator {
   get gainEscapePH(): number {
     const item = this.ingredientListWithPrice[0]
     const escape = this.productListWithPrice[1]
-    if (!escape || !item || escape.hrid !== item.hrid) {
+    if (!item) return 0
+    if (!escape || escape.hrid !== item.hrid) {
       // 不逃逸时，等价于逃逸到初始装备
       return item.countPH! * item.price
     }
