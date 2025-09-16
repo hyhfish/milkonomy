@@ -163,6 +163,7 @@ export default {
   "背部": "Back",
   "副手": "Off Hand",
   "袋子": "Pouch",
+  "护符": "Charm",
 
   "无": "None",
   "其他": "Others",

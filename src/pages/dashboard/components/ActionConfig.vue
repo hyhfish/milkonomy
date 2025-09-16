@@ -24,10 +24,20 @@ const currentIndex = ref(0)
 function onDialog(config: ActionConfig, index: number) {
   const defaultConfig = defaultActionConfig("", "")
   actionList.value = structuredClone(ACTION_LIST.map((action) => {
+    const map = config.actionConfigMap.get(action) ?? defaultConfig.actionConfigMap.get(action)!
+    // 如果当前配置没有某些字段，则使用默认配置的字段值
+    const defaultMap = defaultConfig.actionConfigMap.get(action)!
+    for (const key in defaultMap) {
+      const defaultValue = defaultMap[key as keyof ActionConfigItem]
+      if (defaultValue !== undefined && map[key as keyof ActionConfigItem] === undefined) {
+        map[key as keyof ActionConfigItem] = defaultValue as never
+      }
+    }
     return {
-      ...toRaw(config.actionConfigMap.get(action) ?? defaultConfig.actionConfigMap.get(action)!)
+      ...toRaw(map)
     }
   }))
+
   specialList.value = structuredClone(DEFAULT_SEPCIAL_EQUIPMENT_LIST.map((item) => {
     return {
       ...toRaw(config.specialEquimentMap.get(item.type) ?? defaultConfig.specialEquimentMap.get(item.type)!)
@@ -260,6 +270,23 @@ const { activeThemeName } = useTheme()
                 </el-select>
                 &nbsp;+&nbsp;
                 <el-input-number v-model="row.legs.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" />
+              </template>
+            </el-table-column>
+            <el-table-column :label="t('护符')" align="center" min-width="105">
+              <template #default="{ row }">
+                <el-select style="width:80px" v-model="row.charm.hrid" :placeholder="t('无')" clearable>
+                  <el-option v-for="item in getEquipmentListOf(row.action, 'charm').sort((a, b) => a.itemLevel - b.itemLevel)" :key="item.hrid" :label="item.name" :value="item.hrid">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <ItemIcon :hrid="item.hrid" />
+                      <div> {{ item.name }} </div>
+                    </div>
+                  </el-option>
+                  <template #label>
+                    <ItemIcon style="margin-top: 4px;" :hrid="row.charm.hrid" />
+                  </template>
+                </el-select>
+                &nbsp;+&nbsp;
+                <el-input-number v-model="row.charm.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" />
               </template>
             </el-table-column>
             <el-table-column :label="t('茶')" align="center" min-width="155">

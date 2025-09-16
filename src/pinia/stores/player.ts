@@ -87,6 +87,11 @@ export function defaultActionConfig(name: string, color: string) {
         hrid: undefined,
         enhanceLevel: undefined
       },
+      charm: {
+        type: `charm`,
+        hrid: undefined,
+        enhanceLevel: undefined
+      },
       houseLevel: 4,
       tea: structuredClone(DEFAULT_TEA[action])
     })
@@ -115,6 +120,7 @@ export interface ActionConfigItem {
   tool: PlayerEquipmentItem
   body: PlayerEquipmentItem
   legs: PlayerEquipmentItem
+  charm: PlayerEquipmentItem
   houseLevel: number
   tea: string[]
 }

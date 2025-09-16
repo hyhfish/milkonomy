@@ -70,6 +70,11 @@ function initDefaultActionConfigMap() {
         hrid: undefined,
         enhanceLevel: undefined
       },
+      charm: {
+        type: `charm`,
+        hrid: undefined,
+        enhanceLevel: undefined
+      },
       houseLevel: 4,
       tea: structuredClone(DEFAULT_TEA[action])
     })
