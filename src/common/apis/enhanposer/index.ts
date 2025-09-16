@@ -6,6 +6,7 @@ import locales, { getTrans } from "@/locales"
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 
+import { getUsedPriceOf } from "../price"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 
 const { t } = locales.global
@@ -40,6 +41,10 @@ function calcEnhanceProfit() {
   const profitList: WorkflowCalculator[] = []
   list.filter(item => item.enhancementCosts).forEach((item) => {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
+      if (getUsedPriceOf(item.hrid, 0, "ask") === -1) {
+        continue
+      }
+
       let bestProfit = -Infinity
       let bestCal: WorkflowCalculator | undefined
       for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
@@ -49,6 +54,12 @@ function calcEnhanceProfit() {
           if (!useGameStoreOutside().checkSecret() && item.itemLevel > 1) {
             continue
           }
+
+          const decomposer = new DecomposeCalculator({ enhanceLevel, hrid: item.hrid, catalystRank })
+          if (!decomposer.available) {
+            continue
+          }
+
           // 预筛选，把不可能盈利的去掉
           if (!enhancer.profitable) {
             continue
@@ -57,7 +68,7 @@ function calcEnhanceProfit() {
           // protectLevel = enhanceLevel 时表示不用垫子
           const c = new WorkflowCalculator([
             getStorageCalculatorItem(enhancer),
-            getStorageCalculatorItem(new DecomposeCalculator({ enhanceLevel, hrid: item.hrid, catalystRank }))
+            getStorageCalculatorItem(decomposer)
           ], `${getTrans("强化分解")}+${enhanceLevel}`)
 
           c.run()

@@ -58,9 +58,7 @@ async function calcEnhanceProfit() {
 
   for (const item of validItems) {
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
-      const key = useGameStoreOutside().sellStatus.match(/ask/i) ? "ask" : "bid"
-
-      if (getUsedPriceOf(item.hrid, enhanceLevel, key) === -1) {
+      if (getUsedPriceOf(item.hrid, enhanceLevel, "bid") === -1) {
         continue
       }
 
