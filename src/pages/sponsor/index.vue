@@ -274,6 +274,12 @@ const { t } = useI18n()
 .sponsor-list {
   margin: 20px;
   text-align: left;
+  /* 确保特效昵称不被裁剪 */
+  :deep(.el-table) {
+    .cell {
+      overflow: visible !important;
+    }
+  }
 }
 .form {
   margin: 20px;
@@ -337,6 +343,47 @@ const { t } = useI18n()
   -webkit-text-stroke: 0.3px rgba(255, 215, 0, 0.8);
   // animation: masked-animation 3s infinite linear;
 }
+.eggyang {
+  font-size: 24px;
+  font-weight: 900;
+  position: relative;
+  /* 确保发光效果不被裁剪 */
+  padding: 15px;
+  margin-bottom: 5px;
+  padding-left: 0;
+  /* 霓虹金色渐变 */
+  background: linear-gradient(
+    45deg,
+    #ffd700,
+    #ffed4a,
+    #f9ca24,
+    #f0932b,
+    #eb4d4b,
+    #6c5ce7,
+    #a29bfe,
+    #fd79a8,
+    #fdcb6e,
+    #ffd700
+  );
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  /* 金色描边 */
+  -webkit-text-stroke: 1px #ffd700;
+  /* 组合动画：背景流动 + 缩放脉冲 + 色相旋转 */
+  animation:
+    eggyang-gradient 3s ease-in-out infinite,
+    eggyang-pulse 2s ease-in-out infinite alternate,
+    eggyang-glow 4s linear infinite;
+  /* 发光阴影 */
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))
+    drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
+  /* 防止内容被裁剪 */
+  overflow: visible;
+  /* 确保有足够空间显示缩放效果 */
+  transform-origin: center;
+}
 
 @keyframes masked-animation {
   0% {
@@ -344,6 +391,51 @@ const { t } = useI18n()
   }
   100% {
     background-position: -100% 0; /* 移动到左侧 */
+  }
+}
+
+/* eggyang 专属动画关键帧 */
+@keyframes eggyang-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes eggyang-pulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.05); /* 减少缩放幅度，避免溢出 */
+  }
+}
+
+@keyframes eggyang-glow {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))
+      drop-shadow(0 0 30px rgba(255, 215, 0, 0.4)) hue-rotate(0deg);
+  }
+  25% {
+    filter: drop-shadow(0 0 15px rgba(255, 105, 180, 0.8)) drop-shadow(0 0 25px rgba(255, 105, 180, 0.6))
+      drop-shadow(0 0 35px rgba(255, 105, 180, 0.4)) hue-rotate(90deg);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(0, 191, 255, 0.8)) drop-shadow(0 0 30px rgba(0, 191, 255, 0.6))
+      drop-shadow(0 0 40px rgba(0, 191, 255, 0.4)) hue-rotate(180deg);
+  }
+  75% {
+    filter: drop-shadow(0 0 15px rgba(50, 205, 50, 0.8)) drop-shadow(0 0 25px rgba(50, 205, 50, 0.6))
+      drop-shadow(0 0 35px rgba(50, 205, 50, 0.4)) hue-rotate(270deg);
+  }
+  100% {
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))
+      drop-shadow(0 0 30px rgba(255, 215, 0, 0.4)) hue-rotate(360deg);
   }
 }
 </style>
