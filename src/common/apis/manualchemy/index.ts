@@ -1,13 +1,13 @@
 import type * as Leaderboard from "../leaderboard/type"
 
 import type Calculator from "@/calculator"
+import type { StorageCalculatorItem } from "@/pinia/stores/favorite"
 import type { Action, ItemDetail } from "~/game"
 import { CoinifyCalculator, DecomposeCalculator, TransmuteCalculator } from "@/calculator/alchemy"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import locales, { getTrans } from "@/locales"
-import { type StorageCalculatorItem, useFavoriteStoreOutside } from "@/pinia/stores/favorite"
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
 import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
@@ -30,8 +30,6 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
     useGameStoreOutside().setManualchemyCache(profitList)
     ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
   }
-  profitList.forEach(item => item.favorite = useFavoriteStoreOutside().hasFavorite(item))
-
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }
 

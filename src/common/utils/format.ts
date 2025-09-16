@@ -10,8 +10,28 @@ export function number(value: number, decimal = 0) {
   } else {
     value = Math.round(value)
   }
-  return value.toLocaleString("en-US")
+  // 转成千分位格式
+  return toThousandSeparatorFast(value)
+  // return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }
+
+function toThousandSeparatorFast(value: number) {
+  const str = value.toString()
+  if (Math.abs(value) < 1000) {
+    return str
+  }
+  let result = ""
+  const isNegative = str[0] === "-"
+  const length = str.length
+  for (let i = isNegative ? 1 : 0; i < length; i++) {
+    if (i > 0 && (length - i) % 3 === 0) {
+      result += ","
+    }
+    result += str[i]
+  }
+  return isNegative ? `-${result}` : result
+}
+
 export function costTime(value: number) {
   // return `${Math.floor(value / 10000000) / 100}s`
   let result = ""

@@ -57,8 +57,12 @@ export default abstract class Calculator {
     return `${this.hrid}-${this.project}-${this.action}`
   }
 
+  _key?: string
   get key() {
-    return this.item.hrid.split("/").pop()
+    if (!this._key) {
+      this._key = this.item.hrid.substring(this.item.hrid.lastIndexOf("/") + 1)
+    }
+    return this._key
   }
 
   get efficiency(): number {
@@ -84,10 +88,7 @@ export default abstract class Calculator {
         this.hasManualPrice = true
       }
       const price = priceConfig?.immutable ? priceConfig.price! : hasManualPrice ? manualPrice! : item.marketPrice
-      result.push({
-        ...item,
-        price
-      })
+      result.push(Object.assign(item, { price }))
     }
     return result
   }

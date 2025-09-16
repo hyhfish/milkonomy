@@ -1,5 +1,5 @@
 import type { EnhancelateResult } from "@/calculator/enhance"
-import type { DropTableItem, GameData, ItemDetail } from "~/game"
+import type { ActionDetail, DropTableItem, GameData, ItemDetail } from "~/game"
 import type { MarketData, MarketItemPrice } from "~/market"
 import deepFreeze from "deep-freeze-strict"
 import { COIN_HRID, PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
@@ -9,6 +9,8 @@ const game = {
   gameData: null as GameData | null,
   marketData: null as MarketData | null
 }
+let _actionDetailMapCache: Record<string, ActionDetail> = {}
+const _itemDetailMapCache: Record<string, ItemDetail> = {}
 
 let _processingProductMap: Record<string, string> = {}
 let _priceCache = {} as Record<string, MarketItemPrice>
@@ -17,6 +19,7 @@ let currentSellStatus = useGameStoreOutside().sellStatus
 watch(() => useGameStoreOutside().gameData, () => {
   const data = structuredClone(toRaw(useGameStoreOutside().gameData))
   game.gameData = data ? deepFreeze(data) : data
+  _actionDetailMapCache = {}
   _priceCache = {}
   initProcessingProductMap()
 }, { immediate: true })
@@ -193,27 +196,37 @@ function getLootPrice(hrid: string): MarketItemPrice {
 }
 
 export function getItemDetailOf(hrid: string) {
-  return getGameDataApi().itemDetailMap[hrid]
+  let result = _itemDetailMapCache[hrid]
+  if (!result) {
+    result = getGameDataApi().itemDetailMap[hrid]
+    result && (_itemDetailMapCache[hrid] = result)
+  }
+  return result
 }
 
 export function getActionDetailOf(key: string) {
-  return getGameDataApi().actionDetailMap[key]
+  let result = _actionDetailMapCache[key]
+  if (!result) {
+    result = getGameDataApi().actionDetailMap[key]
+    result && (_actionDetailMapCache[key] = result)
+  }
+  return result
 }
 
 export function getTransmuteTimeCost() {
-  return getGameDataApi().actionDetailMap["/actions/alchemy/transmute"].baseTimeCost
+  return getActionDetailOf("/actions/alchemy/transmute").baseTimeCost
 }
 
 export function getDecomposeTimeCost() {
-  return getGameDataApi().actionDetailMap["/actions/alchemy/decompose"].baseTimeCost
+  return getActionDetailOf("/actions/alchemy/decompose").baseTimeCost
 }
 
 export function getCoinifyTimeCost() {
-  return getGameDataApi().actionDetailMap["/actions/alchemy/coinify"].baseTimeCost
+  return getActionDetailOf("/actions/alchemy/coinify").baseTimeCost
 }
 
 export function getEnhanceTimeCost() {
-  return getGameDataApi().actionDetailMap["/actions/enhancing/enhance"].baseTimeCost
+  return getActionDetailOf("/actions/enhancing/enhance").baseTimeCost
 }
 
 export function enhancementLevelSuccessRateTable() {
