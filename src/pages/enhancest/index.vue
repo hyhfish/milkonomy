@@ -5,6 +5,7 @@ import ItemIcon from "@@/components/ItemIcon/index.vue"
 import * as Format from "@@/utils/format"
 import { Star, StarFilled } from "@element-plus/icons-vue"
 import { ElTable } from "element-plus"
+import { DecomposeCalculator } from "@/calculator/alchemy"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
@@ -33,6 +34,12 @@ const currentItem = ref<Item>({
 const enhancementCosts = ref<Ingredient[]>([])
 const protectionList = ref<Ingredient[]>([])
 
+const currentDecompose = ref({
+  ingredientList: [] as Ingredient[],
+  productList: [] as Ingredient[],
+  successRate: 0
+})
+
 const defaultConfig = {
   hourlyRate: 5000000,
   taxRate: 2,
@@ -58,6 +65,7 @@ interface Ingredient {
   count: number
   originPrice: number
   price?: number
+  rate?: number
 }
 interface Item {
   hrid?: string
@@ -130,6 +138,29 @@ function onSelect(item: ItemDetail) {
     }
     return acc.originPrice < item.originPrice ? acc : item
   })
+  genDecompose()
+}
+
+function genDecompose() {
+  if (!currentItem.value.hrid) {
+    return
+  }
+  const decomposer = new DecomposeCalculator({
+    hrid: currentItem.value.hrid,
+    enhanceLevel: enhancerStore.advancedConfig.enhanceLevel ?? defaultConfig.enhanceLevel,
+    catalystRank: 2
+  })
+  currentDecompose.value.ingredientList = decomposer.ingredientListWithPrice.slice(1, 3).map(item => ({
+    ...item,
+    originPrice: item.price,
+    price: undefined
+  }))
+  currentDecompose.value.productList = decomposer.productListWithPrice.slice(0, -2).map(item => ({
+    ...item,
+    originPrice: item.price,
+    price: undefined
+  }))
+  currentDecompose.value.successRate = decomposer.successRate
 }
 
 const currentItemOriginPrice = computed(() => {
@@ -142,6 +173,19 @@ const currentItemWhitePrice = computed(() => {
 
 const currentItemEscapePrice = computed(() => {
   return getPriceOf(currentItem.value.hrid!, Math.max(enhancerStore.advancedConfig.escapeLevel ?? defaultConfig.escapeLevel, 0)).ask
+})
+
+const currentDecomposePrice = computed(() => {
+  const ing = currentDecompose.value.ingredientList.reduce((acc, item) => {
+    const price = typeof item.price === "number" ? item.price : item.originPrice
+    return acc + price * item.count * (item.rate || 1)
+  }, 0)
+
+  const pro = currentDecompose.value.productList.reduce((acc, item) => {
+    const price = typeof item.price === "number" ? item.price : item.originPrice
+    return acc + price * item.count * (item.rate || 1)
+  }, 0)
+  return (pro - ing) * currentDecompose.value.successRate
 })
 
 const results = computed(() => {
@@ -160,6 +204,9 @@ const results = computed(() => {
       originLevel: enhancerStore.advancedConfig.originLevel,
       escapeLevel: enhancerStore.advancedConfig.escapeLevel
     })
+    if (!calc.available) {
+      continue
+    }
 
     const { actions, protects, targetRate, leapRate, escapeRate } = calc.enhancelate()
     const matCost
@@ -205,9 +252,14 @@ const results = computed(() => {
         每小时的工时费 = 总工时费  / actions * actionsPH
      */
 
-    const productPrice = typeof currentItem.value.productPrice === "number"
+    let productPrice = typeof currentItem.value.productPrice === "number"
       ? currentItem.value.productPrice
       : getPriceOf(currentItem.value.hrid, enhanceLevel).bid
+
+    // 分解
+    if (enhancerStore.advancedConfig.tab === "2") {
+      productPrice = currentDecomposePrice.value
+    }
 
     const hourlyCost = ((productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
 
@@ -343,7 +395,7 @@ watch(menuVisible, (value) => {
     <div class="game-info">
       <GameInfo />
       <div>
-        <ActionConfig :actions="['enhancing']" :equipments="['hands', 'neck', 'earrings', 'ring', 'pouch']" />
+        <ActionConfig :actions="['enhancing', 'alchemy']" :equipments="['hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>
     </div>
     <el-row :gutter="20" class="row max-w-1100px mx-auto!">
@@ -528,7 +580,7 @@ watch(menuVisible, (value) => {
 
               <div class="flex justify-between items-center">
                 <div class="font-size-14px">
-                  {{ t('溢价率%') }}
+                  {{ t('税率%') }}
                 </div>
                 <el-input-number
                   class="w-120px"
@@ -573,6 +625,61 @@ watch(menuVisible, (value) => {
                   disabled
                   :placeholder="defaultConfig.taxRate.toString()"
                 />
+              </div>
+            </el-tab-pane>
+
+            <el-tab-pane :label="t('分解')">
+              <div v-for="item in currentDecompose.ingredientList" :key="item.hrid" class="flex justify-between items-center">
+                <div class="font-size-14px flex items-center justify-between">
+                  <div>
+                    <ItemIcon :hrid="item.hrid" class="inline-block mr-1" />
+                  </div>
+                  <div>{{ Format.number(item.count * (item.rate || 1), 2) }}</div>
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="item.price"
+                  :placeholder="Format.number(item.originPrice)"
+                  :controls="false"
+                  :disabled="item.hrid === COIN_HRID"
+                />
+              </div>
+
+              <!-- 分割线 -->
+              <el-divider class="mt-5px mb-5px" />
+
+              <div v-for="item in currentDecompose.productList" :key="item.hrid" class="flex justify-between items-center">
+                <div class="font-size-14px flex items-center justify-between">
+                  <div>
+                    <ItemIcon :hrid="item.hrid" class="inline-block mr-1" />
+                  </div>
+                  <div>{{ Format.number(item.count * (item.rate || 1), 2) }}</div>
+                </div>
+                <el-input-number
+                  class="w-100px"
+                  v-model="item.price"
+                  :placeholder="Format.number(item.originPrice)"
+                  :controls="false"
+                />
+              </div>
+
+              <div class="flex mt-1px mb-2px justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('成功率') }}
+                </div>
+
+                <el-tag class="w-100px " type="success" size="large">
+                  {{ currentDecompose.successRate && Format.percent(currentDecompose.successRate) }}
+                </el-tag>
+              </div>
+              <div class="flex justify-between items-center">
+                <div class="font-size-14px">
+                  {{ t('分解税后收益') }}
+                </div>
+
+                <el-tag class="w-100px " type="success" size="large">
+                  {{ currentDecomposePrice && Format.money(currentDecomposePrice * 0.98) }}
+                </el-tag>
               </div>
             </el-tab-pane>
           </el-tabs>
@@ -641,6 +748,7 @@ watch(menuVisible, (value) => {
                   :min="1"
                   v-model="enhancerStore.advancedConfig.enhanceLevel"
                   :placeholder="Format.number(defaultConfig.enhanceLevel)"
+                  @change="genDecompose"
                   controls-position="right"
                 />
               </template>
@@ -678,7 +786,7 @@ watch(menuVisible, (value) => {
         <!-- <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" /> -->
         <el-table-column prop="matCostPH" :label="t('材料损耗')" :min-width="120" header-align="center" align="right" />
         <el-table-column prop="fallingRatePH" :label="t('逃逸损耗')" :min-width="120" header-align="center" align="right" />
-        <template v-if="enhancerStore.advancedConfig.tab === '1'">
+        <template v-if="enhancerStore.advancedConfig.tab !== '0'">
           <el-table-column prop="profitPPFormatted" :label="t('利润/件')" :min-width="100" header-align="center" align="right">
             <template #header>
               <div style="display: flex; justify-content: center; align-items: center; gap: 5px">

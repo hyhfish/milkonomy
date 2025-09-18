@@ -32,7 +32,7 @@ export class EnhanceCalculator extends Calculator {
   escapeLevel: number
   protectionItem: IngredientWithPrice
   constructor(config: EnhanceCalculatorConfig) {
-    super({ ...config, project: `强化+${config.enhanceLevel}`, action: "enhancing" })
+    super({ project: `强化+${config.enhanceLevel}`, action: "enhancing", ...config })
     this.enhanceLevel = config.enhanceLevel!
     this.protectLevel = config.protectLevel
     this.originLevel = config.originLevel ?? 0
@@ -215,14 +215,11 @@ export class EnhanceCalculator extends Calculator {
    * 预估强化->分解最大利润
    * 最大利润小于0时，不可用
    */
+  _maxProfitApproximate?: number
   get maxProfitApproximate() {
-    const { actions, protects } = this.enhancelate()
-
-    // 只对比强化材料+垫子 与 分解产生精华的价格
-    const protectCost = this.ingredientListWithPrice[1].price * protects
-    const materialCost = this.ingredientListWithPrice.slice(2).reduce((acc, item) => acc + item.price * item.count * actions, 0)
-    const cost = protectCost + materialCost
-
+    if (this._maxProfitApproximate !== undefined) {
+      return this._maxProfitApproximate
+    }
     const decomposeCal = new DecomposeCalculator({
       hrid: this.item.hrid,
       /** 催化剂 1普通 2主要催化剂 */
@@ -230,14 +227,19 @@ export class EnhanceCalculator extends Calculator {
       enhanceLevel: this.enhanceLevel
     })
     if (!decomposeCal.available) {
-      return -1
+      this._maxProfitApproximate = -1
+      return this._maxProfitApproximate
     }
+    const { actions } = this.enhancelate()
 
-    const product = decomposeCal.productListWithPrice[0]
-    // 收益
-    const gain = product.price * product.count * decomposeCal.successRate
+    // 以完整消耗一个初始装备为单位计算利润
+    const cost = this.ingredientListWithPrice.reduce((acc, item) => acc + item.price * item.count * actions, 0)
+    const income = this.productListWithPrice.slice(1).reduce((acc, item) => acc + item.price * item.count * actions * (item.rate || 1), 0)
 
-    return gain - cost
+    const decomposeIncome = decomposeCal.successRate * decomposeCal.productListWithPrice.reduce((acc, item) => acc + item.price * item.count * (item.rate || 1), 0)
+    const decomposeCost = decomposeCal.ingredientListWithPrice.slice(1).reduce((acc, item) => acc + item.price * item.count, 0)
+    this._maxProfitApproximate = (decomposeIncome * (this._targetRate || 1) + income) * 0.98 - cost - decomposeCost * (this._targetRate || 1)
+    return this._maxProfitApproximate
   }
 
   /**

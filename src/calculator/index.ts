@@ -304,6 +304,7 @@ export default abstract class Calculator {
       incomePHFormat: Format.money(incomePH),
       profitPHFormat: Format.money(profitPH),
       profitPDFormat: Format.money(profitPH * 24),
+      profitPP,
       profitPPFormat: Format.money(profitPP),
       profitRateFormat: Format.percent(profitRate),
       efficiencyFormat: Format.percent(this.efficiency - 1),

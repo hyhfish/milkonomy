@@ -116,6 +116,26 @@ export const constantRoutes: RouteRecordRaw[] = [
   {
     path: "/",
     component: Layouts,
+    redirect: "/enhanposer",
+    meta: {
+      hidden: !useGameStoreOutside().checkSecret()
+    },
+    children: [
+      {
+        path: "enhanposest",
+        component: () => import("@/pages/enhanposer/enhanposest.vue"),
+        name: "Enhanposest",
+        meta: {
+          title: t("超级强化分解"),
+          affix: true,
+          svgIcon: "dashboard"
+        }
+      }
+    ]
+  },
+  {
+    path: "/",
+    component: Layouts,
     redirect: "/jungle",
     meta: {
       title: t("打野工具"),
@@ -158,7 +178,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import("@/pages/inherit/index.vue"),
         name: "inherit",
         meta: {
-          title: t("强化继承"),
+          title: t("继承"),
           affix: false,
           elIcon: "Compass"
         }

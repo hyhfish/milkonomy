@@ -40,6 +40,9 @@ function calcEnhanceProfit() {
   const list = Object.values(gameData.itemDetailMap)
   const profitList: WorkflowCalculator[] = []
   list.filter(item => item.enhancementCosts).forEach((item) => {
+    if (getUsedPriceOf(item.hrid, 0, "ask") === -1) {
+      return
+    }
     for (let enhanceLevel = 1; enhanceLevel <= 20; enhanceLevel++) {
       if (getUsedPriceOf(item.hrid, 0, "ask") === -1) {
         continue
@@ -48,9 +51,8 @@ function calcEnhanceProfit() {
       let bestProfit = -Infinity
       let bestCal: WorkflowCalculator | undefined
       for (let protectLevel = (enhanceLevel > 2 ? 2 : enhanceLevel); protectLevel <= enhanceLevel; protectLevel++) {
+        const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
         for (let catalystRank = 0; catalystRank <= 2; catalystRank++) {
-          const enhancer = new EnhanceCalculator({ enhanceLevel, protectLevel, hrid: item.hrid })
-
           if (!useGameStoreOutside().checkSecret() && item.itemLevel > 1) {
             continue
           }

@@ -5,12 +5,11 @@ import { usePagination } from "@@/composables/usePagination"
 import { Edit, Search } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep, debounce } from "lodash-es"
+import { getEnhanposestDataApi } from "@/common/apis/enhanposer/enhanposest"
 
-import { getDataApi } from "@/common/apis/jungle/junglest"
+import { getMarketDataApi } from "@/common/apis/game"
 import { useMemory } from "@/common/composables/useMemory"
-import { usePriceStatus } from "@/common/composables/usePriceStatus"
 import * as Format from "@/common/utils/format"
-import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { usePriceStore } from "@/pinia/stores/price"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
@@ -18,27 +17,24 @@ import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
 import GameInfo from "../dashboard/components/GameInfo.vue"
 import ManualPriceCard from "../dashboard/components/ManualPriceCard.vue"
-import PriceStatusSelect from "../dashboard/components/PriceStatusSelect.vue"
-
-// #region
-const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "junglest-leaderboard-pagination")
+// #region 查
+const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "enhanposest-leaderboard-pagination")
 const leaderboardData = ref<Calculator[]>([])
 const ldSearchFormRef = ref<FormInstance | null>(null)
 
-const ldSearchData = useMemory("junglest-leaderboard-search-data", {
+const ldSearchData = useMemory("enhanposest-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: "",
   maxLevel: "",
   minLevel: "",
-  banEquipment: false,
-  bestManufacture: false
+  banEquipment: false
 })
 
 const loadingLD = ref(false)
 const getLeaderboardData = debounce(() => {
   loadingLD.value = true
-  getDataApi({
+  getEnhanposestDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
     ...ldSearchData.value,
@@ -53,9 +49,9 @@ const getLeaderboardData = debounce(() => {
     loadingLD.value = false
   })
 }, 300)
-
 function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
+  console.log("va", JSON.stringify(ldSearchData.value))
 }
 
 const sortLD: Ref<Sort | undefined> = ref()
@@ -68,10 +64,8 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
-  () => useGameStore().marketData,
-  () => usePlayerStore().config,
-  () => useGameStore().buyStatus,
-  () => useGameStore().sellStatus
+  () => getMarketDataApi(),
+  () => usePlayerStore().config
 ], getLeaderboardData, { immediate: true })
 
 // #endregion
@@ -86,6 +80,7 @@ watch(() => usePriceStore(), () => {
 const currentRow = ref<Calculator>()
 const detailVisible = ref<boolean>(false)
 async function showDetail(row: Calculator) {
+  console.log("showDetail", row)
   currentRow.value = cloneDeep(row)
   detailVisible.value = true
 }
@@ -109,26 +104,18 @@ function setPrice(row: Calculator) {
 }
 
 const { t } = useI18n()
-
-const onPriceStatusChange = usePriceStatus("junglest-price-status")
 </script>
 
 <template>
   <div class="app-container">
     <div class="game-info">
       <GameInfo />
-
       <div>
         <ActionConfig :actions="['enhancing']" :equipments="['hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>
-
-      <PriceStatusSelect @change="onPriceStatusChange" />
-      <div>
-        {{ t('打野爽！') }}
-      </div>
     </div>
     <el-row :gutter="20" class="row">
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
         <el-card>
           <template #header>
             <el-form class="rank-card" ref="ldSearchFormRef" :inline="true" :model="ldSearchData">
@@ -143,47 +130,34 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
-
-              <el-form-item :label="t('风险 <=')">
-                <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
-              </el-form-item>
             </el-form>
           </template>
           <template #default>
             <el-table :data="leaderboardData" v-loading="loadingLD" @sort-change="handleSortLD">
-              <el-table-column width="54">
+              <el-table-column width="54" fixed="left">
                 <template #default="{ row }">
                   <ItemIcon :hrid="row.hrid" />
                 </template>
               </el-table-column>
-              <el-table-column prop="result.name" :label="t('物品')">
-                <template #default="{ row }">
-                  {{ row.result.name }}
-                  <!-- {{ row.originLevel ? `+${row.originLevel}` : '' }} -->
-                </template>
-              </el-table-column>
-              <el-table-column min-width="70">
+              <el-table-column prop="result.name" :label="t('物品')" />
+              <el-table-column min-width="90">
                 <template #default="{ row }">
                   <div style="display:flex;">
-                    <ItemIcon v-if="row.protectLevel < row.enhanceLevel" :hrid="row.protectionItem.hrid" />
+                    <ItemIcon v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel" :hrid="row.calculatorList[0].protectionItem.hrid" />
+                    <ItemIcon v-if="row.catalyst" :hrid="`/items/${row.catalyst}`" />
                   </div>
-                  <div v-if="row.protectLevel < row.enhanceLevel">
-                    {{ t('从{0}保护', [row.protectLevel]) }}
+                  <div v-if="row.calculatorList && row.calculatorList[0].protectLevel < row.calculatorList[0].enhanceLevel">
+                    {{ t('从{0}保护', [row.calculatorList[0].protectLevel]) }}
                   </div>
                 </template>
               </el-table-column>
               <el-table-column prop="project" :label="t('动作')" min-width="100" />
-              <el-table-column prop="realEscapeLevel" :label="t('逃逸')" min-width="60" />
-              <!-- <el-table-column :label="t('利润 / 天')" align="center" min-width="120">
+
+              <el-table-column :label="t('逃逸')" min-width="60">
                 <template #default="{ row }">
-                  <span :class="row.hasManualPrice ? 'manual' : ''">
-                    {{ row.result.profitPDFormat }}&nbsp;
-                  </span>
-                  <el-link type="primary" :icon="Edit" @click="setPrice(row)">
-                    {{ t('自定义') }}
-                  </el-link>
+                  {{ row.calculatorList[0].realEscapeLevel }}
                 </template>
-              </el-table-column> -->
+              </el-table-column>
 
               <el-table-column prop="result.profitPHFormat" :label="t('利润 / h')" align="center" min-width="120">
                 <template #default="{ row }">
@@ -195,7 +169,7 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                   </el-link>
                 </template>
               </el-table-column>
-
+              Z
               <el-table-column align="center" min-width="120">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
@@ -212,7 +186,7 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                 </template>
                 <template #default="{ row }">
                   <span>
-                    {{ row.result.cost4EnhancePHFormat }}
+                    {{ row.calculatorList[0].result.cost4EnhancePHFormat }}
                   </span>
                 </template>
               </el-table-column>
@@ -244,14 +218,17 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                   </span>
                 </template>
               </el-table-column>
-
-              <el-table-column align="center" min-width="120">
+              <el-table-column align="center" min-width="100">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
-                    <div>{{ t('利润 / 件') }}</div>
+                    <div>{{ t('利润 / 次') }}</div>
                     <el-tooltip placement="top" effect="light">
                       <template #content>
-                        {{ t('每件初始装备产生的利润。') }}
+                        {{ t('单次动作产生的利润。') }}
+                        <br>
+                        {{ t('#多步动作利润提示') }}
+                        <br>
+                        {{ t('#多步动作利润举例') }}
                       </template>
                       <el-icon>
                         <Warning />
@@ -261,32 +238,31 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                 </template>
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
-                    {{ Format.money(row.result.profitPH / row.ingredientListWithPrice[0].countPH) }}&nbsp;
+                    {{ row.result.profitPPFormat }}&nbsp;
                   </span>
                 </template>
               </el-table-column>
-
-              <el-table-column prop="result.profitRate" :label="t('利润率')" align="center" sortable="custom" :sort-orders="['descending', null]">
+              <el-table-column prop="result.profitRate" :label="t('利润率')" min-width="100" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   {{ row.result.profitRateFormat }}
                 </template>
               </el-table-column>
 
-              <el-table-column :label="t('售价')" align="center">
+              <el-table-column :label="t('买价')" align="center">
                 <template #default="{ row }">
                   <span>
-                    {{ Format.price(row.productListWithPrice[0].price) }}
+                    {{ Format.price(row.calculatorList[0].ingredientListWithPrice[0].price) }}
                   </span>
                 </template>
               </el-table-column>
 
-              <el-table-column prop="result.targetRateFormat" :label="t('成功率')" align="center">
+              <el-table-column prop="result.targetRateFormat" :label="t('成功率')" align="center" min-width="100">
                 <template #header>
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
                     <div>{{ t('成功率') }}</div>
                     <el-tooltip placement="top" effect="light">
                       <template #content>
-                        单件装备的成功率
+                        单件装备的强化成功率
                       </template>
                       <el-icon>
                         <Warning />
@@ -295,10 +271,32 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                   </div>
                 </template>
                 <template #default="{ row }">
-                  {{ row.result.targetRateFormat }}
+                  {{ row.calculatorList[0].result.targetRateFormat }}
                 </template>
               </el-table-column>
-              <el-table-column prop="result.expPHFormat" :label="t('经验 / h')" />
+
+              <el-table-column min-width="120" :label="t('经验 / h')" align="center">
+                <template #default="{ row }">
+                  <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+                    <div>{{ row.result.expPHFormat }}</div>
+                    <el-tooltip v-if="row.expList?.length > 1" placement="top" effect="light">
+                      <template #content>
+                        <div v-for="(item, i) in row.expList" :key="i" style="display: flex; gap:10px">
+                          <div>
+                            {{ t(item.action) }}
+                          </div>
+                          <div>
+                            {{ item.expPHFormat }}
+                          </div>
+                        </div>
+                      </template>
+                      <el-icon>
+                        <Warning />
+                      </el-icon>
+                    </el-tooltip>
+                  </div>
+                </template>
+              </el-table-column>
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">
@@ -325,8 +323,8 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-        <ManualPriceCard memory-key="junglest" />
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="10">
+        <ManualPriceCard memory-key="enhanposest" />
       </el-col>
     </el-row>
     <ActionDetail v-model="detailVisible" :data="currentRow" />

@@ -62,7 +62,7 @@ function calcEnhanceProfit() {
             continue
           }
           for (let protectLevel = Math.max(2, escapeLevel + 1); protectLevel <= enhanceLevel; protectLevel++) {
-            const c = new EnhanceCalculator({ originLevel, enhanceLevel, protectLevel, hrid: item.hrid, escapeLevel })
+            const c = new EnhanceCalculator({ originLevel, enhanceLevel, protectLevel, hrid: item.hrid, escapeLevel, project: `+${originLevel} → +${enhanceLevel}` })
             if (!c.available) {
               continue
             }
