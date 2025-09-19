@@ -71,20 +71,6 @@ export default defineConfig(({ mode }) => {
            * @description 2. 如果你不想自定义 chunk 分割策略，可以直接移除这段配置
            */
           manualChunks: (id) => {
-            // 公开版本中不打包私有页面
-            if (VITE_BUILD_MODE === "public") {
-              if (id.includes("/pages/enhancest/")
-                || id.includes("/pages/junglest/")
-                || id.includes("/pages/jungle/")
-                || id.includes("/pages/inherit/")
-                || id.includes("/pages/decompose/")
-                || id.includes("/pages/manualchemy/")
-                || id.includes("/pages/demo/")
-                || id.includes("/pages/enhanposer/enhanposest")) {
-                return undefined // 不打包这些文件
-              }
-            }
-
             // 基础分块策略
             if (id.includes("node_modules")) {
               if (id.includes("vue") || id.includes("vue-router") || id.includes("pinia")) {
@@ -104,7 +90,7 @@ export default defineConfig(({ mode }) => {
     },
     // 混淆器
     esbuild:
-      mode === "production"
+      mode === "public"
         ? {
             // 打包构建时移除 console.log
             pure: ["console.log"],
@@ -123,9 +109,8 @@ export default defineConfig(({ mode }) => {
       {
         name: "remove-private-code",
         transform(code: string, id: string) {
-          console.log("VITE_BUILD_MODE:", VITE_BUILD_MODE)
           // 只在公开版本构建时处理
-          if (VITE_BUILD_MODE === "public") {
+          if (VITE_BUILD_MODE !== "private") {
             // 处理路由文件
             if (id.includes("router/index.ts")) {
               // 移除私有路由的导入
