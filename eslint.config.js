@@ -25,6 +25,8 @@ export default antfu(
       "vue/attributes-order": "off",
       // ts
       "ts/no-use-before-define": "off",
+      "ts/no-require-imports": "off", // 允许条件require导入
+      "ts/no-var-requires": "off", // 允许require语句
       // node
       "node/prefer-global/process": "off",
       // style
