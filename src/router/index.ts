@@ -127,7 +127,7 @@ export const constantRoutes: RouteRecordRaw[] = [
         name: "Enhanposest",
         meta: {
           title: t("超级强化分解"),
-          affix: true,
+          affix: false,
           svgIcon: "dashboard"
         }
       }
