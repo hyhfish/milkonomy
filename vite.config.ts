@@ -123,6 +123,7 @@ export default defineConfig(({ mode }) => {
       {
         name: "remove-private-code",
         transform(code: string, id: string) {
+          console.log("VITE_BUILD_MODE:", VITE_BUILD_MODE)
           // 只在公开版本构建时处理
           if (VITE_BUILD_MODE === "public") {
             // 处理路由文件
