@@ -3,22 +3,8 @@ import { createRouter } from "vue-router"
 import { routerConfig } from "@/router/config"
 import { registerNavigationGuard } from "@/router/guard"
 import { flatMultiLevelRoutes } from "./helper"
+import { privateRoutes } from "./routes/private"
 import { publicRoutes } from "./routes/public"
-
-// 条件导入私有路由
-// 在构建时，Vite会根据环境变量进行条件编译和tree shaking
-const privateRoutes: RouteRecordRaw[] = import.meta.env.VITE_BUILD_MODE === "private"
-  ? (() => {
-      try {
-      // 这里使用同步导入，因为这是构建时决定的
-        const { privateRoutes } = require("./routes/private")
-        return privateRoutes || []
-      } catch {
-        console.warn("Private routes not found, using empty array")
-        return []
-      }
-    })()
-  : []
 
 /**
  * @name 常驻路由
@@ -26,7 +12,9 @@ const privateRoutes: RouteRecordRaw[] = import.meta.env.VITE_BUILD_MODE === "pri
  */
 export const constantRoutes: RouteRecordRaw[] = [
   ...publicRoutes,
+  // PRIVATE_ROUTES_START - 这个注释用于Vite插件识别
   ...privateRoutes
+  // PRIVATE_ROUTES_END
 ]
 
 /**

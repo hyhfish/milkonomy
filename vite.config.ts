@@ -119,56 +119,48 @@ export default defineConfig(({ mode }) => {
       vue(),
       // 支持 JSX、TSX 语法
       vueJsx(),
-      // 条件构建插件 - 在公开版本中排除私有文件
-      VITE_BUILD_MODE === "public" && {
-        name: "exclude-private-files",
-        resolveId(id: string) {
-          // 在公开版本构建中排除私有路由文件
-          if (id.includes("routes/private")) {
-            return `${id}?excluded`
-          }
-          return null
-        },
-        load(id: string) {
-          // 在公开版本构建中，如果遇到私有页面文件，返回空模块
-          if (id.includes("?excluded")) {
-            return "export const privateRoutes = [];" // 返回空的私有路由
-          }
-          if (id.includes("/pages/enhancest/")
-            || id.includes("/pages/junglest/")
-            || id.includes("/pages/jungle/")
-            || id.includes("/pages/inherit/")
-            || id.includes("/pages/decompose/")
-            || id.includes("/pages/manualchemy/")
-            || id.includes("/pages/demo/")
-            || id.includes("/pages/enhanposer/enhanposest")) {
-            return "export default function() { return null; }" // 返回空组件
-          }
-          return null
-        },
-        generateBundle(_options: any, bundle: any) {
-          // 在生成bundle时移除私有文件
+      // 条件构建插件 - 在公开版本中移除私有代码
+      {
+        name: "remove-private-code",
+        transform(code: string, id: string) {
+          // 只在公开版本构建时处理
           if (VITE_BUILD_MODE === "public") {
-            Object.keys(bundle).forEach((fileName) => {
-              const chunk = bundle[fileName]
-              if (chunk.type === "chunk") {
-                // 检查是否包含私有页面代码
-                if (chunk.code.includes("/pages/enhancest/")
-                  || chunk.code.includes("/pages/junglest/")
-                  || chunk.code.includes("/pages/jungle/")
-                  || chunk.code.includes("/pages/inherit/")
-                  || chunk.code.includes("/pages/decompose/")
-                  || chunk.code.includes("/pages/manualchemy/")
-                  || chunk.code.includes("/pages/demo/")) {
-                  // 替换私有页面导入为空函数
-                  chunk.code = chunk.code.replace(
-                    /import\([^)]*\/pages\/(enhancest|junglest|jungle|inherit|decompose|manualchemy|demo)\/[^)]*\)/g,
-                    "Promise.resolve(() => null)"
-                  )
-                }
-              }
-            })
+            // 处理路由文件
+            if (id.includes("router/index.ts")) {
+              // 移除私有路由的导入
+              code = code.replace(
+                /import\s*\{\s*privateRoutes\s*\}\s*from\s*['".].*routes\/private['"];?\s*/,
+                ""
+              )
+
+              // 移除私有路由的使用
+              code = code.replace(
+                /\/\/\s*PRIVATE_ROUTES_START[\s\S]*?\/\/\s*PRIVATE_ROUTES_END/g,
+                "// Private routes removed in public build"
+              )
+
+              console.log("Removed private routes from public build")
+            }
+
+            // 处理私有路由文件 - 返回空导出
+            if (id.includes("routes/private")) {
+              return "export const privateRoutes = [];"
+            }
+
+            // 处理私有页面文件 - 返回空组件
+            if (id.includes("/pages/enhancest/")
+              || id.includes("/pages/junglest/")
+              || id.includes("/pages/jungle/")
+              || id.includes("/pages/inherit/")
+              || id.includes("/pages/decompose/")
+              || id.includes("/pages/manualchemy/")
+              || id.includes("/pages/demo/")
+              || id.includes("/pages/enhanposer/enhanposest")) {
+              return "export default { render: () => null };"
+            }
           }
+
+          return code
         }
       },
       // 支持将 SVG 文件导入为 Vue 组件
