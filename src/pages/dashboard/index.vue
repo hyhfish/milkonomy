@@ -197,7 +197,7 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
                 {{ t('利润排行') }}
               </div>
               <el-form-item prop="name" :label="t('物品')">
-                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @change="handleSearchLD" />
+                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" />
               </el-form-item>
               <el-form-item prop="phone" :label="t('动作')">
                 <el-select v-model="ldSearchData.project" :placeholder="t('请选择')" style="width:100px" clearable @change="handleSearchLD">
