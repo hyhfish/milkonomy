@@ -243,7 +243,7 @@ export const useGameStore = defineStore("game", {
       saveSecret(value)
     },
     checkSecret() {
-      return btoa(this.secret) === "MTE0NTE0QA=="
+      return import.meta.env.VITE_BUILD_MODE === "private"
     },
 
     clearAllCaches() {

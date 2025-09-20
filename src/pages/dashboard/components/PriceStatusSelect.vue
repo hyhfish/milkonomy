@@ -13,7 +13,7 @@ function onChange() {
 
 <template>
   <template v-if="useGameStore().checkSecret()">
-    <div class="flex items-center" v-if="useGameStore().checkSecret()">
+    <div class="flex items-center">
       <div class="m-2">
         买价
       </div>
@@ -22,7 +22,7 @@ function onChange() {
       </el-select>
     </div>
 
-    <div class="flex items-center" v-if="useGameStore().checkSecret()">
+    <div class="flex items-center">
       <div class="m-2">
         卖价
       </div>

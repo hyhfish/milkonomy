@@ -57,17 +57,6 @@ const getLeaderboardData = debounce(() => {
   })
 }, 300)
 
-function handleInput(val: string) {
-  if (val && val.includes("@")) {
-    useGameStore().setSecret(val)
-    if (useGameStore().checkSecret()) {
-      useGameStore().clearJungleCache()
-      router.push({ path: "/jungle" })
-    }
-  }
-
-  handleSearchLD()
-}
 function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
 }
@@ -181,7 +170,6 @@ function setPrice(row: Calculator) {
   priceVisible.value = true
 }
 
-const router = useRouter()
 const { t } = useI18n()
 
 const onPriceStatusChange = usePriceStatus("dashboard-price-status")
@@ -209,7 +197,7 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
                 {{ t('利润排行') }}
               </div>
               <el-form-item prop="name" :label="t('物品')">
-                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleInput" />
+                <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @change="handleSearchLD" />
               </el-form-item>
               <el-form-item prop="phone" :label="t('动作')">
                 <el-select v-model="ldSearchData.project" :placeholder="t('请选择')" style="width:100px" clearable @change="handleSearchLD">

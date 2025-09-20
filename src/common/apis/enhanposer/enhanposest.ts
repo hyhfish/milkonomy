@@ -68,10 +68,6 @@ function calcEnhanceProfit() {
             }
 
             for (let catalystRank = 0; catalystRank <= 2; catalystRank++) {
-              if (!useGameStoreOutside().checkSecret() && item.itemLevel > 1) {
-                continue
-              }
-
               // protectLevel = enhanceLevel 时表示不用垫子
               const c = new WorkflowCalculator([
                 getStorageCalculatorItem(enhancer),

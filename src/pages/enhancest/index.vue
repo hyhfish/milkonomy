@@ -11,7 +11,7 @@ import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getEquipmentList } from "@/common/apis/player"
 import { useEnhancerStore } from "@/pinia/stores/enhancer"
-import { COIN_HRID, useGameStore } from "@/pinia/stores/game"
+import { COIN_HRID } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import GameInfo from "../dashboard/components/GameInfo.vue"
@@ -421,7 +421,7 @@ watch(menuVisible, (value) => {
             </el-table-column>
           </ElTable>
 
-          <ElTable v-if="useGameStore().checkSecret()" :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
+          <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default>
                 {{ t('初始等级') }}:
@@ -442,7 +442,7 @@ watch(menuVisible, (value) => {
             </el-table-column>
           </ElTable>
 
-          <ElTable v-if="useGameStore().checkSecret()" :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
+          <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default>
                 {{ t('逃逸等级') }}:
@@ -463,7 +463,7 @@ watch(menuVisible, (value) => {
             </el-table-column>
           </ElTable>
 
-          <ElTable v-if="useGameStore().checkSecret()" :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
+          <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default>
                 {{ t('逃逸价格') }}:
@@ -477,7 +477,7 @@ watch(menuVisible, (value) => {
             </el-table-column>
           </ElTable>
 
-          <ElTable v-if="useGameStore().checkSecret()" :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
+          <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default>
                 {{ t('白板价格') }}:
