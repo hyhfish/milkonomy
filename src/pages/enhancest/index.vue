@@ -385,10 +385,10 @@ watch(menuVisible, (value) => {
 <template>
   <div class="app-container">
     <ul v-show="menuVisible" class="contextmenu" :style="{ left: `${left}px`, top: `${top}px` }">
-      <li v-if="!enhancerStore.hasFavorite(selectedTag)" @click="enhancerStore.addFavorite(selectedTag)">
+      <li v-if="!enhancerStore.hasAdvancedFavorite(selectedTag)" @click="enhancerStore.addAdvancedFavorite(selectedTag)">
         收藏
       </li>
-      <li v-else @click="enhancerStore.removeFavorite(selectedTag)">
+      <li v-else @click="enhancerStore.removeAdvancedFavorite(selectedTag)">
         取消收藏
       </li>
     </ul>
@@ -503,15 +503,15 @@ watch(menuVisible, (value) => {
               {{ currentItem?.hrid ? '' : t('选择装备') }}
             </el-button>
             <div v-if="currentItem?.hrid" class="absolute bottom-0 right-0">
-              <el-link v-if="!enhancerStore.hasFavorite(currentItem.hrid)" :underline="false" type="info" :icon="Star" @click="enhancerStore.addFavorite(currentItem.hrid)" style="font-size:42px" />
-              <el-link v-else :underline="false" :icon="StarFilled" type="primary" @click="enhancerStore.removeFavorite(currentItem.hrid)" style="font-size:42px" />
+              <el-link v-if="!enhancerStore.hasAdvancedFavorite(currentItem.hrid)" :underline="false" type="info" :icon="Star" @click="enhancerStore.addAdvancedFavorite(currentItem.hrid)" style="font-size:42px" />
+              <el-link v-else :underline="false" :icon="StarFilled" type="primary" @click="enhancerStore.removeAdvancedFavorite(currentItem.hrid)" style="font-size:42px" />
             </div>
             <el-dialog
               v-model="dialogVisible"
               :show-close="false"
             >
               <el-input v-model="search" :placeholder="t('搜索')" />
-              <template v-if="enhancerStore.favorite.length && !search">
+              <template v-if="enhancerStore.advancedFavorite.length && !search">
                 <el-divider class="mt-2 mb-2" />
                 <div class="mb-2 color-gray-500">
                   {{ t('收藏') }}
@@ -520,7 +520,7 @@ watch(menuVisible, (value) => {
                 </div>
                 <div class="flex flex-wrap">
                   <el-button
-                    v-for="hrid in enhancerStore.favorite"
+                    v-for="hrid in enhancerStore.advancedFavorite"
                     :key="hrid"
                     class="relative"
                     style="width: 50px; height: 50px; margin: 2px;"
@@ -551,7 +551,7 @@ watch(menuVisible, (value) => {
                     :hrid="item.hrid"
                   />
 
-                  <div v-if="enhancerStore.hasFavorite(item.hrid)" class="absolute bottom-0 right-0">
+                  <div v-if="enhancerStore.hasAdvancedFavorite(item.hrid)" class="absolute bottom-0 right-0">
                     <el-link :underline="false" :icon="StarFilled" type="primary" style="font-size:16px" />
                   </div>
                 </el-button>

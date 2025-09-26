@@ -1,11 +1,12 @@
-import { getItemDetailOf } from "@/common/apis/game"
 import { defineStore } from "pinia"
+import { getItemDetailOf } from "@/common/apis/game"
 
 export const useEnhancerStore = defineStore("enhancer", {
   state: () => ({
     config: loadConfig(),
     advancedConfig: loadAdvancedConfig(),
-    favorite: loadFavorite()
+    favorite: loadFavorite(),
+    advancedFavorite: loadAdvancedFavorite()
   }),
   actions: {
     saveConfig() {
@@ -34,6 +35,28 @@ export const useEnhancerStore = defineStore("enhancer", {
     hasFavorite(hrid: string) {
       if (!hrid) return false
       const index = this.favorite.indexOf(hrid)
+      return index !== -1
+    },
+    addAdvancedFavorite(hrid: string) {
+      if (!hrid) return
+      const index = this.advancedFavorite.indexOf(hrid)
+      if (index === -1) {
+        this.advancedFavorite.push(hrid)
+      }
+      this.advancedFavorite.sort((a, b) => getItemDetailOf(a).sortIndex - getItemDetailOf(b).sortIndex)
+      saveAdvancedFavorite(this.advancedFavorite)
+    },
+    removeAdvancedFavorite(hrid: string) {
+      if (!hrid) return
+      const index = this.advancedFavorite.indexOf(hrid)
+      if (index !== -1) {
+        this.advancedFavorite.splice(index, 1)
+      }
+      saveAdvancedFavorite(this.advancedFavorite)
+    },
+    hasAdvancedFavorite(hrid: string) {
+      if (!hrid) return false
+      const index = this.advancedFavorite.indexOf(hrid)
       return index !== -1
     }
   },
@@ -89,4 +112,15 @@ function loadFavorite(): string[] {
 }
 function saveFavorite(item: string[]) {
   localStorage.setItem(`${KEY_PREFIX}favorite`, JSON.stringify(item))
+}
+
+function loadAdvancedFavorite(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(`${KEY_PREFIX}advancedFavorite`) || "[]")
+  } catch {
+    return []
+  }
+}
+function saveAdvancedFavorite(item: string[]) {
+  localStorage.setItem(`${KEY_PREFIX}advancedFavorite`, JSON.stringify(item))
 }
