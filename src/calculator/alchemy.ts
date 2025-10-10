@@ -114,13 +114,13 @@ export class TransmuteCalculator extends AlchemyCalculator {
         marketPrice: getPriceOf(drop.itemHrid).bid
       })).concat(getAlchemyRareDropTable(this.item, getTransmuteTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
-        count: (drop.minCount + drop.maxCount) / 2,
+        count: (drop.minCount + drop.maxCount) / 2 / this.successRate,
         counterCount: 0,
         rate: drop.dropRate * (1 + this.rareRatio),
         marketPrice: getPriceOf(drop.itemHrid).bid
       }))).concat(getAlchemyEssenceDropTable(this.item, getTransmuteTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
-        count: (drop.minCount + drop.maxCount) / 2,
+        count: (drop.minCount + drop.maxCount) / 2 / this.successRate,
         counterCount: 0,
         rate: drop.dropRate * (1 + this.essenceRatio),
         marketPrice: getPriceOf(drop.itemHrid).bid
@@ -222,11 +222,11 @@ export class DecomposeCalculator extends AlchemyCalculator {
       }))).concat(getAlchemyRareDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
         rate: drop.dropRate * (1 + this.rareRatio),
-        count: (drop.minCount + drop.maxCount) / 2,
+        count: (drop.minCount + drop.maxCount) / 2 / this.successRate,
         marketPrice: getPriceOf(drop.itemHrid).bid
       }))).concat(getAlchemyEssenceDropTable(this.item, getDecomposeTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
-        count: (drop.minCount + drop.maxCount) / 2,
+        count: (drop.minCount + drop.maxCount) / 2 / this.successRate,
         rate: drop.dropRate * (1 + this.essenceRatio),
         marketPrice: getPriceOf(drop.itemHrid).bid
       })))
@@ -303,12 +303,12 @@ export class CoinifyCalculator extends AlchemyCalculator {
         marketPrice: this.item.sellPrice * 5 * this.item.alchemyDetail.bulkMultiplier
       }].concat(getAlchemyRareDropTable(this.item, getCoinifyTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
-        count: (drop.minCount + drop.maxCount) / 2,
+        count: (drop.minCount + drop.maxCount) / 2 / this.successRate,
         rate: drop.dropRate * (1 + this.rareRatio),
         marketPrice: getPriceOf(drop.itemHrid).bid
       }))).concat(getAlchemyEssenceDropTable(this.item, getCoinifyTimeCost()).map(drop => ({
         hrid: drop.itemHrid,
-        count: (drop.minCount + drop.maxCount) / 2,
+        count: (drop.minCount + drop.maxCount) / 2 / this.successRate,
         rate: drop.dropRate * (1 + this.essenceRatio),
         marketPrice: getPriceOf(drop.itemHrid).bid
       })))
