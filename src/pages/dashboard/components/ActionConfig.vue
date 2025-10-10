@@ -64,22 +64,27 @@ function onAdd() {
   onDialog(defaultActionConfig(t("{0}新预设", [index]), "#90ee90"), index)
 }
 
+function constructActionConfig() {
+  const config = {
+    actionConfigMap: new Map<Action, ActionConfigItem>(),
+    specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(),
+    name: name.value,
+    color: color.value
+  }
+
+  for (const item of actionList.value) {
+    config.actionConfigMap.set(item.action, toRaw(item))
+  }
+
+  for (const item of specialList.value) {
+    config.specialEquimentMap.set(item.type, toRaw(item))
+  }
+  return config
+}
+
 function onConfirm() {
   try {
-    const config = {
-      actionConfigMap: new Map<Action, ActionConfigItem>(),
-      specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(),
-      name: name.value,
-      color: color.value
-    }
-
-    for (const item of actionList.value) {
-      config.actionConfigMap.set(item.action, toRaw(item))
-    }
-
-    for (const item of specialList.value) {
-      config.specialEquimentMap.set(item.type, toRaw(item))
-    }
+    const config = constructActionConfig()
     setActionConfigApi(config, currentIndex.value)
 
     visible.value = false
@@ -138,6 +143,51 @@ function onRemove() {
 
 const { t } = useI18n()
 const { activeThemeName } = useTheme()
+
+// 弹窗手动复制导入
+function onImport() {
+  ElMessageBox.prompt(t("请粘贴导出的预设配置"), t("导入"), {
+    confirmButtonText: t("确定"),
+    cancelButtonText: t("取消"),
+    inputPattern: /^\s*\{.*\}\s*$/,
+    inputErrorMessage: t("请输入正确的JSON格式")
+  }).then(({ value }) => {
+    try {
+      const obj = JSON.parse(value)
+      if (!obj.name || !obj.color || !obj.actionConfigMap || !obj.specialEquimentMap) {
+        throw new Error(t("无效的预设配置"))
+      }
+      const config: ActionConfig = {
+        name: obj.name,
+        color: obj.color,
+        actionConfigMap: new Map<Action, ActionConfigItem>(obj.actionConfigMap),
+        specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(obj.specialEquimentMap)
+      }
+      onDialog(config, currentIndex.value)
+    // eslint-disable-next-line unused-imports/no-unused-vars
+    } catch (e) {
+      ElMessage.error(t("无效的预设配置"))
+    }
+  }).catch(() => {
+    // 取消导入
+  })
+}
+
+// 复制到剪贴板
+function onExport() {
+  const config = constructActionConfig()
+  const json = JSON.stringify({
+    name: config.name,
+    color: config.color,
+    actionConfigMap: Array.from(config.actionConfigMap.entries()),
+    specialEquimentMap: Array.from(config.specialEquimentMap.entries())
+  })
+  navigator.clipboard.writeText(json).then(() => {
+    ElMessage.success(t("已复制到剪贴板"))
+  }).catch(() => {
+    ElMessage.error(t("复制失败，请检查浏览器权限设置"))
+  })
+}
 </script>
 
 <template>
@@ -198,6 +248,12 @@ const { activeThemeName } = useTheme()
                 {{ t('预设名称') }}:
               </div>
               <el-input class=" w-300px" :maxlength="20" v-model="name" />
+              <el-button type="success" plain class="ml-4" @click="onImport">
+                {{ t('导入') }}
+              </el-button>
+              <el-button type="success" plain class="ml-4" @click="onExport">
+                {{ t('导出') }}
+              </el-button>
             </div>
           </template>
           <el-table :data="actionList.filter(item => actions ? actions.includes(item.action) : true)">

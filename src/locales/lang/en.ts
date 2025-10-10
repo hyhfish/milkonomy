@@ -147,7 +147,13 @@ export default {
   "预设颜色": "Preset Color",
   "{0}新预设": "{0} New Preset",
   "确定删除该预设吗？": "Are you sure to delete this preset?",
-
+  "导入": "Import",
+  "导出": "Export",
+  "已复制到剪贴板": "Copied to clipboard",
+  "复制失败，请检查浏览器权限设置": "Copy failed, please check browser permission settings",
+  "无效的预设配置": "Invalid preset configuration",
+  "请输入正确的JSON格式": "Please enter the correct JSON format",
+  "请粘贴导出的预设配置": "Please paste the exported preset configuration",
   "技能等级": "Skill Level",
   "房子等级": "House Level",
 
