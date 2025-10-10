@@ -160,12 +160,12 @@ function onImport() {
       const config: ActionConfig = {
         name: obj.name,
         color: obj.color,
-        actionConfigMap: new Map<Action, ActionConfigItem>(obj.actionConfigMap),
-        specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(obj.specialEquimentMap)
+        actionConfigMap: new Map<Action, ActionConfigItem>(Object.entries(obj.actionConfigMap) as [Action, ActionConfigItem][]),
+        specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(Object.entries(obj.specialEquimentMap) as [Equipment, PlayerEquipmentItem][])
       }
-      onDialog(config, currentIndex.value)
-    // eslint-disable-next-line unused-imports/no-unused-vars
+      onDialog(config, playerStore.presets.length)
     } catch (e) {
+      console.error(e)
       ElMessage.error(t("无效的预设配置"))
     }
   }).catch(() => {
@@ -179,8 +179,8 @@ function onExport() {
   const json = JSON.stringify({
     name: config.name,
     color: config.color,
-    actionConfigMap: Array.from(config.actionConfigMap.entries()),
-    specialEquimentMap: Array.from(config.specialEquimentMap.entries())
+    actionConfigMap: Object.fromEntries(config.actionConfigMap.entries()),
+    specialEquimentMap: Object.fromEntries(config.specialEquimentMap.entries())
   })
   navigator.clipboard.writeText(json).then(() => {
     ElMessage.success(t("已复制到剪贴板"))
