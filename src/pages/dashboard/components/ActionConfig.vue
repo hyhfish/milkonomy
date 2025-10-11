@@ -249,9 +249,9 @@ function onExport() {
     </template>
   </div>
   <el-dialog v-model="visible" :show-close="false" width="80%">
-    <el-row :gutter="20">
+    <el-row :gutter="20" class="mt-[-30px]">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">
-        <el-card>
+        <el-card class="mt-5">
           <template #header>
             <div class="flex flex-wrap items-baseline ">
               <!-- <div class="mr-3 mb-2">
@@ -386,62 +386,67 @@ function onExport() {
       </el-col>
 
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="8">
-        <el-card>
-          <template #header>
-            <div style="line-height: 32px;">
-              {{ t('其他') }}
-            </div>
-          </template>
-          <el-table :data="specialList.filter(item => equipments ? equipments.includes(item.type) : true)">
-            <el-table-column prop="type" :label="t('部位')" width="194">
-              <template #default="{ row }">
-                {{ t(row.type.replace(/_/g, ' ').replace(/\b\w+\b/g, (word:any) => word.substring(0, 1).toUpperCase() + word.substring(1))) }}
-              </template>
-            </el-table-column>
-            <el-table-column :label="t('装备')">
-              <template #default="{ row }">
-                <el-select style="width:80px" v-model="row.hrid" :placeholder="t('无')" clearable>
-                  <el-option v-for="item in getSpecialEquipmentListOf(row.type)" :key="item.hrid" :label="item.name" :value="item.hrid">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                      <ItemIcon :hrid="item.hrid" />
-                      <div> {{ item.name }} </div>
-                    </div>
-                  </el-option>
-                  <template #label>
-                    <ItemIcon style="margin-top: 4px;" :hrid="row.hrid" />
-                  </template>
-                </el-select>
-                &nbsp;+&nbsp;
-                <el-input-number v-model="row.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" />
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-card>
-
-        <el-card class="mt-5">
-          <template #header>
-            <div style="line-height: 32px;">
-              {{ t('社区Buff') }}
-            </div>
-          </template>
-          <el-table :data="communityBuffList.filter(item => communityBuffs ? communityBuffs.includes(item.type) : true)">
-            <el-table-column prop="type" :label="t('Buff')" width="194">
-              <template #default="{ row }">
-                <div class="community-buff">
-                  <ItemIcon :hrid="getCommunityBuffDetailOf(row.hrid).buff.typeHrid" :width="22" :height="22" />
-                  <!-- <div v-if="row.level > 0" class="community-level">
-                    Lv.{{ row.level }}
-                  </div> -->
+        <el-row :gutter="20">
+          <el-col :xs="24" :sm="24" :md="14" :lg="12" :xl="24">
+            <el-card class="mt-5">
+              <template #header>
+                <div style="line-height: 32px;">
+                  {{ t('其他') }}
                 </div>
               </template>
-            </el-table-column>
-            <el-table-column :label="t('等级')">
-              <template #default="{ row }">
-                <el-input-number v-model="row.level" :min="0" :max="20" style="width: 60px" :controls="false" />
+              <el-table :data="specialList.filter(item => equipments ? equipments.includes(item.type) : true)">
+                <el-table-column prop="type" :label="t('部位')" width="120">
+                  <template #default="{ row }">
+                    {{ t(row.type.replace(/_/g, ' ').replace(/\b\w+\b/g, (word:any) => word.substring(0, 1).toUpperCase() + word.substring(1))) }}
+                  </template>
+                </el-table-column>
+                <el-table-column :label="t('装备')">
+                  <template #default="{ row }">
+                    <el-select style="width:80px" v-model="row.hrid" :placeholder="t('无')" clearable>
+                      <el-option v-for="item in getSpecialEquipmentListOf(row.type)" :key="item.hrid" :label="item.name" :value="item.hrid">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                          <ItemIcon :hrid="item.hrid" />
+                          <div> {{ item.name }} </div>
+                        </div>
+                      </el-option>
+                      <template #label>
+                        <ItemIcon style="margin-top: 4px;" :hrid="row.hrid" />
+                      </template>
+                    </el-select>
+                    &nbsp;+&nbsp;
+                    <el-input-number v-model="row.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" />
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-card>
+          </el-col>
+          <el-col :xs="24" :sm="24" :md="10" :lg="12" :xl="24">
+            <el-card class="mt-5">
+              <template #header>
+                <div style="line-height: 32px;">
+                  {{ t('社区Buff') }}
+                </div>
               </template>
-            </el-table-column>
-          </el-table>
-        </el-card>
+              <el-table :data="communityBuffList.filter(item => communityBuffs ? communityBuffs.includes(item.type) : true)">
+                <el-table-column prop="type" :label="t('Buff')" width="120">
+                  <template #default="{ row }">
+                    <div class="community-buff">
+                      <ItemIcon :hrid="getCommunityBuffDetailOf(row.hrid).buff.typeHrid" :width="22" :height="22" />
+                      <!-- <div v-if="row.level > 0" class="community-level">
+                    Lv.{{ row.level }}
+                  </div> -->
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column :label="t('等级')">
+                  <template #default="{ row }">
+                    <el-input-number v-model="row.level" :min="0" :max="20" style="width: 60px" :controls="false" />
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-card>
+          </el-col>
+        </el-row>
       </el-col>
     </el-row>
 
