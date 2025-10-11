@@ -1,4 +1,4 @@
-import type { ACTION_LIST, EQUIPMENT_LIST } from "@/pinia/stores/game"
+import type { ACTION_LIST, COMMUNITY_BUFF_LIST, EQUIPMENT_LIST } from "@/pinia/stores/game"
 
 interface PROP_TODO {
   [key: string]: any
@@ -14,6 +14,7 @@ export interface GameData {
   openableLootDropMap: Record<string, DropTableItem[]>
   enhancementLevelSuccessRateTable: number[]
   enhancementLevelTotalBonusMultiplierTable: number[]
+  communityBuffTypeDetailMap: Record<string, CommunityBuffDetail>
 }
 export interface ShopItemDetail {
   hrid: string
@@ -75,6 +76,13 @@ export interface DropTableItem {
   minEliteTier?: number
 }
 
+export interface CommunityBuffDetail {
+  hrid: string
+  name: string
+  usableInActionTypeMap: Record<ActionType, boolean>
+  buff: Buff
+}
+
 export interface ConsumableDetail {
   cooldownDuration: number
   usableInActionTypeMap: Record<ActionType, boolean>
@@ -99,6 +107,8 @@ type Action = typeof ACTION_LIST[number]
 type ActionType = `/action_types/${Action}`
 type Equipment = typeof EQUIPMENT_LIST[number] | `${Action}_tool`
 type EquipmentType = `/equipment_types/${Equipment}`
+type CommunityBuff = typeof COMMUNITY_BUFF_LIST[number]
+type CommunityBuffType = `/community_buff_types/${CommunityBuff}`
 // #endregion
 
 // #region Alchemy

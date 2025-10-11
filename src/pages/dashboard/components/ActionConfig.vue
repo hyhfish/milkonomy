@@ -1,23 +1,26 @@
 <script setup lang="ts">
-import type { ActionConfig, ActionConfigItem, PlayerEquipmentItem } from "@/pinia/stores/player"
-import type { Action, Equipment } from "~/game"
+import type { ActionConfig, ActionConfigItem, CommunityBuffItem, PlayerEquipmentItem } from "@/pinia/stores/player"
+import type { Action, CommunityBuff, Equipment } from "~/game"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { Plus } from "@element-plus/icons-vue"
 import { ElMessageBox } from "element-plus"
+import { getCommunityBuffDetailOf } from "@/common/apis/game"
 import { getEquipmentListOf, getSpecialEquipmentListOf, getTeaListOf, getToolListOf, setActionConfigApi } from "@/common/apis/player"
 import { useTheme } from "@/common/composables/useTheme"
-import { DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
+import { DEFAULT_COMMUNITY_BUFF_LIST, DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
 import { ACTION_LIST } from "@/pinia/stores/game"
 import { defaultActionConfig, usePlayerStore } from "@/pinia/stores/player"
 
 defineProps<{
   actions?: Action[]
   equipments?: Equipment[]
+  communityBuffs?: CommunityBuff[]
 }>()
 const playerStore = usePlayerStore()
 const visible = ref(false)
 const actionList = ref<ActionConfigItem[]>([])
 const specialList = ref<PlayerEquipmentItem[]>([])
+const communityBuffList = ref<CommunityBuffItem[]>([])
 const name = ref("")
 const color = ref("")
 const currentIndex = ref(0)
@@ -41,6 +44,12 @@ function onDialog(config: ActionConfig, index: number) {
   specialList.value = structuredClone(DEFAULT_SEPCIAL_EQUIPMENT_LIST.map((item) => {
     return {
       ...toRaw(config.specialEquimentMap.get(item.type) ?? defaultConfig.specialEquimentMap.get(item.type)!)
+    }
+  }))
+
+  communityBuffList.value = structuredClone(DEFAULT_COMMUNITY_BUFF_LIST.map((buff) => {
+    return {
+      ...toRaw(config.communityBuffMap.get(buff.type) ?? defaultConfig.communityBuffMap.get(buff.type)!)
     }
   }))
 
@@ -68,6 +77,7 @@ function constructActionConfig() {
   const config = {
     actionConfigMap: new Map<Action, ActionConfigItem>(),
     specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(),
+    communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(),
     name: name.value,
     color: color.value
   }
@@ -79,6 +89,11 @@ function constructActionConfig() {
   for (const item of specialList.value) {
     config.specialEquimentMap.set(item.type, toRaw(item))
   }
+
+  for (const item of communityBuffList.value) {
+    config.communityBuffMap.set(item.type, toRaw(item))
+  }
+
   return config
 }
 
@@ -161,7 +176,8 @@ function onImport() {
         name: obj.name,
         color: obj.color,
         actionConfigMap: new Map<Action, ActionConfigItem>(Object.entries(obj.actionConfigMap) as [Action, ActionConfigItem][]),
-        specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(Object.entries(obj.specialEquimentMap) as [Equipment, PlayerEquipmentItem][])
+        specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(Object.entries(obj.specialEquimentMap) as [Equipment, PlayerEquipmentItem][]),
+        communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(Object.entries(obj.communityBuffMap) as [CommunityBuff, CommunityBuffItem][])
       }
       onDialog(config, playerStore.presets.length)
     } catch (e) {
@@ -180,7 +196,8 @@ function onExport() {
     name: config.name,
     color: config.color,
     actionConfigMap: Object.fromEntries(config.actionConfigMap.entries()),
-    specialEquimentMap: Object.fromEntries(config.specialEquimentMap.entries())
+    specialEquimentMap: Object.fromEntries(config.specialEquimentMap.entries()),
+    communityBuffMap: Object.fromEntries(config.communityBuffMap.entries())
   })
   navigator.clipboard.writeText(json).then(() => {
     ElMessage.success(t("已复制到剪贴板"))
@@ -199,27 +216,37 @@ function onExport() {
       删除
     </li>
   </ul>
+  <div class="flex items-center">
+    <div class="flex items-center  p-1 pl-2 pr-2" style="border:1px solid var(--el-border-color);border-radius: 4px;">
+      <div>{{ t('预设') }}:</div>
+      <!-- 长按打开右键菜单 -->
+      <el-button
+        v-for="(preset, index) in playerStore.presets"
+        class="ml-1 w-32px"
+        :plain="playerStore.presetIndex !== index"
+        color="#16ab1b"
+        :dark="activeThemeName.includes('dark')"
+        :key="index"
+        @click="onSelect(preset, index)"
+        @contextmenu.prevent="openMenu(preset, index, $event)"
+      >
+        {{ preset.name?.substring(0, 1) }}
+      </el-button>
+      <el-button
+        v-if="!playerStore.isOverflow()"
+        class="ml-1 w-24px" size="small" :icon="Plus" plain
+        @click="onAdd"
+      />
+    </div>
 
-  <div class="flex items-center  p-1 pl-2 pr-2" style="border:1px solid var(--el-border-color);border-radius: 4px;">
-    <div>{{ t('预设') }}:</div>
-    <!-- 长按打开右键菜单 -->
-    <el-button
-      v-for="(preset, index) in playerStore.presets"
-      class="ml-1 w-32px"
-      :plain="playerStore.presetIndex !== index"
-      color="#16ab1b"
-      :dark="activeThemeName.includes('dark')"
-      :key="index"
-      @click="onSelect(preset, index)"
-      @contextmenu.prevent="openMenu(preset, index, $event)"
-    >
-      {{ preset.name?.substring(0, 1) }}
-    </el-button>
-    <el-button
-      v-if="!playerStore.isOverflow()"
-      class="ml-1 w-24px" size="small" :icon="Plus" plain
-      @click="onAdd"
-    />
+    <template v-for="[key, communityBuff] in playerStore.config.communityBuffMap.entries()" :key="key">
+      <div v-if="communityBuff.level" class="community-buff ml-2">
+        <ItemIcon :hrid="getCommunityBuffDetailOf(communityBuff.hrid!).buff.typeHrid" :width="22" :height="22" />
+        <div v-if="communityBuff.level" class="community-level">
+          Lv.{{ communityBuff.level }}
+        </div>
+      </div>
+    </template>
   </div>
   <el-dialog v-model="visible" :show-close="false" width="80%">
     <el-row :gutter="20">
@@ -390,6 +417,31 @@ function onExport() {
             </el-table-column>
           </el-table>
         </el-card>
+
+        <el-card class="mt-5">
+          <template #header>
+            <div style="line-height: 32px;">
+              {{ t('社区Buff') }}
+            </div>
+          </template>
+          <el-table :data="communityBuffList.filter(item => communityBuffs ? communityBuffs.includes(item.type) : true)">
+            <el-table-column prop="type" :label="t('Buff')" width="194">
+              <template #default="{ row }">
+                <div class="community-buff">
+                  <ItemIcon :hrid="getCommunityBuffDetailOf(row.hrid).buff.typeHrid" :width="22" :height="22" />
+                  <!-- <div v-if="row.level > 0" class="community-level">
+                    Lv.{{ row.level }}
+                  </div> -->
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column :label="t('等级')">
+              <template #default="{ row }">
+                <el-input-number v-model="row.level" :min="0" :max="20" style="width: 60px" :controls="false" />
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
       </el-col>
     </el-row>
 
@@ -463,5 +515,26 @@ function onExport() {
       background-color: var(--v3-tagsview-contextmenu-hover-bg-color);
     }
   }
+}
+.community-buff {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border: 2px solid #2fc4a7;
+  border-radius: 4px;
+  padding: 6px;
+  font-size: 11px;
+  line-height: 11px;
+}
+.community-level {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  text-align: right;
+  text-shadow:
+    -1px 0 #131419,
+    0 1px #131419,
+    1px 0 #131419,
+    0 -1px #131419;
 }
 </style>

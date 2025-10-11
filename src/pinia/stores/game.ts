@@ -44,6 +44,13 @@ export const EQUIPMENT_LIST = [
   "charm"
 ] as const
 
+export const COMMUNITY_BUFF_LIST = [
+  "experience",
+  "gathering_quantity",
+  "production_efficiency",
+  "enhancing_speed"
+]
+
 const DEFAULT_HOUSE = {
   Efficiency: 0.015,
   Experience: 0.0005,

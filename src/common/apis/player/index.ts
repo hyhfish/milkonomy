@@ -1,11 +1,11 @@
 import type Calculator from "@/calculator"
 import type { ActionConfig, PlayerEquipmentItem } from "@/pinia/stores/player"
-import type { Action, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
+import type { Action, CommunityBuff, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
 import { DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
-import { getEquipmentTypeOf } from "@/common/utils/game"
-import { ACTION_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStoreOutside } from "@/pinia/stores/game"
+import { getEquipmentTypeOf, getKeyOf } from "@/common/utils/game"
+import { ACTION_LIST, COMMUNITY_BUFF_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStoreOutside } from "@/pinia/stores/game"
 import { usePlayerStoreOutside } from "@/pinia/stores/player"
-import { getGameDataApi, getItemDetailOf, getPriceOf } from "../game"
+import { getCommunityBuffDetailOf, getGameDataApi, getItemDetailOf, getPriceOf } from "../game"
 
 /** 改 */
 export function setActionConfigApi(config: ActionConfig, index: number) {
@@ -144,6 +144,15 @@ export function getSpecialEquipmentOf(type: Equipment) {
   return playerConfig.specialEquimentMap.get(type) ?? defaultPlayerConfig.specialEquimentMap.get(type)!
 }
 
+/**
+ * 获取用户设置的社区buff
+ * @param type
+ */
+
+export function getCommunityBuffOf(type: CommunityBuff) {
+  return playerConfig.communityBuffMap.get(type) ?? defaultPlayerConfig.communityBuffMap.get(type)!
+}
+
 // #endregion
 
 // #region 茶
@@ -174,6 +183,30 @@ function initBuffMap() {
         const bonus = item.equipmentDetail?.noncombatEnhancementBonuses[key as NoncombatStatsProp]
         buffs[key as NoncombatStatsProp] = (buffs[key as NoncombatStatsProp] || 0) + value + ((bonus || 0) * (enhanceMultiplier[eq.enhanceLevel || 0]))
       })
+    }
+  }
+
+  // 社区buff
+  for (const communityBuff of COMMUNITY_BUFF_LIST) {
+    const cb = getCommunityBuffOf(communityBuff)
+    if (cb && cb.hrid && cb.level) {
+      const detail = getCommunityBuffDetailOf(cb.hrid!)
+      const buff = detail.buff
+      for (const actionType in detail.usableInActionTypeMap) {
+        const action = getKeyOf(actionType) as Action
+        if (buff.typeHrid === "/buff_types/action_speed") {
+          buffs[`${action}Speed`] = (buffs[`${action}Speed`] || 0) + (buff.flatBoost + buff.flatBoostLevelBonus * (cb.level - 1))
+        }
+        if (buff.typeHrid === "/buff_types/wisdom") {
+          buffs[`${action}Experience`] = (buffs[`${action}Experience`] || 0) + (buff.flatBoost + buff.flatBoostLevelBonus * (cb.level - 1))
+        }
+        if (buff.typeHrid === "/buff_types/gathering") {
+          buffs[`${action}Gathering`] = (buffs[`${action}Gathering`] || 0) + (buff.flatBoost + buff.flatBoostLevelBonus * (cb.level - 1))
+        }
+        if (buff.typeHrid === "/buff_types/efficiency") {
+          buffs[`${action}Efficiency`] = (buffs[`${action}Efficiency`] || 0) + (buff.flatBoost + buff.flatBoostLevelBonus * (cb.level - 1))
+        }
+      }
     }
   }
 

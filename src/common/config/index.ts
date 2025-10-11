@@ -1,4 +1,4 @@
-import type { PlayerEquipmentItem } from "@/pinia/stores/player"
+import type { CommunityBuffItem, PlayerEquipmentItem } from "@/pinia/stores/player"
 import type { Action } from "~/game"
 
 export const DEFAULT_SEPCIAL_EQUIPMENT_LIST: PlayerEquipmentItem[] = [
@@ -24,3 +24,10 @@ export const DEFAULT_TEA: Record<Action, string[]> = Object.freeze({
   alchemy: ["/items/wisdom_tea", "/items/efficiency_tea", "/items/catalytic_tea"],
   enhancing: ["/items/wisdom_tea", "/items/blessed_tea", "/items/super_enhancing_tea"]
 })
+
+export const DEFAULT_COMMUNITY_BUFF_LIST: CommunityBuffItem[] = [
+  { type: "experience", hrid: "/community_buff_types/experience", level: undefined },
+  { type: "gathering_quantity", hrid: "/community_buff_types/gathering_quantity", level: undefined },
+  { type: "production_efficiency", hrid: "/community_buff_types/production_efficiency", level: undefined },
+  { type: "enhancing_speed", hrid: "/community_buff_types/enhancing_speed", level: undefined }
+]

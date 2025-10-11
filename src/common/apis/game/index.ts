@@ -1,5 +1,5 @@
 import type { EnhancelateResult } from "@/calculator/enhance"
-import type { ActionDetail, DropTableItem, GameData, ItemDetail } from "~/game"
+import type { ActionDetail, CommunityBuffDetail, DropTableItem, GameData, ItemDetail } from "~/game"
 import type { MarketData, MarketItemPrice } from "~/market"
 import deepFreeze from "deep-freeze-strict"
 import { COIN_HRID, PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
@@ -11,6 +11,7 @@ const game = {
 }
 let _actionDetailMapCache: Record<string, ActionDetail> = {}
 const _itemDetailMapCache: Record<string, ItemDetail> = {}
+const _communityBuffTypeDetailMapCache: Record<string, CommunityBuffDetail> = {}
 
 let _processingProductMap: Record<string, string> = {}
 let _priceCache = {} as Record<string, MarketItemPrice>
@@ -209,6 +210,15 @@ export function getActionDetailOf(key: string) {
   if (!result) {
     result = getGameDataApi().actionDetailMap[key]
     result && (_actionDetailMapCache[key] = result)
+  }
+  return result
+}
+
+export function getCommunityBuffDetailOf(hrid: string) {
+  let result = _communityBuffTypeDetailMapCache[hrid]
+  if (!result) {
+    result = getGameDataApi().communityBuffTypeDetailMap[hrid]
+    result && (_communityBuffTypeDetailMapCache[hrid] = result)
   }
   return result
 }
