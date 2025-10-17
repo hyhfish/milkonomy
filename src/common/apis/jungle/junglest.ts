@@ -36,9 +36,9 @@ function calcEnhanceProfit() {
   const list = Object.values(gameData.itemDetailMap)
   const profitList: EnhanceCalculator[] = []
 
-  const escapeLevels = [0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-  const originLevels = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-  const targetLevels = [7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+  const escapeLevels = [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+  const originLevels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+  const targetLevels = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 
   // const escapeLevels = Array.from({ length: 20 }, (_, i) => i)
   // const originLevels = Array.from({ length: 20 }, (_, i) => i)
