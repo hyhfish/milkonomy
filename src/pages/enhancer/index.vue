@@ -10,7 +10,7 @@ import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getEquipmentList } from "@/common/apis/player"
 import { useEnhancerStore } from "@/pinia/stores/enhancer"
-import { COIN_HRID } from "@/pinia/stores/game"
+import { COIN_HRID, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import GameInfo from "../dashboard/components/GameInfo.vue"
@@ -176,7 +176,6 @@ const results = computed(() => {
       : getPriceOf(currentItem.value.hrid, enhanceLevel).bid
 
     const hourlyCost = (productPrice * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
-
     const profitPP = productPrice * 0.98 - totalCostNoHourly
 
     const seconds = actions / calc.actionsPH * 3600
@@ -195,7 +194,8 @@ const results = computed(() => {
       matCostPH: `${Format.money(matCost / seconds * 3600)} / h`,
       hourlyCost,
       hourlyCostFormatted: Format.money(hourlyCost),
-      profitPPFormatted: Format.money(profitPP)
+      profitPPFormatted: Format.money(profitPP),
+      profitRateFormatted: Format.percent(profitPP / totalCostNoHourly)
     })
   }
   return result
@@ -618,6 +618,7 @@ watch(menuVisible, (value) => {
         <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
         <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" />
         <el-table-column prop="matCostPH" :label="t('材料消耗速率')" :min-width="120" header-align="center" align="right" />
+        <el-table-column v-if="enhancerStore.config.tab === '1' && useGameStore().checkSecret()" prop="profitRateFormatted" :label="t('利润率')" :min-width="100" header-align="center" align="right" />
         <el-table-column v-if="enhancerStore.config.tab === '1' " prop="profitPPFormatted" :label="t('单个利润')" :min-width="100" header-align="center" align="right" />
         <el-table-column v-if="enhancerStore.config.tab === '1' " prop="hourlyCostFormatted" :label="t('工时费')" :min-width="100" header-align="center" align="right" />
         <el-table-column v-else prop="totalCostFormatted" :label="t('总费用')" :min-width="120" header-align="center" align="right" />
