@@ -250,7 +250,8 @@ export const useGameStore = defineStore("game", {
       saveSecret(value)
     },
     checkSecret() {
-      return import.meta.env.VITE_BUILD_MODE === "private"
+      return true
+      // return import.meta.env.VITE_BUILD_MODE === "private"
     },
 
     clearAllCaches() {
