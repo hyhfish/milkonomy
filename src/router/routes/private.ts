@@ -27,23 +27,23 @@ export const privateRoutes: RouteRecordRaw[] = [
       }
     ]
   },
-  {
-    path: "/",
-    component: Layouts,
-    redirect: "/enhanposer",
-    children: [
-      {
-        path: "enhanposest",
-        component: () => import("@/pages/enhanposer/enhanposest.vue"),
-        name: "Enhanposest",
-        meta: {
-          title: t("超级强化分解"),
-          affix: false,
-          svgIcon: "dashboard"
-        }
-      }
-    ]
-  },
+  // {
+  //   path: "/",
+  //   component: Layouts,
+  //   redirect: "/enhanposer",
+  //   children: [
+  //     {
+  //       path: "enhanposest",
+  //       component: () => import("@/pages/enhanposer/enhanposest.vue"),
+  //       name: "Enhanposest",
+  //       meta: {
+  //         title: t("超级强化分解"),
+  //         affix: false,
+  //         svgIcon: "dashboard"
+  //       }
+  //     }
+  //   ]
+  // },
   {
     path: "/",
     component: Layouts,
