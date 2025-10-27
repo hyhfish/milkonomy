@@ -117,9 +117,10 @@ function setPrice(row: Calculator) {
 
 const { t } = useI18n()
 
-usePriceStatus("pickout-price-status", {
+const onPriceStatusChange = usePriceStatus("pickout-price-status", {
   sellStatus: PriceStatus.ASK
 })
+console.log(onPriceStatusChange)
 </script>
 
 <template>
