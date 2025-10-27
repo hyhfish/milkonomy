@@ -26,8 +26,8 @@ const ldSearchData = useMemory("enhanposest-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: "",
-  maxLevel: "",
-  minLevel: "",
+  maxLevel: 20,
+  minLevel: 1,
   banEquipment: false
 })
 

@@ -125,7 +125,7 @@ export const privateRoutes: RouteRecordRaw[] = [
         component: () => import("@/pages/manualchemy/index.vue"),
         name: "Manualchemy",
         meta: {
-          title: "制作炼金",
+          title: t("制作炼金"),
           svgIcon: "dashboard"
         }
       }

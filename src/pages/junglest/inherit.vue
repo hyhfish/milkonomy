@@ -29,8 +29,8 @@ const ldSearchData = useMemory("junglerit-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: "",
-  maxLevel: "",
-  minLevel: "",
+  maxLevel: 20,
+  minLevel: 1,
   banEquipment: false
 })
 
@@ -148,7 +148,7 @@ const onPriceStatusChange = usePriceStatus("junglerit-price-status")
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
 
-              <el-form-item :label="t('风险 <=')">
+              <el-form-item :label="`${t('风险')} ≤`">
                 <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
               <el-form-item>

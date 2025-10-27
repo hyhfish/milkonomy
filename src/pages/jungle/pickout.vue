@@ -8,9 +8,8 @@ import { cloneDeep, debounce } from "lodash-es"
 
 import { getDataApi } from "@/common/apis/jungle"
 import { useMemory } from "@/common/composables/useMemory"
-import { usePriceStatus } from "@/common/composables/usePriceStatus"
 import * as Format from "@/common/utils/format"
-import { PriceStatus, useGameStore } from "@/pinia/stores/game"
+import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { usePriceStore } from "@/pinia/stores/price"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
@@ -18,7 +17,6 @@ import ActionDetail from "../dashboard/components/ActionDetail.vue"
 import ActionPrice from "../dashboard/components/ActionPrice.vue"
 import GameInfo from "../dashboard/components/GameInfo.vue"
 import ManualPriceCard from "../dashboard/components/ManualPriceCard.vue"
-import PriceStatusSelect from "../dashboard/components/PriceStatusSelect.vue"
 
 // #region 查
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "pickout-leaderboard-pagination")
@@ -30,7 +28,7 @@ const ldSearchData = useMemory("pickout-leaderboard-search-data", {
   project: "",
   profitRate: "",
   maxLevel: 20,
-  minLevel: "",
+  minLevel: 1,
   minItemLevel: 90,
   banEquipment: false,
   banJewelry: true,
@@ -118,9 +116,9 @@ function setPrice(row: Calculator) {
 
 const { t } = useI18n()
 
-const onPriceStatusChange = usePriceStatus("pickout-price-status", {
-  sellStatus: PriceStatus.ASK
-})
+// const onPriceStatusChange = usePriceStatus("pickout-price-status", {
+//   sellStatus: PriceStatus.ASK
+// })
 </script>
 
 <template>
@@ -130,9 +128,9 @@ const onPriceStatusChange = usePriceStatus("pickout-price-status", {
       <div>
         <ActionConfig :actions="['enhancing', 'cheesesmithing', 'crafting', 'tailoring']" :equipments="['off_hand', 'hands', 'neck', 'earrings', 'ring', 'pouch']" />
       </div>
-      <PriceStatusSelect
+      <!-- <PriceStatusSelect
         @change="onPriceStatusChange"
-      />
+      /> -->
       <div>
         {{ t('打野爽！') }}
       </div>
@@ -154,7 +152,7 @@ const onPriceStatusChange = usePriceStatus("pickout-price-status", {
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
 
-              <el-form-item :label="t('物品等级 ≥')">
+              <el-form-item :label="`${t('物品等级')} ≥`">
                 <el-input-number style="width:80px" v-model="ldSearchData.minItemLevel" placeholder="0" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
 

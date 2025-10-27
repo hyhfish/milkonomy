@@ -29,8 +29,8 @@ const ldSearchData = useMemory("jungle-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: "",
-  maxLevel: "",
-  minLevel: "",
+  maxLevel: 20,
+  minLevel: 1,
   banEquipment: false,
   bestManufacture: false
 })
@@ -147,15 +147,15 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
 
-              <el-form-item :label="t('售价 ≥')">
+              <el-form-item :label="`${t('售价')} ≥`">
                 <el-input-number style="width:80px" v-model="ldSearchData.minSellPrice" placeholder="0" clearable @change="handleSearchLD" :controls="false" />&nbsp;M
               </el-form-item>
 
-              <el-form-item :label="t('物品等级 ≥')">
+              <el-form-item :label="`${t('物品等级')} ≥`">
                 <el-input-number style="width:80px" v-model="ldSearchData.minItemLevel" placeholder="0" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
 
-              <el-form-item :label="t('风险 <=')">
+              <el-form-item :label="`${t('风险')} ≤`">
                 <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
 
@@ -215,7 +215,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                     <div>{{ t('风险系数') }}</div>
                     <el-tooltip placement="top" effect="light">
                       <template #content>
-                        {{ t('损耗 / 利润') }}
+                        {{ t('损耗 ÷ 利润') }}
                       </template>
                       <el-icon>
                         <Warning />
@@ -235,7 +235,7 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column align="center" label="利润率">
+              <el-table-column align="center" :label="t('利润率')">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitRateFormat }}&nbsp;

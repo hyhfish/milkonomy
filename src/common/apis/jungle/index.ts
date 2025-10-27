@@ -106,7 +106,7 @@ async function calcEnhanceProfit() {
             const c = new WorkflowCalculator([
               getStorageCalculatorItem(manual),
               getStorageCalculatorItem(enhancer)
-            ], `${project}${getTrans("强化")}+${enhanceLevel}`)
+            ], `${project} → ${getTrans("强化")}+${enhanceLevel}`)
 
             c.run()
 
@@ -139,7 +139,7 @@ async function calcEnhanceProfit() {
 
               const cStep = new WorkflowCalculator(
                 stepItems,
-                `${stepCount}步${project}${getTrans("强化")}+${enhanceLevel}`
+                `${stepCount}${getTrans("步")}${project} → ${getTrans("强化")}+${enhanceLevel}`
               )
               cStep.run()
               multiStepWorkflows.push(cStep)

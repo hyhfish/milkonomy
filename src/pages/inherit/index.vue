@@ -30,8 +30,8 @@ const ldSearchData = useMemory("inherit-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: "",
-  maxLevel: "",
-  minLevel: "",
+  maxLevel: 20,
+  minLevel: 1,
   banEquipment: false,
   bestManufacture: false
 })

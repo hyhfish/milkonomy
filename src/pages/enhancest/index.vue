@@ -413,7 +413,6 @@ watch(menuVisible, (value) => {
                 <ItemIcon :hrid="row.hrid" />
               </template>
             </el-table-column>
-            <el-table-column prop="count" />
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
                 <el-input-number class="max-w-100%" v-model="row.price" :placeholder="Format.number(currentItemOriginPrice)" :controls="false" />
@@ -427,7 +426,6 @@ watch(menuVisible, (value) => {
                 {{ t('初始等级') }}:
               </template>
             </el-table-column>
-            <el-table-column />
             <el-table-column min-width="120" align="center">
               <template #default>
                 <el-input-number
@@ -445,10 +443,21 @@ watch(menuVisible, (value) => {
           <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default>
-                {{ t('逃逸等级') }}:
+                <el-tooltip placement="top" effect="light">
+                  <template #content>
+                    {{ t('#逃逸等级提示') }}
+                  </template>
+                  <div class="flex items-center">
+                    <el-icon>
+                      <Warning />
+                    </el-icon>
+                    <div class="w-200px">
+                      {{ t('逃逸等级') }}:
+                    </div>
+                  </div>
+                </el-tooltip>
               </template>
             </el-table-column>
-            <el-table-column />
             <el-table-column min-width="120" align="center">
               <template #default>
                 <el-input-number
@@ -466,10 +475,21 @@ watch(menuVisible, (value) => {
           <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default>
-                {{ t('逃逸价格') }}:
+                <el-tooltip placement="top" effect="light">
+                  <template #content>
+                    {{ t('#逃逸价格提示') }}
+                  </template>
+                  <div class="flex items-center">
+                    <el-icon>
+                      <Warning />
+                    </el-icon>
+                    <div class="w-200px">
+                      {{ t('逃逸价格') }}:
+                    </div>
+                  </div>
+                </el-tooltip>
               </template>
             </el-table-column>
-            <el-table-column />
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
                 <el-input-number class="max-w-100%" v-model="row.escapePrice" :placeholder="Format.number(currentItemEscapePrice)" :controls="false" />
@@ -480,10 +500,21 @@ watch(menuVisible, (value) => {
           <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default>
-                {{ t('白板价格') }}:
+                <el-tooltip placement="top" effect="light">
+                  <template #content>
+                    {{ t('#白板价格提示') }}
+                  </template>
+                  <div class="flex items-center">
+                    <el-icon>
+                      <Warning />
+                    </el-icon>
+                    <div class="w-200px">
+                      {{ t('白板价格') }}:
+                    </div>
+                  </div>
+                </el-tooltip>
               </template>
             </el-table-column>
-            <el-table-column />
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
                 <el-input-number class="max-w-100%" v-model="row.whitePrice" :placeholder="Format.number(currentItemWhitePrice)" :controls="false" />
@@ -562,7 +593,7 @@ watch(menuVisible, (value) => {
 
         <el-card class="mt-2">
           <el-tabs v-model="enhancerStore.advancedConfig.tab" type="border-card" stretch>
-            <el-tab-pane label="工时费">
+            <el-tab-pane :label="t('工时费')">
               <div class="flex justify-between items-center">
                 <div class="font-size-14px">
                   {{ t('工时费/h') }}
@@ -673,7 +704,7 @@ watch(menuVisible, (value) => {
                 </el-tag>
               </div>
               <div class="flex justify-between items-center">
-                <div class="font-size-14px">
+                <div class="font-size-14px w-100px">
                   {{ t('分解税后收益') }}
                 </div>
 
@@ -785,15 +816,32 @@ watch(menuVisible, (value) => {
         <el-table-column prop="protectsFormatted" :label="t('保护')" :min-width="columnWidths.protectsFormatted" header-align="center" align="right" />
         <!-- <el-table-column prop="matCost" :label="t('材料费用')" :min-width="100" header-align="center" align="right" /> -->
         <el-table-column prop="matCostPH" :label="t('材料损耗')" :min-width="120" header-align="center" align="right" />
-        <el-table-column prop="fallingRatePH" :label="t('逃逸损耗')" :min-width="120" header-align="center" align="right" />
+        <el-table-column prop="fallingRatePH" :label="t('逃逸损耗')" :min-width="120" header-align="center" align="right">
+          <template #header>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
+              <div>{{ t('逃逸损耗') }}</div>
+              <el-tooltip placement="top" effect="light">
+                <template #content>
+                  {{ t('#逃逸损耗提示') }}
+                </template>
+                <el-icon>
+                  <Warning />
+                </el-icon>
+              </el-tooltip>
+            </div>
+          </template>
+          <template #default="{ row }">
+            {{ row.fallingRatePH }}
+          </template>
+        </el-table-column>
         <template v-if="enhancerStore.advancedConfig.tab !== '0'">
-          <el-table-column prop="profitPPFormatted" :label="t('利润/件')" :min-width="100" header-align="center" align="right">
+          <el-table-column prop="profitPPFormatted" :label="t('利润 / 件')" :min-width="100" header-align="center" align="right">
             <template #header>
               <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
-                <div>{{ t('利润/件') }}</div>
+                <div>{{ t('利润 / 件') }}</div>
                 <el-tooltip placement="top" effect="light">
                   <template #content>
-                    每买一件初始装备的平均利润
+                    {{ t('#超级强化利润/件提示') }}
                   </template>
                   <el-icon>
                     <Warning />

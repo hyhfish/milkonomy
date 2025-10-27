@@ -29,8 +29,8 @@ const ldSearchData = useMemory("junglest-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: "",
-  maxLevel: "",
-  minLevel: "",
+  maxLevel: 20,
+  minLevel: 1,
   banEquipment: false,
   bestManufacture: false
 })
@@ -144,7 +144,7 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
 
-              <el-form-item :label="t('风险 <=')">
+              <el-form-item :label="`${t('风险')} ≤`">
                 <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
             </el-form>
@@ -223,7 +223,7 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                     <div>{{ t('风险系数') }}</div>
                     <el-tooltip placement="top" effect="light">
                       <template #content>
-                        {{ t('损耗 / 利润') }}
+                        {{ t('损耗 ÷ 利润') }}
                       </template>
                       <el-icon>
                         <Warning />
@@ -286,7 +286,7 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                     <div>{{ t('成功率') }}</div>
                     <el-tooltip placement="top" effect="light">
                       <template #content>
-                        单件装备的成功率
+                        {{ t('单件装备成功率') }}
                       </template>
                       <el-icon>
                         <Warning />

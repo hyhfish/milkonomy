@@ -3,6 +3,7 @@ import * as Format from "@@/utils/format"
 import * as math from "mathjs"
 import { getEnhancelateCache, getEnhancementExp, getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getPriceOf, setEnhancelateCache } from "@/common/apis/game"
 import { getBuffOf, getEnhanceSuccessRatio, getTeaIngredientList } from "@/common/apis/player"
+import { getTrans } from "@/locales"
 import Calculator from "."
 import { DecomposeCalculator } from "./alchemy"
 
@@ -32,7 +33,7 @@ export class EnhanceCalculator extends Calculator {
   escapeLevel: number
   protectionItem: IngredientWithPrice
   constructor(config: EnhanceCalculatorConfig) {
-    super({ project: `强化+${config.enhanceLevel}`, action: "enhancing", ...config })
+    super({ project: `${getTrans("强化")}+${config.enhanceLevel}`, action: "enhancing", ...config })
     this.enhanceLevel = config.enhanceLevel!
     this.protectLevel = config.protectLevel
     this.originLevel = config.originLevel ?? 0
