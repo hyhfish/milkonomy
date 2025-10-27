@@ -8,8 +8,9 @@ import { cloneDeep, debounce } from "lodash-es"
 
 import { getDataApi } from "@/common/apis/jungle"
 import { useMemory } from "@/common/composables/useMemory"
+import { usePriceStatus } from "@/common/composables/usePriceStatus"
 import * as Format from "@/common/utils/format"
-import { useGameStore } from "@/pinia/stores/game"
+import { PriceStatus, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import { usePriceStore } from "@/pinia/stores/price"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
@@ -116,9 +117,9 @@ function setPrice(row: Calculator) {
 
 const { t } = useI18n()
 
-// const onPriceStatusChange = usePriceStatus("pickout-price-status", {
-//   sellStatus: PriceStatus.ASK
-// })
+usePriceStatus("pickout-price-status", {
+  sellStatus: PriceStatus.ASK
+})
 </script>
 
 <template>
