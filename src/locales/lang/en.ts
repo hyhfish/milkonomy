@@ -305,5 +305,4 @@ export default {
   "您已经为此人上过香了": "You have already offered incense for this person",
   "您今天已经上过香了": "You have already offered incense today",
   "上香规则：每天可以上香一次，可选择为任意一位玩家上香": "Incense Rule: You can offer incense once per day for any player of your choice"
-
 }

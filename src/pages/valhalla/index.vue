@@ -282,6 +282,47 @@ function loadData() {
 // 页面加载时获取数据
 loadData()
 
+// 背景音乐
+const audioRef = ref<HTMLAudioElement | null>(null)
+const isPlaying = ref(false)
+
+// 播放背景音乐
+onMounted(() => {
+  if (audioRef.value) {
+    audioRef.value.play().then(() => {
+      isPlaying.value = true
+    }).catch((e) => {
+      console.log("音频自动播放被浏览器阻止:", e)
+      isPlaying.value = false
+    })
+  }
+})
+
+// 页面卸载时停止音乐
+onUnmounted(() => {
+  if (audioRef.value) {
+    audioRef.value.pause()
+    audioRef.value.currentTime = 0
+  }
+})
+
+// 切换音乐播放状态
+function toggleMusic() {
+  if (!audioRef.value) return
+
+  if (isPlaying.value) {
+    audioRef.value.pause()
+    isPlaying.value = false
+  } else {
+    audioRef.value.play().then(() => {
+      isPlaying.value = true
+    }).catch((e) => {
+      console.error("播放失败:", e)
+      ElMessage.error(t("音频播放失败"))
+    })
+  }
+}
+
 // 获取墓碑样式
 function getTombstoneStyle(reason: string) {
   const config = tombstoneConfig[reason as keyof typeof tombstoneConfig]
@@ -337,6 +378,22 @@ function hasIncensed(): boolean {
 
 // 上香功能
 function offerIncense(tombstone: Tombstone) {
+  // 用户点击上香时尝试播放背景音乐（这是用户交互，浏览器通常允许播放）
+  try {
+    if (audioRef.value && !isPlaying.value) {
+      audioRef.value.play()
+        .then(() => {
+          isPlaying.value = true
+        })
+        .catch((e) => {
+          // 如果播放被阻止，记录并继续上香流程
+          console.warn("尝试播放音频失败:", e)
+        })
+    }
+  } catch (e) {
+    console.warn("触发播放时出错:", e)
+  }
+
   if (hasIncensedToday()) {
     ElMessage.warning(t("您今天已经上过香了"))
     return
@@ -408,6 +465,31 @@ function handleTooltipPosition(event: MouseEvent) {
       <p class="valhalla-subtitle">
         {{ t('纪念那些曾经在游戏中奋战，如今已离开的玩家们') }}
       </p>
+
+      <!-- 音乐控制器 -->
+      <div class="music-player">
+        <div class="music-info">
+          <span class="music-icon">🎵</span>
+          <span class="music-name"> BGM </span>
+        </div>
+        <div class="music-controls">
+          <el-button
+            :type="isPlaying ? 'success' : 'info'"
+            size="small"
+            circle
+            @click="toggleMusic"
+          >
+            <span class="control-icon">{{ isPlaying ? '⏸' : '▶' }}</span>
+          </el-button>
+          <audio
+            ref="audioRef"
+            loop
+            preload="auto"
+            src="/media/lanlianha.mp3"
+          />
+        </div>
+      </div>
+
       <el-button
         type="primary"
         style="margin-top: 20px;"
@@ -713,6 +795,76 @@ function handleTooltipPosition(event: MouseEvent) {
   font-size: 16px;
   color: #b0b0b0;
   font-style: italic;
+}
+
+.music-player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .music-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+
+    .music-icon {
+      font-size: 20px;
+      animation: musicNote 2s ease-in-out infinite;
+    }
+
+    .music-name {
+      font-size: 14px;
+      color: #e0e0e0;
+      font-weight: 500;
+    }
+  }
+
+  .music-controls {
+    display: flex;
+    align-items: center;
+
+    .control-icon {
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    audio {
+      display: none;
+    }
+  }
+}
+
+@keyframes musicNote {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-3px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-3px) rotate(5deg);
+  }
 }
 
 .tombstones-grid {
