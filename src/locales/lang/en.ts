@@ -263,7 +263,7 @@ export default {
   "右价": "Bid",
 
   // 英灵殿
-  "山川铭记着那些不屈的魂灵，他们的故事在牛铃声中回响，诉说着血泪与抗争。": "Mountains and rivers remember those unyielding souls, whose stories echo in the sound of cowbells, telling tales of blood, tears, and resistance.",
+  "山川铭记着那些不屈的魂灵，他们的传说在牛铃声中回响，诉说着血泪与抗争。": "Mountains and rivers remember those unyielding souls, whose legends echo in the sound of cowbells, telling tales of blood, tears, and resistance.",
   "这里纪念着因各种原因离开游戏的玩家：": "This place commemorates players who have left the game for various reasons:",
   "提名入殿": "Nominate",
   "封弊者": "Beater",
@@ -306,6 +306,8 @@ export default {
   "您今天已经上过香了": "You have already offered incense today",
   "上香规则：每天可以上香一次，可选择为任意一位玩家上香": "Incense Rule: You can offer incense once per day for any player of your choice",
 
+  // 埋骨地
+  "泥土镌刻着那些温热的姓名，他们的故事在篝火旁低语，化作了缀入长夜的繁星。": "The soil engraves those warm names, their stories whispering by the campfire, transforming into stars embedded in the long night.",
   // 冻结横幅
   "暂停服务": "Service Suspended",
   "#暂停公告": "Due to violating game policies, the site owner and several friends have been banned. Milkonomy will suspend service until November 4th. During this period, only the Valhalla page will remain available to commemorate players who have left the game for various reasons. We also hope everyone can focus less on PVP and return to the essence of idle gaming, enjoying the fun the game brings, and more importantly, enjoying life. Thank you for your continued support and companionship.",

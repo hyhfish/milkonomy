@@ -108,6 +108,23 @@ export const publicRoutes: RouteRecordRaw[] = [
   {
     path: "/",
     component: Layouts,
+    redirect: "/burial",
+    children: [
+      {
+        path: "burial",
+        component: () => import("@/pages/burial/index.vue"),
+        name: "Burial",
+        meta: {
+          title: t("埋骨地"),
+          elIcon: "User",
+          affix: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/",
+    component: Layouts,
     redirect: "/sponsor",
     children: [
       {
