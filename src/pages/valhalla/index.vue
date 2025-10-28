@@ -440,7 +440,12 @@ function offerIncense(tombstone: Tombstone) {
 
           <!-- 墓志铭 -->
           <div v-if="tombstone.描述" class="tombstone-message">
-            "{{ tombstone.描述 }}"
+            <span class="message-text">"{{ tombstone.描述 }}"</span>
+            <div class="message-tooltip">
+              <p v-for="(paragraph, idx) in tombstone.描述.split('\n').filter(p => p.trim())" :key="idx">
+                {{ paragraph }}
+              </p>
+            </div>
           </div>
 
           <!-- 上香区域 -->
@@ -697,6 +702,7 @@ function offerIncense(tombstone: Tombstone) {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 32px 24px;
   margin-bottom: 40px;
+  overflow: visible;
 
   @media (min-width: 1400px) {
     grid-template-columns: repeat(5, 1fr);
@@ -728,10 +734,12 @@ function offerIncense(tombstone: Tombstone) {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   position: relative;
   overflow: visible;
+  z-index: 1;
 
   &:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+    z-index: 10;
   }
 
   &::before {
@@ -754,6 +762,7 @@ function offerIncense(tombstone: Tombstone) {
     bottom: 0;
     background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
     pointer-events: none;
+    z-index: 0;
   }
 }
 
@@ -766,7 +775,7 @@ function offerIncense(tombstone: Tombstone) {
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
-  z-index: 2;
+  z-index: 1;
 
   .tombstone-emoji {
     font-size: 28px;
@@ -792,6 +801,9 @@ function offerIncense(tombstone: Tombstone) {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: visible;
+  position: relative;
+  z-index: 2;
 }
 
 .tombstone-icon {
@@ -897,6 +909,72 @@ function offerIncense(tombstone: Tombstone) {
   border-radius: 8px;
   border-left: 3px solid rgba(255, 255, 255, 0.2);
   margin-bottom: 12px;
+  position: relative;
+  cursor: help;
+
+  .message-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .message-tooltip {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) scale(0.9);
+    background: linear-gradient(135deg, rgba(45, 45, 63, 0.98) 0%, rgba(26, 26, 46, 0.98) 100%);
+    color: #e8e8e8;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+    min-width: 200px;
+    max-width: 400px;
+    width: max-content;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    p {
+      margin: 0 0 6px 0;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(45, 45, 63, 0.98);
+    }
+  }
+
+  &:hover .message-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) scale(1);
+  }
 }
 
 .incense-section {
