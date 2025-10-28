@@ -308,7 +308,7 @@ export default {
 
   // 冻结横幅
   "暂停服务": "Service Suspended",
-  "#暂停公告": "Due to violating game policies, the site owner and several friends have been banned. Milkonomy will suspend service until November 4th. During this period, only the Valhalla page will remain available to commemorate players who have left the game for various reasons. Thank you for your continued support and companionship.",
+  "#暂停公告": "Due to violating game policies, the site owner and several friends have been banned. Milkonomy will suspend service until November 4th. During this period, only the Valhalla page will remain available to commemorate players who have left the game for various reasons. We also hope everyone can focus less on PVP and return to the essence of idle gaming, enjoying the fun the game brings, and more importantly, enjoying life. Thank you for your continued support and companionship.",
   "重新开放倒计时": "Reopening Countdown",
   "缅怀共同的游戏时光": "Remember shared gaming moments",
   "铭记每一位离开的玩家": "Honor every departed player",

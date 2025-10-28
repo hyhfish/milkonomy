@@ -249,7 +249,7 @@ function loadData() {
   tombstonesLoading.value = true
   axios.get(jsonUrl)
     .then(({ data }) => {
-      // 过滤审核通过的数据
+      // 过滤审核通过的数据并按上香数量降序排序
       tombstones.value = data
         .filter((item: any) => item.审核状态 === "1" || item.审核状态 === 1 || item.审核状态 === true)
         .map((item: any) => ({
@@ -263,6 +263,7 @@ function loadData() {
           图标: item.图标,
           上香: item.上香 || 0
         }))
+        .sort((a: Tombstone, b: Tombstone) => (b.上香 || 0) - (a.上香 || 0))
     })
     .catch((e) => {
       ElMessage.error(e.message || t("加载数据失败"))
