@@ -385,6 +385,13 @@ const { t } = useI18n()
   transform-origin: center;
 }
 
+.RyuuSan {
+  background: linear-gradient(90deg, #e3858b, #e3858b 3%, #f6d6d8 15%, #f6d6d8 30%, #ecadb1 50%, #e3858b 95%, #e3858b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 @keyframes masked-animation {
   0% {
     background-position: 100% 0; /* 从右侧开始 */
