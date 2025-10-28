@@ -493,7 +493,7 @@ function handleTooltipPosition(event: MouseEvent) {
         <span class="title-icon">⚰️</span>
       </h1>
       <p class="valhalla-subtitle">
-        {{ t('纪念那些曾经在游戏中奋战，如今已离开的玩家们') }}
+        {{ t('山川铭记着那些不屈的魂灵，他们的故事在牛铃声中回响，诉说着血泪与抗争。') }}
       </p>
 
       <!-- 音乐控制器 -->

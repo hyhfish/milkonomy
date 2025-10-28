@@ -263,7 +263,7 @@ export default {
   "右价": "Bid",
 
   // 英灵殿
-  "纪念那些曾经在游戏中奋战，如今已离开的玩家们": "In memory of players who once fought in the game but have now departed",
+  "山川铭记着那些不屈的魂灵，他们的故事在牛铃声中回响，诉说着血泪与抗争。": "Mountains and rivers remember those unyielding souls, whose stories echo in the sound of cowbells, telling tales of blood, tears, and resistance.",
   "这里纪念着因各种原因离开游戏的玩家：": "This place commemorates players who have left the game for various reasons:",
   "提名入殿": "Nominate",
   "封弊者": "Beater",
