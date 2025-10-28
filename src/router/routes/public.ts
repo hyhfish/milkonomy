@@ -91,6 +91,23 @@ export const publicRoutes: RouteRecordRaw[] = [
   {
     path: "/",
     component: Layouts,
+    redirect: "/valhalla",
+    children: [
+      {
+        path: "valhalla",
+        component: () => import("@/pages/valhalla/index.vue"),
+        name: "Valhalla",
+        meta: {
+          title: t("英灵殿"),
+          elIcon: "User",
+          affix: true
+        }
+      }
+    ]
+  },
+  {
+    path: "/",
+    component: Layouts,
     redirect: "/sponsor",
     children: [
       {
@@ -105,6 +122,7 @@ export const publicRoutes: RouteRecordRaw[] = [
       }
     ]
   },
+
   {
     path: "/link",
     meta: {

@@ -15,6 +15,17 @@ export interface GameData {
   enhancementLevelSuccessRateTable: number[]
   enhancementLevelTotalBonusMultiplierTable: number[]
   communityBuffTypeDetailMap: Record<string, CommunityBuffDetail>
+  chatIconDetailMap?: Record<string, ChatIconDetail>
+}
+export interface ChatIconDetail {
+  hrid: string
+  name: string
+  isSpecial: boolean
+  isSeasonal: boolean
+  cowbellCost: number
+  supporterPointCost: number
+  requiredChatIconHrid: string
+  sortIndex: number
 }
 export interface ShopItemDetail {
   hrid: string
