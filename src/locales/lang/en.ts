@@ -307,6 +307,7 @@ export default {
   "上香规则：每天可以上香一次，可选择为任意一位玩家上香": "Incense Rule: You can offer incense once per day for any player of your choice",
 
   // 埋骨地
+  "埋骨地": "Boneyard",
   "泥土镌刻着那些温热的姓名，他们的故事在篝火旁低语，化作了缀入长夜的繁星。": "The soil engraves those warm names, their stories whispering by the campfire, transforming into stars embedded in the long night.",
   // 冻结横幅
   "暂停服务": "Service Suspended",
