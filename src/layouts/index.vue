@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { useSettingsStore } from "@/pinia/stores/settings"
+import FreezeBanner from "@@/components/FreezeBanner/index.vue"
 import { useDevice } from "@@/composables/useDevice"
 import { useLayoutMode } from "@@/composables/useLayoutMode"
 import { useWatermark } from "@@/composables/useWatermark"
+import { isInFreezePeriod } from "@@/config/freeze"
 import { getCssVar, setCssVar } from "@@/utils/css"
+import { useSettingsStore } from "@/pinia/stores/settings"
 import { RightPanel, Settings } from "./components"
 import { useResize } from "./composables/useResize"
 import LeftMode from "./modes/LeftMode.vue"
@@ -18,6 +20,12 @@ const { isMobile } = useDevice()
 const { isLeft, isTop, isLeftTop } = useLayoutMode()
 const settingsStore = useSettingsStore()
 const { showSettings, showTagsView, showWatermark } = storeToRefs(settingsStore)
+
+// 检查是否在冻结期间
+const isFrozen = computed(() => isInFreezePeriod())
+
+// 冻结横幅高度（收起时的高度，但横幅不占满宽度，所以不需要给整个布局加margin）
+const freezeBannerHeight = computed(() => "0px")
 
 // #region 隐藏标签栏时删除其高度，是为了让 Logo 组件高度和 Header 区域高度始终一致
 const cssVarName = "--v3-tagsview-height"
@@ -34,16 +42,36 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div>
-    <!-- 左侧模式 -->
-    <LeftMode v-if="isLeft || isMobile" />
-    <!-- 顶部模式 -->
-    <TopMode v-else-if="isTop" />
-    <!-- 混合模式 -->
-    <LeftTopMode v-else-if="isLeftTop" />
+  <div class="layout-wrapper">
+    <!-- 冻结期间横幅 -->
+    <FreezeBanner v-if="isFrozen" />
+
+    <!-- 主布局 -->
+    <div class="layout-main">
+      <!-- 左侧模式 -->
+      <LeftMode v-if="isLeft || isMobile" />
+      <!-- 顶部模式 -->
+      <TopMode v-else-if="isTop" />
+      <!-- 混合模式 -->
+      <LeftTopMode v-else-if="isLeftTop" />
+    </div>
+
     <!-- 右侧设置面板 -->
     <RightPanel v-if="showSettings">
       <Settings />
     </RightPanel>
   </div>
 </template>
+
+<style scoped lang="scss">
+.layout-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.layout-main {
+  margin-top: v-bind(freezeBannerHeight);
+  width: 100%;
+  height: calc(100% - v-bind(freezeBannerHeight));
+}
+</style>

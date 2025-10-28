@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { useDevice } from "@@/composables/useDevice"
+import { useLayoutMode } from "@@/composables/useLayoutMode"
+import { isInFreezePeriod, isRouteAllowed } from "@@/config/freeze"
+import { getCssVar } from "@@/utils/css"
 import { useAppStore } from "@/pinia/stores/app"
 import { usePermissionStore } from "@/pinia/stores/permission"
 import { useSettingsStore } from "@/pinia/stores/settings"
-import { useDevice } from "@@/composables/useDevice"
-import { useLayoutMode } from "@@/composables/useLayoutMode"
-import { getCssVar } from "@@/utils/css"
 import { Logo } from "../index"
 import Item from "./Item.vue"
 
@@ -20,7 +21,28 @@ const permissionStore = usePermissionStore()
 const settingsStore = useSettingsStore()
 
 const activeMenu = computed(() => route.meta.activeMenu || route.path)
-const noHiddenRoutes = computed(() => permissionStore.routes.filter(item => !item.meta?.hidden))
+
+// 过滤路由：隐藏 hidden 的路由，以及冻结期间不允许访问的路由
+const noHiddenRoutes = computed(() => {
+  let routes = permissionStore.routes.filter(item => !item.meta?.hidden)
+
+  // 如果在冻结期间，只显示允许访问的路由
+  if (isInFreezePeriod()) {
+    routes = routes.filter((item) => {
+      // 检查路由的子路由名称
+      if (item.children && item.children.length > 0) {
+        // 如果有子路由，检查第一个子路由的名称
+        const childName = item.children[0].name as string
+        return isRouteAllowed(childName)
+      }
+      // 如果没有子路由，检查自己的名称
+      return isRouteAllowed(item.name as string)
+    })
+  }
+
+  return routes
+})
+
 const isCollapse = computed(() => !appStore.sidebar.opened)
 const isLogo = computed(() => isLeft.value && settingsStore.showLogo)
 const backgroundColor = computed(() => (isLeft.value ? v3SidebarMenuBgColor : undefined))

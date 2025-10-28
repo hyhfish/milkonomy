@@ -287,16 +287,16 @@ const audioRef = ref<HTMLAudioElement | null>(null)
 const isPlaying = ref(false)
 
 // 播放背景音乐
-onMounted(() => {
-  if (audioRef.value) {
-    audioRef.value.play().then(() => {
-      isPlaying.value = true
-    }).catch((e) => {
-      console.log("音频自动播放被浏览器阻止:", e)
-      isPlaying.value = false
-    })
-  }
-})
+// onMounted(() => {
+//   if (audioRef.value) {
+//     audioRef.value.play().then(() => {
+//       isPlaying.value = true
+//     }).catch((e) => {
+//       console.log("音频自动播放被浏览器阻止:", e)
+//       isPlaying.value = false
+//     })
+//   }
+// })
 
 // 页面卸载时停止音乐
 onUnmounted(() => {

@@ -304,5 +304,17 @@ export default {
   "上香失败": "Failed to offer incense",
   "您已经为此人上过香了": "You have already offered incense for this person",
   "您今天已经上过香了": "You have already offered incense today",
-  "上香规则：每天可以上香一次，可选择为任意一位玩家上香": "Incense Rule: You can offer incense once per day for any player of your choice"
+  "上香规则：每天可以上香一次，可选择为任意一位玩家上香": "Incense Rule: You can offer incense once per day for any player of your choice",
+
+  // 冻结横幅
+  "暂停服务": "Service Suspended",
+  "#暂停公告": "Due to violating game policies, the site owner and several friends have been banned. Milkonomy will suspend service until November 4th. During this period, only the Valhalla page will remain available to commemorate players who have left the game for various reasons. Thank you for your continued support and companionship.",
+  "重新开放倒计时": "Reopening Countdown",
+  "缅怀共同的游戏时光": "Remember shared gaming moments",
+  "铭记每一位离开的玩家": "Honor every departed player",
+  "暂停期间可访问": "Available during suspension",
+  "天": "d",
+  "时": "h",
+  "分": "m",
+  "秒": "s"
 }
