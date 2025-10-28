@@ -19,7 +19,7 @@ const jsonUrl = "https://opensheet.elk.sh/1VxVtRkvwiGEr5K7eKDwINk0Mncxn8dloffECj
 // 墓碑类型定义
 interface Tombstone {
   昵称: string
-  原因: "banned" | "gambling" | "quit" | "other"
+  原因?: "banned" | "gambling" | "quit" | "other"
   称号?: string
   描述?: string
   时间: string
@@ -76,7 +76,7 @@ const incenseLoading = ref(false)
 const refForm = ref()
 const form = ref<Tombstone>({
   昵称: "",
-  原因: "banned",
+  原因: undefined,
   称号: "",
   描述: "",
   时间: "",
@@ -205,7 +205,7 @@ function submit() {
           dialogVisible.value = false
           form.value = {
             昵称: "",
-            原因: "banned",
+            原因: undefined,
             称号: "",
             描述: "",
             时间: "",
@@ -302,7 +302,7 @@ function openDialog() {
   dialogVisible.value = true
   form.value = {
     昵称: "",
-    原因: "banned",
+    原因: undefined,
     称号: "",
     描述: "",
     时间: "",
@@ -377,6 +377,24 @@ function offerIncense(tombstone: Tombstone) {
       incenseLoading.value = false
     })
 }
+
+// Tooltip位置处理
+function handleTooltipPosition(event: MouseEvent) {
+  const target = event.currentTarget as HTMLElement
+  const tooltip = target.querySelector(".message-tooltip") as HTMLElement
+  if (!tooltip) return
+
+  // 获取元素距离视口顶部的距离
+  const rect = target.getBoundingClientRect()
+  const spaceAbove = rect.top
+
+  // 如果上方空间不足300px，则向下显示
+  if (spaceAbove < 300) {
+    tooltip.classList.add("tooltip-bottom")
+  } else {
+    tooltip.classList.remove("tooltip-bottom")
+  }
+}
 </script>
 
 <template>
@@ -404,7 +422,7 @@ function offerIncense(tombstone: Tombstone) {
         v-for="(tombstone, index) in tombstones"
         :key="index"
         class="tombstone-card"
-        :style="getTombstoneStyle(tombstone.原因)"
+        :style="getTombstoneStyle(tombstone.原因!)"
       >
         <!-- 墓碑主体 -->
         <div class="tombstone-body">
@@ -439,7 +457,7 @@ function offerIncense(tombstone: Tombstone) {
           </div>
 
           <!-- 墓志铭 -->
-          <div v-if="tombstone.描述" class="tombstone-message">
+          <div v-if="tombstone.描述" class="tombstone-message" @mouseenter="handleTooltipPosition">
             <span class="message-text">"{{ tombstone.描述 }}"</span>
             <div class="message-tooltip">
               <p v-for="(paragraph, idx) in tombstone.描述.split('\n').filter(p => p.trim())" :key="idx">
@@ -470,12 +488,12 @@ function offerIncense(tombstone: Tombstone) {
 
         <!-- 右下角：原因称号和emoji -->
         <div class="tombstone-corner">
-          <span class="tombstone-emoji">{{ getTombstoneConfig(tombstone.原因).icon }}</span>
+          <span class="tombstone-emoji">{{ getTombstoneConfig(tombstone.原因!).icon }}</span>
           <div
             class="tombstone-reason"
-            :style="{ color: getTombstoneConfig(tombstone.原因).color }"
+            :style="{ color: getTombstoneConfig(tombstone.原因!).color }"
           >
-            {{ getTombstoneConfig(tombstone.原因).title }}
+            {{ getTombstoneConfig(tombstone.原因!).title }}
           </div>
         </div>
       </div>
@@ -773,7 +791,7 @@ function offerIncense(tombstone: Tombstone) {
   right: 12px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 4px;
   z-index: 1;
 
@@ -967,6 +985,19 @@ function offerIncense(tombstone: Tombstone) {
       transform: translateX(-50%);
       border: 6px solid transparent;
       border-top-color: rgba(45, 45, 63, 0.98);
+    }
+
+    // 向下显示的样式
+    &.tooltip-bottom {
+      bottom: auto;
+      top: calc(100% + 12px);
+
+      &::before {
+        top: auto;
+        bottom: 100%;
+        border-top-color: transparent;
+        border-bottom-color: rgba(45, 45, 63, 0.98);
+      }
     }
   }
 
