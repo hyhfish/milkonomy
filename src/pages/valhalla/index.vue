@@ -7,6 +7,25 @@ import { useGameStoreOutside } from "@/pinia/stores/game"
 const { t } = useI18n()
 const gameStore = useGameStoreOutside()
 
+// 获取当前语言
+const { locale } = useI18n()
+
+// 获取本地化的称号
+function getLocalizedTitle(tombstone: Tombstone): string {
+  if (locale.value === "en" && tombstone.title) {
+    return tombstone.title
+  }
+  return tombstone.称号 || ""
+}
+
+// 获取本地化的描述
+function getLocalizedDesc(tombstone: Tombstone): string {
+  if (locale.value === "en" && tombstone.desc) {
+    return tombstone.desc
+  }
+  return tombstone.描述 || ""
+}
+
 // Google Apps Script 提交地址（需要替换为实际地址）
 const submitUrl = "https://script.google.com/macros/s/AKfycbzKlaR9m4tic60e4Jqk5Uxf2RLwZi6Rf9f1Z4KISGYLx_byEyDO9T-BJetfH4kb3N7UJA/exec"
 
@@ -22,6 +41,8 @@ interface Tombstone {
   原因?: "banned" | "gambling" | "quit" | "other"
   称号?: string
   描述?: string
+  title?: string // 英文称号
+  desc?: string // 英文描述
   时间: string
   图标?: string
   审核状态?: string
@@ -236,6 +257,8 @@ function loadData() {
           原因: item.原因,
           称号: item.称号,
           描述: item.描述,
+          title: item.title, // 英文称号
+          desc: item.desc, // 英文描述
           时间: item.时间,
           图标: item.图标,
           上香: item.上香 || 0
@@ -250,6 +273,8 @@ function loadData() {
           原因: "banned",
           称号: "青蛙王",
           描述: "邪恶青蛙，贤者饰品操盘者，500B最速达成传说",
+          title: "Frog King",
+          desc: "Evil Frog, Sage Accessory Manipulator, Legend: Fastest to reach 500B",
           时间: "2025-10-27",
           图标: "/chat_icons/frog",
           上香: 0
@@ -259,6 +284,8 @@ function loadData() {
           原因: "banned",
           称号: "奥本海默",
           描述: "核武理论持有者",
+          title: "Oppenheimer",
+          desc: "Nuclear Weapon Theory Holder",
           时间: "2025-10-27",
           图标: "/chat_icons/frog",
           上香: 0
@@ -268,6 +295,8 @@ function loadData() {
           原因: "banned",
           称号: "Milkonomy",
           描述: "Milkonomy作者",
+          title: "Milkonomy",
+          desc: "Author of Milkonomy",
           时间: "2025-10-27",
           图标: "/chat_icons/frog",
           上香: 0
@@ -509,8 +538,8 @@ function handleTooltipPosition(event: MouseEvent) {
         <!-- 墓碑主体 -->
         <div class="tombstone-body">
           <!-- 个人专属称号 - 在图标上方 -->
-          <div v-if="tombstone.称号" class="tombstone-custom-title">
-            「{{ tombstone.称号 }}」
+          <div v-if="getLocalizedTitle(tombstone)" class="tombstone-custom-title">
+            「{{ getLocalizedTitle(tombstone) }}」
           </div>
 
           <!-- 物品图标位置 -->
@@ -539,10 +568,10 @@ function handleTooltipPosition(event: MouseEvent) {
           </div>
 
           <!-- 墓志铭 -->
-          <div v-if="tombstone.描述" class="tombstone-message" @mouseenter="handleTooltipPosition">
-            <span class="message-text">"{{ tombstone.描述 }}"</span>
+          <div v-if="getLocalizedDesc(tombstone)" class="tombstone-message" @mouseenter="handleTooltipPosition">
+            <span class="message-text">"{{ getLocalizedDesc(tombstone) }}"</span>
             <div class="message-tooltip">
-              <p v-for="(paragraph, idx) in tombstone.描述.split('\n').filter(p => p.trim())" :key="idx">
+              <p v-for="(paragraph, idx) in getLocalizedDesc(tombstone).split('\n').filter(p => p.trim())" :key="idx">
                 {{ paragraph }}
               </p>
             </div>
