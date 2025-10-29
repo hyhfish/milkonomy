@@ -407,22 +407,6 @@ function offerIncense(tombstone: Tombstone) {
       incenseLoading.value = false
     })
 }
-
-// Tooltip位置处理
-function handleTooltipPosition(event: MouseEvent) {
-  const target = event.currentTarget as HTMLElement
-  const tooltip = target.querySelector(".message-tooltip") as HTMLElement
-  if (!tooltip) return
-
-  const rect = target.getBoundingClientRect()
-  const spaceAbove = rect.top
-
-  if (spaceAbove < 300) {
-    tooltip.classList.add("tooltip-bottom")
-  } else {
-    tooltip.classList.remove("tooltip-bottom")
-  }
-}
 </script>
 
 <template>
@@ -507,13 +491,29 @@ function handleTooltipPosition(event: MouseEvent) {
           </div>
 
           <!-- 墓志铭 -->
-          <div v-if="getLocalizedDesc(tombstone)" class="tombstone-message" @mouseenter="handleTooltipPosition">
-            <span class="message-text">"{{ getLocalizedDesc(tombstone) }}"</span>
-            <div class="message-tooltip">
-              <p v-for="(paragraph, idx) in getLocalizedDesc(tombstone).split('\n').filter(p => p.trim())" :key="idx">
-                {{ paragraph }}
-              </p>
-            </div>
+          <div v-if="getLocalizedDesc(tombstone)">
+            <el-tooltip
+              placement="top"
+              :show-after="100"
+              :hide-after="100"
+              effect="dark"
+              popper-class="custom-tooltip"
+            >
+              <template #content>
+                <div class="tooltip-content">
+                  <p
+                    v-for="(paragraph, idx) in getLocalizedDesc(tombstone).split('\n').filter(p => p.trim())"
+                    :key="idx"
+                    class="tooltip-paragraph"
+                  >
+                    {{ paragraph }}
+                  </p>
+                </div>
+              </template>
+              <div class="tombstone-message">
+                <span class="message-text">"{{ getLocalizedDesc(tombstone) }}"</span>
+              </div>
+            </el-tooltip>
           </div>
 
           <!-- 上香区域 -->
@@ -854,7 +854,7 @@ function handleTooltipPosition(event: MouseEvent) {
   &:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
-    z-index: 10;
+    z-index: 10000;
   }
 
   &::before {
@@ -987,73 +987,6 @@ function handleTooltipPosition(event: MouseEvent) {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  .message-tooltip {
-    position: absolute;
-    bottom: calc(100% + 12px);
-    left: 50%;
-    transform: translateX(-50%) scale(0.9);
-    background: linear-gradient(135deg, rgba(45, 45, 63, 0.98) 0%, rgba(26, 26, 46, 0.98) 100%);
-    color: #e8e8e8;
-    padding: 16px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.6;
-    white-space: normal;
-    word-wrap: break-word;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    text-align: left;
-    min-width: 200px;
-    max-width: 400px;
-    width: max-content;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
-    z-index: 9999;
-    box-shadow:
-      0 12px 40px rgba(0, 0, 0, 0.7),
-      0 0 0 1px rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-
-    p {
-      margin: 0 0 6px 0;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border: 6px solid transparent;
-      border-top-color: rgba(45, 45, 63, 0.98);
-    }
-
-    &.tooltip-bottom {
-      bottom: auto;
-      top: calc(100% + 12px);
-
-      &::before {
-        top: auto;
-        bottom: 100%;
-        border-top-color: transparent;
-        border-bottom-color: rgba(45, 45, 63, 0.98);
-      }
-    }
-  }
-
-  &:hover .message-tooltip {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) scale(1);
-  }
 }
 
 .incense-section {
@@ -1131,5 +1064,65 @@ function handleTooltipPosition(event: MouseEvent) {
   .tombstone-reason {
     font-size: 10px;
   }
+}
+</style>
+
+<style>
+/* Element Plus Tooltip 自定义样式 */
+.custom-tooltip {
+  background: linear-gradient(135deg, rgba(45, 45, 63, 0.98) 0%, rgba(26, 26, 46, 0.98) 100%) !important;
+  color: #e8e8e8 !important;
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  max-width: 400px !important;
+  min-width: 200px !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(12px) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  z-index: 99999 !important;
+  white-space: pre-line !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  border: none !important;
+}
+
+.custom-tooltip .tooltip-content {
+  margin: 0;
+  padding: 0;
+}
+
+.custom-tooltip .tooltip-paragraph {
+  margin: 0 0 6px 0 !important;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.custom-tooltip .tooltip-paragraph:last-child {
+  margin-bottom: 0 !important;
+}
+
+.custom-tooltip .el-popper__arrow::before {
+  background: rgba(45, 45, 63, 0.98) !important;
+  border: none !important;
+}
+
+.custom-tooltip .el-popper__arrow::after {
+  border: none !important;
+}
+
+/* 确保覆盖 Element Plus 的默认样式 */
+.el-popper.custom-tooltip {
+  border: none !important;
+}
+
+.el-popper.custom-tooltip .el-popper__arrow {
+  border: none !important;
+}
+
+.el-popper.custom-tooltip .el-popper__arrow::before,
+.el-popper.custom-tooltip .el-popper__arrow::after {
+  border: none !important;
 }
 </style>
