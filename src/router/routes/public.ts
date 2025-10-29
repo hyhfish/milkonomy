@@ -37,57 +37,7 @@ export const publicRoutes: RouteRecordRaw[] = [
     },
     alias: "/:pathMatch(.*)*"
   },
-  {
-    path: "/",
-    component: Layouts,
-    redirect: "/dashboard",
-    children: [
-      {
-        path: "dashboard",
-        component: () => import("@/pages/dashboard/index.vue"),
-        name: "Dashboard",
-        meta: {
-          title: t("首页"),
-          svgIcon: "dashboard",
-          affix: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/",
-    component: Layouts,
-    redirect: "/enhancer",
-    children: [
-      {
-        path: "enhancer",
-        component: () => import("@/pages/enhancer/index.vue"),
-        name: "Enhancer",
-        meta: {
-          title: t("强化计算"),
-          elIcon: "MagicStick",
-          affix: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/",
-    component: Layouts,
-    redirect: "/enhanposer",
-    children: [
-      {
-        path: "enhanposer",
-        component: () => import("@/pages/enhanposer/index.vue"),
-        name: "Enhanposer",
-        meta: {
-          title: t("强化分解"),
-          affix: true,
-          svgIcon: "dashboard"
-        }
-      }
-    ]
-  },
+
   {
     path: "/",
     component: Layouts,
