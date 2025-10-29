@@ -122,7 +122,7 @@ onMounted(() => {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
+  z-index: 10000;
   background: linear-gradient(135deg, #2d2d4a 0%, #1a1a2e 100%);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   height: 50px;
