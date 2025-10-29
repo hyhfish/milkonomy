@@ -561,6 +561,9 @@ function offerIncense(tombstone: Tombstone) {
             >
               <template #content>
                 <div class="tooltip-content">
+                  <div class="tooltip-nickname">
+                    {{ tombstone.昵称 }}
+                  </div>
                   <p
                     v-for="(paragraph, idx) in getLocalizedDesc(tombstone).split('\n').filter(p => p.trim())"
                     :key="idx"
@@ -1237,6 +1240,16 @@ function offerIncense(tombstone: Tombstone) {
 .custom-tooltip .tooltip-content {
   margin: 0;
   padding: 0;
+}
+
+.custom-tooltip .tooltip-nickname {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #ffd700 !important;
+  margin: 0 0 8px 0 !important;
+  padding: 0 0 8px 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  text-align: center !important;
 }
 
 .custom-tooltip .tooltip-paragraph {
