@@ -268,11 +268,16 @@ function handleOfferIncense() {
 }
 
 .tombstone-custom-title {
-  font-size: 15px;
+  font-size: 22px;
   color: #ffd700;
-  font-weight: 600;
-  margin-bottom: 10px;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  letter-spacing: 1px;
+  font-style: italic;
+  position: relative;
+  display: inline-block;
+  padding: 0 8px;
 }
 
 .tombstone-icon {
