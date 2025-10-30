@@ -8,7 +8,7 @@ import { ElLoading, type FormRules } from "element-plus"
 
 const url = "https://script.google.com/macros/s/AKfycbzA8s6SOQDoFi27VuQ9wqqjQDZuLcjGVdfH-3DIO32ayYFI29u3dxWV3Y4_Q6geT3Kr/exec"
 
-const jsonUrl = "https://opensheet.elk.sh/1FX-CENDfBR5hgahQXq5qqB-HnN5gyzIh1L9kYk67eWE/Sheet1"
+const jsonUrl = "https://opensheet.elk.sh/1JPXJfdfeCpaBnKb73idoilf9n1a-GNjiA_xYb-tJ6cI/Sheet1"
 const sponsorList = ref<Sponsor[] >([])
 const sponsorLoading = ref(false)
 
