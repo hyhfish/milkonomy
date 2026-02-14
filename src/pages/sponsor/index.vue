@@ -294,6 +294,20 @@ const { t } = useI18n()
   -webkit-text-fill-color: transparent;
 }
 
+.Joey {
+  font-size: 20px;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  width: 100%;
+  background: linear-gradient(160deg, #fff8c7 30%, #fbd640);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* 阴影外扩，避免覆盖渐变字体本体 */
+  filter: drop-shadow(1px 0 2px rgba(244, 64, 64, 0.6901960784)) drop-shadow(-1px 0 2px rgba(244, 64, 64, 0.6901960784))
+    drop-shadow(0 1px 2px rgba(244, 64, 64, 0.6901960784)) drop-shadow(0 -1px 2px rgba(244, 64, 64, 0.6901960784));
+}
+
 // 霓虹色效果，从左到右紫色到蓝色到红色渐变，字体有深色边框
 .BBC233 {
   font-size: 20px;
