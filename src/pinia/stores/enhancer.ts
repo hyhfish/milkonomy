@@ -76,13 +76,18 @@ export interface EnhancerConfig {
   enhanceLevel?: number
   hourlyRate?: number
   taxRate?: number
+  ignoreTax?: boolean
   hrid?: string
   tab?: string
 }
 const KEY_PREFIX = "enhancer-"
 function loadConfig(): EnhancerConfig {
   try {
-    return JSON.parse(localStorage.getItem(`${KEY_PREFIX}config`) || "{}")
+    const cfg = JSON.parse(localStorage.getItem(`${KEY_PREFIX}config`) || "{}")
+    return {
+      ignoreTax: !!cfg.ignoreTax,
+      ...cfg
+    }
   } catch {
     return {}
   }
@@ -94,7 +99,11 @@ function saveConfig(item: EnhancerConfig) {
 
 function loadAdvancedConfig(): EnhancerConfig {
   try {
-    return JSON.parse(localStorage.getItem(`${KEY_PREFIX}advancedConfig`) || "{}")
+    const cfg = JSON.parse(localStorage.getItem(`${KEY_PREFIX}advancedConfig`) || "{}")
+    return {
+      ignoreTax: !!cfg.ignoreTax,
+      ...cfg
+    }
   } catch {
     return {}
   }

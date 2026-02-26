@@ -44,6 +44,14 @@ const defaultConfig = {
   enhanceLevel: 10
 }
 
+// UI prefers "开启=计税"; internally we persist `ignoreTax`
+const useMarketTax = computed({
+  get: () => !enhancerStore.config.ignoreTax,
+  set: (value: boolean) => {
+    enhancerStore.config.ignoreTax = !value
+  }
+})
+
 onMounted(() => {
   enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid))
 })
@@ -355,6 +363,8 @@ const results = computed(() => {
   }
 
   const result = []
+  const ignoreTax = !!enhancerStore.config.ignoreTax
+  const sellTaxFactor = ignoreTax ? 1 : 0.98
   const enhanceLevel = enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel
   for (let i = 1; i <= enhanceLevel; ++i) {
     const calc = new EnhanceCalculator({
@@ -376,14 +386,16 @@ const results = computed(() => {
       ? currentItem.value!.price
       : currentItem.value!.originPrice)
     let totalCost = totalCostNoHourly + (enhancerStore.hourlyRate ?? defaultConfig.hourlyRate) * (actions / calc.actionsPH)
-    totalCost *= (1 + (enhancerStore.taxRate ?? defaultConfig.taxRate) / 100)
+    if (!ignoreTax) {
+      totalCost *= (1 + (enhancerStore.taxRate ?? defaultConfig.taxRate) / 100)
+    }
 
     const productPrice = typeof currentItem.value.productPrice === "number"
       ? currentItem.value.productPrice
       : getPriceOf(currentItem.value.hrid, enhanceLevel).bid
 
-    const hourlyCost = (productPrice * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
-    const profitPP = productPrice * 0.98 - totalCostNoHourly
+    const hourlyCost = (productPrice * sellTaxFactor - totalCostNoHourly) / actions * calc.actionsPH
+    const profitPP = productPrice * sellTaxFactor - totalCostNoHourly
 
     const seconds = actions / calc.actionsPH * 3600
     result.push({
@@ -552,9 +564,9 @@ watch(menuVisible, (value) => {
       <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">
         <el-card>
           <template #header>
-            <div class="flex justify-between items-center">
-              <span>{{ t('装备成本') }}</span>
-              <div class="flex items-center gap-2">
+            <div class="flex flex-col gap-2">
+              <span class="whitespace-nowrap flex-shrink-0">{{ t('装备成本') }}</span>
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <el-checkbox v-model="gearManufacture">
                   {{ t('制作装备') }}
                 </el-checkbox>
@@ -719,43 +731,54 @@ watch(menuVisible, (value) => {
                 <el-input-number
                   class="w-120px"
                   v-model="enhancerStore.config.taxRate"
-                  :step="1"
+                  :step="2"
+                  :step-strictly="true"
                   :min="0"
-                  :max="20"
+                  :max="2"
                   controls-position="right"
                   :placeholder="defaultConfig.taxRate.toString()"
                 />
               </div>
             </el-tab-pane>
             <el-tab-pane :label="t('成品售价')">
-              <div class="flex justify-between items-center">
-                <div class="font-size-14px">
+              <div
+                class="grid w-full items-center gap-x-1"
+                :style="{ gridTemplateColumns: '44px minmax(0, 1fr) 44px' }"
+              >
+                <div class="font-size-14px whitespace-nowrap">
                   {{ t('价格') }}
                 </div>
                 <el-input-number
-                  class="w-130px"
+                  class="w-full"
+                  style="width: 100%"
                   v-model="currentItem.productPrice"
                   :step="1"
                   :min="0"
                   :placeholder="Format.number(getPriceOf(currentItem.hrid!, enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel).bid)"
                   :controls="false"
                 />
+                <div />
               </div>
 
-              <div class="flex justify-between items-center">
-                <div class="font-size-14px">
+              <div
+                class="grid w-full items-center gap-x-1 mt-2"
+                :style="{ gridTemplateColumns: '44px minmax(0, 1fr) 44px' }"
+              >
+                <div class="font-size-14px whitespace-nowrap">
                   {{ t('税率%') }}
                 </div>
                 <el-input-number
-                  class="w-130px"
-                  placeholder="2"
-                  :step="1"
+                  class="w-full"
+                  style="width: 100%"
+                  :model-value="useMarketTax ? 2 : 0"
+                  :step="2"
                   :min="0"
-                  :max="20"
+                  :max="2"
                   controls-position="right"
                   :controls="false"
                   disabled
                 />
+                <el-switch v-model="useMarketTax" size="small" class="justify-self-end" />
               </div>
             </el-tab-pane>
           </el-tabs>
