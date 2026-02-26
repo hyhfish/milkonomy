@@ -126,6 +126,10 @@ export const publicRoutes: RouteRecordRaw[] = [
     path: "/",
     component: Layouts,
     redirect: "/sponsor",
+    meta: {
+      // 仅隐藏侧边栏入口（后续释出时再移除）
+      hidden: true
+    },
     children: [
       {
         path: "sponsor",

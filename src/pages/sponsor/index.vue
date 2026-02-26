@@ -6,10 +6,15 @@ import { Link } from "@element-plus/icons-vue"
 import axios from "axios"
 import { ElLoading, type FormRules } from "element-plus"
 
+// 打赏榜单（含“我要上榜”表单）暂时隐藏；后续释出时可通过环境变量开启。
+// - 默认隐藏（undefined => false）
+// - 开启：VITE_SHOW_SPONSOR_LEADERBOARD=true
+const showSponsorLeaderboard = import.meta.env.VITE_SHOW_SPONSOR_LEADERBOARD === "true"
+
 const url = "https://script.google.com/macros/s/AKfycbzA8s6SOQDoFi27VuQ9wqqjQDZuLcjGVdfH-3DIO32ayYFI29u3dxWV3Y4_Q6geT3Kr/exec"
 
 const jsonUrl = "https://opensheet.elk.sh/1JPXJfdfeCpaBnKb73idoilf9n1a-GNjiA_xYb-tJ6cI/Sheet1"
-const sponsorList = ref<Sponsor[] >([])
+const sponsorList = ref<Sponsor[]>([])
 const sponsorLoading = ref(false)
 
 const refForm = ref()
@@ -49,7 +54,8 @@ function submit() {
         .then(() => {
           ElMessage.success("提交成功，请等待作者审核")
           dialogVisible.value = false
-          loadData()
+          // 仅在榜单启用时刷新列表
+          showSponsorLeaderboard && loadData()
         })
         .catch((e) => {
           ElMessage.error(e)
@@ -60,7 +66,7 @@ function submit() {
     }
   })
 }
-loadData()
+showSponsorLeaderboard && loadData()
 
 interface Sponsor {
   approved?: boolean
@@ -147,7 +153,7 @@ const { t } = useI18n()
     </div>
 
     <el-row :gutter="20">
-      <el-col :sm="24" :md="12">
+      <el-col v-if="showSponsorLeaderboard" :sm="24" :md="12">
         <el-card class="sponsor-list">
           <template #header>
             {{ t('感谢以下玩家打赏') }}&nbsp;
@@ -191,7 +197,7 @@ const { t } = useI18n()
         </el-card>
       </el-col>
 
-      <el-col :sm="24" :md="12">
+      <el-col :sm="24" :md="showSponsorLeaderboard ? 12 : 24">
         <el-row :gutter="20" class="img-row">
           <el-col :xs="24" :sm="12" :md="24" :lg="12" :xl="8">
             <el-card>
@@ -222,7 +228,7 @@ const { t } = useI18n()
     </el-row>
     <div />
 
-    <el-dialog class="dialog" v-model="dialogVisible" :title="t('我要上榜')" :show-close="false">
+    <el-dialog v-if="showSponsorLeaderboard" class="dialog" v-model="dialogVisible" :title="t('我要上榜')" :show-close="false">
       <el-form :model="form" ref="refForm" class="form" :rules="rules" label-width="80px">
         <el-form-item prop="nickname" :label="t('昵称')">
           <el-input v-model="form.nickname" :placeholder="t('打赏者名单上显示的名字')" />
