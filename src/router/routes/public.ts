@@ -148,6 +148,14 @@ export const publicRoutes: RouteRecordRaw[] = [
     },
     children: [
       {
+        path: "https://github.com/luyh7/milkonomy",
+        component: () => {},
+        name: "Link0",
+        meta: {
+          title: "Milkonomy Source Code"
+        }
+      },
+      {
         path: "https://www.milkywayidle.com/",
         component: () => {},
         name: "Link1",
@@ -158,7 +166,7 @@ export const publicRoutes: RouteRecordRaw[] = [
       {
         path: "https://test-ctmd6jnzo6t9.feishu.cn/docx/KG9ddER6Eo2uPoxJFkicsvbEnCe",
         component: () => {},
-        name: "Link4",
+        name: "Link2",
         meta: {
           title: "牛牛手册(攻略/插件)"
         }
@@ -166,7 +174,7 @@ export const publicRoutes: RouteRecordRaw[] = [
       {
         path: "https://github.com/holychikenz/MWIApi",
         component: () => {},
-        name: "Link2",
+        name: "Link3",
         meta: {
           title: "MWI Api"
         }
@@ -174,11 +182,12 @@ export const publicRoutes: RouteRecordRaw[] = [
       {
         path: "https://docs.google.com/spreadsheets/d/13yBy3oQkH5N4y7UJ0Pkux2A8O5xM1ZsVTNAg6qgLEcM/edit?gid=2017655058#gid=2017655058",
         component: () => {},
-        name: "Link3",
+        name: "Link4",
         meta: {
           title: "MWI Data"
         }
       }
+
     ]
   }
 ]

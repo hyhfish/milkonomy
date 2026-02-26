@@ -309,6 +309,11 @@ export default {
   // 埋骨地
   "埋骨地": "Boneyard",
   "泥土镌刻着那些温热的姓名，他们的故事在篝火旁低语，化作了缀入长夜的繁星。": "The soil engraves those warm names, their stories whispering by the campfire, transforming into stars embedded in the long night.",
+  // 开源公告
+  "开源公告": "Open Source Announcement",
+  "#开源公告": "Milkonomy is now fully open source! Welcome to star, fork, and contribute.",
+  "关闭": "Close",
+
   // 冻结横幅
   "暂停服务": "Service Suspended",
   "#暂停公告": "Due to violating game policies, the site owner and several friends have been banned. Milkonomy will suspend service until November 4th. During this period, only the Valhalla page will remain available to commemorate players who have left the game for various reasons. We also hope everyone can focus less on PVP and return to the essence of idle gaming, enjoying the fun the game brings, and more importantly, enjoying life. Thank you for your continued support and companionship.",

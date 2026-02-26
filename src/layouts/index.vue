@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import AnnouncementBanner from "@@/components/AnnouncementBanner/index.vue"
 import FreezeBanner from "@@/components/FreezeBanner/index.vue"
 import { useDevice } from "@@/composables/useDevice"
 import { useLayoutMode } from "@@/composables/useLayoutMode"
@@ -43,6 +44,9 @@ watchEffect(() => {
 
 <template>
   <div class="layout-wrapper">
+    <!-- 公告横幅 -->
+    <AnnouncementBanner />
+
     <!-- 冻结期间横幅 -->
     <FreezeBanner v-if="isFrozen" />
 
