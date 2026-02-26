@@ -25,7 +25,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git fetch --all  # 拉取所有远程分支
 
       # 3. 从 main 分支获取 fetch_game_data.py 脚本
@@ -45,10 +45,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests ghp-import
+          pip install requests
 
       # 6. 运行脚本
       - name: Fetch and deploy data
         run: python scripts/fetch_game_data.py
         env:
-          GITHUB_TOKEN: ${{ secrets.MILKONOMY }}
+          # 优先使用你自定义的 PAT（如 secrets.MILKONOMY），没有则回退到默认 GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.MILKONOMY || secrets.GITHUB_TOKEN }}
