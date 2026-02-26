@@ -122,7 +122,7 @@ const priceStep = [
  * @param price 原价
  * @param high true加价, false减价
  */
-function priceStepOf(price: number, high: boolean = true) {
+export function priceStepOf(price: number, high: boolean = true) {
   if (price <= 0) {
     return -1
   }

@@ -10,7 +10,7 @@ import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
-import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
+import { getItemDetailOf, getMarketDataApi, getPriceOf, priceStepOf } from "@/common/apis/game"
 import { getEquipmentList } from "@/common/apis/player"
 import { useMemory } from "@/common/composables/useMemory"
 import { getEquipmentTypeOf } from "@/common/utils/game"
@@ -115,6 +115,10 @@ interface Ingredient {
   count: number
   level?: number
   originPrice: number
+  /** Optional placeholder override for originPrice (e.g. "无库存", "由制作链产出") */
+  originPriceText?: string
+  /** True when this row is an intermediate item provided by previous steps in the workflow (not bought from market). */
+  fromWorkflow?: boolean
   price?: number
 }
 interface Item {
@@ -197,8 +201,14 @@ function calcBestManufacturePlan(hrid: string) {
     [t("裁缝"), "tailoring"]
   ]
 
-  // keep consistent with Jungle: charms allow deeper chains; others keep it small for performance
-  const maxSteps = getEquipmentTypeOf(item) === "charm" ? 7 : 2
+  // Max steps for best manufacture plan search.
+  // - charms: allow deeper chains by default
+  // - non-charms:
+  //   - if target gear is not buyable (-1): allow deeper chains to craft missing intermediates
+  //   - otherwise keep it small for performance
+  const maxSteps = getEquipmentTypeOf(item) === "charm"
+    ? 7
+    : (getGearCostOriginPrice(hrid) === -1 ? 7 : 3)
 
   let best: {
     workflow: WorkflowCalculator
@@ -247,12 +257,27 @@ function calcBestManufacturePlan(hrid: string) {
           continue
         }
 
+        // If any required ingredient has no market price (-1), this workflow is not actionable.
+        // Skip it so that longer chains that actually craft the missing intermediate can win.
+        let invalid = false
         const costPH = wf.ingredientListWithPrice
           .filter(ing => !isDrink(ing.hrid))
           .reduce((acc, ing) => {
-            const unitPrice = getGearCostOriginPrice(ing.hrid, ing.level)
-            return acc + (ing.countPH || 0) * unitPrice
+            const countPH = ing.countPH || 0
+            // Only treat as invalid when this ingredient is actually required (net > 0)
+            if (countPH > 1e-12) {
+              const unitPrice = getGearCostOriginPrice(ing.hrid, ing.level)
+              if (unitPrice === -1) {
+                invalid = true
+                return acc
+              }
+              return acc + countPH * unitPrice
+            }
+            return acc
           }, 0)
+        if (invalid) {
+          continue
+        }
         const costPerItem = costPH / outputPH
 
         if (!best || costPerItem < best.costPerItem) {
@@ -268,9 +293,12 @@ function calcBestManufacturePlan(hrid: string) {
 
   const { workflow: wf, outputPH } = best
 
+  const keyOf = (hrid2: string, level2?: number) => `${hrid2}|${level2 ?? ""}`
+
   // Net ingredients (after workflow cancellation), converted to "per 1 final item"
   const totalIngredients: Ingredient[] = wf.ingredientListWithPrice
     .filter(ing => !isDrink(ing.hrid))
+    .filter(ing => (ing.countPH || 0) > 1e-12)
     .map(ing => ({
       hrid: ing.hrid,
       count: (ing.countPH || 0) / outputPH,
@@ -280,27 +308,95 @@ function calcBestManufacturePlan(hrid: string) {
 
   // Step-by-step inputs (for display)
   const stepList: { title: string, ingredients: Ingredient[] }[] = []
-  wf.calculatorList.forEach((cal, i) => {
-    if (Array.isArray(cal)) {
-      return
-    }
+  const producedBefore = new Set<string>()
+  for (let i = 0; i < wf.calculatorList.length; i++) {
+    const cal = wf.calculatorList[i]
+    if (Array.isArray(cal)) continue
+
     const wm = wf.workMultiplier[i] as number
     const stepIngredients: Ingredient[] = cal.ingredientListWithPrice
       .filter(ing => !isDrink(ing.hrid))
-      .map(ing => ({
-        hrid: ing.hrid,
-        count: ((ing.countPH || 0) * wm) / outputPH,
-        level: ing.level,
-        originPrice: getGearCostOriginPrice(ing.hrid, ing.level)
-      }))
+      .map((ing) => {
+        const fromWorkflow = producedBefore.has(ing.hrid) || producedBefore.has(keyOf(ing.hrid, ing.level))
+        return {
+          hrid: ing.hrid,
+          count: ((ing.countPH || 0) * wm) / outputPH,
+          level: ing.level,
+          originPrice: getGearCostOriginPrice(ing.hrid, ing.level),
+          fromWorkflow
+        }
+      })
 
     stepList.push({
-      title: `${t("{0}步{1}", [i + 1, cal.project])}:`,
+      title: `${t("{0}步{1}", [stepList.length + 1, cal.project])}:`,
       ingredients: stepIngredients
     })
-  })
+
+    // Mark products from this step as available for subsequent steps.
+    for (const p of cal.productListWithPrice) {
+      producedBefore.add(p.hrid)
+      producedBefore.add(keyOf(p.hrid, p.level))
+    }
+  }
 
   return { totalIngredients, stepList }
+}
+
+function getOriginPricePlaceholder(row: Ingredient) {
+  if (row.originPriceText) {
+    return row.originPriceText
+  }
+  if (row.fromWorkflow) {
+    return t("由制作链产出")
+  }
+  // Keep -1 as-is (do not replace with text like "无库存")
+  if (row.originPrice === -1) {
+    return "-1"
+  }
+  return Format.number(row.originPrice)
+}
+
+let _syncingProductPriceStep = false
+function onProductPriceChange(value: number | undefined, oldValue: number | undefined) {
+  if (_syncingProductPriceStep) return
+
+  const item = currentItem.value
+  const hrid = item?.hrid
+  if (!hrid) return
+  if (typeof value !== "number") return
+
+  const enhanceLevel = enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel
+  const marketBid = getPriceOf(hrid, enhanceLevel).bid
+
+  // Only remap when user used the +/- controls (default step=1), so it looks like the tax-rate control
+  // but actually steps by market tick levels.
+  const isOldNumber = typeof oldValue === "number"
+  const delta = isOldNumber ? (value - (oldValue as number)) : Number.NaN
+
+  let high: boolean | undefined
+  let base: number | undefined
+
+  if (isOldNumber && Math.abs(delta) === 1) {
+    high = delta > 0
+    base = oldValue as number
+  } else if (!isOldNumber && (value === 0 || value === 1) && typeof marketBid === "number" && marketBid > 0) {
+    // When input was empty (undefined) and user clicked the controls,
+    // ElInputNumber tends to jump to 0/1. Treat that as stepping from market bid.
+    high = value === 1
+    base = marketBid
+  } else {
+    // Manual typing: keep as-is.
+    return
+  }
+
+  const next = priceStepOf(base, high)
+  if (next <= 0) return
+
+  _syncingProductPriceStep = true
+  item.productPrice = next
+  nextTick(() => {
+    _syncingProductPriceStep = false
+  })
 }
 
 function recalcManufacturePlan() {
@@ -324,7 +420,9 @@ function recalcManufacturePlan() {
 
   const bestPlan = calcBestManufacturePlan(hrid)
   if (!bestPlan) {
-    manufactureIngredients.value = []
+    // Fallback: still show single-step craft ingredients (so we don't fall back to market -1)
+    // even if we failed to find a multi-step "best" plan.
+    manufactureIngredients.value = calcSingleStepIngredients(hrid)
     manufactureStepList.value = []
     return
   }
@@ -669,7 +767,7 @@ watch(menuVisible, (value) => {
 
               <el-table-column :label="t('价格')" align="center" min-width="120">
                 <template #default="{ row }">
-                  <el-input-number v-if="row.hrid !== COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                  <el-input-number v-if="row.hrid !== COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="getOriginPricePlaceholder(row)" :controls="false" />
                 </template>
               </el-table-column>
             </ElTable>
@@ -706,7 +804,7 @@ watch(menuVisible, (value) => {
             <el-table-column prop="count" />
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                <el-input-number class="max-w-100%" v-model="row.price" :placeholder="getOriginPricePlaceholder(row)" :controls="false" />
               </template>
             </el-table-column>
           </ElTable>
@@ -829,7 +927,9 @@ watch(menuVisible, (value) => {
                   :step="1"
                   :min="0"
                   :placeholder="Format.number(getPriceOf(currentItem.hrid!, enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel).bid)"
-                  :controls="false"
+                  controls-position="right"
+                  :controls="true"
+                  @change="onProductPriceChange"
                 />
               </div>
 
@@ -885,7 +985,7 @@ watch(menuVisible, (value) => {
 
             <el-table-column :label="t('价格')" align="center" min-width="120">
               <template #default="{ row }">
-                <el-input-number v-if="row.hrid !== COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                <el-input-number v-if="row.hrid !== COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="getOriginPricePlaceholder(row)" :controls="false" />
               </template>
             </el-table-column>
           </ElTable>
@@ -911,7 +1011,7 @@ watch(menuVisible, (value) => {
             </el-table-column>
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.protection.price" :placeholder="Format.number(row.protection.originPrice)" :controls="false" />
+                <el-input-number class="max-w-100%" v-model="row.protection.price" :placeholder="getOriginPricePlaceholder(row.protection)" :controls="false" />
               </template>
             </el-table-column>
           </ElTable>

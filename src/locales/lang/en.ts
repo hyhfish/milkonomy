@@ -42,6 +42,8 @@ export default {
   "当前版本": "Current Version",
   "仅记录功能变更，不记录部署相关改动": "Only feature changes are recorded; deployment/CI changes are omitted.",
 
+  "由制作链产出": "Produced by workflow",
+
   // 组件
   "请输入": "Input",
   "请选择": "Select",
