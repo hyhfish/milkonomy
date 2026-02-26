@@ -74,7 +74,8 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          token: ${{ secrets.MILKONOMY || secrets.GITHUB_TOKEN }}
+          # Use the built-in GITHUB_TOKEN (recommended). Avoid custom secrets that are not a PAT.
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: dist
           clean: false # 不清除 gh-pages 上已有文件（例如 data/）

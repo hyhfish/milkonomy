@@ -51,5 +51,5 @@ jobs:
       - name: Fetch and deploy data
         run: python scripts/fetch_game_data.py
         env:
-          # 优先使用你自定义的 PAT（如 secrets.MILKONOMY），没有则回退到默认 GITHUB_TOKEN
-          GITHUB_TOKEN: ${{ secrets.MILKONOMY || secrets.GITHUB_TOKEN }}
+          # Use the built-in GITHUB_TOKEN so it matches the workflow permissions.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
