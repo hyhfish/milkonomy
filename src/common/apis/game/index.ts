@@ -170,16 +170,20 @@ export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStat
     return convertPriceOfStatus(price, buyStatus, sellStatus)
   }
 
-  if (_priceCache[hrid]) {
-    return _priceCache[hrid]
+  // Cache key MUST include price status; otherwise calling getPriceOf(hrid, 0, ..., BID_HIGH)
+  // after getPriceOf(hrid, 0, ..., BID) would incorrectly return the cached BID result.
+  const cacheKey = `${hrid}|${buyStatus}|${sellStatus}`
+
+  if (_priceCache[cacheKey]) {
+    return _priceCache[cacheKey]
   }
   if (SPECIAL_PRICE[hrid]) {
-    _priceCache[hrid] = SPECIAL_PRICE[hrid]()
-    return _priceCache[hrid]
+    _priceCache[cacheKey] = SPECIAL_PRICE[hrid]()
+    return _priceCache[cacheKey]
   }
   if (isLoot(hrid) && hrid !== "/items/bag_of_10_cowbells") {
-    _priceCache[hrid] = getLootPrice(hrid)
-    return _priceCache[hrid]
+    _priceCache[cacheKey] = getLootPrice(hrid)
+    return _priceCache[cacheKey]
   }
   const shopItem = getGameDataApi().shopItemDetailMap[`/shop_items/${item.hrid.split("/").pop()}`]
   const price = (getMarketDataApi().marketData[item.hrid]?.[0]) || { ask: -1, bid: -1, avg: -1, vol: -1 }
@@ -187,9 +191,9 @@ export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStat
   if (shopItem && shopItem.costs[0].itemHrid === COIN_HRID) {
     price.ask = price.ask === -1 ? shopItem.costs[0].count : Math.min(price.ask, shopItem.costs[0].count)
   }
-  _priceCache[hrid] = convertPriceOfStatus(price, buyStatus, sellStatus)
+  _priceCache[cacheKey] = convertPriceOfStatus(price, buyStatus, sellStatus)
 
-  return _priceCache[hrid]
+  return _priceCache[cacheKey]
 }
 
 function isLoot(hrid: string) {

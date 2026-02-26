@@ -11,6 +11,15 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.405",
+    date: "2026-02-26",
+    changes: [
+      "强化工具：『装备成本』『强化消耗』新增买价下拉框（左价/左价-/右价/右价+），并移除『材料右价+』",
+      "强化工具：保护道具的占位价格会跟随『强化消耗』买价选择联动更新",
+      "强化工具：『成品售价』税率改为仅 0% / 2% 两档（默认 2%）"
+    ]
+  },
+  {
     version: "1.3.404",
     date: "2026-02-26",
     changes: [

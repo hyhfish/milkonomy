@@ -12,14 +12,16 @@ import { getStorageCalculatorItem } from "@/calculator/utils"
 import { WorkflowCalculator } from "@/calculator/workflow"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getEquipmentList } from "@/common/apis/player"
+import { useMemory } from "@/common/composables/useMemory"
 import { getEquipmentTypeOf } from "@/common/utils/game"
 import { useEnhancerStore } from "@/pinia/stores/enhancer"
-import { COIN_HRID, PriceStatus, useGameStore } from "@/pinia/stores/game"
+import { COIN_HRID, PRICE_STATUS_LIST, PriceStatus, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import GameInfo from "../dashboard/components/GameInfo.vue"
 
 const enhancerStore = useEnhancerStore()
+const gameStore = useGameStore()
 const { t } = useI18n()
 const route = useRoute()
 
@@ -76,11 +78,12 @@ const defaultConfig = {
   enhanceLevel: 10
 }
 
-// UI prefers "开启=计税"; internally we persist `ignoreTax`
-const useMarketTax = computed({
-  get: () => !enhancerStore.config.ignoreTax,
-  set: (value: boolean) => {
-    enhancerStore.config.ignoreTax = !value
+// Market tax rate: only 0% / 2%.
+// Internally we persist `ignoreTax` (0% => true, 2% => false).
+const marketTaxRate = computed<number>({
+  get: () => (enhancerStore.config.ignoreTax ? 0 : 2),
+  set: (value: number) => {
+    enhancerStore.config.ignoreTax = value === 0
   }
 })
 
@@ -124,18 +127,21 @@ interface Item {
 
 const gearManufacture = ref(false)
 const bestManufacture = ref(false)
-const manufactureUseBidHigh = ref(false)
+// Independent buy-price status for the two cost blocks (do NOT mutate global buyStatus)
+const gearCostBuyStatus = useMemory("enhancer-gear-cost-buy-status", PriceStatus.ASK)
+const enhancementCostBuyStatus = useMemory("enhancer-enhancement-cost-buy-status", PriceStatus.ASK)
 watch([
   () => manufactureIngredients.value,
   () => gearManufacture.value,
   () => bestManufacture.value,
-  () => manufactureUseBidHigh.value
+  () => gearCostBuyStatus.value,
+  () => enhancementCostBuyStatus.value
 ], resetPrice, { deep: true })
 
 watch([
   () => gearManufacture.value,
   () => bestManufacture.value,
-  () => manufactureUseBidHigh.value
+  () => gearCostBuyStatus.value
 ], () => {
   recalcManufacturePlan()
 }, { deep: false })
@@ -144,12 +150,13 @@ function isDrink(hrid: string) {
   return getItemDetailOf(hrid).categoryHrid === "/item_categories/drink"
 }
 
-function getManufactureIngredientOriginPrice(hrid: string, level?: number) {
-  if (manufactureUseBidHigh.value) {
-    // keep buyStatus as-is, but force sellStatus to BID_HIGH ("右价+")
-    return getPriceOf(hrid, level, useGameStore().buyStatus, PriceStatus.BID_HIGH).bid
-  }
-  return getPriceOf(hrid, level).ask
+function getGearCostOriginPrice(hrid: string, level?: number) {
+  // Use `.ask` as "buying" price output; the selected status decides which market field is used.
+  return getPriceOf(hrid, level, gearCostBuyStatus.value, gameStore.sellStatus).ask
+}
+
+function getEnhancementCostOriginPrice(hrid: string, level?: number) {
+  return getPriceOf(hrid, level, enhancementCostBuyStatus.value, gameStore.sellStatus).ask
 }
 
 function calcSingleStepIngredients(hrid: string) {
@@ -177,7 +184,7 @@ function calcSingleStepIngredients(hrid: string) {
           hrid: item.hrid,
           count: item.count,
           level: item.level,
-          originPrice: getManufactureIngredientOriginPrice(item.hrid, item.level)
+          originPrice: getGearCostOriginPrice(item.hrid, item.level)
         }))
     : []
 }
@@ -243,9 +250,7 @@ function calcBestManufacturePlan(hrid: string) {
         const costPH = wf.ingredientListWithPrice
           .filter(ing => !isDrink(ing.hrid))
           .reduce((acc, ing) => {
-            const unitPrice = manufactureUseBidHigh.value
-              ? getManufactureIngredientOriginPrice(ing.hrid, ing.level)
-              : ing.price
+            const unitPrice = getGearCostOriginPrice(ing.hrid, ing.level)
             return acc + (ing.countPH || 0) * unitPrice
           }, 0)
         const costPerItem = costPH / outputPH
@@ -270,7 +275,7 @@ function calcBestManufacturePlan(hrid: string) {
       hrid: ing.hrid,
       count: (ing.countPH || 0) / outputPH,
       level: ing.level,
-      originPrice: getManufactureIngredientOriginPrice(ing.hrid, ing.level)
+      originPrice: getGearCostOriginPrice(ing.hrid, ing.level)
     }))
 
   // Step-by-step inputs (for display)
@@ -286,7 +291,7 @@ function calcBestManufacturePlan(hrid: string) {
         hrid: ing.hrid,
         count: ((ing.countPH || 0) * wm) / outputPH,
         level: ing.level,
-        originPrice: getManufactureIngredientOriginPrice(ing.hrid, ing.level)
+        originPrice: getGearCostOriginPrice(ing.hrid, ing.level)
       }))
 
     stepList.push({
@@ -358,35 +363,35 @@ function onSelect(item: ItemDetail) {
         hrid: item.hrid,
         count: item.count,
         level: item.level,
-        originPrice: getManufactureIngredientOriginPrice(item.hrid, item.level)
+        originPrice: getGearCostOriginPrice(item.hrid, item.level)
       }))
     : []
 
   enhancementCosts.value = item.enhancementCosts!.map(item => ({
     hrid: item.itemHrid,
     count: item.count,
-    originPrice: getPriceOf(item.itemHrid).ask
+    originPrice: getEnhancementCostOriginPrice(item.itemHrid)
   }))
 
   protectionList.value = item.protectionItemHrids
     ? item.protectionItemHrids.map(hrid => ({
         hrid,
         count: 1,
-        originPrice: getPriceOf(hrid).ask
+        originPrice: getEnhancementCostOriginPrice(hrid)
       }))
     : []
   if (!protectionList.value.length) {
     protectionList.value.push({
       hrid: item.hrid,
       count: 1,
-      originPrice: getPriceOf(item.hrid).ask
+      originPrice: getEnhancementCostOriginPrice(item.hrid)
     })
   }
 
   protectionList.value.push({
     hrid: "/items/mirror_of_protection",
     count: 1,
-    originPrice: getPriceOf("/items/mirror_of_protection").ask
+    originPrice: getEnhancementCostOriginPrice("/items/mirror_of_protection")
   })
 
   // price最低的
@@ -514,28 +519,49 @@ function resetPrice() {
   currentItem.value = JSON.parse(JSON.stringify(currentItem.value))
 
   if (!gearManufacture.value) {
-    currentItem.value.originPrice = getPriceOf(currentItem.value.hrid!).ask
-    return
+    currentItem.value.originPrice = getGearCostOriginPrice(currentItem.value.hrid!)
+  } else {
+    const val = manufactureIngredients.value
+    currentItem.value.originPrice = val.length
+      ? val.reduce((acc, item) => {
+          const price = typeof item.price === "number" ? item.price : item.originPrice
+          return acc + (price * item.count)
+        }, 0)
+      : getGearCostOriginPrice(currentItem.value.hrid!)
   }
-  const val = manufactureIngredients.value
-  currentItem.value.originPrice = val.length
-    ? val.reduce((acc, item) => {
-        const price = typeof item.price === "number" ? item.price : item.originPrice
-        return acc + (price * item.count)
-      }, 0)
-    : getPriceOf(currentItem.value.hrid!).ask
 
   manufactureIngredients.value.forEach((item) => {
-    item.originPrice = getManufactureIngredientOriginPrice(item.hrid, item.level)
+    item.originPrice = getGearCostOriginPrice(item.hrid, item.level)
   })
   manufactureStepList.value.forEach((step) => {
     step.ingredients.forEach((item) => {
-      item.originPrice = getManufactureIngredientOriginPrice(item.hrid, item.level)
+      item.originPrice = getGearCostOriginPrice(item.hrid, item.level)
     })
   })
   enhancementCosts.value.forEach((item) => {
-    item.originPrice = getPriceOf(item.hrid).ask
+    item.originPrice = getEnhancementCostOriginPrice(item.hrid, item.level)
   })
+  protectionList.value.forEach((item) => {
+    item.originPrice = getEnhancementCostOriginPrice(item.hrid, item.level)
+  })
+
+  // After the deep clone above, `currentItem.protection` is no longer the same object
+  // as the one inside `protectionList`, so its originPrice would NOT refresh.
+  // Re-link it to the list item (preserve selected hrid + custom price).
+  if (protectionList.value.length) {
+    const selectedHrid = currentItem.value.protection?.hrid
+    const customPrice = currentItem.value.protection?.price
+    const selected = selectedHrid
+      ? protectionList.value.find(p => p.hrid === selectedHrid)
+      : undefined
+
+    const fallback = protectionList.value.reduce((acc, p) => acc.originPrice < p.originPrice ? acc : p)
+    const target = selected || fallback
+    if (typeof customPrice === "number") {
+      target.price = customPrice
+    }
+    currentItem.value.protection = target
+  }
 }
 
 function rowStyle({ row }: { row: any }) {
@@ -616,10 +642,15 @@ watch(menuVisible, (value) => {
                 <el-checkbox v-model="bestManufacture" :disabled="!gearManufacture">
                   {{ t('最佳制作方案') }}
                 </el-checkbox>
+              </div>
 
-                <el-checkbox v-model="manufactureUseBidHigh" :disabled="!gearManufacture">
-                  {{ t('材料右价+') }}
-                </el-checkbox>
+              <div v-if="gameStore.checkSecret()" class="flex items-center gap-2">
+                <div class="w-10 whitespace-nowrap">
+                  {{ t('买价') }}
+                </div>
+                <el-select v-model="gearCostBuyStatus" :placeholder="t('左价')" style="width:110px">
+                  <el-option v-for="item in PRICE_STATUS_LIST" :key="item.value" :value="item.value" :label="item.label" />
+                </el-select>
               </div>
             </div>
           </template>
@@ -786,7 +817,7 @@ watch(menuVisible, (value) => {
             <el-tab-pane :label="t('成品售价')">
               <div
                 class="grid w-full items-center gap-x-1"
-                :style="{ gridTemplateColumns: '44px minmax(0, 1fr) 44px' }"
+                :style="{ gridTemplateColumns: '44px minmax(0, 1fr)' }"
               >
                 <div class="font-size-14px whitespace-nowrap">
                   {{ t('价格') }}
@@ -800,12 +831,11 @@ watch(menuVisible, (value) => {
                   :placeholder="Format.number(getPriceOf(currentItem.hrid!, enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel).bid)"
                   :controls="false"
                 />
-                <div />
               </div>
 
               <div
-                class="grid w-full items-center gap-x-1 mt-2"
-                :style="{ gridTemplateColumns: '44px minmax(0, 1fr) 44px' }"
+                class="grid w-full items-center gap-x-1 gap-y-1 mt-2"
+                :style="{ gridTemplateColumns: '44px minmax(0, 1fr)' }"
               >
                 <div class="font-size-14px whitespace-nowrap">
                   {{ t('税率%') }}
@@ -813,22 +843,34 @@ watch(menuVisible, (value) => {
                 <el-input-number
                   class="w-full"
                   style="width: 100%"
-                  :model-value="useMarketTax ? 2 : 0"
+                  v-model="marketTaxRate"
                   :step="2"
+                  :step-strictly="true"
                   :min="0"
                   :max="2"
                   controls-position="right"
-                  :controls="false"
-                  disabled
+                  :controls="true"
                 />
-                <el-switch v-model="useMarketTax" size="small" class="justify-self-end" />
               </div>
             </el-tab-pane>
           </el-tabs>
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="24" :md="10" :lg="8" :xl="8" class="max-w-400px mx-auto">
-        <el-card :header="t('强化消耗')">
+        <el-card>
+          <template #header>
+            <div class="flex flex-col gap-2">
+              <span class="whitespace-nowrap flex-shrink-0">{{ t('强化消耗') }}</span>
+              <div v-if="gameStore.checkSecret()" class="flex items-center gap-2">
+                <div class="w-10 whitespace-nowrap">
+                  {{ t('买价') }}
+                </div>
+                <el-select v-model="enhancementCostBuyStatus" :placeholder="t('左价')" style="width:110px">
+                  <el-option v-for="item in PRICE_STATUS_LIST" :key="item.value" :value="item.value" :label="item.label" />
+                </el-select>
+              </div>
+            </div>
+          </template>
           <ElTable :data="enhancementCosts" style="--el-table-border-color:none;" :cell-style="{ padding: '0' }">
             <el-table-column :label="t('物品')">
               <template #default="{ row }">
