@@ -87,6 +87,11 @@ export function defaultActionConfig(name: string, color: string) {
         hrid: undefined,
         enhanceLevel: undefined
       },
+      back: {
+        type: `back`,
+        hrid: undefined,
+        enhanceLevel: undefined
+      },
       charm: {
         type: `charm`,
         hrid: undefined,
@@ -129,6 +134,7 @@ export interface ActionConfigItem {
   tool: PlayerEquipmentItem
   body: PlayerEquipmentItem
   legs: PlayerEquipmentItem
+  back: PlayerEquipmentItem
   charm: PlayerEquipmentItem
   houseLevel: number
   tea: string[]

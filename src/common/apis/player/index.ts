@@ -70,6 +70,11 @@ function initDefaultActionConfigMap() {
         hrid: undefined,
         enhanceLevel: undefined
       },
+      back: {
+        type: `back`,
+        hrid: undefined,
+        enhanceLevel: undefined
+      },
       charm: {
         type: `charm`,
         hrid: undefined,

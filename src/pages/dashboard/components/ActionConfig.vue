@@ -16,6 +16,31 @@ defineProps<{
   equipments?: Equipment[]
   communityBuffs?: CommunityBuff[]
 }>()
+
+// 背部（披风/斗篷）可选项白名单：按技能限制可装备范围
+const BACK_EQUIPMENT_HRID_WHITELIST: Record<Action, string[]> = {
+  milking: ["/items/gatherer_cape", "/items/gatherer_cape_refined"],
+  foraging: ["/items/gatherer_cape", "/items/gatherer_cape_refined"],
+  woodcutting: ["/items/gatherer_cape", "/items/gatherer_cape_refined"],
+
+  cheesesmithing: ["/items/artificer_cape", "/items/artificer_cape_refined"],
+  crafting: ["/items/artificer_cape", "/items/artificer_cape_refined"],
+  tailoring: ["/items/artificer_cape", "/items/artificer_cape_refined"],
+
+  brewing: ["/items/culinary_cape", "/items/culinary_cape_refined"],
+  cooking: ["/items/culinary_cape", "/items/culinary_cape_refined"],
+
+  enhancing: ["/items/chance_cape", "/items/chance_cape_refined"],
+  alchemy: ["/items/chance_cape", "/items/chance_cape_refined"]
+}
+
+function getBackEquipmentListOf(action: Action) {
+  const allowed = new Set(BACK_EQUIPMENT_HRID_WHITELIST[action] ?? [])
+  return getEquipmentListOf(action, "back")
+    .filter(item => allowed.has(item.hrid))
+    .sort((a, b) => a.itemLevel - b.itemLevel)
+}
+
 const playerStore = usePlayerStore()
 const visible = ref(false)
 const actionList = ref<ActionConfigItem[]>([])
@@ -353,6 +378,23 @@ function onExport() {
                 </el-select>
                 &nbsp;+&nbsp;
                 <el-input-number v-model="row.legs.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" />
+              </template>
+            </el-table-column>
+            <el-table-column :label="t('背部')" align="center" min-width="105">
+              <template #default="{ row }">
+                <el-select style="width:80px" v-model="row.back.hrid" :placeholder="t('无')" clearable>
+                  <el-option v-for="item in getBackEquipmentListOf(row.action)" :key="item.hrid" :label="item.name" :value="item.hrid">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <ItemIcon :hrid="item.hrid" />
+                      <div> {{ item.name }} </div>
+                    </div>
+                  </el-option>
+                  <template #label>
+                    <ItemIcon style="margin-top: 4px;" :hrid="row.back.hrid" />
+                  </template>
+                </el-select>
+                &nbsp;+&nbsp;
+                <el-input-number v-model="row.back.enhanceLevel" :min="0" :max="20" style="width: 60px" :controls="false" />
               </template>
             </el-table-column>
             <el-table-column :label="t('护符')" align="center" min-width="105">
