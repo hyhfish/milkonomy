@@ -7,10 +7,13 @@ import { Star, StarFilled } from "@element-plus/icons-vue"
 import { ElTable } from "element-plus"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
+import { getStorageCalculatorItem } from "@/calculator/utils"
+import { WorkflowCalculator } from "@/calculator/workflow"
 import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
 import { getEquipmentList } from "@/common/apis/player"
+import { getEquipmentTypeOf } from "@/common/utils/game"
 import { useEnhancerStore } from "@/pinia/stores/enhancer"
-import { COIN_HRID, useGameStore } from "@/pinia/stores/game"
+import { COIN_HRID, PriceStatus, useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
 import ActionConfig from "../dashboard/components/ActionConfig.vue"
 import GameInfo from "../dashboard/components/GameInfo.vue"
@@ -31,6 +34,7 @@ const currentItem = ref<Item>({
   originPrice: 0
 })
 const manufactureIngredients = ref<Ingredient[]>([])
+const manufactureStepList = ref<{ title: string, ingredients: Ingredient[] }[]>([])
 const enhancementCosts = ref<Ingredient[]>([])
 const protectionList = ref<Ingredient[]>([])
 
@@ -55,6 +59,7 @@ watch(
 interface Ingredient {
   hrid: string
   count: number
+  level?: number
   originPrice: number
   price?: number
 }
@@ -67,10 +72,209 @@ interface Item {
 }
 
 const gearManufacture = ref(false)
+const bestManufacture = ref(false)
+const manufactureUseBidHigh = ref(false)
 watch([
   () => manufactureIngredients.value,
-  () => gearManufacture.value
+  () => gearManufacture.value,
+  () => bestManufacture.value,
+  () => manufactureUseBidHigh.value
 ], resetPrice, { deep: true })
+
+watch([
+  () => gearManufacture.value,
+  () => bestManufacture.value,
+  () => manufactureUseBidHigh.value
+], () => {
+  recalcManufacturePlan()
+}, { deep: false })
+
+function isDrink(hrid: string) {
+  return getItemDetailOf(hrid).categoryHrid === "/item_categories/drink"
+}
+
+function getManufactureIngredientOriginPrice(hrid: string, level?: number) {
+  if (manufactureUseBidHigh.value) {
+    // keep buyStatus as-is, but force sellStatus to BID_HIGH ("右价+")
+    return getPriceOf(hrid, level, useGameStore().buyStatus, PriceStatus.BID_HIGH).bid
+  }
+  return getPriceOf(hrid, level).ask
+}
+
+function calcSingleStepIngredients(hrid: string) {
+  const projects: [string, Action][] = [
+    [t("锻造"), "cheesesmithing"],
+    [t("制造"), "crafting"],
+    [t("裁缝"), "tailoring"]
+  ]
+  let calc: ManufactureCalculator | undefined
+  for (const [project, action] of projects) {
+    const c = new ManufactureCalculator({
+      hrid,
+      project,
+      action
+    })
+    if (c.available) {
+      calc = c
+      break
+    }
+  }
+  return calc?.available
+    ? calc.ingredientList
+        .filter(item => !isDrink(item.hrid))
+        .map(item => ({
+          hrid: item.hrid,
+          count: item.count,
+          level: item.level,
+          originPrice: getManufactureIngredientOriginPrice(item.hrid, item.level)
+        }))
+    : []
+}
+
+function calcBestManufacturePlan(hrid: string) {
+  const item = getItemDetailOf(hrid)
+  const projects: [string, Action][] = [
+    [t("锻造"), "cheesesmithing"],
+    [t("制造"), "crafting"],
+    [t("裁缝"), "tailoring"]
+  ]
+
+  // keep consistent with Jungle: charms allow deeper chains; others keep it small for performance
+  const maxSteps = getEquipmentTypeOf(item) === "charm" ? 7 : 2
+
+  let best: {
+    workflow: WorkflowCalculator
+    outputPH: number
+    costPerItem: number
+  } | undefined
+
+  for (const [projectLast, actionLast] of projects) {
+    for (const [project, action] of projects) {
+      const manual = new ManufactureCalculator({ hrid, project, action })
+      if (!manual.available) {
+        continue
+      }
+
+      const manualChain: ManufactureCalculator[] = [manual]
+      const chainsToTry: ManufactureCalculator[][] = [[...manualChain]]
+
+      let currentManual = manual
+      let stepCount = 1
+      while (currentManual.actionItem?.upgradeItemHrid && stepCount < maxSteps) {
+        const nextManual = new ManufactureCalculator({
+          hrid: currentManual.actionItem.upgradeItemHrid,
+          project: projectLast,
+          action: actionLast
+        })
+        if (!nextManual.available) {
+          break
+        }
+        manualChain.unshift(nextManual)
+        stepCount++
+        chainsToTry.push([...manualChain])
+        currentManual = nextManual
+      }
+
+      for (const chain of chainsToTry) {
+        const wf = new WorkflowCalculator(
+          chain.map(m => getStorageCalculatorItem(m)),
+          t("{0}步{1}", [chain.length, project])
+        )
+        wf.run()
+
+        const outputPH = wf.productListWithPricePreprocess.list
+          .filter(p => p.hrid === hrid)
+          .reduce((acc, p) => acc + (p.countPH || 0), 0)
+        if (!outputPH || outputPH <= 1e-12) {
+          continue
+        }
+
+        const costPH = wf.ingredientListWithPrice
+          .filter(ing => !isDrink(ing.hrid))
+          .reduce((acc, ing) => {
+            const unitPrice = manufactureUseBidHigh.value
+              ? getManufactureIngredientOriginPrice(ing.hrid, ing.level)
+              : ing.price
+            return acc + (ing.countPH || 0) * unitPrice
+          }, 0)
+        const costPerItem = costPH / outputPH
+
+        if (!best || costPerItem < best.costPerItem) {
+          best = { workflow: wf, outputPH, costPerItem }
+        }
+      }
+    }
+  }
+
+  if (!best) {
+    return undefined
+  }
+
+  const { workflow: wf, outputPH } = best
+
+  // Net ingredients (after workflow cancellation), converted to "per 1 final item"
+  const totalIngredients: Ingredient[] = wf.ingredientListWithPrice
+    .filter(ing => !isDrink(ing.hrid))
+    .map(ing => ({
+      hrid: ing.hrid,
+      count: (ing.countPH || 0) / outputPH,
+      level: ing.level,
+      originPrice: getManufactureIngredientOriginPrice(ing.hrid, ing.level)
+    }))
+
+  // Step-by-step inputs (for display)
+  const stepList: { title: string, ingredients: Ingredient[] }[] = []
+  wf.calculatorList.forEach((cal, i) => {
+    if (Array.isArray(cal)) {
+      return
+    }
+    const wm = wf.workMultiplier[i] as number
+    const stepIngredients: Ingredient[] = cal.ingredientListWithPrice
+      .filter(ing => !isDrink(ing.hrid))
+      .map(ing => ({
+        hrid: ing.hrid,
+        count: ((ing.countPH || 0) * wm) / outputPH,
+        level: ing.level,
+        originPrice: getManufactureIngredientOriginPrice(ing.hrid, ing.level)
+      }))
+
+    stepList.push({
+      title: `${t("{0}步{1}", [i + 1, cal.project])}:`,
+      ingredients: stepIngredients
+    })
+  })
+
+  return { totalIngredients, stepList }
+}
+
+function recalcManufacturePlan() {
+  const hrid = currentItem.value.hrid
+  if (!hrid) {
+    manufactureIngredients.value = []
+    manufactureStepList.value = []
+    return
+  }
+
+  if (!gearManufacture.value) {
+    manufactureStepList.value = []
+    return
+  }
+
+  if (!bestManufacture.value) {
+    manufactureIngredients.value = calcSingleStepIngredients(hrid)
+    manufactureStepList.value = []
+    return
+  }
+
+  const bestPlan = calcBestManufacturePlan(hrid)
+  if (!bestPlan) {
+    manufactureIngredients.value = []
+    manufactureStepList.value = []
+    return
+  }
+  manufactureIngredients.value = bestPlan.totalIngredients
+  manufactureStepList.value = bestPlan.stepList
+}
 
 function onSelect(item: ItemDetail) {
   if (!item) {
@@ -102,7 +306,8 @@ function onSelect(item: ItemDetail) {
     ? calc!.ingredientList.filter(item => getItemDetailOf(item.hrid).categoryHrid !== "/item_categories/drink").map(item => ({
         hrid: item.hrid,
         count: item.count,
-        originPrice: getPriceOf(item.hrid).ask
+        level: item.level,
+        originPrice: getManufactureIngredientOriginPrice(item.hrid, item.level)
       }))
     : []
 
@@ -140,6 +345,8 @@ function onSelect(item: ItemDetail) {
     }
     return acc.originPrice < item.originPrice ? acc : item
   })
+
+  recalcManufacturePlan()
 }
 
 const results = computed(() => {
@@ -264,7 +471,12 @@ function resetPrice() {
     : getPriceOf(currentItem.value.hrid!).ask
 
   manufactureIngredients.value.forEach((item) => {
-    item.originPrice = getPriceOf(item.hrid).ask
+    item.originPrice = getManufactureIngredientOriginPrice(item.hrid, item.level)
+  })
+  manufactureStepList.value.forEach((step) => {
+    step.ingredients.forEach((item) => {
+      item.originPrice = getManufactureIngredientOriginPrice(item.hrid, item.level)
+    })
   })
   enhancementCosts.value.forEach((item) => {
     item.originPrice = getPriceOf(item.hrid).ask
@@ -342,9 +554,18 @@ watch(menuVisible, (value) => {
           <template #header>
             <div class="flex justify-between items-center">
               <span>{{ t('装备成本') }}</span>
-              <el-checkbox v-model="gearManufacture">
-                {{ t('制作装备') }}
-              </el-checkbox>
+              <div class="flex items-center gap-2">
+                <el-checkbox v-model="gearManufacture">
+                  {{ t('制作装备') }}
+                </el-checkbox>
+                <el-checkbox v-model="bestManufacture" :disabled="!gearManufacture">
+                  {{ t('最佳制作方案') }}
+                </el-checkbox>
+
+                <el-checkbox v-model="manufactureUseBidHigh" :disabled="!gearManufacture">
+                  {{ t('材料右价+') }}
+                </el-checkbox>
+              </div>
             </div>
           </template>
           <template v-if="gearManufacture && manufactureIngredients.length">
@@ -368,6 +589,28 @@ watch(menuVisible, (value) => {
             </ElTable>
             <el-divider class="mt-2 mb-2" />
           </template>
+
+          <template v-if="gearManufacture && bestManufacture && manufactureStepList.length">
+            <div v-for="step in manufactureStepList" :key="step.title" class="mb-3">
+              <div class="text-xs color-gray-500 mb-1">
+                {{ step.title }}
+              </div>
+              <ElTable :data="step.ingredients" style="--el-table-border-color:none" :cell-style="{ padding: '0' }" size="small">
+                <el-table-column :label="t('物品')">
+                  <template #default="{ row }">
+                    <ItemIcon :hrid="row.hrid" />
+                  </template>
+                </el-table-column>
+                <el-table-column prop="count" :label="t('数量')">
+                  <template #default="{ row }">
+                    {{ Format.number(row.count, 4) }}
+                  </template>
+                </el-table-column>
+              </ElTable>
+            </div>
+            <el-divider class="mt-2 mb-2" />
+          </template>
+
           <ElTable :data="[currentItem]" :show-header="false" style="--el-table-border-color:none">
             <el-table-column>
               <template #default="{ row }">

@@ -97,6 +97,7 @@ export default {
   "搜索": "Search",
   "装备成本": "Gear Cost",
   "制作装备": "Craft Gear",
+  "材料右价+": "Materials Bid+",
   "工时费/h": "Hourly Rate",
   "工时费": "Hourly Rate",
   "溢价率%": "% Rate",
