@@ -55,11 +55,15 @@ export function getMarketDataApi() {
 const SPECIAL_PRICE: Record<string, () => MarketItemPrice> = {
   "/items/cowbell": () => ({
     ask: getPriceOf("/items/bag_of_10_cowbells").ask / 10 || 40000,
-    bid: getPriceOf("/items/bag_of_10_cowbells").bid / 10 || 40000
+    bid: getPriceOf("/items/bag_of_10_cowbells").bid / 10 || 40000,
+    avg: -1,
+    vol: -1
   }),
   "/items/coin": () => ({
     ask: 1,
-    bid: 1
+    bid: 1,
+    avg: 1,
+    vol: -1
   })
 }
 
@@ -91,7 +95,10 @@ function convertPriceOfStatus(price: MarketItemPrice, buyStatus: PriceStatus, se
 
   return {
     ask: convert(buyStatus).price,
-    bid: convert(sellStatus).price
+    bid: convert(sellStatus).price,
+    // avg/vol are not affected by buy/sell status; keep raw values
+    avg: price.avg,
+    vol: price.vol
   }
 }
 
@@ -144,7 +151,9 @@ export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStat
   if (!hrid) {
     return {
       ask: -1,
-      bid: -1
+      bid: -1,
+      avg: -1,
+      vol: -1
     }
   }
   const item = getItemDetailOf(hrid)
@@ -153,8 +162,10 @@ export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStat
     const priceItem = marketItem ? marketItem[level] : undefined
 
     const price = {
-      ask: priceItem?.ask || -1,
-      bid: priceItem?.bid || -1
+      ask: priceItem?.ask ?? -1,
+      bid: priceItem?.bid ?? -1,
+      avg: priceItem?.avg ?? -1,
+      vol: priceItem?.vol ?? -1
     }
     return convertPriceOfStatus(price, buyStatus, sellStatus)
   }
@@ -171,7 +182,7 @@ export function getPriceOf(hrid: string, level: number = 0, buyStatus: PriceStat
     return _priceCache[hrid]
   }
   const shopItem = getGameDataApi().shopItemDetailMap[`/shop_items/${item.hrid.split("/").pop()}`]
-  const price = (getMarketDataApi().marketData[item.hrid]?.[0]) || { ask: -1, bid: -1 }
+  const price = (getMarketDataApi().marketData[item.hrid]?.[0]) || { ask: -1, bid: -1, avg: -1, vol: -1 }
 
   if (shopItem && shopItem.costs[0].itemHrid === COIN_HRID) {
     price.ask = price.ask === -1 ? shopItem.costs[0].count : Math.min(price.ask, shopItem.costs[0].count)

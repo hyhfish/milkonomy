@@ -155,7 +155,9 @@ export const useGameStore = defineStore("game", {
       setGameData(newGameData)
 
       // 如果缓存数据的时间戳与新数据相同，则不更新
-      if (this.marketData?.timestamp && this.marketData?.timestamp === newMarketData.timestamp) {
+      const sameTimestamp = this.marketData?.timestamp && this.marketData?.timestamp === newMarketData.timestamp
+      // 兼容：老缓存 marketData 里没有 avg/vol 字段，但 timestamp 可能相同，导致无法触发结构升级
+      if (sameTimestamp && hasAvgVolFields(this.marketData)) {
         return
       }
 
@@ -266,19 +268,38 @@ export const useGameStore = defineStore("game", {
   }
 })
 
+function hasAvgVolFields(data: MarketData | null | undefined) {
+  const market = data?.marketData
+  if (!market) return false
+  for (const hrid in market) {
+    const item = market[hrid]
+    if (!item) continue
+    for (const level in item) {
+      const price: any = (item as any)[level]
+      if (price && (Object.prototype.hasOwnProperty.call(price, "avg") || Object.prototype.hasOwnProperty.call(price, "vol"))) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 function updateMarketData(oldData: MarketData | null, newData: MarketDataPlain, newGameData: GameData): MarketData {
   const oldMarket = oldData?.marketData || {}
   const newMarket: Market = { }
 
   // 将 MarketDataPlain 转成 MarketData 的结构
   for (const hrid in newData.marketData) {
-    if (newData.marketData[hrid]) {
-      newMarket[hrid] = {}
-    }
-    for (const level in newData.marketData[hrid]) {
+    const levels = newData.marketData[hrid]
+    if (!levels) continue
+    newMarket[hrid] = {}
+    for (const level in levels) {
+      const plain = levels[level] || {}
       newMarket[hrid][level] = {
-        ask: newData.marketData[hrid][level].a,
-        bid: newData.marketData[hrid][level].b
+        ask: plain.a ?? -1,
+        bid: plain.b ?? -1,
+        avg: plain.p ?? -1,
+        vol: plain.v ?? -1
       }
     }
   }
@@ -302,6 +323,12 @@ function updateMarketData(oldData: MarketData | null, newData: MarketDataPlain, 
       }
       if (price.bid === -1) {
         price.bid = (oldMarket[hrid]?.[level] as MarketItemPrice)?.bid || -1
+      }
+      if ((price.avg ?? -1) === -1) {
+        price.avg = (oldMarket[hrid]?.[level] as MarketItemPrice)?.avg ?? -1
+      }
+      if ((price.vol ?? -1) === -1) {
+        price.vol = (oldMarket[hrid]?.[level] as MarketItemPrice)?.vol ?? -1
       }
     }
   }

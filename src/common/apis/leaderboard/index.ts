@@ -17,20 +17,32 @@ const { t } = locales.global
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   let profitList: Calculator[] = []
-  if (useGameStoreOutside().getLeaderboardCache()) {
-    profitList = useGameStoreOutside().getLeaderboardCache()
+  const cached = useGameStoreOutside().getLeaderboardCache()
+  if (cached && cached.length > 0) {
+    profitList = cached
   } else {
     await new Promise(resolve => setTimeout(resolve, 100))
     const startTime = Date.now()
+    let hasError = false
     try {
       profitList = calcProfit()
       profitList = profitList.concat(calcAllFlowProfit())
     } catch (e: any) {
+      hasError = true
       console.error(e)
     }
 
-    useGameStoreOutside().setLeaderBoardCache(profitList)
-    ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
+    if (profitList.length > 0) {
+      useGameStoreOutside().setLeaderBoardCache(profitList)
+    } else {
+      useGameStoreOutside().clearLeaderBoardCache()
+    }
+
+    if (hasError || profitList.length === 0) {
+      ElMessage.error(t("计算失败或结果为空，请打开控制台查看错误"))
+    } else {
+      ElMessage.success(t("计算完成，耗时{0}秒", [(Date.now() - startTime) / 1000]))
+    }
   }
   profitList.forEach(item => item.favorite = useFavoriteStoreOutside().hasFavorite(item))
   profitList = profitList.filter(item => item.actionLevel >= (params.actionLevel || 0))

@@ -14,14 +14,24 @@ export interface MarketItem {
 export interface MarketItemPrice {
   ask: number
   bid: number
+  /** marketplace.json: p (average) */
+  avg?: number
+  /** marketplace.json: v (volume) */
+  vol?: number
 }
 
 export interface MarketDataPlain {
   marketData: {
     [hrid: string]: {
       [level: string]: {
-        a: number
-        b: number
+        /** ask */
+        a?: number
+        /** bid */
+        b?: number
+        /** average */
+        p?: number
+        /** volume */
+        v?: number
       }
     }
   }

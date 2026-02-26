@@ -28,11 +28,25 @@ export function handlePage(profitList: Calculator[], params: any) {
 }
 
 export function handlePush(profitList: Calculator[], cal: Calculator) {
-  if (!cal.available) return
-  if (!cal.result) {
-    cal.run()
+  try {
+    // 注意：cal.available / cal.run() 可能因为数据缺失/异常而抛错。
+    // 如果这里不兜底，会导致整批利润榜计算直接中断，最终缓存空数组。
+    if (!cal.available) return
+    if (!cal.result) {
+      cal.run()
+    }
+    // run() 失败或被中断时，result 可能仍为空；此时不要 push。
+    if (!cal.result) return
+    profitList.push(cal)
+  } catch (e) {
+    // 不要让单个条目影响整体列表
+    console.error("[handlePush] calculator failed", {
+      className: (cal as any)?.className,
+      hrid: (cal as any)?.hrid,
+      project: (cal as any)?.project,
+      action: (cal as any)?.action
+    }, e)
   }
-  profitList.push(cal)
 }
 
 export function handleSearch(profitList: Calculator[], params: any) {

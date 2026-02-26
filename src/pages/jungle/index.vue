@@ -6,6 +6,7 @@ import { Edit, Search } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep, debounce } from "lodash-es"
 
+import { getPriceOf } from "@/common/apis/game"
 import { getDataApi } from "@/common/apis/jungle"
 import { useMemory } from "@/common/composables/useMemory"
 import { usePriceStatus } from "@/common/composables/usePriceStatus"
@@ -114,6 +115,13 @@ function setPrice(row: Calculator) {
 }
 
 const { t } = useI18n()
+
+function formatVolume1h(row: any) {
+  const hrid = row?.hrid
+  const level = row?.calculator?.enhanceLevel ?? 0
+  const vol = getPriceOf(hrid, level).vol ?? -1
+  return vol < 0 ? "-" : Format.number(vol)
+}
 
 const onPriceStatusChange = usePriceStatus("jungle-price-status")
 </script>
@@ -283,6 +291,12 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                   <span>
                     {{ Format.price(row.calculator.productListWithPrice[0].price) }}
                   </span>
+                </template>
+              </el-table-column>
+
+              <el-table-column :label="t('成交量(1h)')" align="center" min-width="120">
+                <template #default="{ row }">
+                  {{ formatVolume1h(row) }}
                 </template>
               </el-table-column>
 
