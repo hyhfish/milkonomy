@@ -114,7 +114,7 @@ const chatIcons = computed(() => {
 
   const icons = Object.values(gameStore.gameData.chatIconDetailMap)
   return icons
-    .filter((icon: any) => icon.hrid && icon.name)
+    .filter((icon: any) => icon.hrid)
     .map((icon: any) => ({
       hrid: icon.hrid,
       name: icon.name,
