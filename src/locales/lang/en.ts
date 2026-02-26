@@ -256,6 +256,7 @@ export default {
 
   "捡漏工具": "Bargain Hunting",
   "排除首饰": "Exclude Jewelry",
+  "排除护符": "Exclude Charms",
   "制作炼金": "Craft Alchemy",
   "超级强化分解": "Enhan Decompose(S)",
   "卖价": "Selling Price",

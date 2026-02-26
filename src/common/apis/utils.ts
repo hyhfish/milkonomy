@@ -47,6 +47,9 @@ export function handleSearch(profitList: Calculator[], params: any) {
   params.banJewelry && (profitList = profitList.filter(cal =>
     getEquipmentTypeOf(cal.item) !== "neck" && getEquipmentTypeOf(cal.item) !== "ring" && getEquipmentTypeOf(cal.item) !== "earrings"))
 
+  // 排除护符（charm）
+  params.banCharm && (profitList = profitList.filter(cal => !cal.item || getEquipmentTypeOf(cal.item) !== "charm"))
+
   params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
   params.maxRisk && (profitList = profitList.filter(cal => cal.result.risk <= params.maxRisk))
   return profitList

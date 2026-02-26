@@ -34,7 +34,10 @@ export async function getDataApi(params: any, cacheKey: string = "jungle") {
   profitList = profitList.filter(item => params.minSellPrice ? item.calculator.productListWithPrice[0].price >= params.minSellPrice * 1e6 : true)
   profitList = profitList.filter(item => params.maxSellPrice ? item.calculator.productListWithPrice[0].price <= params.maxSellPrice * 1e6 : true)
 
-  profitList = profitList.filter(item => params.minItemLevel ? (item.calculator.item.itemLevel >= params.minItemLevel) : true)
+  const hasMinItemLevel = params.minItemLevel !== undefined && params.minItemLevel !== null && params.minItemLevel !== ""
+  const hasMaxItemLevel = params.maxItemLevel !== undefined && params.maxItemLevel !== null && params.maxItemLevel !== ""
+  profitList = profitList.filter(item => hasMinItemLevel ? (item.calculator.item.itemLevel >= Number(params.minItemLevel)) : true)
+  profitList = profitList.filter(item => hasMaxItemLevel ? (item.calculator.item.itemLevel <= Number(params.maxItemLevel)) : true)
 
   if (params.bestManufacture) {
     const maxProfitMap: Record<string, WorkflowCalculator> = {}

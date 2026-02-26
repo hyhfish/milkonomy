@@ -32,6 +32,8 @@ const ldSearchData = useMemory("jungle-leaderboard-search-data", {
   maxLevel: 20,
   minLevel: 1,
   banEquipment: false,
+  banCharm: false,
+  maxItemLevel: undefined,
   bestManufacture: false
 })
 
@@ -155,6 +157,10 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                 <el-input-number style="width:80px" v-model="ldSearchData.minItemLevel" placeholder="0" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
 
+              <el-form-item :label="`${t('物品等级')} ≤`">
+                <el-input-number style="width:80px" v-model="ldSearchData.maxItemLevel" placeholder="" clearable @change="handleSearchLD" :controls="false" />
+              </el-form-item>
+
               <el-form-item :label="`${t('风险')} ≤`">
                 <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
@@ -162,6 +168,12 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
               <el-form-item>
                 <el-checkbox v-model="ldSearchData.bestManufacture" @change="handleSearchLD">
                   {{ t('最佳制作方案') }}
+                </el-checkbox>
+              </el-form-item>
+
+              <el-form-item>
+                <el-checkbox v-model="ldSearchData.banCharm" @change="handleSearchLD">
+                  {{ t('排除护符') }}
                 </el-checkbox>
               </el-form-item>
             </el-form>
