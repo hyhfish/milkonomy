@@ -34,9 +34,13 @@ export default {
   // 路由
   "回到首页": "Back to Home",
   "首页": "Home",
+  "更新日志": "Changelog",
   "打赏": "Sponsor",
   "英灵殿": "Valhalla",
   "相关链接": "Related Links",
+
+  "当前版本": "Current Version",
+  "仅记录功能变更，不记录部署相关改动": "Only feature changes are recorded; deployment/CI changes are omitted.",
 
   // 组件
   "请输入": "Input",
