@@ -5,6 +5,7 @@ import ItemIcon from "@@/components/ItemIcon/index.vue"
 import * as Format from "@@/utils/format"
 import { Star, StarFilled } from "@element-plus/icons-vue"
 import { ElTable } from "element-plus"
+import { useRoute } from "vue-router"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
 import { getStorageCalculatorItem } from "@/calculator/utils"
@@ -20,6 +21,37 @@ import GameInfo from "../dashboard/components/GameInfo.vue"
 
 const enhancerStore = useEnhancerStore()
 const { t } = useI18n()
+const route = useRoute()
+
+function getQueryFirstString(value: unknown): string | undefined {
+  if (typeof value === "string") return value
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0]
+  return undefined
+}
+
+function applyPrefillFromRouteQuery(options: { selectItem?: boolean } = {}) {
+  const hrid = getQueryFirstString(route.query.hrid)
+  const enhanceLevelStr = getQueryFirstString(route.query.enhanceLevel)
+
+  if (enhanceLevelStr) {
+    const enhanceLevel = Math.floor(Number(enhanceLevelStr))
+    if (Number.isFinite(enhanceLevel) && enhanceLevel >= 1 && enhanceLevel <= 20) {
+      enhancerStore.config.enhanceLevel = enhanceLevel
+    }
+  }
+
+  if (!hrid) return
+  if (currentItem.value.hrid === hrid && !options.selectItem) return
+
+  enhancerStore.config.hrid = hrid
+  if (options.selectItem) {
+    try {
+      onSelect(getItemDetailOf(hrid))
+    } catch (e) {
+      console.warn("Invalid hrid from route query", hrid, e)
+    }
+  }
+}
 
 const dialogVisible = ref(false)
 const search = ref("")
@@ -53,8 +85,19 @@ const useMarketTax = computed({
 })
 
 onMounted(() => {
+  applyPrefillFromRouteQuery({ selectItem: false })
   enhancerStore.hrid && onSelect(getItemDetailOf(enhancerStore.hrid))
 })
+
+watch(
+  () => route.query,
+  () => {
+    // When navigating from other tools (e.g., Jungle) while staying on this page,
+    // re-apply query and re-select the item.
+    applyPrefillFromRouteQuery({ selectItem: true })
+  },
+  { immediate: false }
+)
 
 watch(
   () => enhancerStore.config,

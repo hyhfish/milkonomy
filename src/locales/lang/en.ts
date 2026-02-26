@@ -240,6 +240,7 @@ export default {
 
   "打野工具": "Jungle ",
   "打野爽！": "Jungle is Fun!",
+  "到强化工具中查看": "View in Enhancer",
   "强化": "Enhance",
   "售价": "Selling Price",
   "物品等级": "Item Level",

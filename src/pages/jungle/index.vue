@@ -5,6 +5,7 @@ import { usePagination } from "@@/composables/usePagination"
 import { Edit, Search } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep, debounce } from "lodash-es"
+import { useRouter } from "vue-router"
 
 import { getPriceOf } from "@/common/apis/game"
 import { getDataApi } from "@/common/apis/jungle"
@@ -115,6 +116,29 @@ function setPrice(row: Calculator) {
 }
 
 const { t } = useI18n()
+
+const router = useRouter()
+
+function getEnhanceLevelOfRow(row: any): number | undefined {
+  const raw = row?.calculator?.enhanceLevel ?? row?.enhanceLevel
+  const level = Math.floor(Number(raw))
+  if (!Number.isFinite(level)) return undefined
+  if (level < 1 || level > 20) return undefined
+  return level
+}
+
+function goToEnhancer(row: any) {
+  const hrid = row?.hrid
+  if (!hrid) return
+  const enhanceLevel = getEnhanceLevelOfRow(row)
+  router.push({
+    path: "/enhancer",
+    query: {
+      hrid,
+      enhanceLevel: enhanceLevel !== undefined ? String(enhanceLevel) : undefined
+    }
+  })
+}
 
 function formatVolume1h(row: any) {
   const hrid = row?.hrid
@@ -297,6 +321,14 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
               <el-table-column :label="t('成交量(1h)')" align="center" min-width="120">
                 <template #default="{ row }">
                   {{ formatVolume1h(row) }}
+                </template>
+              </el-table-column>
+
+              <el-table-column :label="t('到强化工具中查看')" align="center" min-width="140">
+                <template #default="{ row }">
+                  <el-link type="primary" @click="goToEnhancer(row)">
+                    {{ t('到强化工具中查看') }}
+                  </el-link>
                 </template>
               </el-table-column>
 
