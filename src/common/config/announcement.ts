@@ -21,7 +21,8 @@ export interface AnnouncementConfig {
 }
 
 export const announcementConfig: AnnouncementConfig = {
-  enabled: true,
+  // 开源公告已下线：如需再次启用公告功能，将此处改为 true 并更新 id/message。
+  enabled: false,
   id: "open-source-2026",
   message: {
     title: "开源公告",
