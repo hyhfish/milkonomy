@@ -1,7 +1,7 @@
-import type { Action, CommunityBuff, Equipment } from "~/game"
+import type { AchievementTier, Action, CommunityBuff, Equipment } from "~/game"
 import { defineStore } from "pinia"
 import { clearEnhancelateCache } from "@/common/apis/game"
-import { DEFAULT_COMMUNITY_BUFF_LIST, DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
+import { DEFAULT_ACHIEVEMENT_BUFF_LIST, DEFAULT_COMMUNITY_BUFF_LIST, DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
 import { pinia } from "@/pinia"
 import { ACTION_LIST, useGameStoreOutside } from "./game"
 
@@ -117,10 +117,18 @@ export function defaultActionConfig(name: string, color: string) {
       level: buff.level
     })
   }
+  const achievementBuffMap = new Map<AchievementTier, AchievementBuffItem>()
+  for (const buff of Object.values(DEFAULT_ACHIEVEMENT_BUFF_LIST)) {
+    achievementBuffMap.set(buff.type, {
+      type: buff.type,
+      enabled: buff.enabled
+    })
+  }
   return {
     actionConfigMap,
     specialEquimentMap,
     communityBuffMap,
+    achievementBuffMap,
     name,
     color
   }
@@ -150,12 +158,18 @@ export interface CommunityBuffItem {
   hrid?: string
   level?: number
 }
+
+export interface AchievementBuffItem {
+  type: AchievementTier
+  enabled: boolean
+}
 export interface ActionConfig {
   name?: string
   color?: string
   actionConfigMap: Map<Action, ActionConfigItem>
   specialEquimentMap: Map<Equipment, PlayerEquipmentItem>
   communityBuffMap: Map<CommunityBuff, CommunityBuffItem>
+  achievementBuffMap: Map<AchievementTier, AchievementBuffItem>
 }
 
 // 向前兼容
@@ -164,6 +178,7 @@ function loadLegacyConfig() {
     actionConfigMap: new Map<Action, ActionConfigItem>(),
     specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(),
     communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(),
+    achievementBuffMap: new Map<AchievementTier, AchievementBuffItem>(),
     name: "0",
     color: "#11BF11"
   }
@@ -172,6 +187,7 @@ function loadLegacyConfig() {
     config.actionConfigMap = new Map<Action, ActionConfigItem>(Object.entries(data.actionConfigMap || {}) as [Action, ActionConfigItem][])
     config.specialEquimentMap = new Map<Equipment, PlayerEquipmentItem>(Object.entries(data.specialEquimentMap || {}) as [Equipment, PlayerEquipmentItem][])
     config.communityBuffMap = new Map<CommunityBuff, CommunityBuffItem>(Object.entries(data.communityBuffMap || {}) as [CommunityBuff, CommunityBuffItem][])
+    config.achievementBuffMap = new Map<AchievementTier, AchievementBuffItem>(Object.entries(data.achievementBuffMap || {}) as [AchievementTier, AchievementBuffItem][])
   } catch {
   }
   return config
@@ -193,7 +209,8 @@ function loadPresets(): ActionConfig[] {
         color: item.color,
         actionConfigMap: new Map<Action, ActionConfigItem>(Object.entries(item.actionConfigMap || {}) as [Action, ActionConfigItem][]),
         specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(Object.entries(item.specialEquimentMap || {}) as [Equipment, PlayerEquipmentItem][]),
-        communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(Object.entries(item.communityBuffMap || {}) as [CommunityBuff, CommunityBuffItem][])
+        communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(Object.entries(item.communityBuffMap || {}) as [CommunityBuff, CommunityBuffItem][]),
+        achievementBuffMap: new Map<AchievementTier, AchievementBuffItem>(Object.entries(item.achievementBuffMap || {}) as [AchievementTier, AchievementBuffItem][])
       }
       presets.push(actionConfig)
     }

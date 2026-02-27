@@ -1,4 +1,4 @@
-import type { CommunityBuffItem, PlayerEquipmentItem } from "@/pinia/stores/player"
+import type { AchievementBuffItem, CommunityBuffItem, PlayerEquipmentItem } from "@/pinia/stores/player"
 import type { Action } from "~/game"
 
 export const DEFAULT_SEPCIAL_EQUIPMENT_LIST: PlayerEquipmentItem[] = [
@@ -30,4 +30,13 @@ export const DEFAULT_COMMUNITY_BUFF_LIST: CommunityBuffItem[] = [
   { type: "gathering_quantity", hrid: "/community_buff_types/gathering_quantity", level: undefined },
   { type: "production_efficiency", hrid: "/community_buff_types/production_efficiency", level: undefined },
   { type: "enhancing_speed", hrid: "/community_buff_types/enhancing_speed", level: undefined }
+]
+
+export const DEFAULT_ACHIEVEMENT_BUFF_LIST: AchievementBuffItem[] = [
+  { type: "beginner", enabled: false },
+  { type: "novice", enabled: false },
+  { type: "adept", enabled: false },
+  { type: "veteran", enabled: false },
+  { type: "elite", enabled: false },
+  { type: "champion", enabled: false }
 ]

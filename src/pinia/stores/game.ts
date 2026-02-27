@@ -51,6 +51,15 @@ export const COMMUNITY_BUFF_LIST = [
   "enhancing_speed"
 ]
 
+export const ACHIEVEMENT_TIER_LIST = [
+  "beginner",
+  "novice",
+  "adept",
+  "veteran",
+  "elite",
+  "champion"
+] as const
+
 const DEFAULT_HOUSE = {
   Efficiency: 0.015,
   Experience: 0.0005,

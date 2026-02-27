@@ -192,6 +192,9 @@ export default {
   "茶": "Tea",
 
   "社区Buff": "Community Buffs",
+  "成就Buff": "Achievement Buffs",
+  "名称": "Name",
+  "启用": "Enabled",
 
   "简易模式": "Simple Mode",
   "成功率": "Success Rate",

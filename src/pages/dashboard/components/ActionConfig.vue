@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { ActionConfig, ActionConfigItem, CommunityBuffItem, PlayerEquipmentItem } from "@/pinia/stores/player"
-import type { Action, CommunityBuff, Equipment } from "~/game"
+import type { AchievementBuffItem, ActionConfig, ActionConfigItem, CommunityBuffItem, PlayerEquipmentItem } from "@/pinia/stores/player"
+import type { AchievementTier, Action, CommunityBuff, Equipment } from "~/game"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { Plus } from "@element-plus/icons-vue"
 import { ElMessageBox } from "element-plus"
-import { getCommunityBuffDetailOf } from "@/common/apis/game"
+import { getAchievementTierDetailOf, getCommunityBuffDetailOf } from "@/common/apis/game"
 import { getEquipmentListOf, getSpecialEquipmentListOf, getTeaListOf, getToolListOf, setActionConfigApi } from "@/common/apis/player"
 import { useTheme } from "@/common/composables/useTheme"
-import { DEFAULT_COMMUNITY_BUFF_LIST, DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
+import { DEFAULT_ACHIEVEMENT_BUFF_LIST, DEFAULT_COMMUNITY_BUFF_LIST, DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
 import { ACTION_LIST } from "@/pinia/stores/game"
 import { defaultActionConfig, usePlayerStore } from "@/pinia/stores/player"
 
@@ -15,6 +15,7 @@ defineProps<{
   actions?: Action[]
   equipments?: Equipment[]
   communityBuffs?: CommunityBuff[]
+  achievementBuffs?: AchievementTier[]
 }>()
 
 // 背部（披风/斗篷）可选项白名单：按技能限制可装备范围
@@ -46,6 +47,7 @@ const visible = ref(false)
 const actionList = ref<ActionConfigItem[]>([])
 const specialList = ref<PlayerEquipmentItem[]>([])
 const communityBuffList = ref<CommunityBuffItem[]>([])
+const achievementBuffList = ref<AchievementBuffItem[]>([])
 const name = ref("")
 const color = ref("")
 const currentIndex = ref(0)
@@ -78,6 +80,12 @@ function onDialog(config: ActionConfig, index: number) {
     }
   }))
 
+  achievementBuffList.value = structuredClone(DEFAULT_ACHIEVEMENT_BUFF_LIST.map((buff) => {
+    return {
+      ...toRaw(config.achievementBuffMap.get(buff.type) ?? defaultConfig.achievementBuffMap.get(buff.type)!)
+    }
+  }))
+
   name.value = config.name!
   color.value = config.color!
   visible.value = true
@@ -103,6 +111,7 @@ function constructActionConfig() {
     actionConfigMap: new Map<Action, ActionConfigItem>(),
     specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(),
     communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(),
+    achievementBuffMap: new Map<AchievementTier, AchievementBuffItem>(),
     name: name.value,
     color: color.value
   }
@@ -117,6 +126,10 @@ function constructActionConfig() {
 
   for (const item of communityBuffList.value) {
     config.communityBuffMap.set(item.type, toRaw(item))
+  }
+
+  for (const item of achievementBuffList.value) {
+    config.achievementBuffMap.set(item.type, toRaw(item))
   }
 
   return config
@@ -202,7 +215,8 @@ function onImport() {
         color: obj.color,
         actionConfigMap: new Map<Action, ActionConfigItem>(Object.entries(obj.actionConfigMap) as [Action, ActionConfigItem][]),
         specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(Object.entries(obj.specialEquimentMap) as [Equipment, PlayerEquipmentItem][]),
-        communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(Object.entries(obj.communityBuffMap) as [CommunityBuff, CommunityBuffItem][])
+        communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(Object.entries(obj.communityBuffMap) as [CommunityBuff, CommunityBuffItem][]),
+        achievementBuffMap: new Map<AchievementTier, AchievementBuffItem>(Object.entries(obj.achievementBuffMap || {}) as [AchievementTier, AchievementBuffItem][])
       }
       onDialog(config, playerStore.presets.length)
     } catch (e) {
@@ -222,7 +236,8 @@ function onExport() {
     color: config.color,
     actionConfigMap: Object.fromEntries(config.actionConfigMap.entries()),
     specialEquimentMap: Object.fromEntries(config.specialEquimentMap.entries()),
-    communityBuffMap: Object.fromEntries(config.communityBuffMap.entries())
+    communityBuffMap: Object.fromEntries(config.communityBuffMap.entries()),
+    achievementBuffMap: Object.fromEntries(config.achievementBuffMap.entries())
   })
   navigator.clipboard.writeText(json).then(() => {
     ElMessage.success(t("已复制到剪贴板"))
@@ -416,7 +431,7 @@ function onExport() {
             </el-table-column>
             <el-table-column :label="t('茶')" align="center" min-width="155">
               <template #default="{ row }">
-                <el-checkbox-group v-model="row.tea" size="large" :max="3">
+                <el-checkbox-group v-model="row.tea" size="large" :max="3" class="tea-checkbox-group">
                   <el-checkbox v-for="tea in getTeaListOf(row.action)" :key="tea.hrid" :value="tea.hrid" border>
                     <ItemIcon :hrid="tea.hrid" />
                   </el-checkbox>
@@ -488,6 +503,34 @@ function onExport() {
               </el-table>
             </el-card>
           </el-col>
+          <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
+            <el-card class="mt-5">
+              <template #header>
+                <div style="line-height: 32px;">
+                  {{ t('成就Buff') }}
+                </div>
+              </template>
+              <el-table :data="achievementBuffList.filter(item => achievementBuffs ? achievementBuffs.includes(item.type) : true)">
+                <el-table-column prop="type" :label="t('Buff')" width="120">
+                  <template #default="{ row }">
+                    <div class="community-buff">
+                      <ItemIcon :hrid="getAchievementTierDetailOf(`/achievement_tiers/${row.type}`)?.buff.typeHrid" :width="22" :height="22" />
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column :label="t('名称')">
+                  <template #default="{ row }">
+                    {{ getAchievementTierDetailOf(`/achievement_tiers/${row.type}`)?.name || row.type }}
+                  </template>
+                </el-table-column>
+                <el-table-column :label="t('启用')" width="100">
+                  <template #default="{ row }">
+                    <el-checkbox v-model="row.enabled" />
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-card>
+          </el-col>
         </el-row>
       </el-col>
     </el-row>
@@ -506,22 +549,22 @@ function onExport() {
 :deep(.el-select__wrapper) {
   height: 38px;
 }
-:deep(.el-checkbox.is-bordered) {
+:deep(.tea-checkbox-group .el-checkbox.is-bordered) {
   margin-right: 3px;
   position: relative;
   padding: 5px !important;
   height: 40px;
   width: 40px;
 }
-:deep(.el-checkbox__label) {
+:deep(.tea-checkbox-group .el-checkbox__label) {
   padding: 0;
 }
-:deep(.el-checkbox__input) {
+:deep(.tea-checkbox-group .el-checkbox__input) {
   position: absolute;
   width: 35px;
   height: 100%;
 }
-:deep(.el-checkbox__inner) {
+:deep(.tea-checkbox-group .el-checkbox__inner) {
   position: absolute;
   // 右下角
   right: 0;

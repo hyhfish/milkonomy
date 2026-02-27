@@ -1,11 +1,11 @@
 import type Calculator from "@/calculator"
 import type { ActionConfig, PlayerEquipmentItem } from "@/pinia/stores/player"
-import type { Action, CommunityBuff, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
+import type { AchievementTier, Action, CommunityBuff, Equipment, ItemDetail, NoncombatStatsKey, NoncombatStatsProp } from "~/game"
 import { DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
 import { getEquipmentTypeOf, getKeyOf } from "@/common/utils/game"
-import { ACTION_LIST, COMMUNITY_BUFF_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStoreOutside } from "@/pinia/stores/game"
+import { ACHIEVEMENT_TIER_LIST, ACTION_LIST, COMMUNITY_BUFF_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStoreOutside } from "@/pinia/stores/game"
 import { usePlayerStoreOutside } from "@/pinia/stores/player"
-import { getCommunityBuffDetailOf, getGameDataApi, getItemDetailOf, getPriceOf } from "../game"
+import { getAchievementTierDetailOf, getCommunityBuffDetailOf, getGameDataApi, getItemDetailOf, getPriceOf } from "../game"
 
 /** 改 */
 export function setActionConfigApi(config: ActionConfig, index: number) {
@@ -158,6 +158,10 @@ export function getCommunityBuffOf(type: CommunityBuff) {
   return playerConfig.communityBuffMap.get(type) ?? defaultPlayerConfig.communityBuffMap.get(type)!
 }
 
+export function getAchievementBuffOf(type: AchievementTier) {
+  return playerConfig.achievementBuffMap.get(type) ?? defaultPlayerConfig.achievementBuffMap.get(type)!
+}
+
 // #endregion
 
 // #region 茶
@@ -211,6 +215,43 @@ function initBuffMap() {
         if (buff.typeHrid === "/buff_types/efficiency") {
           buffs[`${action}Efficiency`] = (buffs[`${action}Efficiency`] || 0) + (buff.flatBoost + buff.flatBoostLevelBonus * (cb.level - 1))
         }
+      }
+    }
+  }
+
+  // 成就buff
+  for (const tier of ACHIEVEMENT_TIER_LIST) {
+    const achievementBuff = getAchievementBuffOf(tier)
+    if (!achievementBuff?.enabled) {
+      continue
+    }
+    const detail = getAchievementTierDetailOf(`/achievement_tiers/${tier}`)
+    if (!detail) {
+      continue
+    }
+    const buff = detail.buff
+    for (const actionType in detail.usableInActionTypeMap) {
+      const action = getKeyOf(actionType) as Action
+      if (!ACTION_LIST.includes(action)) {
+        continue
+      }
+      if (buff.typeHrid === "/buff_types/action_speed") {
+        buffs[`${action}Speed`] = (buffs[`${action}Speed`] || 0) + buff.flatBoost + buff.ratioBoost
+      }
+      if (buff.typeHrid === "/buff_types/wisdom") {
+        buffs[`${action}Experience`] = (buffs[`${action}Experience`] || 0) + buff.flatBoost + buff.ratioBoost
+      }
+      if (buff.typeHrid === "/buff_types/gathering") {
+        buffs[`${action}Gathering`] = (buffs[`${action}Gathering`] || 0) + buff.flatBoost + buff.ratioBoost
+      }
+      if (buff.typeHrid === "/buff_types/efficiency") {
+        buffs[`${action}Efficiency`] = (buffs[`${action}Efficiency`] || 0) + buff.flatBoost + buff.ratioBoost
+      }
+      if (buff.typeHrid === "/buff_types/rare_find") {
+        buffs[`${action}RareFind`] = (buffs[`${action}RareFind`] || 0) + buff.flatBoost + buff.ratioBoost
+      }
+      if (buff.typeHrid === "/buff_types/enhancing_success") {
+        buffs[`${action}Success`] = (buffs[`${action}Success`] || 0) + buff.flatBoost + buff.ratioBoost
       }
     }
   }

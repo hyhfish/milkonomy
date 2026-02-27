@@ -1,5 +1,5 @@
 import type { EnhancelateResult } from "@/calculator/enhance"
-import type { ActionDetail, CommunityBuffDetail, DropTableItem, GameData, ItemDetail } from "~/game"
+import type { AchievementTierDetail, ActionDetail, CommunityBuffDetail, DropTableItem, GameData, ItemDetail } from "~/game"
 import type { MarketData, MarketItemPrice } from "~/market"
 import deepFreeze from "deep-freeze-strict"
 import { COIN_HRID, PriceStatus, useGameStoreOutside } from "@/pinia/stores/game"
@@ -12,6 +12,7 @@ const game = {
 let _actionDetailMapCache: Record<string, ActionDetail> = {}
 const _itemDetailMapCache: Record<string, ItemDetail> = {}
 const _communityBuffTypeDetailMapCache: Record<string, CommunityBuffDetail> = {}
+const _achievementTierDetailMapCache: Record<string, AchievementTierDetail> = {}
 
 let _processingProductMap: Record<string, string> = {}
 let _priceCache = {} as Record<string, MarketItemPrice>
@@ -234,6 +235,19 @@ export function getCommunityBuffDetailOf(hrid: string) {
   if (!result) {
     result = getGameDataApi().communityBuffTypeDetailMap[hrid]
     result && (_communityBuffTypeDetailMapCache[hrid] = result)
+  }
+  return result
+}
+
+export function getAchievementTierDetailOf(hrid: string) {
+  let result = _achievementTierDetailMapCache[hrid]
+  if (!result) {
+    const map = getGameDataApi().achievementTierDetailMap
+    if (!map) {
+      return undefined
+    }
+    result = map[hrid as keyof GameData["achievementTierDetailMap"]]
+    result && (_achievementTierDetailMapCache[hrid] = result)
   }
   return result
 }

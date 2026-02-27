@@ -11,6 +11,14 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.409",
+    date: "2026-02-27",
+    changes: [
+      "Dashboard 配置：新增『成就Buff』勾选项，启用后会参与 Buff 汇总并影响利润计算",
+      "Dashboard 配置：修复『成就Buff-启用』复选框与列标题未对齐的问题"
+    ]
+  },
+  {
     version: "1.3.408",
     date: "2026-02-27",
     changes: [
