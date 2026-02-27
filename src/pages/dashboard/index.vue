@@ -9,9 +9,11 @@ import { cloneDeep, debounce } from "lodash-es"
 import { WorkflowCalculator } from "@/calculator/workflow"
 
 import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
+import { getPriceOf } from "@/common/apis/game"
 import { getActionConfigOf } from "@/common/apis/player"
 import { useMemory } from "@/common/composables/useMemory"
 import { usePriceStatus } from "@/common/composables/usePriceStatus"
+import * as Format from "@/common/utils/format"
 import { useFavoriteStore } from "@/pinia/stores/favorite"
 import { useGameStore } from "@/pinia/stores/game"
 import { usePlayerStore } from "@/pinia/stores/player"
@@ -185,6 +187,13 @@ function setPrice(row: Calculator) {
 
 const { t } = useI18n()
 
+function formatVolume1h(row: any) {
+  const hrid = row?.hrid
+  const level = row?.calculator?.enhanceLevel ?? 0
+  const vol = getPriceOf(hrid, level).vol ?? -1
+  return vol < 0 ? "-" : Format.number(vol)
+}
+
 const onPriceStatusChange = usePriceStatus("dashboard-price-status")
 // 离开页面时重置
 </script>
@@ -344,6 +353,11 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
                   </div>
                 </template>
               </el-table-column>
+              <el-table-column :label="t('成交量(1h)')" align="center" min-width="120">
+                <template #default="{ row }">
+                  {{ formatVolume1h(row) }}
+                </template>
+              </el-table-column>
 
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
@@ -466,6 +480,11 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitPPFormat }}&nbsp;
                   </span>
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('成交量(1h)')" align="center" min-width="120">
+                <template #default="{ row }">
+                  {{ formatVolume1h(row) }}
                 </template>
               </el-table-column>
               <el-table-column :label="t('详情')">

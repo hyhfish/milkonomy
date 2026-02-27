@@ -64,6 +64,32 @@ export function handleSearch(profitList: Calculator[], params: any) {
   // 排除护符（charm）
   params.banCharm && (profitList = profitList.filter(cal => !cal.item || getEquipmentTypeOf(cal.item) !== "charm"))
 
+  const onlySkillingEquipment = !!params.onlySkillingEquipment
+  const onlyCombatEquipment = !!params.onlyCombatEquipment
+  if (onlySkillingEquipment !== onlyCombatEquipment) {
+    if (onlySkillingEquipment) {
+      profitList = profitList.filter((cal) => {
+        if (!cal.isEquipment || !cal.item?.equipmentDetail) return false
+        const noncombatStats = cal.item.equipmentDetail.noncombatStats
+        return Object.keys(noncombatStats || {}).length > 0
+      })
+
+      if (params.onlySkillingTool !== params.onlySkillingGear) {
+        profitList = profitList.filter((cal) => {
+          const equipmentType = getEquipmentTypeOf(cal.item)
+          const isTool = typeof equipmentType === "string" && equipmentType.endsWith("_tool")
+          return params.onlySkillingTool ? isTool : !isTool
+        })
+      }
+    } else if (onlyCombatEquipment) {
+      profitList = profitList.filter((cal) => {
+        if (!cal.isEquipment || !cal.item?.equipmentDetail) return false
+        const noncombatStats = cal.item.equipmentDetail.noncombatStats
+        return Object.keys(noncombatStats || {}).length === 0
+      })
+    }
+  }
+
   params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
   params.maxRisk && (profitList = profitList.filter(cal => cal.result.risk <= params.maxRisk))
   return profitList

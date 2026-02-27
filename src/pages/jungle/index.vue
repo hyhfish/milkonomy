@@ -35,6 +35,10 @@ const ldSearchData = useMemory("jungle-leaderboard-search-data", {
   minLevel: 1,
   banEquipment: false,
   banCharm: false,
+  onlySkillingEquipment: false,
+  onlyCombatEquipment: false,
+  onlySkillingTool: false,
+  onlySkillingGear: false,
   maxItemLevel: undefined,
   bestManufacture: false
 })
@@ -62,6 +66,36 @@ const getLeaderboardData = debounce(() => {
 }, 300)
 function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
+}
+
+function getEquipmentFilterMode() {
+  if (ldSearchData.value.onlySkillingEquipment) return "skilling"
+  if (ldSearchData.value.onlyCombatEquipment) return "combat"
+  return "all"
+}
+
+function getSkillingSubFilterMode() {
+  if (ldSearchData.value.onlySkillingTool) return "tool"
+  if (ldSearchData.value.onlySkillingGear) return "gear"
+  return "all"
+}
+
+function handleEquipmentFilterModeChange(value: string | number | boolean | undefined) {
+  const mode = String(value)
+  ldSearchData.value.onlySkillingEquipment = mode === "skilling"
+  ldSearchData.value.onlyCombatEquipment = mode === "combat"
+  if (mode !== "skilling") {
+    ldSearchData.value.onlySkillingTool = false
+    ldSearchData.value.onlySkillingGear = false
+  }
+  handleSearchLD()
+}
+
+function handleSkillingSubFilterModeChange(value: string | number | boolean | undefined) {
+  const mode = String(value)
+  ldSearchData.value.onlySkillingTool = mode === "tool"
+  ldSearchData.value.onlySkillingGear = mode === "gear"
+  handleSearchLD()
 }
 
 const sortLD: Ref<Sort | undefined> = ref()
@@ -207,6 +241,44 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
                 <el-checkbox v-model="ldSearchData.banCharm" @change="handleSearchLD">
                   {{ t('排除护符') }}
                 </el-checkbox>
+              </el-form-item>
+
+              <el-form-item :label="t('装备筛选')">
+                <el-radio-group
+                  :model-value="getEquipmentFilterMode()"
+                  @change="handleEquipmentFilterModeChange"
+                  size="small"
+                  class="filter-segment"
+                >
+                  <el-radio-button label="all">
+                    {{ t('全部') }}
+                  </el-radio-button>
+                  <el-radio-button label="skilling">
+                    {{ t('只看生活装备') }}
+                  </el-radio-button>
+                  <el-radio-button label="combat">
+                    {{ t('只看战斗装备') }}
+                  </el-radio-button>
+                </el-radio-group>
+              </el-form-item>
+
+              <el-form-item v-if="ldSearchData.onlySkillingEquipment" :label="t('生活细分')">
+                <el-radio-group
+                  :model-value="getSkillingSubFilterMode()"
+                  @change="handleSkillingSubFilterModeChange"
+                  size="small"
+                  class="filter-segment"
+                >
+                  <el-radio-button label="all">
+                    {{ t('全部') }}
+                  </el-radio-button>
+                  <el-radio-button label="tool">
+                    {{ t('只看工具') }}
+                  </el-radio-button>
+                  <el-radio-button label="gear">
+                    {{ t('只看装备') }}
+                  </el-radio-button>
+                </el-radio-group>
               </el-form-item>
             </el-form>
           </template>
@@ -495,5 +567,12 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
 // 蓝色
 .manual {
   color: #409eff;
+}
+
+.filter-segment {
+  :deep(.el-radio-button__inner) {
+    min-width: 74px;
+    border-radius: 999px;
+  }
 }
 </style>
