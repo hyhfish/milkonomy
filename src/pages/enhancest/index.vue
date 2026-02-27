@@ -8,7 +8,7 @@ import { ElTable } from "element-plus"
 import { DecomposeCalculator } from "@/calculator/alchemy"
 import { EnhanceCalculator } from "@/calculator/enhance"
 import { ManufactureCalculator } from "@/calculator/manufacture"
-import { getItemDetailOf, getMarketDataApi, getPriceOf } from "@/common/apis/game"
+import { getItemDetailOf, getMarketDataApi, getPriceOf, priceStepOf } from "@/common/apis/game"
 import { getEquipmentList } from "@/common/apis/player"
 import { useEnhancerStore } from "@/pinia/stores/enhancer"
 import { COIN_HRID } from "@/pinia/stores/game"
@@ -76,6 +76,16 @@ interface Item {
   productPrice?: number
   protection?: Ingredient
 }
+
+// Market tax rate: only 0% / 2%.
+// Internally persist `ignoreTax` (0% => true, 2% => false).
+const marketTaxRate = computed<number>({
+  get: () => (enhancerStore.advancedConfig.ignoreTax ? 0 : 2),
+  set: (value: number) => {
+    enhancerStore.advancedConfig.ignoreTax = value === 0
+  }
+})
+const sellTaxFactorComputed = computed(() => marketTaxRate.value === 0 ? 1 : 0.98)
 
 function onSelect(item: ItemDetail) {
   if (!item) {
@@ -194,6 +204,8 @@ const results = computed(() => {
   }
 
   const result = []
+  const ignoreTax = !!enhancerStore.advancedConfig.ignoreTax
+  const sellTaxFactor = ignoreTax ? 1 : 0.98
   const enhanceLevel = enhancerStore.advancedConfig.enhanceLevel ?? defaultConfig.enhanceLevel
   let protectLevel = Math.max(2, (enhancerStore.advancedConfig.escapeLevel ?? defaultConfig.escapeLevel) + 1)
   for (; protectLevel <= enhanceLevel; ++protectLevel) {
@@ -223,8 +235,9 @@ const results = computed(() => {
             : currentItemOriginPrice.value
     const totalCostNoHourly = matCost + curentItemPrice
     let totalCost = totalCostNoHourly + (enhancerStore.advancedConfig.hourlyRate ?? defaultConfig.hourlyRate) * (actions / calc.actionsPH)
-    const taxRate = (1 - (enhancerStore.advancedConfig.taxRate ?? defaultConfig.taxRate) / 100)
-    totalCost /= taxRate
+    if (!ignoreTax) {
+      totalCost *= (1 + marketTaxRate.value / 100)
+    }
 
     /**
      * tag = 0时，利用工时费计算指导价
@@ -242,7 +255,7 @@ const results = computed(() => {
           : currentItemEscapePrice.value)
 
     // 逃逸损耗
-    const fallingRate = (curentItemPrice - escapePrice * 0.98) / actions * calc.actionsPH
+    const fallingRate = (curentItemPrice - escapePrice * sellTaxFactor) / actions * calc.actionsPH
 
     /**
      * tag = 1时，利用指导价计算工时费
@@ -261,12 +274,12 @@ const results = computed(() => {
       productPrice = currentDecomposePrice.value
     }
 
-    const hourlyCost = ((productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * 0.98 - totalCostNoHourly) / actions * calc.actionsPH
+    const hourlyCost = ((productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * sellTaxFactor - totalCostNoHourly) / actions * calc.actionsPH
 
     // 单件利润
-    const profitPP = (productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * 0.98 - totalCostNoHourly
+    const profitPP = (productPrice * (targetRate + leapRate) + escapePrice * escapeRate) * sellTaxFactor - totalCostNoHourly
 
-    const guidePrice = (totalCost - escapePrice * escapeRate) / (targetRate + leapRate)
+    const guidePrice = (totalCost / sellTaxFactor - escapePrice * escapeRate) / (targetRate + leapRate)
     const seconds = actions / calc.actionsPH * 3600
 
     result.push({
@@ -340,6 +353,104 @@ watch([
   () => getMarketDataApi(),
   () => usePlayerStore().config
 ], () => enhancerStore.advancedConfig.hrid && onSelect(getItemDetailOf(enhancerStore.advancedConfig.hrid)), { immediate: false })
+
+let _syncingProductPriceTier = false
+let _syncingItemPriceTier = false
+let _syncingEscapePriceTier = false
+let _syncingWhitePriceTier = false
+let _syncingEnhancementCostPriceTier = false
+let _syncingProtectionPriceTier = false
+
+function resolveTierStep(value: number | undefined, oldValue: number | undefined, marketPrice: number) {
+  if (typeof value !== "number") {
+    return undefined
+  }
+  const isOldNumber = typeof oldValue === "number"
+  const delta = isOldNumber ? (value - oldValue) : Number.NaN
+  let high: boolean | undefined
+  let base: number | undefined
+
+  if (isOldNumber && Math.abs(delta) === 1) {
+    high = delta > 0
+    base = oldValue
+  } else if (!isOldNumber && (value === 0 || value === 1) && marketPrice > 0) {
+    high = value === 1
+    base = marketPrice
+  } else {
+    return undefined
+  }
+
+  const next = priceStepOf(base, high)
+  return next > 0 ? next : undefined
+}
+
+function onProductPriceChange(value: number | undefined, oldValue: number | undefined) {
+  if (_syncingProductPriceTier || !currentItem.value.hrid) return
+  const marketPrice = getPriceOf(currentItem.value.hrid, enhancerStore.advancedConfig.enhanceLevel ?? defaultConfig.enhanceLevel).bid
+  const next = resolveTierStep(value, oldValue, marketPrice)
+  if (!next) return
+  _syncingProductPriceTier = true
+  currentItem.value.productPrice = next
+  nextTick(() => {
+    _syncingProductPriceTier = false
+  })
+}
+
+function onItemPriceChange(value: number | undefined, oldValue: number | undefined) {
+  if (_syncingItemPriceTier || !currentItem.value.hrid) return
+  const marketPrice = currentItemOriginPrice.value
+  const next = resolveTierStep(value, oldValue, marketPrice)
+  if (!next) return
+  _syncingItemPriceTier = true
+  currentItem.value.price = next
+  nextTick(() => {
+    _syncingItemPriceTier = false
+  })
+}
+
+function onEscapePriceChange(value: number | undefined, oldValue: number | undefined) {
+  if (_syncingEscapePriceTier || !currentItem.value.hrid) return
+  const next = resolveTierStep(value, oldValue, currentItemEscapePrice.value)
+  if (!next) return
+  _syncingEscapePriceTier = true
+  currentItem.value.escapePrice = next
+  nextTick(() => {
+    _syncingEscapePriceTier = false
+  })
+}
+
+function onWhitePriceChange(value: number | undefined, oldValue: number | undefined) {
+  if (_syncingWhitePriceTier || !currentItem.value.hrid) return
+  const next = resolveTierStep(value, oldValue, currentItemWhitePrice.value)
+  if (!next) return
+  _syncingWhitePriceTier = true
+  currentItem.value.whitePrice = next
+  nextTick(() => {
+    _syncingWhitePriceTier = false
+  })
+}
+
+function onEnhancementCostPriceChange(row: Ingredient, value: number | undefined, oldValue: number | undefined) {
+  if (_syncingEnhancementCostPriceTier || row.hrid === COIN_HRID) return
+  const next = resolveTierStep(value, oldValue, row.originPrice)
+  if (!next) return
+  _syncingEnhancementCostPriceTier = true
+  row.price = next
+  nextTick(() => {
+    _syncingEnhancementCostPriceTier = false
+  })
+}
+
+function onProtectionPriceChange(row: Item, value: number | undefined, oldValue: number | undefined) {
+  if (_syncingProtectionPriceTier || !row.protection) return
+  const next = resolveTierStep(value, oldValue, row.protection.originPrice)
+  if (!next) return
+  _syncingProtectionPriceTier = true
+  row.protection.price = next
+  nextTick(() => {
+    _syncingProtectionPriceTier = false
+  })
+}
 
 function rowStyle({ row }: { row: any }) {
   // 利润率最高的为绿色，工时费最高的为蓝色
@@ -415,7 +526,14 @@ watch(menuVisible, (value) => {
             </el-table-column>
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.price" :placeholder="Format.number(currentItemOriginPrice)" :controls="false" />
+                <el-input-number
+                  class="max-w-100%"
+                  v-model="row.price"
+                  :placeholder="Format.number(currentItemOriginPrice)"
+                  :controls="true"
+                  controls-position="right"
+                  @change="onItemPriceChange"
+                />
               </template>
             </el-table-column>
           </ElTable>
@@ -492,7 +610,14 @@ watch(menuVisible, (value) => {
             </el-table-column>
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.escapePrice" :placeholder="Format.number(currentItemEscapePrice)" :controls="false" />
+                <el-input-number
+                  class="max-w-100%"
+                  v-model="row.escapePrice"
+                  :placeholder="Format.number(currentItemEscapePrice)"
+                  :controls="true"
+                  controls-position="right"
+                  @change="onEscapePriceChange"
+                />
               </template>
             </el-table-column>
           </ElTable>
@@ -517,7 +642,14 @@ watch(menuVisible, (value) => {
             </el-table-column>
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.whitePrice" :placeholder="Format.number(currentItemWhitePrice)" :controls="false" />
+                <el-input-number
+                  class="max-w-100%"
+                  v-model="row.whitePrice"
+                  :placeholder="Format.number(currentItemWhitePrice)"
+                  :controls="true"
+                  controls-position="right"
+                  @change="onWhitePriceChange"
+                />
               </template>
             </el-table-column>
           </ElTable>
@@ -611,50 +743,59 @@ watch(menuVisible, (value) => {
 
               <div class="flex justify-between items-center">
                 <div class="font-size-14px">
-                  {{ t('税率%') }}
+                  {{ t('溢价率%') }}
                 </div>
                 <el-input-number
                   class="w-120px"
-                  v-model="enhancerStore.advancedConfig.taxRate"
-                  :step="1"
+                  v-model="marketTaxRate"
+                  :step="2"
+                  :step-strictly="true"
                   :min="0"
-                  :max="20"
+                  :max="2"
                   controls-position="right"
-                  :controls="false"
-                  disabled
+                  :controls="true"
                   :placeholder="defaultConfig.taxRate.toString()"
                 />
               </div>
             </el-tab-pane>
             <el-tab-pane :label="t('成品售价')">
-              <div class="flex justify-between items-center">
-                <div class="font-size-14px">
+              <div
+                class="grid w-full items-center gap-x-1"
+                :style="{ gridTemplateColumns: '44px minmax(0, 1fr)' }"
+              >
+                <div class="font-size-14px whitespace-nowrap">
                   {{ t('价格') }}
                 </div>
                 <el-input-number
-                  class="w-130px"
+                  class="w-full"
+                  style="width: 100%"
                   v-model="currentItem.productPrice"
                   :step="1"
                   :min="0"
                   :placeholder="Format.number(getPriceOf(currentItem.hrid!, enhancerStore.advancedConfig.enhanceLevel ?? defaultConfig.enhanceLevel).bid)"
-                  :controls="false"
+                  controls-position="right"
+                  :controls="true"
+                  @change="onProductPriceChange"
                 />
               </div>
 
-              <div class="flex justify-between items-center">
-                <div class="font-size-14px">
-                  {{ t('溢价率%') }}
+              <div
+                class="grid w-full items-center gap-x-1 gap-y-1 mt-2"
+                :style="{ gridTemplateColumns: '44px minmax(0, 1fr)' }"
+              >
+                <div class="font-size-14px whitespace-nowrap">
+                  {{ t('税率%') }}
                 </div>
                 <el-input-number
-                  class="w-130px"
-                  v-model="enhancerStore.advancedConfig.taxRate"
-                  :step="1"
+                  class="w-full"
+                  style="width: 100%"
+                  v-model="marketTaxRate"
+                  :step="2"
+                  :step-strictly="true"
                   :min="0"
-                  :max="20"
+                  :max="2"
                   controls-position="right"
-                  :controls="false"
-                  disabled
-                  :placeholder="defaultConfig.taxRate.toString()"
+                  :controls="true"
                 />
               </div>
             </el-tab-pane>
@@ -709,7 +850,7 @@ watch(menuVisible, (value) => {
                 </div>
 
                 <el-tag class="w-100px " type="success" size="large">
-                  {{ currentDecomposePrice && Format.money(currentDecomposePrice * 0.98) }}
+                  {{ currentDecomposePrice && Format.money(currentDecomposePrice * sellTaxFactorComputed) }}
                 </el-tag>
               </div>
             </el-tab-pane>
@@ -729,10 +870,17 @@ watch(menuVisible, (value) => {
                 {{ Format.number(row.count, 2) }}
               </template>
             </el-table-column>
-
             <el-table-column :label="t('价格')" align="center" min-width="120">
               <template #default="{ row }">
-                <el-input-number v-if="row.hrid !== COIN_HRID" class="max-w-100%" v-model="row.price" :placeholder="Format.number(row.originPrice)" :controls="false" />
+                <el-input-number
+                  v-if="row.hrid !== COIN_HRID"
+                  class="max-w-100%"
+                  v-model="row.price"
+                  :placeholder="Format.number(row.originPrice)"
+                  :controls="true"
+                  controls-position="right"
+                  @change="(value, oldValue) => onEnhancementCostPriceChange(row, value, oldValue)"
+                />
               </template>
             </el-table-column>
           </ElTable>
@@ -758,7 +906,14 @@ watch(menuVisible, (value) => {
             </el-table-column>
             <el-table-column min-width="120" align="center">
               <template #default="{ row }">
-                <el-input-number class="max-w-100%" v-model="row.protection.price" :placeholder="Format.number(row.protection.originPrice)" :controls="false" />
+                <el-input-number
+                  class="max-w-100%"
+                  v-model="row.protection.price"
+                  :placeholder="Format.number(row.protection.originPrice)"
+                  :controls="true"
+                  controls-position="right"
+                  @change="(value, oldValue) => onProtectionPriceChange(row, value, oldValue)"
+                />
               </template>
             </el-table-column>
           </ElTable>

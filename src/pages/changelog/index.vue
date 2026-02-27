@@ -11,6 +11,15 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.412",
+    date: "2026-02-27",
+    changes: [
+      "超级强化计算：为装备成本中的『初始物品价格』『逃逸价格』『白板价格』补齐价格档位步进（输入框 +/- 按市场档位跳价）",
+      "超级强化计算：『强化消耗』中的每个材料价格与『保护』价格支持价格档位步进",
+      "超级强化计算：移除上述价格项的下拉档位选择，统一使用与强化计算一致的价格档位调整交互"
+    ]
+  },
+  {
     version: "1.3.411",
     date: "2026-02-27",
     changes: [
