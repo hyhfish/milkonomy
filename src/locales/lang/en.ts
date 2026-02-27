@@ -105,6 +105,7 @@ export default {
   "制作装备": "Craft Gear",
   "材料右价+": "Materials Bid+",
   "忽略税率": "Ignore Tax",
+  "计算税率": "Include Tax",
   "工时费/h": "Hourly Rate",
   "工时费": "Hourly Rate",
   "溢价率%": "% Rate",

@@ -16,6 +16,8 @@ export interface CalculatorConfig {
   catalystRank?: number
   enhanceLevel?: number
   originLevel?: number
+  /** 市场卖出税率因子：默认 0.98(2%税)；设为 1 表示不计税 */
+  sellTaxFactor?: number
 }
 export default abstract class Calculator {
   hrid: string
@@ -32,6 +34,8 @@ export default abstract class Calculator {
   hasManualPrice: boolean = false
   config: CalculatorConfig
   enhanceLevel: number = 0
+  /** 市场卖出税率因子：默认 0.98(2%税)；设为 1 表示不计税 */
+  sellTaxFactor: number = 0.98
   constructor(config: CalculatorConfig) {
     const { hrid, project, action, ingredientPriceConfigList = [], productPriceConfigList = [], catalystRank } = config
     this.config = config
@@ -41,6 +45,14 @@ export default abstract class Calculator {
     this.ingredientPriceConfigList = ingredientPriceConfigList
     this.productPriceConfigList = productPriceConfigList
     this.catalystRank = catalystRank
+    if (typeof config.sellTaxFactor === "number") {
+      this.sellTaxFactor = config.sellTaxFactor
+    }
+  }
+
+  setSellTaxFactor(factor: number) {
+    this.sellTaxFactor = factor
+    return this
   }
 
   // #region 固定继承属性
@@ -202,7 +214,7 @@ export default abstract class Calculator {
       // 不逃逸时，等价于逃逸到初始装备
       return item.countPH! * item.price
     }
-    return item.countPH! * escape.price * 0.98
+    return item.countPH! * escape.price * this.sellTaxFactor
   }
 
   /**
@@ -211,10 +223,11 @@ export default abstract class Calculator {
    */
   get income(): number {
     const income = this.productListWithPrice.reduce((acc, product) => {
-      const coinRate = product.hrid === COIN_HRID ? 0.98 : 1
+      // 硬币不收税：通过“先除后乘”抵消税因子
+      const coinRate = product.hrid === COIN_HRID ? this.sellTaxFactor : 1
       return acc + product.count * (product.rate || 1) * product.price / coinRate
     }, 0)
-    return income * 0.98
+    return income * this.sellTaxFactor
   }
 
   _actionsPH?: number

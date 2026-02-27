@@ -16,8 +16,12 @@ import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
 const { t } = locales.global
 /** 查 */
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
+  const includeTax = params.includeTax !== false
+  const sellTaxFactor = includeTax ? 0.98 : 1
+
   let profitList: Calculator[] = []
-  const cached = useGameStoreOutside().getLeaderboardCache()
+  const cacheKey = `${useGameStoreOutside().marketData!.timestamp}-${includeTax ? "tax" : "noTax"}`
+  const cached = useGameStoreOutside().getLeaderboardCache(cacheKey)
   if (cached && cached.length > 0) {
     profitList = cached
   } else {
@@ -25,17 +29,17 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
     const startTime = Date.now()
     let hasError = false
     try {
-      profitList = calcProfit()
-      profitList = profitList.concat(calcAllFlowProfit())
+      profitList = calcProfit(sellTaxFactor)
+      profitList = profitList.concat(calcAllFlowProfit(sellTaxFactor))
     } catch (e: any) {
       hasError = true
       console.error(e)
     }
 
     if (profitList.length > 0) {
-      useGameStoreOutside().setLeaderBoardCache(profitList)
+      useGameStoreOutside().setLeaderBoardCache(profitList, cacheKey)
     } else {
-      useGameStoreOutside().clearLeaderBoardCache()
+      useGameStoreOutside().clearLeaderBoardCache(cacheKey)
     }
 
     if (hasError || profitList.length === 0) {
@@ -50,7 +54,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }
 
-function calcProfit() {
+function calcProfit(sellTaxFactor: number) {
   const gameData = getGameDataApi()
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
@@ -58,18 +62,26 @@ function calcProfit() {
   list.forEach((item) => {
     const cList = []
     for (let catalystRank = 0; catalystRank <= 2; catalystRank++) {
-      cList.push(new TransmuteCalculator({
+      const transmute = new TransmuteCalculator({
         hrid: item.hrid,
         catalystRank
-      }))
-      cList.push(new DecomposeCalculator({
+      })
+      transmute.setSellTaxFactor(sellTaxFactor)
+      cList.push(transmute)
+
+      const decompose = new DecomposeCalculator({
         hrid: item.hrid,
         catalystRank
-      }))
-      cList.push(new CoinifyCalculator({
+      })
+      decompose.setSellTaxFactor(sellTaxFactor)
+      cList.push(decompose)
+
+      const coinify = new CoinifyCalculator({
         hrid: item.hrid,
         catalystRank
-      }))
+      })
+      coinify.setSellTaxFactor(sellTaxFactor)
+      cList.push(coinify)
     }
     cList.forEach(c => handlePush(profitList, c))
     const projects: [string, Action][] = [
@@ -81,6 +93,7 @@ function calcProfit() {
     ]
     for (const [project, action] of projects) {
       const c = new ManufactureCalculator({ hrid: item.hrid, project, action })
+      c.setSellTaxFactor(sellTaxFactor)
       handlePush(profitList, c)
     }
 
@@ -91,13 +104,14 @@ function calcProfit() {
     ]
     for (const [project, action] of gatherings) {
       const c = new GatherCalculator({ hrid: item.hrid, project, action })
+      c.setSellTaxFactor(sellTaxFactor)
       handlePush(profitList, c)
     }
   })
   return profitList
 }
 
-function calcAllFlowProfit() {
+function calcAllFlowProfit(sellTaxFactor: number) {
   const gameData = getGameDataApi()
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
@@ -125,7 +139,7 @@ function calcAllFlowProfit() {
           let projectName = t("{0}步{1}", [configs.length, project])
           const otherProject = configs.find(conf => conf.project !== project)
           otherProject && (projectName += t("({0})", [otherProject?.project]))
-          handlePush(profitList, new WorkflowCalculator(configs, projectName))
+          handlePush(profitList, new WorkflowCalculator(configs, projectName, sellTaxFactor))
         }
 
         // D4更新后，会出现多步动作中出现不同Action组合的情况
@@ -143,7 +157,7 @@ function calcAllFlowProfit() {
       let projectName = t("{0}步{1}", [configs.length, project])
       const otherProject = configs.find(conf => conf.project !== project)
       otherProject && (projectName += t("({0})", [otherProject?.project]))
-      handlePush(profitList, new WorkflowCalculator(configs, projectName))
+      handlePush(profitList, new WorkflowCalculator(configs, projectName, sellTaxFactor))
     }
   })
   return profitList

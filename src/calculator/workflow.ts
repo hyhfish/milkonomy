@@ -31,7 +31,7 @@ export class WorkflowCalculator extends Calculator {
   /**
    * configs为工作流顺序排列
    */
-  constructor(configs: Arrayable<StorageCalculatorItem>[], project: string) {
+  constructor(configs: Arrayable<StorageCalculatorItem>[], project: string, sellTaxFactor: number = 0.98) {
     let last = configs[configs.length - 1]
     if (Array.isArray(last)) {
       last = last[0]
@@ -41,6 +41,7 @@ export class WorkflowCalculator extends Calculator {
       project,
       action: last.action
     })
+    this.setSellTaxFactor(sellTaxFactor)
     this.configs = configs
 
     for (let i = configs.length - 1; i >= 0; i--) {
@@ -60,6 +61,7 @@ export class WorkflowCalculator extends Calculator {
         config.forEach((c) => {
           c.ingredientPriceConfigList = [{ immutable: true, price: 0, hrid: prev.hrid }]
           const cal = getCalculatorInstance(c)
+          cal.setSellTaxFactor(sellTaxFactor)
           cal.available && cal.run()
 
           if (cal.hasManualPrice) {
@@ -79,6 +81,7 @@ export class WorkflowCalculator extends Calculator {
         config.productPriceConfigList = [{ immutable: true, price: 0, hrid: config.hrid }]
       }
       let cal = getCalculatorInstance(config)
+      cal.setSellTaxFactor(sellTaxFactor)
 
       let modified = false
       if (cal.available && i > 0) {
@@ -94,6 +97,7 @@ export class WorkflowCalculator extends Calculator {
 
         if (modified) {
           cal = getCalculatorInstance(config)
+          cal.setSellTaxFactor(sellTaxFactor)
         }
       }
 

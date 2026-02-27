@@ -11,6 +11,14 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.408",
+    date: "2026-02-27",
+    changes: [
+      "Dashboard：首页利润计算新增『计算税率』开关（默认开启）",
+      "Dashboard：利润排行/收藏夹新增『排除护符』过滤开关"
+    ]
+  },
+  {
     version: "1.3.406",
     date: "2026-02-26",
     changes: [

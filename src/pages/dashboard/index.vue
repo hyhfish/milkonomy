@@ -34,8 +34,11 @@ const ldSearchData = useMemory("dashboard-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: 10,
-  banEquipment: true
+  banEquipment: true,
+  banCharm: false
 })
+
+const includeTax = useMemory("dashboard-include-tax", true)
 
 const loadingLD = ref(false)
 
@@ -44,6 +47,7 @@ const getLeaderboardData = debounce(() => {
   getLeaderboardDataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
+    includeTax: includeTax.value,
     ...ldSearchData.value,
     sort: sortLD.value
   }).then((data) => {
@@ -71,6 +75,7 @@ function handleSortLD(sort: Sort) {
 watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
+  () => includeTax.value,
   () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => useGameStore().buyStatus,
@@ -82,7 +87,8 @@ const favoriteData = ref<Calculator[]>([])
 const frSearchFormRef = ref<FormInstance | null>(null)
 const frSearchData = useMemory("dashboard-favorite-search-data", {
   name: "",
-  project: ""
+  project: "",
+  banCharm: false
 })
 
 const loadingFR = ref(false)
@@ -91,6 +97,7 @@ function getFavoriteData() {
   getFavoriteDataApi({
     currentPage: paginationDataMN.currentPage,
     size: paginationDataMN.pageSize,
+    includeTax: includeTax.value,
     ...frSearchData.value
   }).then((data) => {
     paginationDataMN.total = data.total
@@ -105,10 +112,16 @@ function getFavoriteData() {
 function handleSearchMN() {
   paginationDataMN.currentPage === 1 ? getFavoriteData() : (paginationDataMN.currentPage = 1)
 }
+
+function handleIncludeTaxChange() {
+  handleSearchLD()
+  handleSearchMN()
+}
 // 监听分页参数的变化
 watch([
   () => paginationDataMN.currentPage,
   () => paginationDataMN.pageSize,
+  () => includeTax.value,
   () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => useGameStore().buyStatus,
@@ -187,6 +200,10 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
       <PriceStatusSelect
         @change="onPriceStatusChange"
       />
+
+      <el-checkbox v-model="includeTax" @change="handleIncludeTaxChange">
+        {{ t('计算税率') }}
+      </el-checkbox>
     </div>
     <el-row :gutter="20" class="row">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">
@@ -233,6 +250,12 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
               <el-form-item>
                 <el-checkbox v-model="ldSearchData.banEquipment" @change="handleSearchLD">
                   {{ t('排除装备') }}
+                </el-checkbox>
+              </el-form-item>
+
+              <el-form-item>
+                <el-checkbox v-model="ldSearchData.banCharm" @change="handleSearchLD">
+                  {{ t('排除护符') }}
                 </el-checkbox>
               </el-form-item>
             </el-form>
@@ -386,6 +409,12 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
                   <el-option :label="t('分解')" :value="t('分解')" />
                   <el-option :label="t('转化')" :value="t('转化')" />
                 </el-select>
+              </el-form-item>
+
+              <el-form-item>
+                <el-checkbox v-model="frSearchData.banCharm" @change="handleSearchMN">
+                  {{ t('排除护符') }}
+                </el-checkbox>
               </el-form-item>
             </el-form>
           </template>

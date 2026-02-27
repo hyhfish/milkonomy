@@ -1,13 +1,15 @@
 import type { RequestData } from "../leaderboard/type"
 import type Calculator from "@/calculator"
 import { calculatorConstructable, getCalculatorInstance, getStorageCalculatorItem } from "@/calculator/utils"
+import { getEquipmentTypeOf } from "@/common/utils/game"
 import { useFavoriteStoreOutside } from "@/pinia/stores/favorite"
 /** 查 */
 export async function getFavoriteDataApi(params: RequestData) {
   await new Promise(resolve => setTimeout(resolve, 300))
+  const sellTaxFactor = params.includeTax === false ? 1 : 0.98
   let profitList: Calculator[] = []
   try {
-    profitList = calcProfit()
+    profitList = calcProfit(sellTaxFactor)
   } catch (e: any) {
     console.error(e)
   }
@@ -16,16 +18,19 @@ export async function getFavoriteDataApi(params: RequestData) {
   params.project && (profitList = profitList.filter(item => item.project === params.project))
   params.profitRate && (profitList = profitList.filter(item => item.result.profitRate >= params.profitRate! / 100))
   params.banEquipment && (profitList = profitList.filter(item => !item.isEquipment))
+  // 排除护符（charm）
+  params.banCharm && (profitList = profitList.filter(item => !item.item || getEquipmentTypeOf(item.item) !== "charm"))
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }
 
-function calcProfit() {
+function calcProfit(sellTaxFactor: number) {
   // 所有物品列表
   const list = useFavoriteStoreOutside().list
   const profitList: Calculator[] = []
   list.filter(item => calculatorConstructable(item.className!)).forEach((item) => {
     const instance = getCalculatorInstance(item)
+    instance.setSellTaxFactor(sellTaxFactor)
     instance.available && profitList.push(instance.run())
   })
   return profitList

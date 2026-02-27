@@ -96,7 +96,7 @@ export const useGameStore = defineStore("game", {
   state: () => ({
     gameData: getGameData(),
     marketData: getMarketData(),
-    leaderboardCache: {} as { [time: number]: Calculator[] },
+    leaderboardCache: {} as { [key: string]: Calculator[] },
     enhanposerCache: {} as { [time: number]: WorkflowCalculator[] },
     manualchemyCache: {} as { [time: number]: Calculator[] },
     jungleCache: {} as { [key: string]: WorkflowCalculator[] },
@@ -174,14 +174,19 @@ export const useGameStore = defineStore("game", {
       this.buyStatus = loadBuyStatus()
       this.sellStatus = loadSellStatus()
     },
-    getLeaderboardCache() {
-      return this.leaderboardCache[this.marketData!.timestamp]
+    getLeaderboardCache(key?: string) {
+      const cacheKey = key ?? String(this.marketData!.timestamp)
+      return this.leaderboardCache[cacheKey]
     },
-    setLeaderBoardCache(list: Calculator[]) {
-      this.clearLeaderBoardCache()
-      this.leaderboardCache[this.marketData!.timestamp] = list
+    setLeaderBoardCache(list: Calculator[], key?: string) {
+      const cacheKey = key ?? String(this.marketData!.timestamp)
+      this.leaderboardCache[cacheKey] = list
     },
-    clearLeaderBoardCache() {
+    clearLeaderBoardCache(key?: string) {
+      if (key) {
+        delete this.leaderboardCache[key]
+        return
+      }
       this.leaderboardCache = {}
     },
     getEnhanposerCache() {
