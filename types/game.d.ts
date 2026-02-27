@@ -38,6 +38,7 @@ export interface ShopItemDetail {
 export interface ItemDetail {
   hrid: string
   name: string
+  description?: string
   categoryHrid: string
   sellPrice: number
   isTradable: boolean

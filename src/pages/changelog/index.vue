@@ -11,6 +11,15 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.411",
+    date: "2026-02-27",
+    changes: [
+      "Dashboard 配置：封印改为可多选并支持叠加，展示方式与成就 Buff 一致（豆腐块勾选）",
+      "Buff 规则：封印增益按行动范围生效（美食/采集/加工/效率/速度/经验/稀有发现）并参与利润计算",
+      "成就 Buff：生效范围与封印规则统一，移除精英成就（战斗伤害增益）"
+    ]
+  },
+  {
     version: "1.3.409",
     date: "2026-02-27",
     changes: [
