@@ -148,6 +148,29 @@ function formatVolume1h(row: any) {
 }
 
 const onPriceStatusChange = usePriceStatus("jungle-price-status")
+
+function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+const projectFilterOptions = computed(() => [
+  {
+    label: t("强化"),
+    value: `^${escapeRegExp(t("强化"))}\\+`
+  },
+  {
+    label: `${t("缝纫")}${t("强化")}`,
+    value: escapeRegExp(t("裁缝"))
+  },
+  {
+    label: `${t("制作")}${t("强化")}`,
+    value: escapeRegExp(t("制造"))
+  },
+  {
+    label: `${t("锻造")}${t("强化")}`,
+    value: escapeRegExp(t("锻造"))
+  }
+])
 </script>
 
 <template>
@@ -174,6 +197,17 @@ const onPriceStatusChange = usePriceStatus("jungle-price-status")
               </div>
               <el-form-item prop="name" :label="t('物品')">
                 <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" />
+              </el-form-item>
+
+              <el-form-item prop="project" :label="t('动作')">
+                <el-select style="width: 130px" v-model="ldSearchData.project" clearable @change="handleSearchLD">
+                  <el-option
+                    v-for="option in projectFilterOptions"
+                    :key="option.value"
+                    :label="option.label"
+                    :value="option.value"
+                  />
+                </el-select>
               </el-form-item>
 
               <el-form-item :label="t('目标等级从')">
