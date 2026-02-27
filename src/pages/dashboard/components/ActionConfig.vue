@@ -5,7 +5,7 @@ import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { Plus } from "@element-plus/icons-vue"
 import { ElMessageBox } from "element-plus"
 import { getAchievementTierDetailOf, getCommunityBuffDetailOf } from "@/common/apis/game"
-import { getEquipmentListOf, getSpecialEquipmentListOf, getTeaListOf, getToolListOf, setActionConfigApi } from "@/common/apis/player"
+import { getEquipmentListOf, getSealList, getSpecialEquipmentListOf, getTeaListOf, getToolListOf, setActionConfigApi } from "@/common/apis/player"
 import { useTheme } from "@/common/composables/useTheme"
 import { DEFAULT_ACHIEVEMENT_BUFF_LIST, DEFAULT_COMMUNITY_BUFF_LIST, DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
 import { ACTION_LIST } from "@/pinia/stores/game"
@@ -48,6 +48,8 @@ const actionList = ref<ActionConfigItem[]>([])
 const specialList = ref<PlayerEquipmentItem[]>([])
 const communityBuffList = ref<CommunityBuffItem[]>([])
 const achievementBuffList = ref<AchievementBuffItem[]>([])
+const sealList = ref<ReturnType<typeof getSealList>>([])
+const seals = ref<string[]>([])
 const name = ref("")
 const color = ref("")
 const currentIndex = ref(0)
@@ -86,6 +88,12 @@ function onDialog(config: ActionConfig, index: number) {
     }
   }))
 
+  sealList.value = getSealList()
+  seals.value = Array.isArray(config.seals)
+    ? [...config.seals]
+    : typeof (config as ActionConfig & { seal?: string }).seal === "string"
+      ? [(config as ActionConfig & { seal?: string }).seal!]
+      : []
   name.value = config.name!
   color.value = config.color!
   visible.value = true
@@ -112,6 +120,7 @@ function constructActionConfig() {
     specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(),
     communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(),
     achievementBuffMap: new Map<AchievementTier, AchievementBuffItem>(),
+    seals: [...seals.value],
     name: name.value,
     color: color.value
   }
@@ -213,6 +222,7 @@ function onImport() {
       const config: ActionConfig = {
         name: obj.name,
         color: obj.color,
+        seals: Array.isArray(obj.seals) ? obj.seals : typeof obj.seal === "string" ? [obj.seal] : [],
         actionConfigMap: new Map<Action, ActionConfigItem>(Object.entries(obj.actionConfigMap) as [Action, ActionConfigItem][]),
         specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(Object.entries(obj.specialEquimentMap) as [Equipment, PlayerEquipmentItem][]),
         communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(Object.entries(obj.communityBuffMap) as [CommunityBuff, CommunityBuffItem][]),
@@ -234,6 +244,7 @@ function onExport() {
   const json = JSON.stringify({
     name: config.name,
     color: config.color,
+    seals: config.seals,
     actionConfigMap: Object.fromEntries(config.actionConfigMap.entries()),
     specialEquimentMap: Object.fromEntries(config.specialEquimentMap.entries()),
     communityBuffMap: Object.fromEntries(config.communityBuffMap.entries()),
@@ -244,6 +255,20 @@ function onExport() {
   }).catch(() => {
     ElMessage.error(t("复制失败，请检查浏览器权限设置"))
   })
+}
+
+function isSealEnabled(hrid: string) {
+  return seals.value.includes(hrid)
+}
+
+function onSealToggle(hrid: string, enabled: boolean) {
+  const index = seals.value.indexOf(hrid)
+  if (enabled && index === -1) {
+    seals.value.push(hrid)
+  }
+  if (!enabled && index !== -1) {
+    seals.value.splice(index, 1)
+  }
 }
 </script>
 
@@ -481,54 +506,51 @@ function onExport() {
             <el-card class="mt-5">
               <template #header>
                 <div style="line-height: 32px;">
-                  {{ t('社区Buff') }}
+                  {{ t('其他Buff') }}
                 </div>
               </template>
-              <el-table :data="communityBuffList.filter(item => communityBuffs ? communityBuffs.includes(item.type) : true)">
-                <el-table-column prop="type" :label="t('Buff')" width="120">
-                  <template #default="{ row }">
-                    <div class="community-buff">
-                      <ItemIcon :hrid="getCommunityBuffDetailOf(row.hrid).buff.typeHrid" :width="22" :height="22" />
-                      <!-- <div v-if="row.level > 0" class="community-level">
-                    Lv.{{ row.level }}
-                  </div> -->
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column :label="t('等级')">
-                  <template #default="{ row }">
-                    <el-input-number v-model="row.level" :min="0" :max="20" style="width: 60px" :controls="false" />
-                  </template>
-                </el-table-column>
-              </el-table>
-            </el-card>
-          </el-col>
-          <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-            <el-card class="mt-5">
-              <template #header>
-                <div style="line-height: 32px;">
-                  {{ t('成就Buff') }}
+              <div class="buff-title">
+                {{ t('封印') }}
+              </div>
+              <div class="buff-tofu-grid">
+                <div class="buff-tofu" v-for="item in sealList" :key="`seal-${item.hrid}`">
+                  <div class="buff-tofu-head">
+                    <ItemIcon :hrid="item.hrid" />
+                    <span>{{ item.name }}</span>
+                  </div>
+                  <el-checkbox :model-value="isSealEnabled(item.hrid)" @change="(value) => onSealToggle(item.hrid, Boolean(value))">
+                    {{ t('启用') }}
+                  </el-checkbox>
                 </div>
-              </template>
-              <el-table :data="achievementBuffList.filter(item => achievementBuffs ? achievementBuffs.includes(item.type) : true)">
-                <el-table-column prop="type" :label="t('Buff')" width="120">
-                  <template #default="{ row }">
-                    <div class="community-buff">
-                      <ItemIcon :hrid="getAchievementTierDetailOf(`/achievement_tiers/${row.type}`)?.buff.typeHrid" :width="22" :height="22" />
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column :label="t('名称')">
-                  <template #default="{ row }">
-                    {{ getAchievementTierDetailOf(`/achievement_tiers/${row.type}`)?.name || row.type }}
-                  </template>
-                </el-table-column>
-                <el-table-column :label="t('启用')" width="100">
-                  <template #default="{ row }">
-                    <el-checkbox v-model="row.enabled" />
-                  </template>
-                </el-table-column>
-              </el-table>
+              </div>
+
+              <div class="buff-title mt-3">
+                {{ t('社区Buff') }}
+              </div>
+              <div class="buff-tofu-grid">
+                <div class="buff-tofu" v-for="row in communityBuffList.filter(item => communityBuffs ? communityBuffs.includes(item.type) : true)" :key="`community-${row.type}`">
+                  <div class="buff-tofu-head">
+                    <ItemIcon :hrid="getCommunityBuffDetailOf(row.hrid!).buff.typeHrid" :width="22" :height="22" />
+                    <span>{{ t('等级') }}</span>
+                  </div>
+                  <el-input-number v-model="row.level" :min="0" :max="20" style="width: 90px" :controls="false" />
+                </div>
+              </div>
+
+              <div class="buff-title mt-3">
+                {{ t('成就Buff') }}
+              </div>
+              <div class="buff-tofu-grid">
+                <div class="buff-tofu" v-for="row in achievementBuffList.filter(item => achievementBuffs ? achievementBuffs.includes(item.type) : true)" :key="`achievement-${row.type}`">
+                  <div class="buff-tofu-head">
+                    <ItemIcon :hrid="getAchievementTierDetailOf(`/achievement_tiers/${row.type}`)?.buff.typeHrid" :width="22" :height="22" />
+                    <span>{{ getAchievementTierDetailOf(`/achievement_tiers/${row.type}`)?.name || row.type }}</span>
+                  </div>
+                  <el-checkbox v-model="row.enabled">
+                    {{ t('启用') }}
+                  </el-checkbox>
+                </div>
+              </div>
             </el-card>
           </el-col>
         </el-row>
@@ -626,5 +648,33 @@ function onExport() {
     0 1px #131419,
     1px 0 #131419,
     0 -1px #131419;
+}
+
+.buff-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.buff-tofu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.buff-tofu {
+  border: 1px solid var(--el-border-color);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.buff-tofu-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  font-size: 13px;
 }
 </style>

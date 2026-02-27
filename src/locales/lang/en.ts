@@ -190,7 +190,9 @@ export default {
   "部位": "Slot",
 
   "茶": "Tea",
+  "封印": "Seal",
 
+  "其他Buff": "Other Buffs",
   "社区Buff": "Community Buffs",
   "成就Buff": "Achievement Buffs",
   "名称": "Name",

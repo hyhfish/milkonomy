@@ -20,7 +20,37 @@ const defaultPlayerConfig = structuredClone(toRaw(usePlayerStoreOutside().config
 let equipmentList = [] as ItemDetail[]
 let allEquipmentList = [] as ItemDetail[]
 let teaList = [] as ItemDetail[]
+let sealList = [] as ItemDetail[]
 let buffs = {} as Record<NoncombatStatsProp, number>
+
+const SEAL_BUFF_KEY_MAP: Record<string, NoncombatStatsKey | undefined> = {
+  "/items/seal_of_action_speed": "Speed",
+  "/items/seal_of_efficiency": "Efficiency",
+  "/items/seal_of_gathering": "Gathering",
+  "/items/seal_of_processing": "Processing",
+  "/items/seal_of_gourmet": "Gourmet",
+  "/items/seal_of_wisdom": "Experience",
+  "/items/seal_of_rare_find": "RareFind"
+}
+
+const ACTIONS_ALL = [...ACTION_LIST] as Action[]
+const SEAL_BUFF_ACTION_MAP: Partial<Record<NoncombatStatsKey, Action[]>> = {
+  // 美食增益：仅烹饪、冲泡
+  Gourmet: ["cooking", "brewing"],
+  // 采集增益：仅挤奶、采摘、伐木
+  Gathering: ["milking", "foraging", "woodcutting"],
+  // 加工增益：仅挤奶、采摘、伐木（与加工茶一致）
+  Processing: ["milking", "foraging", "woodcutting"],
+  // 效率增益：除强化外的所有行动
+  Efficiency: ACTIONS_ALL.filter(action => action !== "enhancing"),
+  // 行动速度、经验：所有行动
+  Speed: ACTIONS_ALL,
+  Experience: ACTIONS_ALL,
+  // 稀有发现：所有行动
+  RareFind: ACTIONS_ALL,
+  // 强化成功：仅强化
+  Success: ["enhancing"]
+}
 
 watch (() => useGameStoreOutside().gameData, () => {
   if (!useGameStoreOutside().gameData) return
@@ -30,6 +60,8 @@ watch (() => useGameStoreOutside().gameData, () => {
     .filter(item => item.equipmentDetail)
   teaList = Object.freeze(structuredClone(Object.values(toRaw(useGameStoreOutside().gameData!.itemDetailMap))))
     .filter(item => item.categoryHrid === "/item_categories/drink")
+  sealList = Object.freeze(structuredClone(Object.values(toRaw(useGameStoreOutside().gameData!.itemDetailMap))))
+    .filter(item => item.hrid.startsWith("/items/seal_of_"))
   initDefaultActionConfigMap()
   initDefaultSpecialEquipmentMap()
   initBuffMap()
@@ -162,6 +194,11 @@ export function getAchievementBuffOf(type: AchievementTier) {
   return playerConfig.achievementBuffMap.get(type) ?? defaultPlayerConfig.achievementBuffMap.get(type)!
 }
 
+export function getSealsOf() {
+  const seals = playerConfig.seals ?? defaultPlayerConfig.seals
+  return Array.isArray(seals) ? seals : []
+}
+
 // #endregion
 
 // #region 茶
@@ -175,6 +212,13 @@ export function getTeaIngredientList(cal: Calculator) {
     count: 3600 / 300 / cal.consumePH * (1 + getDrinkConcentration()),
     marketPrice: getPriceOf(hrid).ask
   }))
+}
+
+export function getSealList() {
+  const whiteList = new Set(Object.keys(SEAL_BUFF_KEY_MAP))
+  return sealList
+    .filter(item => whiteList.has(item.hrid))
+    .sort((a, b) => a.sortIndex - b.sortIndex)
 }
 // #endregion
 
@@ -221,6 +265,9 @@ function initBuffMap() {
 
   // 成就buff
   for (const tier of ACHIEVEMENT_TIER_LIST) {
+    if (tier === "elite") {
+      continue
+    }
     const achievementBuff = getAchievementBuffOf(tier)
     if (!achievementBuff?.enabled) {
       continue
@@ -230,29 +277,14 @@ function initBuffMap() {
       continue
     }
     const buff = detail.buff
-    for (const actionType in detail.usableInActionTypeMap) {
-      const action = getKeyOf(actionType) as Action
-      if (!ACTION_LIST.includes(action)) {
-        continue
-      }
-      if (buff.typeHrid === "/buff_types/action_speed") {
-        buffs[`${action}Speed`] = (buffs[`${action}Speed`] || 0) + buff.flatBoost + buff.ratioBoost
-      }
-      if (buff.typeHrid === "/buff_types/wisdom") {
-        buffs[`${action}Experience`] = (buffs[`${action}Experience`] || 0) + buff.flatBoost + buff.ratioBoost
-      }
-      if (buff.typeHrid === "/buff_types/gathering") {
-        buffs[`${action}Gathering`] = (buffs[`${action}Gathering`] || 0) + buff.flatBoost + buff.ratioBoost
-      }
-      if (buff.typeHrid === "/buff_types/efficiency") {
-        buffs[`${action}Efficiency`] = (buffs[`${action}Efficiency`] || 0) + buff.flatBoost + buff.ratioBoost
-      }
-      if (buff.typeHrid === "/buff_types/rare_find") {
-        buffs[`${action}RareFind`] = (buffs[`${action}RareFind`] || 0) + buff.flatBoost + buff.ratioBoost
-      }
-      if (buff.typeHrid === "/buff_types/enhancing_success") {
-        buffs[`${action}Success`] = (buffs[`${action}Success`] || 0) + buff.flatBoost + buff.ratioBoost
-      }
+    const key = getNoncombatStatsKeyByBuffType(buff.typeHrid)
+    if (!key) {
+      continue
+    }
+    const targetActions = SEAL_BUFF_ACTION_MAP[key] || ACTIONS_ALL
+    for (const action of targetActions) {
+      const prop = `${action}${key}` as NoncombatStatsProp
+      buffs[prop] = (buffs[prop] || 0) + buff.flatBoost + buff.ratioBoost
     }
   }
 
@@ -318,7 +350,56 @@ function initBuffMap() {
       })
     }
   }
+
+  // 封印（全局单独 buff）
+  for (const seal of getSealsOf()) {
+    const key = SEAL_BUFF_KEY_MAP[seal]
+    const ratio = getSealBuffRatio(seal)
+    if (key && ratio > 0) {
+      const targetActions = SEAL_BUFF_ACTION_MAP[key] || ACTIONS_ALL
+      for (const action of targetActions) {
+        const prop = `${action}${key}` as NoncombatStatsProp
+        buffs[prop] = (buffs[prop] || 0) + ratio
+      }
+    }
+  }
   console.log("buffs", buffs)
+}
+
+function getSealBuffRatio(hrid: string): number {
+  const detail = getItemDetailOf(hrid)
+  if (!detail?.description) {
+    return 0
+  }
+  // Seal 描述中包含固定百分比增益，统一按百分比解析
+  const matched = detail.description.match(/([+-]?\d+(?:\.\d+)?)%/)
+  if (!matched?.[1]) {
+    return 0
+  }
+  const ratio = Number.parseFloat(matched[1]) / 100
+  return Number.isFinite(ratio) ? ratio : 0
+}
+
+function getNoncombatStatsKeyByBuffType(typeHrid: string): NoncombatStatsKey | undefined {
+  if (typeHrid === "/buff_types/action_speed") {
+    return "Speed"
+  }
+  if (typeHrid === "/buff_types/wisdom") {
+    return "Experience"
+  }
+  if (typeHrid === "/buff_types/gathering") {
+    return "Gathering"
+  }
+  if (typeHrid === "/buff_types/efficiency") {
+    return "Efficiency"
+  }
+  if (typeHrid === "/buff_types/rare_find") {
+    return "RareFind"
+  }
+  if (typeHrid === "/buff_types/enhancing_success") {
+    return "Success"
+  }
+  return undefined
 }
 
 export function getBuffOf(action: Action, key: NoncombatStatsKey) {

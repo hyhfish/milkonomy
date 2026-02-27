@@ -37,6 +37,5 @@ export const DEFAULT_ACHIEVEMENT_BUFF_LIST: AchievementBuffItem[] = [
   { type: "novice", enabled: false },
   { type: "adept", enabled: false },
   { type: "veteran", enabled: false },
-  { type: "elite", enabled: false },
   { type: "champion", enabled: false }
 ]
