@@ -71,6 +71,16 @@ const manufactureIngredients = ref<Ingredient[]>([])
 const manufactureStepList = ref<{ title: string, ingredients: Ingredient[] }[]>([])
 const enhancementCosts = ref<Ingredient[]>([])
 const protectionList = ref<Ingredient[]>([])
+const costGuideVisible = ref(false)
+const costGuideLoading = ref(false)
+const costGuideError = ref("")
+const costGuideTotalCost = ref<number>(-1)
+const costGuideRows = ref<CostGuideRow[]>([])
+const costGuideLeafRows = ref<CostGuideLeafRow[]>([])
+const costGuideView = ref<"leaf" | "tree">("leaf")
+const costGuideKeyword = ref("")
+const costGuideOnlyUnknown = ref(false)
+const costGuideExpandedRowKeys = ref<string[]>([])
 
 const defaultConfig = {
   hourlyRate: 5000000,
@@ -129,6 +139,26 @@ interface Item {
   protection?: Ingredient
 }
 
+interface CostGuideRow {
+  id: string
+  hrid: string
+  level?: number
+  count: number
+  unitCost: number
+  totalCost: number
+  source: "craft" | "market" | "unknown"
+  project?: string
+  children?: CostGuideRow[]
+}
+
+interface CostGuideLeafRow {
+  key: string
+  hrid: string
+  level?: number
+  count: number
+  totalCost: number
+}
+
 const gearManufacture = ref(false)
 const bestManufacture = ref(false)
 // Independent buy-price status for the two cost blocks (do NOT mutate global buyStatus)
@@ -148,6 +178,16 @@ watch([
   () => gearCostBuyStatus.value
 ], () => {
   recalcManufacturePlan()
+}, { deep: false })
+
+watch([
+  () => gearCostBuyStatus.value,
+  () => currentItem.value.hrid
+], () => {
+  if (!costGuideVisible.value) return
+  costGuideLoading.value = true
+  costGuideError.value = ""
+  refreshCostGuide()
 }, { deep: false })
 
 function isDrink(hrid: string) {
@@ -354,6 +394,268 @@ function getOriginPricePlaceholder(row: Ingredient) {
     return "-1"
   }
   return Format.number(row.originPrice)
+}
+
+function getCostGuidePriceText(price: number) {
+  return price < 0 ? "-1" : Format.number(price)
+}
+
+function getCostGuideSourceLabel(source: CostGuideRow["source"], project?: string) {
+  if (source === "craft") {
+    return project ? `${t("制作")}(${project})` : t("制作")
+  }
+  if (source === "market") {
+    return t("买价")
+  }
+  return t("无库存")
+}
+
+function getGuideManufactureCalculator(hrid: string) {
+  const projects: [string, Action][] = [
+    [t("锻造"), "cheesesmithing"],
+    [t("制造"), "crafting"],
+    [t("裁缝"), "tailoring"]
+  ]
+
+  for (const [project, action] of projects) {
+    const calculator = new ManufactureCalculator({ hrid, project, action })
+    if (!calculator.available) continue
+
+    const outputCount = calculator.productList.find(item => item.hrid === hrid)?.count ?? 1
+    if (outputCount <= 0) continue
+
+    return {
+      calculator,
+      project,
+      outputCount
+    }
+  }
+
+  return undefined
+}
+
+let _guideRowId = 0
+function createGuideRow(input: Omit<CostGuideRow, "id">): CostGuideRow {
+  _guideRowId++
+  return { id: String(_guideRowId), ...input }
+}
+
+function buildCostGuideRow(
+  hrid: string,
+  count: number,
+  level: number | undefined,
+  stack: Set<string>
+): CostGuideRow {
+  const key = `${hrid}|${level ?? 0}`
+  const unitMarketPrice = getGearCostOriginPrice(hrid, level)
+
+  // Enhanced/leveled ingredient is treated as market leaf.
+  if ((level ?? 0) > 0) {
+    return createGuideRow({
+      hrid,
+      level,
+      count,
+      unitCost: unitMarketPrice,
+      totalCost: unitMarketPrice < 0 ? -1 : unitMarketPrice * count,
+      source: unitMarketPrice < 0 ? "unknown" : "market"
+    })
+  }
+
+  if (stack.has(key)) {
+    return createGuideRow({
+      hrid,
+      level,
+      count,
+      unitCost: unitMarketPrice,
+      totalCost: unitMarketPrice < 0 ? -1 : unitMarketPrice * count,
+      source: unitMarketPrice < 0 ? "unknown" : "market"
+    })
+  }
+
+  const guideCalculator = getGuideManufactureCalculator(hrid)
+  if (!guideCalculator) {
+    return createGuideRow({
+      hrid,
+      level,
+      count,
+      unitCost: unitMarketPrice,
+      totalCost: unitMarketPrice < 0 ? -1 : unitMarketPrice * count,
+      source: unitMarketPrice < 0 ? "unknown" : "market"
+    })
+  }
+
+  const nextStack = new Set(stack)
+  nextStack.add(key)
+  const children = guideCalculator.calculator.ingredientList
+    .filter(item => !isDrink(item.hrid))
+    .map(item => buildCostGuideRow(
+      item.hrid,
+      count * item.count / guideCalculator.outputCount,
+      item.level,
+      nextStack
+    ))
+
+  const hasUnknown = children.some(item => item.totalCost < 0)
+  const craftTotalCost = hasUnknown ? -1 : children.reduce((acc, item) => acc + item.totalCost, 0)
+  const craftUnitCost = hasUnknown ? -1 : craftTotalCost / count
+
+  return createGuideRow({
+    hrid,
+    level,
+    count,
+    unitCost: craftUnitCost,
+    totalCost: craftTotalCost,
+    source: hasUnknown ? "unknown" : "craft",
+    project: guideCalculator.project,
+    children
+  })
+}
+
+function buildCostGuideLeafRows(root: CostGuideRow) {
+  const leafMap = new Map<string, CostGuideLeafRow>()
+
+  function dfs(node: CostGuideRow) {
+    if (!node.children?.length || node.source !== "craft") {
+      const key = `${node.hrid}|${node.level ?? 0}`
+      const prev = leafMap.get(key)
+      if (prev) {
+        prev.count += node.count
+        if (prev.totalCost >= 0 && node.totalCost >= 0) {
+          prev.totalCost += node.totalCost
+        } else {
+          prev.totalCost = -1
+        }
+      } else {
+        leafMap.set(key, {
+          key,
+          hrid: node.hrid,
+          level: node.level,
+          count: node.count,
+          totalCost: node.totalCost
+        })
+      }
+      return
+    }
+    node.children.forEach(dfs)
+  }
+
+  dfs(root)
+  return Array.from(leafMap.values()).sort((a, b) => a.hrid.localeCompare(b.hrid))
+}
+
+function getGuideItemName(hrid: string) {
+  return t(getItemDetailOf(hrid)?.name || hrid)
+}
+
+function collectGuideRowIds(rows: CostGuideRow[]) {
+  const ids: string[] = []
+  function dfs(row: CostGuideRow) {
+    ids.push(row.id)
+    row.children?.forEach(dfs)
+  }
+  rows.forEach(dfs)
+  return ids
+}
+
+function filterGuideRows(rows: CostGuideRow[], keyword: string, onlyUnknown: boolean): CostGuideRow[] {
+  function dfs(row: CostGuideRow): CostGuideRow | null {
+    const children = (row.children || [])
+      .map(child => dfs(child))
+      .filter((item): item is CostGuideRow => item !== null)
+
+    const matchKeyword = !keyword || getGuideItemName(row.hrid).toLowerCase().includes(keyword)
+    const matchUnknown = !onlyUnknown || row.totalCost < 0
+    const selfMatch = matchKeyword && matchUnknown
+    const childMatch = children.length > 0
+
+    if (!selfMatch && !childMatch) {
+      return null
+    }
+
+    return { ...row, children }
+  }
+
+  return rows
+    .map(item => dfs(item))
+    .filter((item): item is CostGuideRow => item !== null)
+}
+
+const filteredCostGuideRows = computed(() => {
+  const keyword = costGuideKeyword.value.trim().toLowerCase()
+  return filterGuideRows(costGuideRows.value, keyword, costGuideOnlyUnknown.value)
+})
+
+const filteredCostGuideLeafRows = computed(() => {
+  const keyword = costGuideKeyword.value.trim().toLowerCase()
+  return costGuideLeafRows.value
+    .filter((row) => {
+      const matchKeyword = !keyword || getGuideItemName(row.hrid).toLowerCase().includes(keyword)
+      const matchUnknown = !costGuideOnlyUnknown.value || row.totalCost < 0
+      return matchKeyword && matchUnknown
+    })
+    .sort((a, b) => {
+      const costA = a.totalCost < 0 ? -1 : a.totalCost
+      const costB = b.totalCost < 0 ? -1 : b.totalCost
+      return costB - costA
+    })
+})
+
+const costGuideLeafKnownTotal = computed(() => {
+  return filteredCostGuideLeafRows.value.reduce((acc, row) => row.totalCost > 0 ? acc + row.totalCost : acc, 0)
+})
+
+function getLeafShareText(totalCost: number) {
+  if (totalCost <= 0 || costGuideLeafKnownTotal.value <= 0) return "-"
+  return Format.percent(totalCost / costGuideLeafKnownTotal.value)
+}
+
+function getLeafUnitCostText(row: CostGuideLeafRow) {
+  if (row.totalCost < 0 || row.count <= 0) return "-1"
+  return Format.number(row.totalCost / row.count)
+}
+
+function expandAllGuideRows() {
+  costGuideExpandedRowKeys.value = collectGuideRowIds(filteredCostGuideRows.value)
+}
+
+function collapseAllGuideRows() {
+  costGuideExpandedRowKeys.value = []
+}
+
+function refreshCostGuide() {
+  const hrid = currentItem.value.hrid
+  if (!hrid) {
+    return
+  }
+
+  try {
+    _guideRowId = 0
+    const root = buildCostGuideRow(hrid, 1, undefined, new Set())
+    costGuideRows.value = [root]
+    costGuideLeafRows.value = buildCostGuideLeafRows(root)
+    costGuideTotalCost.value = root.totalCost
+  } catch (e: any) {
+    costGuideError.value = e?.message || "failed"
+  } finally {
+    costGuideLoading.value = false
+  }
+}
+
+function openCostGuide() {
+  if (!currentItem.value.hrid) {
+    return
+  }
+  costGuideVisible.value = true
+  costGuideLoading.value = true
+  costGuideError.value = ""
+  costGuideView.value = "leaf"
+  costGuideKeyword.value = ""
+  costGuideOnlyUnknown.value = false
+  costGuideRows.value = []
+  costGuideLeafRows.value = []
+  costGuideTotalCost.value = -1
+  costGuideExpandedRowKeys.value = []
+  refreshCostGuide()
 }
 
 let _syncingProductPriceStep = false
@@ -740,6 +1042,9 @@ watch(menuVisible, (value) => {
                 <el-checkbox v-model="bestManufacture" :disabled="!gearManufacture">
                   {{ t('最佳制作方案') }}
                 </el-checkbox>
+                <el-button size="small" type="primary" plain :disabled="!currentItem?.hrid" @click="openCostGuide">
+                  {{ t('成本指导价') }}
+                </el-button>
               </div>
 
               <div v-if="gameStore.checkSecret()" class="flex items-center gap-2">
@@ -1075,6 +1380,127 @@ watch(menuVisible, (value) => {
         <el-table-column v-else prop="totalCostFormatted" :label="t('总费用')" :min-width="120" header-align="center" align="right" />
       </ElTable>
     </el-card>
+
+    <el-dialog v-model="costGuideVisible" :title="t('成本指导价')" width="900px">
+      <div v-loading="costGuideLoading">
+        <template v-if="costGuideError">
+          <div class="error">
+            {{ costGuideError }}
+          </div>
+        </template>
+        <template v-else>
+          <div class="mb-2 flex items-center gap-2">
+            <ItemIcon :hrid="currentItem.hrid" :width="28" :height="28" />
+            <span>{{ t('从最低级物品开始制作链路') }}</span>
+            <span class="ml-auto whitespace-nowrap">
+              {{ t('总费用') }}:
+              <strong>{{ getCostGuidePriceText(costGuideTotalCost) }}</strong>
+            </span>
+          </div>
+
+          <div class="mb-2 flex flex-wrap items-center gap-2">
+            <el-radio-group v-model="costGuideView" size="small">
+              <el-radio-button label="leaf">
+                {{ t('叶子材料汇总(推荐)') }}
+              </el-radio-button>
+              <el-radio-button label="tree">
+                {{ t('完整链路') }}
+              </el-radio-button>
+            </el-radio-group>
+            <el-input
+              v-model="costGuideKeyword"
+              style="width: 200px"
+              :placeholder="t('搜索')"
+              clearable
+            />
+            <el-checkbox v-model="costGuideOnlyUnknown">
+              {{ t('仅显示无库存') }}
+            </el-checkbox>
+            <template v-if="costGuideView === 'tree'">
+              <el-button size="small" @click="expandAllGuideRows">
+                {{ t('展开全部') }}
+              </el-button>
+              <el-button size="small" @click="collapseAllGuideRows">
+                {{ t('收起全部') }}
+              </el-button>
+            </template>
+          </div>
+
+          <template v-if="costGuideView === 'tree'">
+            <ElTable
+              :data="filteredCostGuideRows"
+              row-key="id"
+              :expand-row-keys="costGuideExpandedRowKeys"
+              border
+              :tree-props="{ children: 'children' }"
+              class="mb-3"
+            >
+              <el-table-column :label="t('物品')" min-width="220">
+                <template #default="{ row }">
+                  <div class="flex items-center gap-2">
+                    <ItemIcon :hrid="row.hrid" />
+                    <span>{{ row.level ? `${t('等级')}+${row.level}` : "" }}</span>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('来源')" width="130" align="center">
+                <template #default="{ row }">
+                  {{ getCostGuideSourceLabel(row.source, row.project) }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="count" :label="t('数量')" width="120" align="right">
+                <template #default="{ row }">
+                  {{ Format.number(row.count, 4) }}
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('价格')" width="150" align="right">
+                <template #default="{ row }">
+                  {{ getCostGuidePriceText(row.unitCost) }}
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('成本')" width="150" align="right">
+                <template #default="{ row }">
+                  {{ getCostGuidePriceText(row.totalCost) }}
+                </template>
+              </el-table-column>
+            </ElTable>
+          </template>
+
+          <template v-else>
+            <ElTable :data="filteredCostGuideLeafRows" border>
+              <el-table-column :label="t('物品')" min-width="220">
+                <template #default="{ row }">
+                  <div class="flex items-center gap-2">
+                    <ItemIcon :hrid="row.hrid" />
+                    <span>{{ row.level ? `${t('等级')}+${row.level}` : "" }}</span>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column prop="count" :label="t('数量')" width="120" align="right">
+                <template #default="{ row }">
+                  {{ Format.number(row.count, 4) }}
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('单价')" width="140" align="right">
+                <template #default="{ row }">
+                  {{ getLeafUnitCostText(row) }}
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('成本')" width="150" align="right">
+                <template #default="{ row }">
+                  {{ getCostGuidePriceText(row.totalCost) }}
+                </template>
+              </el-table-column>
+              <el-table-column :label="t('占比')" width="110" align="right">
+                <template #default="{ row }">
+                  {{ getLeafShareText(row.totalCost) }}
+                </template>
+              </el-table-column>
+            </ElTable>
+          </template>
+        </template>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
