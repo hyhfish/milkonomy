@@ -11,6 +11,15 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.413",
+    date: "2026-02-27",
+    changes: [
+      "强化计算 / 超级强化计算：修复『成品售价』价格档位步进异常，避免点击 - 直接跳到 -1，改为按市场档位逐级调整",
+      "强化计算 / 超级强化计算：修复价格处于 -1 后无法回调的问题，点击 + 可恢复并继续按档位上调",
+      "超级强化计算：档位步进判定增加容差处理，避免输入组件数值抖动导致档位判断错误"
+    ]
+  },
+  {
     version: "1.3.412",
     date: "2026-02-27",
     changes: [

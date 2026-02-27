@@ -364,33 +364,63 @@ function onProductPriceChange(value: number | undefined, oldValue: number | unde
   const hrid = item?.hrid
   if (!hrid) return
   if (typeof value !== "number") return
+  if (value < -1) {
+    _syncingProductPriceStep = true
+    item.productPrice = -1
+    nextTick(() => {
+      _syncingProductPriceStep = false
+    })
+    return
+  }
 
   const enhanceLevel = enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel
   const marketBid = getPriceOf(hrid, enhanceLevel).bid
 
-  // Only remap when user used the +/- controls (default step=1), so it looks like the tax-rate control
-  // but actually steps by market tick levels.
   const isOldNumber = typeof oldValue === "number"
   const delta = isOldNumber ? (value - (oldValue as number)) : Number.NaN
 
   let high: boolean | undefined
   let base: number | undefined
 
-  if (isOldNumber && Math.abs(delta) === 1) {
+  if (isOldNumber && oldValue === -1 && value === 0) {
+    _syncingProductPriceStep = true
+    item.productPrice = 1
+    nextTick(() => {
+      _syncingProductPriceStep = false
+    })
+    return
+  } else if (isOldNumber && Math.abs(Math.abs(delta) - 1) < 1e-9) {
     high = delta > 0
     base = oldValue as number
   } else if (!isOldNumber && (value === 0 || value === 1) && typeof marketBid === "number" && marketBid > 0) {
-    // When input was empty (undefined) and user clicked the controls,
-    // ElInputNumber tends to jump to 0/1. Treat that as stepping from market bid.
     high = value === 1
     base = marketBid
+  } else if (!isOldNumber && value === -1) {
+    // Empty -> click "-" should step down from market price by tier,
+    // not hard-set to -1 directly.
+    if (typeof marketBid !== "number" || marketBid <= 0) {
+      _syncingProductPriceStep = true
+      item.productPrice = -1
+      nextTick(() => {
+        _syncingProductPriceStep = false
+      })
+      return
+    }
+    high = false
+    base = marketBid
   } else {
-    // Manual typing: keep as-is.
     return
   }
 
   const next = priceStepOf(base, high)
-  if (next <= 0) return
+  if (next <= 0) {
+    _syncingProductPriceStep = true
+    item.productPrice = -1
+    nextTick(() => {
+      _syncingProductPriceStep = false
+    })
+    return
+  }
 
   _syncingProductPriceStep = true
   item.productPrice = next
@@ -925,7 +955,7 @@ watch(menuVisible, (value) => {
                   style="width: 100%"
                   v-model="currentItem.productPrice"
                   :step="1"
-                  :min="0"
+                  :min="-1"
                   :placeholder="Format.number(getPriceOf(currentItem.hrid!, enhancerStore.enhanceLevel ?? defaultConfig.enhanceLevel).bid)"
                   controls-position="right"
                   :controls="true"

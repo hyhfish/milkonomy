@@ -365,23 +365,34 @@ function resolveTierStep(value: number | undefined, oldValue: number | undefined
   if (typeof value !== "number") {
     return undefined
   }
+  if (value < -1) {
+    return -1
+  }
   const isOldNumber = typeof oldValue === "number"
   const delta = isOldNumber ? (value - oldValue) : Number.NaN
   let high: boolean | undefined
   let base: number | undefined
 
-  if (isOldNumber && Math.abs(delta) === 1) {
+  if (isOldNumber && oldValue === -1 && value === 0) {
+    // 从 -1 向上恢复时，先回到 1，避免出现异常大跳
+    return 1
+  } else if (isOldNumber && Math.abs(Math.abs(delta) - 1) < 1e-9) {
     high = delta > 0
     base = oldValue
-  } else if (!isOldNumber && (value === 0 || value === 1) && marketPrice > 0) {
-    high = value === 1
-    base = marketPrice
+  } else if (!isOldNumber && (value === -1 || value === 0 || value === 1)) {
+    // 空值状态点 +/-：以市场价为基准做档位跳价
+    if (marketPrice > 0) {
+      high = value === 1
+      base = marketPrice
+    } else {
+      return value === 1 ? 1 : -1
+    }
   } else {
     return undefined
   }
 
   const next = priceStepOf(base, high)
-  return next > 0 ? next : undefined
+  return next > 0 ? next : -1
 }
 
 function onProductPriceChange(value: number | undefined, oldValue: number | undefined) {
@@ -529,6 +540,7 @@ watch(menuVisible, (value) => {
                 <el-input-number
                   class="max-w-100%"
                   v-model="row.price"
+                  :min="-1"
                   :placeholder="Format.number(currentItemOriginPrice)"
                   :controls="true"
                   controls-position="right"
@@ -613,6 +625,7 @@ watch(menuVisible, (value) => {
                 <el-input-number
                   class="max-w-100%"
                   v-model="row.escapePrice"
+                  :min="-1"
                   :placeholder="Format.number(currentItemEscapePrice)"
                   :controls="true"
                   controls-position="right"
@@ -645,6 +658,7 @@ watch(menuVisible, (value) => {
                 <el-input-number
                   class="max-w-100%"
                   v-model="row.whitePrice"
+                  :min="-1"
                   :placeholder="Format.number(currentItemWhitePrice)"
                   :controls="true"
                   controls-position="right"
@@ -771,7 +785,7 @@ watch(menuVisible, (value) => {
                   style="width: 100%"
                   v-model="currentItem.productPrice"
                   :step="1"
-                  :min="0"
+                  :min="-1"
                   :placeholder="Format.number(getPriceOf(currentItem.hrid!, enhancerStore.advancedConfig.enhanceLevel ?? defaultConfig.enhanceLevel).bid)"
                   controls-position="right"
                   :controls="true"
@@ -876,6 +890,7 @@ watch(menuVisible, (value) => {
                   v-if="row.hrid !== COIN_HRID"
                   class="max-w-100%"
                   v-model="row.price"
+                  :min="-1"
                   :placeholder="Format.number(row.originPrice)"
                   :controls="true"
                   controls-position="right"
@@ -909,6 +924,7 @@ watch(menuVisible, (value) => {
                 <el-input-number
                   class="max-w-100%"
                   v-model="row.protection.price"
+                  :min="-1"
                   :placeholder="Format.number(row.protection.originPrice)"
                   :controls="true"
                   controls-position="right"
