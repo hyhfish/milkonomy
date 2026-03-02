@@ -50,6 +50,14 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   }
   profitList.forEach(item => item.favorite = useFavoriteStoreOutside().hasFavorite(item))
   profitList = profitList.filter(item => item.actionLevel >= (params.actionLevel || 0))
+  const hasMaxItemLevel = params.maxItemLevel !== undefined && params.maxItemLevel !== null
+  if (hasMaxItemLevel) {
+    const maxItemLevel = Number(params.maxItemLevel)
+    profitList = profitList.filter((item) => {
+      const itemLevel = item.item?.itemLevel
+      return typeof itemLevel === "number" && itemLevel <= maxItemLevel
+    })
+  }
 
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }

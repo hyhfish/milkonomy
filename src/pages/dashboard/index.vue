@@ -34,6 +34,7 @@ const ldSearchData = useMemory("dashboard-leaderboard-search-data", {
   name: "",
   project: "",
   profitRate: 10,
+  maxItemLevel: undefined,
   banEquipment: true,
   banCharm: false
 })
@@ -244,6 +245,15 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
                   :controls="false"
                   @change="handleSearchLD"
                   style="width: 60px;"
+                />
+              </el-form-item>
+
+              <el-form-item :label="`${t('物品等级')} ≤`">
+                <el-input-number
+                  v-model="ldSearchData.maxItemLevel"
+                  :controls="false"
+                  @change="handleSearchLD"
+                  style="width: 80px;"
                 />
               </el-form-item>
 
