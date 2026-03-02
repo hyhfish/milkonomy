@@ -21,6 +21,7 @@ export interface RequestData {
   enhanposer?: boolean
   sort?: Sort
   actionLevel?: number
+  maxItemLevel?: number
 }
 
 export type ResponseData = ApiResponseData<{
