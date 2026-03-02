@@ -16,7 +16,7 @@ export async function getDataApi(params: any) {
     await new Promise(resolve => setTimeout(resolve, 300))
     const startTime = Date.now()
     try {
-      profitList = profitList.concat(calcEnhanceProfit())
+      profitList = profitList.concat(calcSuperEnhanceProfit())
     } catch (e: any) {
       console.error(e)
     }
@@ -30,7 +30,7 @@ export async function getDataApi(params: any) {
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }
 
-function calcEnhanceProfit() {
+export function calcSuperEnhanceProfit() {
   const gameData = getGameDataApi()
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)

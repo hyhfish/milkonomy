@@ -8,7 +8,8 @@ import { cloneDeep, debounce } from "lodash-es"
 import { useRouter } from "vue-router"
 
 import { getPriceOf } from "@/common/apis/game"
-import { getDataApi } from "@/common/apis/jungle"
+import { getDataApi as getJungleDataApi } from "@/common/apis/jungle"
+import { getDataApi as getSuperJungleDataApi } from "@/common/apis/jungle/junglest"
 import { useMemory } from "@/common/composables/useMemory"
 import { usePriceStatus } from "@/common/composables/usePriceStatus"
 import * as Format from "@/common/utils/format"
@@ -26,6 +27,7 @@ import PriceStatusSelect from "../dashboard/components/PriceStatusSelect.vue"
 const { paginationData: paginationDataLD, handleCurrentChange: handleCurrentChangeLD, handleSizeChange: handleSizeChangeLD } = usePagination({}, "jungle-leaderboard-pagination")
 const leaderboardData = ref<Calculator[]>([])
 const ldSearchFormRef = ref<FormInstance | null>(null)
+const dataSource = useMemory("jungle-data-source", { type: "jungle" })
 
 const ldSearchData = useMemory("jungle-leaderboard-search-data", {
   name: "",
@@ -49,7 +51,8 @@ const loadingLD = ref(false)
 const getLeaderboardData = debounce(() => {
   loadingLD.value = true
 
-  getDataApi({
+  const dataApi = dataSource.value.type === "junglest" ? getSuperJungleDataApi : getJungleDataApi
+  dataApi({
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
     ...ldSearchData.value,
@@ -67,6 +70,14 @@ const getLeaderboardData = debounce(() => {
 function handleSearchLD() {
   paginationDataLD.currentPage === 1 ? getLeaderboardData() : (paginationDataLD.currentPage = 1)
 }
+
+function handleDataSourceChange() {
+  handleSearchLD()
+}
+
+const manualPriceMemoryKey = computed(() => (
+  dataSource.value.type === "junglest" ? "junglest" : "jungle"
+))
 
 function getEquipmentFilterMode() {
   if (ldSearchData.value.onlySkillingEquipment) return "skilling"
@@ -181,6 +192,22 @@ function formatVolume1h(row: any) {
   return vol < 0 ? "-" : Format.number(vol)
 }
 
+function formatExpectedTime(row: any) {
+  const products = row?.productListWithPrice
+  if (!Array.isArray(products) || products.length === 0) return "-"
+
+  const targetLevel = getEnhanceLevelOfRow(row) ?? 0
+  const targetProduct = products.find((item: any) => (
+    item?.hrid === row?.hrid && (item?.level ?? 0) === targetLevel
+  )) ?? products[0]
+
+  const countPH = Number(targetProduct?.countPH)
+  if (!Number.isFinite(countPH) || countPH <= 0) return "-"
+
+  const seconds = 3600 / countPH
+  return Format.costTime(seconds * 1000000000)
+}
+
 const onPriceStatusChange = usePriceStatus("jungle-price-status")
 
 function escapeRegExp(text: string) {
@@ -219,6 +246,16 @@ const projectFilterOptions = computed(() => [
       />
       <div>
         {{ t('打野爽！') }}
+      </div>
+      <div>
+        <el-radio-group v-model="dataSource.type" @change="handleDataSourceChange" size="small" class="filter-segment">
+          <el-radio-button label="jungle">
+            {{ t('打野工具') }}
+          </el-radio-button>
+          <el-radio-button label="junglest">
+            {{ t('超级打野工具') }}
+          </el-radio-button>
+        </el-radio-group>
       </div>
     </div>
     <el-row :gutter="20" class="row">
@@ -430,6 +467,12 @@ const projectFilterOptions = computed(() => [
                 </template>
               </el-table-column>
 
+              <el-table-column :label="t('期望耗时')" align="center" min-width="110">
+                <template #default="{ row }">
+                  {{ formatExpectedTime(row) }}
+                </template>
+              </el-table-column>
+
               <el-table-column :label="t('到强化工具中查看')" align="center" min-width="140">
                 <template #default="{ row }">
                   <el-link type="primary" @click="goToEnhancer(row)">
@@ -512,7 +555,7 @@ const projectFilterOptions = computed(() => [
       </el-col>
 
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="8">
-        <ManualPriceCard memory-key="jungle" />
+        <ManualPriceCard :memory-key="manualPriceMemoryKey" />
       </el-col>
     </el-row>
     <ActionDetail v-model="detailVisible" :data="currentRow" />

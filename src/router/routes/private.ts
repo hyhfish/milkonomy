@@ -47,16 +47,6 @@ export const privateRoutes: RouteRecordRaw[] = [
         }
       },
       {
-        path: "junglest",
-        component: () => import("@/pages/junglest/index.vue"),
-        name: "junglest",
-        meta: {
-          title: t("超级打野工具"),
-          affix: false,
-          elIcon: "Compass"
-        }
-      },
-      {
         path: "junglerit",
         component: () => import("@/pages/junglest/inherit.vue"),
         name: "junglerit",
