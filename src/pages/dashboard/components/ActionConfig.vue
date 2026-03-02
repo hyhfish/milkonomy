@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AchievementBuffItem, ActionConfig, ActionConfigItem, CommunityBuffItem, PlayerEquipmentItem } from "@/pinia/stores/player"
-import type { AchievementTier, Action, CommunityBuff, Equipment } from "~/game"
+import type { AchievementTier, Action, Buff, CommunityBuff, Equipment, ItemDetail } from "~/game"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { Plus } from "@element-plus/icons-vue"
 import { ElMessageBox } from "element-plus"
@@ -8,7 +8,8 @@ import { getAchievementTierDetailOf, getCommunityBuffDetailOf } from "@/common/a
 import { getEquipmentListOf, getSealList, getSpecialEquipmentListOf, getTeaListOf, getToolListOf, setActionConfigApi } from "@/common/apis/player"
 import { useTheme } from "@/common/composables/useTheme"
 import { DEFAULT_ACHIEVEMENT_BUFF_LIST, DEFAULT_COMMUNITY_BUFF_LIST, DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
-import { ACTION_LIST } from "@/pinia/stores/game"
+import { getTrans } from "@/locales"
+import { ACHIEVEMENT_TIER_LIST, ACTION_LIST } from "@/pinia/stores/game"
 import { defaultActionConfig, usePlayerStore } from "@/pinia/stores/player"
 
 defineProps<{
@@ -219,14 +220,80 @@ function onImport() {
       if (!obj.name || !obj.color || !obj.actionConfigMap || !obj.specialEquimentMap) {
         throw new Error(t("无效的预设配置"))
       }
+      const normalizeSeal = (input: unknown): string | undefined => {
+        if (typeof input !== "string") {
+          return undefined
+        }
+        const value = input.trim()
+        if (!value) {
+          return undefined
+        }
+        if (value.startsWith("/items/seal_of_")) {
+          return value
+        }
+        const hit = getSealList().find(item =>
+          item.hrid === value
+          || item.hrid.split("/").pop() === value
+          || item.name === value
+          || getTrans(item.name) === value
+        )
+        return hit?.hrid
+      }
+      const normalizeSeals = (input: unknown): string[] => {
+        const source = Array.isArray(input) ? input : typeof input === "string" ? [input] : []
+        const result = source
+          .map(normalizeSeal)
+          .filter((item): item is string => Boolean(item))
+        return [...new Set(result)]
+      }
+      const normalizeAchievementTier = (input: unknown): AchievementTier | undefined => {
+        if (typeof input !== "string") {
+          return undefined
+        }
+        const value = input.trim()
+        if (!value) {
+          return undefined
+        }
+        const key = value.startsWith("/achievement_tiers/")
+          ? value.split("/").pop()
+          : value
+        if (key && (ACHIEVEMENT_TIER_LIST as readonly string[]).includes(key)) {
+          return key as AchievementTier
+        }
+        for (const tier of ACHIEVEMENT_TIER_LIST) {
+          const detail = getAchievementTierDetailOf(`/achievement_tiers/${tier}`)
+          if (!detail) {
+            continue
+          }
+          if (detail.name === value || getTrans(detail.name) === value) {
+            return tier
+          }
+        }
+        return undefined
+      }
+      const normalizeAchievementBuffMap = (input: unknown) => {
+        const entries = Object.entries((input || {}) as Record<string, AchievementBuffItem>)
+        const result = new Map<AchievementTier, AchievementBuffItem>()
+        for (const [rawKey, rawValue] of entries) {
+          const tier = normalizeAchievementTier(rawKey)
+          if (!tier) {
+            continue
+          }
+          result.set(tier, {
+            type: tier,
+            enabled: Boolean(rawValue?.enabled)
+          })
+        }
+        return result
+      }
       const config: ActionConfig = {
         name: obj.name,
         color: obj.color,
-        seals: Array.isArray(obj.seals) ? obj.seals : typeof obj.seal === "string" ? [obj.seal] : [],
+        seals: normalizeSeals(obj.seals || obj.seal),
         actionConfigMap: new Map<Action, ActionConfigItem>(Object.entries(obj.actionConfigMap) as [Action, ActionConfigItem][]),
         specialEquimentMap: new Map<Equipment, PlayerEquipmentItem>(Object.entries(obj.specialEquimentMap) as [Equipment, PlayerEquipmentItem][]),
         communityBuffMap: new Map<CommunityBuff, CommunityBuffItem>(Object.entries(obj.communityBuffMap) as [CommunityBuff, CommunityBuffItem][]),
-        achievementBuffMap: new Map<AchievementTier, AchievementBuffItem>(Object.entries(obj.achievementBuffMap || {}) as [AchievementTier, AchievementBuffItem][])
+        achievementBuffMap: normalizeAchievementBuffMap(obj.achievementBuffMap)
       }
       onDialog(config, playerStore.presets.length)
     } catch (e) {
@@ -269,6 +336,53 @@ function onSealToggle(hrid: string, enabled: boolean) {
   if (!enabled && index !== -1) {
     seals.value.splice(index, 1)
   }
+}
+
+const BUFF_TYPE_TEXT_MAP: Record<string, string> = {
+  "/buff_types/action_speed": "行动速度",
+  "/buff_types/efficiency": "效率",
+  "/buff_types/gathering": "采集",
+  "/buff_types/processing": "加工",
+  "/buff_types/gourmet": "美食",
+  "/buff_types/wisdom": "经验",
+  "/buff_types/rare_find": "稀有发现",
+  "/buff_types/enhancing_success": "强化成功率"
+}
+
+function formatPercent(value: number) {
+  const sign = value > 0 ? "+" : ""
+  const text = (value * 100).toFixed(2).replace(/\.?0+$/, "")
+  return `${sign}${text}%`
+}
+
+function getBuffLabel(typeHrid?: string) {
+  if (!typeHrid) {
+    return ""
+  }
+  return BUFF_TYPE_TEXT_MAP[typeHrid] || typeHrid.split("/").pop() || typeHrid
+}
+
+function getSealEffect(item: ItemDetail) {
+  const matched = item.description?.match(/([+-]?\d+(?:\.\d+)?)%/)
+  if (!matched?.[1]) {
+    return ""
+  }
+  const ratio = Number.parseFloat(matched[1]) / 100
+  if (!Number.isFinite(ratio)) {
+    return ""
+  }
+  const mainBuff = item.consumableDetail?.buffs?.[0] as Buff | undefined
+  const label = getBuffLabel(mainBuff?.typeHrid)
+  return label ? `${label} ${formatPercent(ratio)}` : formatPercent(ratio)
+}
+
+function getAchievementEffect(type: AchievementTier) {
+  const detail = getAchievementTierDetailOf(`/achievement_tiers/${type}`)
+  if (!detail?.buff) {
+    return type
+  }
+  const value = (detail.buff.flatBoost || 0) + (detail.buff.ratioBoost || 0)
+  return `${getBuffLabel(detail.buff.typeHrid)} ${formatPercent(value)}`
 }
 </script>
 
@@ -516,7 +630,10 @@ function onSealToggle(hrid: string, enabled: boolean) {
                 <div class="buff-tofu" v-for="item in sealList" :key="`seal-${item.hrid}`">
                   <div class="buff-tofu-head">
                     <ItemIcon :hrid="item.hrid" />
-                    <span>{{ item.name }}</span>
+                    <span>{{ getTrans(item.name) }}</span>
+                  </div>
+                  <div class="buff-effect">
+                    {{ getSealEffect(item) }}
                   </div>
                   <el-checkbox :model-value="isSealEnabled(item.hrid)" @change="(value) => onSealToggle(item.hrid, Boolean(value))">
                     {{ t('启用') }}
@@ -544,7 +661,7 @@ function onSealToggle(hrid: string, enabled: boolean) {
                 <div class="buff-tofu" v-for="row in achievementBuffList.filter(item => achievementBuffs ? achievementBuffs.includes(item.type) : true)" :key="`achievement-${row.type}`">
                   <div class="buff-tofu-head">
                     <ItemIcon :hrid="getAchievementTierDetailOf(`/achievement_tiers/${row.type}`)?.buff.typeHrid" :width="22" :height="22" />
-                    <span>{{ getAchievementTierDetailOf(`/achievement_tiers/${row.type}`)?.name || row.type }}</span>
+                    <span>{{ getAchievementEffect(row.type) }}</span>
                   </div>
                   <el-checkbox v-model="row.enabled">
                     {{ t('启用') }}
@@ -676,5 +793,10 @@ function onSealToggle(hrid: string, enabled: boolean) {
   gap: 8px;
   min-height: 24px;
   font-size: 13px;
+}
+
+.buff-effect {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
 }
 </style>
