@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Action, ItemDetail } from "~/game"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
+import TieredPriceInput from "@@/components/TieredPriceInput/index.vue"
 
 import * as Format from "@@/utils/format"
 import { Star, StarFilled } from "@element-plus/icons-vue"
@@ -1329,14 +1330,14 @@ watch(menuVisible, (value) => {
                 <div class="font-size-14px">
                   {{ t('工时费/h') }}
                 </div>
-                <el-input-number
+                <TieredPriceInput
                   class="w-120px"
                   v-model="enhancerStore.config.hourlyRate"
-                  :step="1"
                   :min="0"
                   :max="5000000000"
                   :placeholder="Format.number(defaultConfig.hourlyRate)"
-                  :controls="false"
+                  :fallback-base="defaultConfig.hourlyRate"
+                  width="120px"
                 />
               </div>
 

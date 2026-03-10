@@ -1,7 +1,7 @@
 import type { CalculatorConfig, Ingredient, IngredientWithPrice, Product } from "."
 import * as Format from "@@/utils/format"
 import * as math from "mathjs"
-import { getEnhancelateCache, getEnhancementExp, getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getPriceOf, setEnhancelateCache } from "@/common/apis/game"
+import { getEnhancelateCache, getEnhancementExp, getEnhanceTimeCost, getEnhancingEssenceDropTable, getEnhancingRareDropTable, getGameDataApi, getItemDetailOf, getPriceOf, setEnhancelateCache } from "@/common/apis/game"
 import { getBuffOf, getEnhanceSuccessRatio, getTeaIngredientList } from "@/common/apis/player"
 import { getTrans } from "@/locales"
 import Calculator from "."
@@ -19,6 +19,169 @@ export interface EnhanceCalculatorConfig extends CalculatorConfig {
   originLevel?: number
   escapeLevel?: number
   protectLevel: number
+}
+
+export interface PhilosopherEnhanceFlowConfig {
+  hrid: string
+  targetLevel: number
+  protectLevel: number
+  philosopherProtectLevel: number
+}
+
+export interface PhilosopherEnhanceFlowStep {
+  level: number
+  mode: "normal" | "philosopher"
+  actions: number
+  secondaryInputCount: number
+  protectionCount: number
+}
+
+export interface PhilosopherEnhanceFlowResult {
+  actionsByLevel: number[]
+  baseItemCount: number
+  mirrorCount: number
+  protectionCount: number
+  totalActions: number
+  steps: PhilosopherEnhanceFlowStep[]
+}
+
+function addProducedValue(
+  matrix: math.Matrix,
+  targetLevel: number,
+  rowLevel: number,
+  colLevel: number,
+  value: number
+) {
+  if (value === 0) return
+  if (rowLevel >= targetLevel) {
+    matrix.set([targetLevel - 1, colLevel], matrix.get([targetLevel - 1, colLevel]) + value)
+    return
+  }
+  if (rowLevel <= 0) {
+    return
+  }
+  matrix.set([rowLevel - 1, colLevel], matrix.get([rowLevel - 1, colLevel]) + value)
+}
+
+export function calculatePhilosopherEnhanceFlow(config: PhilosopherEnhanceFlowConfig): PhilosopherEnhanceFlowResult | null {
+  const { hrid, targetLevel, protectLevel, philosopherProtectLevel } = config
+  if (targetLevel <= 1 || philosopherProtectLevel < 1 || philosopherProtectLevel >= targetLevel) {
+    return null
+  }
+
+  const item = getItemDetailOf(hrid)
+  const blessed = getBuffOf("enhancing", "Blessed")
+  const successRateTable = getGameDataApi().enhancementLevelSuccessRateTable
+  const actionCount = targetLevel
+  const matrix = math.matrix(math.zeros(targetLevel, actionCount))
+  const rhs = math.matrix(math.zeros(targetLevel, 1))
+  rhs.set([targetLevel - 1, 0], 1)
+
+  for (let j = 0; j < actionCount; j++) {
+    const usePhilosopher = j >= philosopherProtectLevel
+    const successRate = Math.min(1, successRateTable[j] * (1 + getEnhanceSuccessRatio(item)))
+
+    if (j > 0) {
+      matrix.set([j - 1, j], matrix.get([j - 1, j]) - 1)
+    }
+
+    if (usePhilosopher) {
+      if (j - 1 > 0) {
+        matrix.set([j - 2, j], matrix.get([j - 2, j]) - 1)
+      }
+      addProducedValue(matrix, targetLevel, j + 1, j, j + 1 < targetLevel ? 1 - blessed : 1)
+      if (j + 1 < targetLevel) {
+        addProducedValue(matrix, targetLevel, j + 2, j, blessed)
+      }
+      continue
+    }
+
+    const levelUpRate = successRate * (1 - blessed)
+    const levelLeapRate = successRate * blessed
+    const failRate = 1 - successRate
+
+    addProducedValue(matrix, targetLevel, j + 1, j, levelUpRate)
+    if (j + 1 < targetLevel) {
+      addProducedValue(matrix, targetLevel, j + 2, j, levelLeapRate)
+    }
+
+    const failLevel = j >= protectLevel ? j - 1 : 0
+    if (failLevel > 0) {
+      matrix.set([failLevel - 1, j], matrix.get([failLevel - 1, j]) + failRate)
+    }
+  }
+
+  let solved: math.MathType
+  try {
+    solved = math.lusolve(matrix, rhs)
+  } catch {
+    return null
+  }
+
+  const actionsByLevel = Array.from({ length: actionCount }, (_, index) => {
+    const value = Number((solved as math.Matrix).get([index, 0]))
+    return Math.abs(value) < 1e-10 ? 0 : value
+  })
+
+  if (actionsByLevel.some(value => !Number.isFinite(value) || value < -1e-8)) {
+    return null
+  }
+
+  let baseItemCount = actionsByLevel[0] || 0
+  let mirrorCount = 0
+  let protectionCount = 0
+  let baseInflows = 0
+  const steps: PhilosopherEnhanceFlowStep[] = []
+
+  for (let j = 0; j < actionCount; j++) {
+    const actions = actionsByLevel[j] || 0
+    if (actions <= 1e-10) continue
+
+    const usePhilosopher = j >= philosopherProtectLevel
+    if (usePhilosopher) {
+      mirrorCount += actions
+      if (j === 1) {
+        baseItemCount += actions
+      }
+      steps.push({
+        level: j,
+        mode: "philosopher",
+        actions,
+        secondaryInputCount: actions,
+        protectionCount: 0
+      })
+      continue
+    }
+
+    const successRate = Math.min(1, successRateTable[j] * (1 + getEnhanceSuccessRatio(item)))
+    const failRate = 1 - successRate
+    if (j >= protectLevel) {
+      protectionCount += actions * failRate
+    } else {
+      baseInflows += actions * failRate
+    }
+    steps.push({
+      level: j,
+      mode: "normal",
+      actions,
+      secondaryInputCount: 0,
+      protectionCount: j >= protectLevel ? actions * failRate : 0
+    })
+  }
+
+  baseItemCount -= baseInflows
+  if (Math.abs(baseItemCount) < 1e-10) {
+    baseItemCount = 0
+  }
+
+  return {
+    actionsByLevel,
+    baseItemCount,
+    mirrorCount,
+    protectionCount,
+    totalActions: actionsByLevel.reduce((sum, value) => sum + value, 0),
+    steps
+  }
 }
 /**
  * 强化+分解

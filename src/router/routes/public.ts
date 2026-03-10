@@ -74,6 +74,23 @@ export const publicRoutes: RouteRecordRaw[] = [
   {
     path: "/",
     component: Layouts,
+    redirect: "/philosopher",
+    children: [
+      {
+        path: "philosopher",
+        component: () => import("@/pages/philosopher/index.vue"),
+        name: "Philosopher",
+        meta: {
+          title: t("贤者镜计算"),
+          itemIconHrid: "/items/philosophers_mirror",
+          affix: false
+        }
+      }
+    ]
+  },
+  {
+    path: "/",
+    component: Layouts,
     redirect: "/enhanposer",
     children: [
       {

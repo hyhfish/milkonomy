@@ -2,6 +2,7 @@
 import type { RouteRecordRaw } from "vue-router"
 import { isExternal } from "@@/utils/validate"
 import path from "path-browserify"
+import ItemIcon from "@/common/components/ItemIcon/index.vue"
 import Link from "./Link.vue"
 
 interface Props {
@@ -53,6 +54,7 @@ function resolvePath(routePath: string) {
     <Link v-if="theOnlyOneChild.meta" :to="resolvePath(theOnlyOneChild.path)">
       <el-menu-item :index="resolvePath(theOnlyOneChild.path)">
         <SvgIcon v-if="theOnlyOneChild.meta.svgIcon" :name="theOnlyOneChild.meta.svgIcon" class="svg-icon" />
+        <ItemIcon v-else-if="theOnlyOneChild.meta.itemIconHrid" :hrid="theOnlyOneChild.meta.itemIconHrid" :width="18" :height="18" class="item-icon" />
         <component v-else-if="theOnlyOneChild.meta.elIcon" :is="theOnlyOneChild.meta.elIcon" class="el-icon" />
         <template v-if="theOnlyOneChild.meta.title" #title>
           <span class="title">{{ theOnlyOneChild.meta.title }}</span>
@@ -63,6 +65,7 @@ function resolvePath(routePath: string) {
   <el-sub-menu v-else :index="resolvePath(props.item.path)" teleported>
     <template #title>
       <SvgIcon v-if="props.item.meta?.svgIcon" :name="props.item.meta.svgIcon" class="svg-icon" />
+      <ItemIcon v-else-if="props.item.meta?.itemIconHrid" :hrid="props.item.meta.itemIconHrid" :width="18" :height="18" class="item-icon" />
       <component v-else-if="props.item.meta?.elIcon" :is="props.item.meta.elIcon" class="el-icon" />
       <span v-if="props.item.meta?.title" class="title">{{ props.item.meta.title }}</span>
     </template>
@@ -84,6 +87,13 @@ function resolvePath(routePath: string) {
   min-width: 1em;
   margin-right: 12px;
   font-size: 18px;
+}
+
+.item-icon {
+  min-width: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
 }
 
 .el-icon {

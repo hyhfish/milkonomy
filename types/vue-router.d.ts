@@ -21,6 +21,10 @@ declare module "vue-router" {
      */
     elIcon?: ElementPlusIconsName
     /**
+     * @description 设置该路由的图标为游戏内物品图标（优先级低于 svgIcon，高于 elIcon）
+     */
+    itemIconHrid?: string
+    /**
      * @description 默认 false，设置 true 的时候该路由不会在侧边栏出现
      */
     hidden?: boolean
