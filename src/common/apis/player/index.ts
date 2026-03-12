@@ -5,7 +5,7 @@ import { DEFAULT_SEPCIAL_EQUIPMENT_LIST, DEFAULT_TEA } from "@/common/config"
 import { getEquipmentTypeOf, getKeyOf } from "@/common/utils/game"
 import { ACHIEVEMENT_TIER_LIST, ACTION_LIST, COMMUNITY_BUFF_LIST, EQUIPMENT_LIST, HOUSE_MAP, useGameStoreOutside } from "@/pinia/stores/game"
 import { usePlayerStoreOutside } from "@/pinia/stores/player"
-import { getAchievementTierDetailOf, getCommunityBuffDetailOf, getGameDataApi, getItemDetailOf, getPriceOf } from "../game"
+import { getAchievementTierDetailOf, getCommunityBuffDetailOf, getGameDataApi, getItemDetailOf, getPersonalBuffDetailOf, getPriceOf } from "../game"
 
 /** 改 */
 export function setActionConfigApi(config: ActionConfig, index: number) {
@@ -368,10 +368,16 @@ function initBuffMap() {
 
 function getSealBuffRatio(hrid: string): number {
   const detail = getItemDetailOf(hrid)
+  const personalBuffTypeHrid = detail?.scrollDetail?.personalBuffTypeHrid
+  if (personalBuffTypeHrid) {
+    const buff = getPersonalBuffDetailOf(personalBuffTypeHrid)?.buff
+    if (buff) {
+      return (buff.flatBoost || 0) + (buff.ratioBoost || 0)
+    }
+  }
   if (!detail?.description) {
     return 0
   }
-  // Seal 描述中包含固定百分比增益，统一按百分比解析
   const matched = detail.description.match(/([+-]?\d+(?:\.\d+)?)%/)
   if (!matched?.[1]) {
     return 0

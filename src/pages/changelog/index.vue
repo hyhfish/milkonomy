@@ -11,6 +11,14 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.432",
+    date: "2026-03-12",
+    changes: [
+      "Dashboard 配置：修复『其他Buff』中封印类卷轴不显示 buff 数值的问题",
+      "Buff 计算：兼容迷宫封印改为卷轴后的新数据结构，封印增益会继续正确参与利润与 buff 汇总计算"
+    ]
+  },
+  {
     version: "1.3.430",
     date: "2026-03-10",
     changes: [

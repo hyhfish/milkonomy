@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { AchievementBuffItem, ActionConfig, ActionConfigItem, CommunityBuffItem, PlayerEquipmentItem } from "@/pinia/stores/player"
-import type { AchievementTier, Action, Buff, CommunityBuff, Equipment, ItemDetail } from "~/game"
+import type { AchievementTier, Action, CommunityBuff, Equipment, ItemDetail } from "~/game"
 import ItemIcon from "@@/components/ItemIcon/index.vue"
 import { Plus } from "@element-plus/icons-vue"
 import { ElMessageBox } from "element-plus"
-import { getAchievementTierDetailOf, getCommunityBuffDetailOf } from "@/common/apis/game"
+import { getAchievementTierDetailOf, getCommunityBuffDetailOf, getPersonalBuffDetailOf } from "@/common/apis/game"
 import { getEquipmentListOf, getSealList, getSpecialEquipmentListOf, getTeaListOf, getToolListOf, setActionConfigApi } from "@/common/apis/player"
 import { useTheme } from "@/common/composables/useTheme"
 import { DEFAULT_ACHIEVEMENT_BUFF_LIST, DEFAULT_COMMUNITY_BUFF_LIST, DEFAULT_SEPCIAL_EQUIPMENT_LIST } from "@/common/config"
@@ -363,16 +363,17 @@ function getBuffLabel(typeHrid?: string) {
 }
 
 function getSealEffect(item: ItemDetail) {
-  const matched = item.description?.match(/([+-]?\d+(?:\.\d+)?)%/)
-  if (!matched?.[1]) {
+  const personalBuff = item.scrollDetail?.personalBuffTypeHrid
+    ? getPersonalBuffDetailOf(item.scrollDetail.personalBuffTypeHrid)?.buff
+    : item.consumableDetail?.buffs?.[0]
+  if (!personalBuff) {
     return ""
   }
-  const ratio = Number.parseFloat(matched[1]) / 100
+  const ratio = (personalBuff.flatBoost || 0) + (personalBuff.ratioBoost || 0)
   if (!Number.isFinite(ratio)) {
     return ""
   }
-  const mainBuff = item.consumableDetail?.buffs?.[0] as Buff | undefined
-  const label = getBuffLabel(mainBuff?.typeHrid)
+  const label = getBuffLabel(personalBuff.typeHrid)
   return label ? `${label} ${formatPercent(ratio)}` : formatPercent(ratio)
 }
 

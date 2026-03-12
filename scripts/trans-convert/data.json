@@ -1,8 +1,8 @@
 {
   "type": "init_client_data",
-  "gameVersion": "v1.20260222.0",
-  "versionTimestamp": "2026-02-23T05:55:37.566739431Z",
-  "currentTimestamp": "2026-02-25T11:02:01.45331683Z",
+  "gameVersion": "v1.20260309.0",
+  "versionTimestamp": "2026-03-09T07:39:39.247097268Z",
+  "currentTimestamp": "2026-03-09T07:53:29.440523161Z",
   "levelExperienceTable": [
     0,
     0,
@@ -40684,8 +40684,9 @@
       "categoryHrid": "/item_categories/resource",
       "sellPrice": 300,
       "isTradable": true,
+      "itemLevel": 95,
       "alchemyDetail": {
-        "bulkMultiplier": 1,
+        "bulkMultiplier": 5,
         "isCoinifiable": true,
         "decomposeItems": null,
         "transmuteSuccessRate": 0,
@@ -57373,9 +57374,9 @@
     },
     "/items/seal_of_action_speed": {
       "hrid": "/items/seal_of_action_speed",
-      "name": "Seal Of Action Speed",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +15% Action Speed when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Action Speed",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57427,14 +57428,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/action_speed"
       },
       "sortIndex": 35
     },
     "/items/seal_of_attack_speed": {
       "hrid": "/items/seal_of_attack_speed",
-      "name": "Seal Of Attack Speed",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +15% Attack Speed when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Attack Speed",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57486,14 +57490,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/attack_speed"
       },
       "sortIndex": 37
     },
     "/items/seal_of_cast_speed": {
       "hrid": "/items/seal_of_cast_speed",
-      "name": "Seal Of Cast Speed",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +15% Cast Speed when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Cast Speed",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57545,14 +57552,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/cast_speed"
       },
       "sortIndex": 38
     },
     "/items/seal_of_combat_drop": {
       "hrid": "/items/seal_of_combat_drop",
-      "name": "Seal Of Combat Drop",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +15% Combat Drop Quantity when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Combat Drop",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57604,14 +57614,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/combat_drop"
       },
       "sortIndex": 36
     },
     "/items/seal_of_critical_rate": {
       "hrid": "/items/seal_of_critical_rate",
-      "name": "Seal Of Critical Rate",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +10% Critical Rate when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Critical Rate",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57663,14 +57676,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/critical_rate"
       },
       "sortIndex": 40
     },
     "/items/seal_of_damage": {
       "hrid": "/items/seal_of_damage",
-      "name": "Seal Of Damage",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +8% Damage when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Damage",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57722,14 +57738,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/damage"
       },
       "sortIndex": 39
     },
     "/items/seal_of_efficiency": {
       "hrid": "/items/seal_of_efficiency",
-      "name": "Seal Of Efficiency",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +14% Efficiency when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Efficiency",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57781,14 +57800,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/efficiency"
       },
       "sortIndex": 34
     },
     "/items/seal_of_gathering": {
       "hrid": "/items/seal_of_gathering",
-      "name": "Seal Of Gathering",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +18% Gathering when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Gathering",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57840,14 +57862,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/gathering"
       },
       "sortIndex": 31
     },
     "/items/seal_of_gourmet": {
       "hrid": "/items/seal_of_gourmet",
-      "name": "Seal Of Gourmet",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +16% Gourmet when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Gourmet",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57899,14 +57924,17 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/gourmet"
       },
       "sortIndex": 32
     },
     "/items/seal_of_processing": {
       "hrid": "/items/seal_of_processing",
-      "name": "Seal Of Processing",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +20% Processing when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Processing",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -57959,13 +57987,16 @@
           }
         ]
       },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/processing"
+      },
       "sortIndex": 33
     },
     "/items/seal_of_rare_find": {
       "hrid": "/items/seal_of_rare_find",
-      "name": "Seal Of Rare Find",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +60% Rare Find when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Rare Find",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -58036,13 +58067,16 @@
           }
         ]
       },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/rare_find"
+      },
       "sortIndex": 42
     },
     "/items/seal_of_wisdom": {
       "hrid": "/items/seal_of_wisdom",
-      "name": "Seal Of Wisdom",
-      "description": "Received from the Labyrinth. Grants 30 minutes of +20% Wisdom when opened.",
-      "categoryHrid": "/item_categories/loot",
+      "name": "Scroll Of Wisdom",
+      "description": "Received from the Labyrinth. Grants 30 minutes of buff when opened.",
+      "categoryHrid": "/item_categories/scroll",
       "sellPrice": 0,
       "isOpenable": true,
       "alchemyDetail": {
@@ -58112,6 +58146,9 @@
             "maxCount": 1
           }
         ]
+      },
+      "scrollDetail": {
+        "personalBuffTypeHrid": "/personal_buff_types/wisdom"
       },
       "sortIndex": 41
     },
@@ -71226,7 +71263,7 @@
       "hrid": "/item_categories/ability_book",
       "name": "Ability Book",
       "pluralName": "Ability Books",
-      "sortIndex": 7
+      "sortIndex": 8
     },
     "/item_categories/currency": {
       "hrid": "/item_categories/currency",
@@ -71238,31 +71275,31 @@
       "hrid": "/item_categories/drink",
       "name": "Drink",
       "pluralName": "Drinks",
-      "sortIndex": 6
+      "sortIndex": 7
     },
     "/item_categories/dungeon_key": {
       "hrid": "/item_categories/dungeon_key",
       "name": "Dungeon Key",
       "pluralName": "Dungeon Keys",
-      "sortIndex": 4
+      "sortIndex": 5
     },
     "/item_categories/equipment": {
       "hrid": "/item_categories/equipment",
       "name": "Equipment",
       "pluralName": "Equipment",
-      "sortIndex": 8
+      "sortIndex": 9
     },
     "/item_categories/food": {
       "hrid": "/item_categories/food",
       "name": "Food",
       "pluralName": "Foods",
-      "sortIndex": 5
+      "sortIndex": 6
     },
     "/item_categories/labyrinth": {
       "hrid": "/item_categories/labyrinth",
       "name": "Labyrinth",
       "pluralName": "Labyrinth",
-      "sortIndex": 3
+      "sortIndex": 4
     },
     "/item_categories/loot": {
       "hrid": "/item_categories/loot",
@@ -71274,7 +71311,13 @@
       "hrid": "/item_categories/resource",
       "name": "Resource",
       "pluralName": "Resources",
-      "sortIndex": 9
+      "sortIndex": 10
+    },
+    "/item_categories/scroll": {
+      "hrid": "/item_categories/scroll",
+      "name": "Scroll",
+      "pluralName": "Scrolls",
+      "sortIndex": 3
     }
   },
   "itemLocationDetailMap": {
@@ -124424,7 +124467,7 @@
       "baseTimeCost": 60000000000,
       "experienceGain": {
         "skillHrid": "/skills/tailoring",
-        "value": 120000
+        "value": 100000
       },
       "dropTable": null,
       "essenceDropTable": [
@@ -136612,7 +136655,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 472
+      "sortIndex": 482
     },
     "/chat_icons/azure_supporter": {
       "hrid": "/chat_icons/azure_supporter",
@@ -136780,7 +136823,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 473
+      "sortIndex": 483
     },
     "/chat_icons/burble_supporter": {
       "hrid": "/chat_icons/burble_supporter",
@@ -136976,7 +137019,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 470
+      "sortIndex": 480
     },
     "/chat_icons/crab": {
       "hrid": "/chat_icons/crab",
@@ -137018,7 +137061,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 474
+      "sortIndex": 484
     },
     "/chat_icons/crimson_supporter": {
       "hrid": "/chat_icons/crimson_supporter",
@@ -141724,6 +141767,20 @@
       "requiredChatIconHrid": "",
       "sortIndex": 175
     },
+    "/chat_icons/cyclops": {
+      "hrid": "/chat_icons/cyclops",
+      "name": "Cyclops",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 477
+    },
     "/chat_icons/defense": {
       "hrid": "/chat_icons/defense",
       "name": "Defense",
@@ -141766,6 +141823,20 @@
       "requiredChatIconHrid": "",
       "sortIndex": 390
     },
+    "/chat_icons/dryad": {
+      "hrid": "/chat_icons/dryad",
+      "name": "Dryad",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 474
+    },
     "/chat_icons/duckling": {
       "hrid": "/chat_icons/duckling",
       "name": "Duckling",
@@ -141778,7 +141849,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 477
+      "sortIndex": 487
     },
     "/chat_icons/dusk_revenant": {
       "hrid": "/chat_icons/dusk_revenant",
@@ -141948,6 +142019,20 @@
       "requiredChatIconHrid": "",
       "sortIndex": 424
     },
+    "/chat_icons/frost_sniper": {
+      "hrid": "/chat_icons/frost_sniper",
+      "name": "Frost Sniper",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 471
+    },
     "/chat_icons/garnet": {
       "hrid": "/chat_icons/garnet",
       "name": "Garnet",
@@ -141976,6 +142061,34 @@
       "requiredChatIconHrid": "",
       "sortIndex": 357
     },
+    "/chat_icons/giant_mantis": {
+      "hrid": "/chat_icons/giant_mantis",
+      "name": "Giant Mantis",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 476
+    },
+    "/chat_icons/giant_scorpion": {
+      "hrid": "/chat_icons/giant_scorpion",
+      "name": "Giant Scorpion",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 475
+    },
     "/chat_icons/giant_shoebill": {
       "hrid": "/chat_icons/giant_shoebill",
       "name": "Giant Shoebill",
@@ -142002,7 +142115,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 483
+      "sortIndex": 493
     },
     "/chat_icons/golden_berry": {
       "hrid": "/chat_icons/golden_berry",
@@ -142016,7 +142129,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 482
+      "sortIndex": 492
     },
     "/chat_icons/golden_biceps": {
       "hrid": "/chat_icons/golden_biceps",
@@ -142030,7 +142143,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 487
+      "sortIndex": 497
     },
     "/chat_icons/golden_clover": {
       "hrid": "/chat_icons/golden_clover",
@@ -142044,7 +142157,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 486
+      "sortIndex": 496
     },
     "/chat_icons/golden_coin": {
       "hrid": "/chat_icons/golden_coin",
@@ -142058,7 +142171,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 479
+      "sortIndex": 489
     },
     "/chat_icons/golden_cupcake": {
       "hrid": "/chat_icons/golden_cupcake",
@@ -142072,7 +142185,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 485
+      "sortIndex": 495
     },
     "/chat_icons/golden_donut": {
       "hrid": "/chat_icons/golden_donut",
@@ -142086,7 +142199,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 484
+      "sortIndex": 494
     },
     "/chat_icons/golden_duckling": {
       "hrid": "/chat_icons/golden_duckling",
@@ -142100,7 +142213,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 490
+      "sortIndex": 500
     },
     "/chat_icons/golden_egg": {
       "hrid": "/chat_icons/golden_egg",
@@ -142114,7 +142227,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 481
+      "sortIndex": 491
     },
     "/chat_icons/golden_frog": {
       "hrid": "/chat_icons/golden_frog",
@@ -142128,7 +142241,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 488
+      "sortIndex": 498
     },
     "/chat_icons/golden_marketplace": {
       "hrid": "/chat_icons/golden_marketplace",
@@ -142142,7 +142255,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 480
+      "sortIndex": 490
     },
     "/chat_icons/golden_piggy": {
       "hrid": "/chat_icons/golden_piggy",
@@ -142156,7 +142269,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 489
+      "sortIndex": 499
     },
     "/chat_icons/golden_whale": {
       "hrid": "/chat_icons/golden_whale",
@@ -142170,7 +142283,7 @@
       "cowbellCost": 5000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 491
+      "sortIndex": 501
     },
     "/chat_icons/grizzly_bear": {
       "hrid": "/chat_icons/grizzly_bear",
@@ -142226,7 +142339,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 476
+      "sortIndex": 486
     },
     "/chat_icons/holy_supporter": {
       "hrid": "/chat_icons/holy_supporter",
@@ -142296,7 +142409,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 469
+      "sortIndex": 479
     },
     "/chat_icons/jack_o_lantern": {
       "hrid": "/chat_icons/jack_o_lantern",
@@ -142493,6 +142606,20 @@
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
       "sortIndex": 360
+    },
+    "/chat_icons/mimic": {
+      "hrid": "/chat_icons/mimic",
+      "name": "Mimic",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 478
     },
     "/chat_icons/moderator": {
       "hrid": "/chat_icons/moderator",
@@ -142704,6 +142831,20 @@
       "requiredChatIconHrid": "",
       "sortIndex": 422
     },
+    "/chat_icons/pyre_hunter": {
+      "hrid": "/chat_icons/pyre_hunter",
+      "name": "Pyre Hunter",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 470
+    },
     "/chat_icons/rabid_rabbit": {
       "hrid": "/chat_icons/rabid_rabbit",
       "name": "Rabid Rabbit",
@@ -142774,6 +142915,20 @@
       "requiredChatIconHrid": "",
       "sortIndex": 451
     },
+    "/chat_icons/salamander": {
+      "hrid": "/chat_icons/salamander",
+      "name": "Salamander",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 473
+    },
     "/chat_icons/santa_hat": {
       "hrid": "/chat_icons/santa_hat",
       "name": "Santa Hat",
@@ -142801,6 +142956,34 @@
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
       "sortIndex": 429
+    },
+    "/chat_icons/shadow_archer": {
+      "hrid": "/chat_icons/shadow_archer",
+      "name": "Shadow Archer",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 469
+    },
+    "/chat_icons/siren": {
+      "hrid": "/chat_icons/siren",
+      "name": "Siren",
+      "isSpecial": false,
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 1000,
+      "supporterPointCost": 0,
+      "requiredChatIconHrid": "",
+      "sortIndex": 472
     },
     "/chat_icons/skunk": {
       "hrid": "/chat_icons/skunk",
@@ -143206,7 +143389,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 475
+      "sortIndex": 485
     },
     "/chat_icons/vampire": {
       "hrid": "/chat_icons/vampire",
@@ -143234,7 +143417,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 471
+      "sortIndex": 481
     },
     "/chat_icons/verdant_supporter": {
       "hrid": "/chat_icons/verdant_supporter",
@@ -143276,7 +143459,7 @@
       "cowbellCost": 2000,
       "supporterPointCost": 0,
       "requiredChatIconHrid": "",
-      "sortIndex": 478
+      "sortIndex": 488
     },
     "/chat_icons/woodcutting": {
       "hrid": "/chat_icons/woodcutting",
@@ -143317,7 +143500,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 1000,
-      "sortIndex": 169
+      "sortIndex": 170
     },
     "/name_colors/burble": {
       "hrid": "/name_colors/burble",
@@ -143328,7 +143511,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 1000,
-      "sortIndex": 168
+      "sortIndex": 169
     },
     "/name_colors/coral": {
       "hrid": "/name_colors/coral",
@@ -143339,7 +143522,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 1000,
-      "sortIndex": 172
+      "sortIndex": 173
     },
     "/name_colors/custom_17s": {
       "hrid": "/name_colors/custom_17s",
@@ -143429,6 +143612,17 @@
       "cowbellCost": 0,
       "sortIndex": 8
     },
+    "/name_colors/custom_aaron0701": {
+      "hrid": "/name_colors/custom_aaron0701",
+      "name": "",
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 0,
+      "sortIndex": 9
+    },
     "/name_colors/custom_adi1324": {
       "hrid": "/name_colors/custom_adi1324",
       "name": "",
@@ -143438,7 +143632,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 9
+      "sortIndex": 10
     },
     "/name_colors/custom_adogtor": {
       "hrid": "/name_colors/custom_adogtor",
@@ -143449,7 +143643,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 10
+      "sortIndex": 11
     },
     "/name_colors/custom_amaiyaah": {
       "hrid": "/name_colors/custom_amaiyaah",
@@ -143460,7 +143654,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 11
+      "sortIndex": 12
     },
     "/name_colors/custom_anzu114514": {
       "hrid": "/name_colors/custom_anzu114514",
@@ -143471,7 +143665,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 12
+      "sortIndex": 13
     },
     "/name_colors/custom_anzu114514_2": {
       "hrid": "/name_colors/custom_anzu114514_2",
@@ -143482,7 +143676,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 13
+      "sortIndex": 14
     },
     "/name_colors/custom_auspiciousdragon": {
       "hrid": "/name_colors/custom_auspiciousdragon",
@@ -143493,7 +143687,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 14
+      "sortIndex": 15
     },
     "/name_colors/custom_beinliu": {
       "hrid": "/name_colors/custom_beinliu",
@@ -143504,7 +143698,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 15
+      "sortIndex": 16
     },
     "/name_colors/custom_bestcow": {
       "hrid": "/name_colors/custom_bestcow",
@@ -143515,7 +143709,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 16
+      "sortIndex": 17
     },
     "/name_colors/custom_bigdragonwang": {
       "hrid": "/name_colors/custom_bigdragonwang",
@@ -143526,7 +143720,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 17
+      "sortIndex": 18
     },
     "/name_colors/custom_bigoppaioneesan": {
       "hrid": "/name_colors/custom_bigoppaioneesan",
@@ -143537,7 +143731,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 18
+      "sortIndex": 19
     },
     "/name_colors/custom_bimmzer": {
       "hrid": "/name_colors/custom_bimmzer",
@@ -143548,7 +143742,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 19
+      "sortIndex": 20
     },
     "/name_colors/custom_bmm": {
       "hrid": "/name_colors/custom_bmm",
@@ -143559,7 +143753,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 20
+      "sortIndex": 21
     },
     "/name_colors/custom_boluobao": {
       "hrid": "/name_colors/custom_boluobao",
@@ -143570,7 +143764,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 21
+      "sortIndex": 22
     },
     "/name_colors/custom_bonny": {
       "hrid": "/name_colors/custom_bonny",
@@ -143581,7 +143775,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 22
+      "sortIndex": 23
     },
     "/name_colors/custom_bubbleecho": {
       "hrid": "/name_colors/custom_bubbleecho",
@@ -143592,7 +143786,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 23
+      "sortIndex": 24
     },
     "/name_colors/custom_bugx2121": {
       "hrid": "/name_colors/custom_bugx2121",
@@ -143603,7 +143797,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 24
+      "sortIndex": 25
     },
     "/name_colors/custom_cainan": {
       "hrid": "/name_colors/custom_cainan",
@@ -143614,7 +143808,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 25
+      "sortIndex": 26
     },
     "/name_colors/custom_calm013": {
       "hrid": "/name_colors/custom_calm013",
@@ -143625,7 +143819,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 26
+      "sortIndex": 27
     },
     "/name_colors/custom_catopia": {
       "hrid": "/name_colors/custom_catopia",
@@ -143636,7 +143830,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 27
+      "sortIndex": 28
     },
     "/name_colors/custom_champ": {
       "hrid": "/name_colors/custom_champ",
@@ -143647,7 +143841,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 28
+      "sortIndex": 29
     },
     "/name_colors/custom_chenluo": {
       "hrid": "/name_colors/custom_chenluo",
@@ -143658,7 +143852,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 29
+      "sortIndex": 30
     },
     "/name_colors/custom_cliche": {
       "hrid": "/name_colors/custom_cliche",
@@ -143669,7 +143863,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 30
+      "sortIndex": 31
     },
     "/name_colors/custom_cool555": {
       "hrid": "/name_colors/custom_cool555",
@@ -143680,7 +143874,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 31
+      "sortIndex": 32
     },
     "/name_colors/custom_cpcpc": {
       "hrid": "/name_colors/custom_cpcpc",
@@ -143691,7 +143885,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 32
+      "sortIndex": 33
     },
     "/name_colors/custom_cristianon": {
       "hrid": "/name_colors/custom_cristianon",
@@ -143702,7 +143896,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 33
+      "sortIndex": 34
     },
     "/name_colors/custom_daddyvladi": {
       "hrid": "/name_colors/custom_daddyvladi",
@@ -143713,7 +143907,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 34
+      "sortIndex": 35
     },
     "/name_colors/custom_daydreamer": {
       "hrid": "/name_colors/custom_daydreamer",
@@ -143724,7 +143918,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 35
+      "sortIndex": 36
     },
     "/name_colors/custom_deathecho": {
       "hrid": "/name_colors/custom_deathecho",
@@ -143735,7 +143929,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 36
+      "sortIndex": 37
     },
     "/name_colors/custom_defenestration": {
       "hrid": "/name_colors/custom_defenestration",
@@ -143746,7 +143940,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 37
+      "sortIndex": 38
     },
     "/name_colors/custom_dingdingfly": {
       "hrid": "/name_colors/custom_dingdingfly",
@@ -143757,7 +143951,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 38
+      "sortIndex": 39
     },
     "/name_colors/custom_dismason": {
       "hrid": "/name_colors/custom_dismason",
@@ -143768,7 +143962,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 39
+      "sortIndex": 40
     },
     "/name_colors/custom_don": {
       "hrid": "/name_colors/custom_don",
@@ -143779,7 +143973,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 40
+      "sortIndex": 41
     },
     "/name_colors/custom_doommuffin": {
       "hrid": "/name_colors/custom_doommuffin",
@@ -143790,7 +143984,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 41
+      "sortIndex": 42
     },
     "/name_colors/custom_douyacai": {
       "hrid": "/name_colors/custom_douyacai",
@@ -143801,7 +143995,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 42
+      "sortIndex": 43
     },
     "/name_colors/custom_duivel": {
       "hrid": "/name_colors/custom_duivel",
@@ -143812,7 +144006,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 43
+      "sortIndex": 44
     },
     "/name_colors/custom_entangle": {
       "hrid": "/name_colors/custom_entangle",
@@ -143823,7 +144017,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 44
+      "sortIndex": 45
     },
     "/name_colors/custom_erebys": {
       "hrid": "/name_colors/custom_erebys",
@@ -143834,7 +144028,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 46
+      "sortIndex": 47
     },
     "/name_colors/custom_erikson": {
       "hrid": "/name_colors/custom_erikson",
@@ -143845,7 +144039,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 47
+      "sortIndex": 48
     },
     "/name_colors/custom_eun": {
       "hrid": "/name_colors/custom_eun",
@@ -143856,7 +144050,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 45
+      "sortIndex": 46
     },
     "/name_colors/custom_exilira": {
       "hrid": "/name_colors/custom_exilira",
@@ -143867,7 +144061,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 48
+      "sortIndex": 49
     },
     "/name_colors/custom_farcaster": {
       "hrid": "/name_colors/custom_farcaster",
@@ -143878,7 +144072,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 49
+      "sortIndex": 50
     },
     "/name_colors/custom_foamice": {
       "hrid": "/name_colors/custom_foamice",
@@ -143889,7 +144083,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 50
+      "sortIndex": 51
     },
     "/name_colors/custom_gagaboom": {
       "hrid": "/name_colors/custom_gagaboom",
@@ -143900,7 +144094,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 51
+      "sortIndex": 52
     },
     "/name_colors/custom_gkk": {
       "hrid": "/name_colors/custom_gkk",
@@ -143911,7 +144105,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 52
+      "sortIndex": 53
     },
     "/name_colors/custom_gminj2": {
       "hrid": "/name_colors/custom_gminj2",
@@ -143922,7 +144116,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 53
+      "sortIndex": 54
     },
     "/name_colors/custom_goldenhound": {
       "hrid": "/name_colors/custom_goldenhound",
@@ -143933,7 +144127,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 54
+      "sortIndex": 55
     },
     "/name_colors/custom_goodguyjack": {
       "hrid": "/name_colors/custom_goodguyjack",
@@ -143944,7 +144138,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 55
+      "sortIndex": 56
     },
     "/name_colors/custom_goodguyjack_2": {
       "hrid": "/name_colors/custom_goodguyjack_2",
@@ -143955,7 +144149,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 56
+      "sortIndex": 57
     },
     "/name_colors/custom_goodknight": {
       "hrid": "/name_colors/custom_goodknight",
@@ -143966,7 +144160,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 57
+      "sortIndex": 58
     },
     "/name_colors/custom_guguguguchicken": {
       "hrid": "/name_colors/custom_guguguguchicken",
@@ -143977,7 +144171,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 58
+      "sortIndex": 59
     },
     "/name_colors/custom_h0ll0wviiziion": {
       "hrid": "/name_colors/custom_h0ll0wviiziion",
@@ -143988,7 +144182,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 59
+      "sortIndex": 60
     },
     "/name_colors/custom_h0lyduck": {
       "hrid": "/name_colors/custom_h0lyduck",
@@ -143999,7 +144193,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 60
+      "sortIndex": 61
     },
     "/name_colors/custom_habs": {
       "hrid": "/name_colors/custom_habs",
@@ -144010,7 +144204,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 61
+      "sortIndex": 62
     },
     "/name_colors/custom_hamu": {
       "hrid": "/name_colors/custom_hamu",
@@ -144021,7 +144215,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 62
+      "sortIndex": 63
     },
     "/name_colors/custom_heidelbeen": {
       "hrid": "/name_colors/custom_heidelbeen",
@@ -144032,7 +144226,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 63
+      "sortIndex": 64
     },
     "/name_colors/custom_heyi": {
       "hrid": "/name_colors/custom_heyi",
@@ -144043,7 +144237,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 64
+      "sortIndex": 65
     },
     "/name_colors/custom_honghonghong": {
       "hrid": "/name_colors/custom_honghonghong",
@@ -144054,7 +144248,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 65
+      "sortIndex": 66
     },
     "/name_colors/custom_hyhfish": {
       "hrid": "/name_colors/custom_hyhfish",
@@ -144065,7 +144259,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 66
+      "sortIndex": 67
     },
     "/name_colors/custom_icephoenixflame": {
       "hrid": "/name_colors/custom_icephoenixflame",
@@ -144076,7 +144270,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 67
+      "sortIndex": 68
     },
     "/name_colors/custom_immortalphoenix": {
       "hrid": "/name_colors/custom_immortalphoenix",
@@ -144087,7 +144281,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 68
+      "sortIndex": 69
     },
     "/name_colors/custom_indulgein": {
       "hrid": "/name_colors/custom_indulgein",
@@ -144098,7 +144292,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 69
+      "sortIndex": 70
     },
     "/name_colors/custom_jet": {
       "hrid": "/name_colors/custom_jet",
@@ -144109,7 +144303,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 70
+      "sortIndex": 71
     },
     "/name_colors/custom_jiojio": {
       "hrid": "/name_colors/custom_jiojio",
@@ -144120,7 +144314,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 71
+      "sortIndex": 72
     },
     "/name_colors/custom_joey": {
       "hrid": "/name_colors/custom_joey",
@@ -144131,7 +144325,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 72
+      "sortIndex": 73
     },
     "/name_colors/custom_jump14": {
       "hrid": "/name_colors/custom_jump14",
@@ -144142,7 +144336,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 73
+      "sortIndex": 74
     },
     "/name_colors/custom_karlding": {
       "hrid": "/name_colors/custom_karlding",
@@ -144153,7 +144347,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 74
+      "sortIndex": 75
     },
     "/name_colors/custom_kathur": {
       "hrid": "/name_colors/custom_kathur",
@@ -144164,7 +144358,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 75
+      "sortIndex": 76
     },
     "/name_colors/custom_kiyuu": {
       "hrid": "/name_colors/custom_kiyuu",
@@ -144175,7 +144369,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 76
+      "sortIndex": 77
     },
     "/name_colors/custom_kliuty": {
       "hrid": "/name_colors/custom_kliuty",
@@ -144186,7 +144380,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 77
+      "sortIndex": 78
     },
     "/name_colors/custom_krazden": {
       "hrid": "/name_colors/custom_krazden",
@@ -144197,7 +144391,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 78
+      "sortIndex": 79
     },
     "/name_colors/custom_kuluki": {
       "hrid": "/name_colors/custom_kuluki",
@@ -144208,7 +144402,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 79
+      "sortIndex": 80
     },
     "/name_colors/custom_leevi": {
       "hrid": "/name_colors/custom_leevi",
@@ -144219,7 +144413,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 80
+      "sortIndex": 81
     },
     "/name_colors/custom_leica": {
       "hrid": "/name_colors/custom_leica",
@@ -144230,7 +144424,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 81
+      "sortIndex": 82
     },
     "/name_colors/custom_liha": {
       "hrid": "/name_colors/custom_liha",
@@ -144241,7 +144435,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 82
+      "sortIndex": 83
     },
     "/name_colors/custom_likeejasai": {
       "hrid": "/name_colors/custom_likeejasai",
@@ -144252,7 +144446,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 83
+      "sortIndex": 84
     },
     "/name_colors/custom_lilaccc": {
       "hrid": "/name_colors/custom_lilaccc",
@@ -144263,7 +144457,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 84
+      "sortIndex": 85
     },
     "/name_colors/custom_lilzh1": {
       "hrid": "/name_colors/custom_lilzh1",
@@ -144274,7 +144468,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 85
+      "sortIndex": 86
     },
     "/name_colors/custom_loyalism": {
       "hrid": "/name_colors/custom_loyalism",
@@ -144285,7 +144479,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 86
+      "sortIndex": 87
     },
     "/name_colors/custom_lsx": {
       "hrid": "/name_colors/custom_lsx",
@@ -144296,7 +144490,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 87
+      "sortIndex": 88
     },
     "/name_colors/custom_lt10010": {
       "hrid": "/name_colors/custom_lt10010",
@@ -144307,7 +144501,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 89
+      "sortIndex": 90
     },
     "/name_colors/custom_luchi77": {
       "hrid": "/name_colors/custom_luchi77",
@@ -144318,7 +144512,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 88
+      "sortIndex": 89
     },
     "/name_colors/custom_ludi789": {
       "hrid": "/name_colors/custom_ludi789",
@@ -144329,7 +144523,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 90
+      "sortIndex": 91
     },
     "/name_colors/custom_lxs4765": {
       "hrid": "/name_colors/custom_lxs4765",
@@ -144340,7 +144534,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 91
+      "sortIndex": 92
     },
     "/name_colors/custom_lyricky": {
       "hrid": "/name_colors/custom_lyricky",
@@ -144351,7 +144545,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 92
+      "sortIndex": 93
     },
     "/name_colors/custom_magicwang": {
       "hrid": "/name_colors/custom_magicwang",
@@ -144362,7 +144556,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 93
+      "sortIndex": 94
     },
     "/name_colors/custom_magurodon": {
       "hrid": "/name_colors/custom_magurodon",
@@ -144373,7 +144567,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 94
+      "sortIndex": 95
     },
     "/name_colors/custom_marinus": {
       "hrid": "/name_colors/custom_marinus",
@@ -144384,7 +144578,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 95
+      "sortIndex": 96
     },
     "/name_colors/custom_matoasakura": {
       "hrid": "/name_colors/custom_matoasakura",
@@ -144395,7 +144589,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 96
+      "sortIndex": 97
     },
     "/name_colors/custom_matutu": {
       "hrid": "/name_colors/custom_matutu",
@@ -144406,7 +144600,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 97
+      "sortIndex": 98
     },
     "/name_colors/custom_maxion": {
       "hrid": "/name_colors/custom_maxion",
@@ -144417,7 +144611,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 98
+      "sortIndex": 99
     },
     "/name_colors/custom_mengmenguwu": {
       "hrid": "/name_colors/custom_mengmenguwu",
@@ -144428,7 +144622,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 99
+      "sortIndex": 100
     },
     "/name_colors/custom_mengmenguwu_2": {
       "hrid": "/name_colors/custom_mengmenguwu_2",
@@ -144439,7 +144633,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 100
+      "sortIndex": 101
     },
     "/name_colors/custom_meon": {
       "hrid": "/name_colors/custom_meon",
@@ -144450,7 +144644,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 101
+      "sortIndex": 102
     },
     "/name_colors/custom_mermer88": {
       "hrid": "/name_colors/custom_mermer88",
@@ -144461,7 +144655,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 102
+      "sortIndex": 103
     },
     "/name_colors/custom_metzli": {
       "hrid": "/name_colors/custom_metzli",
@@ -144472,7 +144666,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 103
+      "sortIndex": 104
     },
     "/name_colors/custom_mia": {
       "hrid": "/name_colors/custom_mia",
@@ -144483,7 +144677,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 104
+      "sortIndex": 105
     },
     "/name_colors/custom_midanking": {
       "hrid": "/name_colors/custom_midanking",
@@ -144494,7 +144688,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 105
+      "sortIndex": 106
     },
     "/name_colors/custom_miuca": {
       "hrid": "/name_colors/custom_miuca",
@@ -144505,7 +144699,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 106
+      "sortIndex": 107
     },
     "/name_colors/custom_mryeee": {
       "hrid": "/name_colors/custom_mryeee",
@@ -144516,7 +144710,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 107
+      "sortIndex": 108
     },
     "/name_colors/custom_mumu0315": {
       "hrid": "/name_colors/custom_mumu0315",
@@ -144527,7 +144721,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 108
+      "sortIndex": 109
     },
     "/name_colors/custom_n0th1ngspec1al": {
       "hrid": "/name_colors/custom_n0th1ngspec1al",
@@ -144538,7 +144732,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 114
+      "sortIndex": 115
     },
     "/name_colors/custom_neronex": {
       "hrid": "/name_colors/custom_neronex",
@@ -144549,7 +144743,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 109
+      "sortIndex": 110
     },
     "/name_colors/custom_niteshade": {
       "hrid": "/name_colors/custom_niteshade",
@@ -144560,7 +144754,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 110
+      "sortIndex": 111
     },
     "/name_colors/custom_niu1niu2niu3": {
       "hrid": "/name_colors/custom_niu1niu2niu3",
@@ -144571,7 +144765,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 111
+      "sortIndex": 112
     },
     "/name_colors/custom_niuwan": {
       "hrid": "/name_colors/custom_niuwan",
@@ -144582,7 +144776,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 112
+      "sortIndex": 113
     },
     "/name_colors/custom_nyepi": {
       "hrid": "/name_colors/custom_nyepi",
@@ -144593,7 +144787,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 113
+      "sortIndex": 114
     },
     "/name_colors/custom_oguri": {
       "hrid": "/name_colors/custom_oguri",
@@ -144604,7 +144798,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 115
+      "sortIndex": 116
     },
     "/name_colors/custom_oldcat": {
       "hrid": "/name_colors/custom_oldcat",
@@ -144615,7 +144809,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 116
+      "sortIndex": 117
     },
     "/name_colors/custom_onlyclotoffwhite": {
       "hrid": "/name_colors/custom_onlyclotoffwhite",
@@ -144626,7 +144820,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 117
+      "sortIndex": 118
     },
     "/name_colors/custom_oobbb": {
       "hrid": "/name_colors/custom_oobbb",
@@ -144637,7 +144831,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 118
+      "sortIndex": 119
     },
     "/name_colors/custom_owengod": {
       "hrid": "/name_colors/custom_owengod",
@@ -144648,7 +144842,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 119
+      "sortIndex": 120
     },
     "/name_colors/custom_perxmon": {
       "hrid": "/name_colors/custom_perxmon",
@@ -144659,7 +144853,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 120
+      "sortIndex": 121
     },
     "/name_colors/custom_pinkmoolyd": {
       "hrid": "/name_colors/custom_pinkmoolyd",
@@ -144670,7 +144864,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 121
+      "sortIndex": 122
     },
     "/name_colors/custom_pork2dachop": {
       "hrid": "/name_colors/custom_pork2dachop",
@@ -144681,7 +144875,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 122
+      "sortIndex": 123
     },
     "/name_colors/custom_pulse": {
       "hrid": "/name_colors/custom_pulse",
@@ -144692,7 +144886,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 123
+      "sortIndex": 124
     },
     "/name_colors/custom_qaqbo": {
       "hrid": "/name_colors/custom_qaqbo",
@@ -144703,7 +144897,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 124
+      "sortIndex": 125
     },
     "/name_colors/custom_rainyforever": {
       "hrid": "/name_colors/custom_rainyforever",
@@ -144714,7 +144908,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 125
+      "sortIndex": 126
     },
     "/name_colors/custom_rexwong": {
       "hrid": "/name_colors/custom_rexwong",
@@ -144725,7 +144919,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 126
+      "sortIndex": 127
     },
     "/name_colors/custom_ringofuyuki": {
       "hrid": "/name_colors/custom_ringofuyuki",
@@ -144736,7 +144930,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 127
+      "sortIndex": 128
     },
     "/name_colors/custom_roht": {
       "hrid": "/name_colors/custom_roht",
@@ -144747,7 +144941,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 128
+      "sortIndex": 129
     },
     "/name_colors/custom_roserose": {
       "hrid": "/name_colors/custom_roserose",
@@ -144758,7 +144952,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 129
+      "sortIndex": 130
     },
     "/name_colors/custom_scorpionkenzo": {
       "hrid": "/name_colors/custom_scorpionkenzo",
@@ -144769,7 +144963,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 130
+      "sortIndex": 131
     },
     "/name_colors/custom_semage": {
       "hrid": "/name_colors/custom_semage",
@@ -144780,7 +144974,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 131
+      "sortIndex": 132
     },
     "/name_colors/custom_settings": {
       "hrid": "/name_colors/custom_settings",
@@ -144791,7 +144985,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 132
+      "sortIndex": 133
     },
     "/name_colors/custom_shiin": {
       "hrid": "/name_colors/custom_shiin",
@@ -144802,7 +144996,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 133
+      "sortIndex": 134
     },
     "/name_colors/custom_shiro222": {
       "hrid": "/name_colors/custom_shiro222",
@@ -144813,7 +145007,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 134
+      "sortIndex": 135
     },
     "/name_colors/custom_ss1985": {
       "hrid": "/name_colors/custom_ss1985",
@@ -144824,7 +145018,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 135
+      "sortIndex": 136
     },
     "/name_colors/custom_stack": {
       "hrid": "/name_colors/custom_stack",
@@ -144835,7 +145029,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 136
+      "sortIndex": 137
     },
     "/name_colors/custom_stella": {
       "hrid": "/name_colors/custom_stella",
@@ -144846,7 +145040,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 137
+      "sortIndex": 138
     },
     "/name_colors/custom_sumimiuniverse": {
       "hrid": "/name_colors/custom_sumimiuniverse",
@@ -144857,7 +145051,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 138
+      "sortIndex": 139
     },
     "/name_colors/custom_taichislippers": {
       "hrid": "/name_colors/custom_taichislippers",
@@ -144868,7 +145062,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 139
+      "sortIndex": 140
     },
     "/name_colors/custom_tank": {
       "hrid": "/name_colors/custom_tank",
@@ -144879,7 +145073,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 140
+      "sortIndex": 141
     },
     "/name_colors/custom_temaritsukimura": {
       "hrid": "/name_colors/custom_temaritsukimura",
@@ -144890,7 +145084,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 141
+      "sortIndex": 142
     },
     "/name_colors/custom_thof": {
       "hrid": "/name_colors/custom_thof",
@@ -144901,7 +145095,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 142
+      "sortIndex": 143
     },
     "/name_colors/custom_tiantian666": {
       "hrid": "/name_colors/custom_tiantian666",
@@ -144912,7 +145106,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 143
+      "sortIndex": 144
     },
     "/name_colors/custom_toillian": {
       "hrid": "/name_colors/custom_toillian",
@@ -144923,7 +145117,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 144
+      "sortIndex": 145
     },
     "/name_colors/custom_topmodel": {
       "hrid": "/name_colors/custom_topmodel",
@@ -144934,7 +145128,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 145
+      "sortIndex": 146
     },
     "/name_colors/custom_totallynotjaan": {
       "hrid": "/name_colors/custom_totallynotjaan",
@@ -144945,7 +145139,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 146
+      "sortIndex": 147
     },
     "/name_colors/custom_touya": {
       "hrid": "/name_colors/custom_touya",
@@ -144956,7 +145150,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 147
+      "sortIndex": 148
     },
     "/name_colors/custom_uto": {
       "hrid": "/name_colors/custom_uto",
@@ -144967,7 +145161,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 148
+      "sortIndex": 149
     },
     "/name_colors/custom_valeriogiovanni": {
       "hrid": "/name_colors/custom_valeriogiovanni",
@@ -144978,7 +145172,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 149
+      "sortIndex": 150
     },
     "/name_colors/custom_vikala": {
       "hrid": "/name_colors/custom_vikala",
@@ -144989,7 +145183,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 150
+      "sortIndex": 151
     },
     "/name_colors/custom_weedie420": {
       "hrid": "/name_colors/custom_weedie420",
@@ -145000,7 +145194,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 151
+      "sortIndex": 152
     },
     "/name_colors/custom_weijia": {
       "hrid": "/name_colors/custom_weijia",
@@ -145011,7 +145205,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 152
+      "sortIndex": 153
     },
     "/name_colors/custom_weilan": {
       "hrid": "/name_colors/custom_weilan",
@@ -145022,7 +145216,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 153
+      "sortIndex": 154
     },
     "/name_colors/custom_weilan_2": {
       "hrid": "/name_colors/custom_weilan_2",
@@ -145033,7 +145227,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 154
+      "sortIndex": 155
     },
     "/name_colors/custom_whatsfc": {
       "hrid": "/name_colors/custom_whatsfc",
@@ -145044,7 +145238,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 155
+      "sortIndex": 156
     },
     "/name_colors/custom_windoge": {
       "hrid": "/name_colors/custom_windoge",
@@ -145055,7 +145249,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 156
+      "sortIndex": 157
     },
     "/name_colors/custom_windoge_2": {
       "hrid": "/name_colors/custom_windoge_2",
@@ -145066,7 +145260,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 157
+      "sortIndex": 158
     },
     "/name_colors/custom_winterpapa": {
       "hrid": "/name_colors/custom_winterpapa",
@@ -145077,7 +145271,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 158
+      "sortIndex": 159
     },
     "/name_colors/custom_xialu": {
       "hrid": "/name_colors/custom_xialu",
@@ -145088,7 +145282,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 159
+      "sortIndex": 160
     },
     "/name_colors/custom_xxnagasakisoyoxx": {
       "hrid": "/name_colors/custom_xxnagasakisoyoxx",
@@ -145099,7 +145293,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 160
+      "sortIndex": 161
     },
     "/name_colors/custom_yangjiam": {
       "hrid": "/name_colors/custom_yangjiam",
@@ -145110,7 +145304,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 161
+      "sortIndex": 162
     },
     "/name_colors/custom_yellowww": {
       "hrid": "/name_colors/custom_yellowww",
@@ -145121,7 +145315,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 162
+      "sortIndex": 163
     },
     "/name_colors/custom_yennifer": {
       "hrid": "/name_colors/custom_yennifer",
@@ -145132,7 +145326,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 163
+      "sortIndex": 164
     },
     "/name_colors/custom_yurisaisarabbit": {
       "hrid": "/name_colors/custom_yurisaisarabbit",
@@ -145143,7 +145337,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 164
+      "sortIndex": 165
     },
     "/name_colors/custom_zacian": {
       "hrid": "/name_colors/custom_zacian",
@@ -145154,7 +145348,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 165
+      "sortIndex": 166
     },
     "/name_colors/custom_zen": {
       "hrid": "/name_colors/custom_zen",
@@ -145165,7 +145359,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 166
+      "sortIndex": 167
     },
     "/name_colors/custom_zyford": {
       "hrid": "/name_colors/custom_zyford",
@@ -145176,7 +145370,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 167
+      "sortIndex": 168
     },
     "/name_colors/fancy_blue": {
       "hrid": "/name_colors/fancy_blue",
@@ -145187,7 +145381,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 175
+      "sortIndex": 176
     },
     "/name_colors/fancy_burble": {
       "hrid": "/name_colors/fancy_burble",
@@ -145198,7 +145392,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 174
+      "sortIndex": 175
     },
     "/name_colors/fancy_coral": {
       "hrid": "/name_colors/fancy_coral",
@@ -145209,7 +145403,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 178
+      "sortIndex": 179
     },
     "/name_colors/fancy_green": {
       "hrid": "/name_colors/fancy_green",
@@ -145220,7 +145414,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 176
+      "sortIndex": 177
     },
     "/name_colors/fancy_pink": {
       "hrid": "/name_colors/fancy_pink",
@@ -145231,7 +145425,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 179
+      "sortIndex": 180
     },
     "/name_colors/fancy_yellow": {
       "hrid": "/name_colors/fancy_yellow",
@@ -145242,7 +145436,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 177
+      "sortIndex": 178
     },
     "/name_colors/golden": {
       "hrid": "/name_colors/golden",
@@ -145253,7 +145447,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 5000,
-      "sortIndex": 182
+      "sortIndex": 183
     },
     "/name_colors/green": {
       "hrid": "/name_colors/green",
@@ -145264,7 +145458,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 1000,
-      "sortIndex": 170
+      "sortIndex": 171
     },
     "/name_colors/iron": {
       "hrid": "/name_colors/iron",
@@ -145275,7 +145469,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 180
+      "sortIndex": 181
     },
     "/name_colors/pink": {
       "hrid": "/name_colors/pink",
@@ -145286,7 +145480,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 1000,
-      "sortIndex": 173
+      "sortIndex": 174
     },
     "/name_colors/rainbow": {
       "hrid": "/name_colors/rainbow",
@@ -145297,7 +145491,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 5000,
-      "sortIndex": 181
+      "sortIndex": 182
     },
     "/name_colors/yellow": {
       "hrid": "/name_colors/yellow",
@@ -145308,7 +145502,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 1000,
-      "sortIndex": 171
+      "sortIndex": 172
     }
   },
   "avatarDetailMap": {
@@ -145320,7 +145514,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 62
+      "sortIndex": 63
     },
     "/avatars/blue_person_2": {
       "hrid": "/avatars/blue_person_2",
@@ -145330,7 +145524,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 63
+      "sortIndex": 64
     },
     "/avatars/blue_person_3": {
       "hrid": "/avatars/blue_person_3",
@@ -145340,7 +145534,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 64
+      "sortIndex": 65
     },
     "/avatars/bunny_1": {
       "hrid": "/avatars/bunny_1",
@@ -145350,7 +145544,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 81
+      "sortIndex": 82
     },
     "/avatars/bunny_2": {
       "hrid": "/avatars/bunny_2",
@@ -145360,7 +145554,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 82
+      "sortIndex": 83
     },
     "/avatars/cat_1": {
       "hrid": "/avatars/cat_1",
@@ -145370,7 +145564,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 71
+      "sortIndex": 72
     },
     "/avatars/cat_2": {
       "hrid": "/avatars/cat_2",
@@ -145380,7 +145574,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 72
+      "sortIndex": 73
     },
     "/avatars/cat_3": {
       "hrid": "/avatars/cat_3",
@@ -145390,7 +145584,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 73
+      "sortIndex": 74
     },
     "/avatars/cat_4": {
       "hrid": "/avatars/cat_4",
@@ -145400,7 +145594,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 74
+      "sortIndex": 75
     },
     "/avatars/cat_5": {
       "hrid": "/avatars/cat_5",
@@ -145410,7 +145604,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 75
+      "sortIndex": 76
     },
     "/avatars/custom_888ray888": {
       "hrid": "/avatars/custom_888ray888",
@@ -145421,6 +145615,16 @@
       "seasonEndDay": 0,
       "cowbellCost": 0,
       "sortIndex": 41
+    },
+    "/avatars/custom_aaron0701": {
+      "hrid": "/avatars/custom_aaron0701",
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 0,
+      "sortIndex": 50
     },
     "/avatars/custom_aowoo": {
       "hrid": "/avatars/custom_aowoo",
@@ -145910,7 +146114,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 76
+      "sortIndex": 77
     },
     "/avatars/dog_2": {
       "hrid": "/avatars/dog_2",
@@ -145920,7 +146124,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 77
+      "sortIndex": 78
     },
     "/avatars/dog_3": {
       "hrid": "/avatars/dog_3",
@@ -145930,7 +146134,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 78
+      "sortIndex": 79
     },
     "/avatars/dog_4": {
       "hrid": "/avatars/dog_4",
@@ -145940,7 +146144,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 79
+      "sortIndex": 80
     },
     "/avatars/dog_5": {
       "hrid": "/avatars/dog_5",
@@ -145950,7 +146154,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 80
+      "sortIndex": 81
     },
     "/avatars/frog_1": {
       "hrid": "/avatars/frog_1",
@@ -145960,7 +146164,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 85
+      "sortIndex": 86
     },
     "/avatars/frog_2": {
       "hrid": "/avatars/frog_2",
@@ -145970,7 +146174,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 86
+      "sortIndex": 87
     },
     "/avatars/gingerbread": {
       "hrid": "/avatars/gingerbread",
@@ -145980,7 +146184,7 @@
       "seasonEndMonth": 1,
       "seasonEndDay": 8,
       "cowbellCost": 3000,
-      "sortIndex": 52
+      "sortIndex": 53
     },
     "/avatars/golden_bunny": {
       "hrid": "/avatars/golden_bunny",
@@ -145990,7 +146194,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 6000,
-      "sortIndex": 92
+      "sortIndex": 94
     },
     "/avatars/golden_cat": {
       "hrid": "/avatars/golden_cat",
@@ -146000,7 +146204,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 6000,
-      "sortIndex": 90
+      "sortIndex": 92
     },
     "/avatars/golden_cow": {
       "hrid": "/avatars/golden_cow",
@@ -146010,7 +146214,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 6000,
-      "sortIndex": 95
+      "sortIndex": 97
     },
     "/avatars/golden_frog": {
       "hrid": "/avatars/golden_frog",
@@ -146020,7 +146224,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 6000,
-      "sortIndex": 94
+      "sortIndex": 96
     },
     "/avatars/golden_hamster": {
       "hrid": "/avatars/golden_hamster",
@@ -146030,7 +146234,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 6000,
-      "sortIndex": 93
+      "sortIndex": 95
     },
     "/avatars/golden_retriever": {
       "hrid": "/avatars/golden_retriever",
@@ -146040,7 +146244,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 6000,
-      "sortIndex": 91
+      "sortIndex": 93
     },
     "/avatars/green_person_1": {
       "hrid": "/avatars/green_person_1",
@@ -146050,7 +146254,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 59
+      "sortIndex": 60
     },
     "/avatars/green_person_2": {
       "hrid": "/avatars/green_person_2",
@@ -146060,7 +146264,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 60
+      "sortIndex": 61
     },
     "/avatars/green_person_3": {
       "hrid": "/avatars/green_person_3",
@@ -146070,7 +146274,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 61
+      "sortIndex": 62
     },
     "/avatars/hamster_1": {
       "hrid": "/avatars/hamster_1",
@@ -146080,7 +146284,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 83
+      "sortIndex": 84
     },
     "/avatars/hamster_2": {
       "hrid": "/avatars/hamster_2",
@@ -146090,7 +146294,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 84
+      "sortIndex": 85
     },
     "/avatars/iron_cow": {
       "hrid": "/avatars/iron_cow",
@@ -146100,7 +146304,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 87
+      "sortIndex": 88
     },
     "/avatars/jack_o_lantern": {
       "hrid": "/avatars/jack_o_lantern",
@@ -146110,7 +146314,7 @@
       "seasonEndMonth": 11,
       "seasonEndDay": 14,
       "cowbellCost": 3000,
-      "sortIndex": 50
+      "sortIndex": 51
     },
     "/avatars/lucky_koi": {
       "hrid": "/avatars/lucky_koi",
@@ -146120,7 +146324,7 @@
       "seasonEndMonth": 3,
       "seasonEndDay": 15,
       "cowbellCost": 3000,
-      "sortIndex": 55
+      "sortIndex": 56
     },
     "/avatars/person_default": {
       "hrid": "/avatars/person_default",
@@ -146130,7 +146334,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 96
+      "sortIndex": 98
     },
     "/avatars/pirate_1": {
       "hrid": "/avatars/pirate_1",
@@ -146140,7 +146344,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 5000,
-      "sortIndex": 88
+      "sortIndex": 89
     },
     "/avatars/pirate_2": {
       "hrid": "/avatars/pirate_2",
@@ -146150,7 +146354,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 5000,
-      "sortIndex": 89
+      "sortIndex": 90
     },
     "/avatars/purple_person_1": {
       "hrid": "/avatars/purple_person_1",
@@ -146160,7 +146364,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 65
+      "sortIndex": 66
     },
     "/avatars/purple_person_2": {
       "hrid": "/avatars/purple_person_2",
@@ -146170,7 +146374,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 66
+      "sortIndex": 67
     },
     "/avatars/purple_person_3": {
       "hrid": "/avatars/purple_person_3",
@@ -146180,7 +146384,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 67
+      "sortIndex": 68
     },
     "/avatars/red_person_1": {
       "hrid": "/avatars/red_person_1",
@@ -146190,7 +146394,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 68
+      "sortIndex": 69
     },
     "/avatars/red_person_2": {
       "hrid": "/avatars/red_person_2",
@@ -146200,7 +146404,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 69
+      "sortIndex": 70
     },
     "/avatars/red_person_3": {
       "hrid": "/avatars/red_person_3",
@@ -146210,7 +146414,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 70
+      "sortIndex": 71
     },
     "/avatars/santa": {
       "hrid": "/avatars/santa",
@@ -146220,7 +146424,17 @@
       "seasonEndMonth": 1,
       "seasonEndDay": 8,
       "cowbellCost": 3000,
-      "sortIndex": 51
+      "sortIndex": 52
+    },
+    "/avatars/siren": {
+      "hrid": "/avatars/siren",
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 5000,
+      "sortIndex": 91
     },
     "/avatars/spring_festival_boy": {
       "hrid": "/avatars/spring_festival_boy",
@@ -146230,7 +146444,7 @@
       "seasonEndMonth": 3,
       "seasonEndDay": 15,
       "cowbellCost": 3000,
-      "sortIndex": 54
+      "sortIndex": 55
     },
     "/avatars/spring_festival_girl": {
       "hrid": "/avatars/spring_festival_girl",
@@ -146240,7 +146454,7 @@
       "seasonEndMonth": 3,
       "seasonEndDay": 15,
       "cowbellCost": 3000,
-      "sortIndex": 53
+      "sortIndex": 54
     },
     "/avatars/yellow_person_1": {
       "hrid": "/avatars/yellow_person_1",
@@ -146250,7 +146464,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 56
+      "sortIndex": 57
     },
     "/avatars/yellow_person_2": {
       "hrid": "/avatars/yellow_person_2",
@@ -146260,7 +146474,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 57
+      "sortIndex": 58
     },
     "/avatars/yellow_person_3": {
       "hrid": "/avatars/yellow_person_3",
@@ -146270,7 +146484,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 58
+      "sortIndex": 59
     }
   },
   "avatarOutfitDetailMap": {
@@ -146282,7 +146496,7 @@
       "seasonEndMonth": 1,
       "seasonEndDay": 8,
       "cowbellCost": 2500,
-      "sortIndex": 52
+      "sortIndex": 53
     },
     "/avatar_outfits/custom_888ray888": {
       "hrid": "/avatar_outfits/custom_888ray888",
@@ -146293,6 +146507,16 @@
       "seasonEndDay": 0,
       "cowbellCost": 0,
       "sortIndex": 34
+    },
+    "/avatar_outfits/custom_aaron0701": {
+      "hrid": "/avatar_outfits/custom_aaron0701",
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 0,
+      "sortIndex": 48
     },
     "/avatar_outfits/custom_aowoo": {
       "hrid": "/avatar_outfits/custom_aowoo",
@@ -146762,7 +146986,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 98
+      "sortIndex": 99
     },
     "/avatar_outfits/dress_10": {
       "hrid": "/avatar_outfits/dress_10",
@@ -146772,7 +146996,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 107
+      "sortIndex": 108
     },
     "/avatar_outfits/dress_11": {
       "hrid": "/avatar_outfits/dress_11",
@@ -146782,7 +147006,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 108
+      "sortIndex": 109
     },
     "/avatar_outfits/dress_12": {
       "hrid": "/avatar_outfits/dress_12",
@@ -146792,7 +147016,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 109
+      "sortIndex": 110
     },
     "/avatar_outfits/dress_2": {
       "hrid": "/avatar_outfits/dress_2",
@@ -146802,7 +147026,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 99
+      "sortIndex": 100
     },
     "/avatar_outfits/dress_3": {
       "hrid": "/avatar_outfits/dress_3",
@@ -146812,7 +147036,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 100
+      "sortIndex": 101
     },
     "/avatar_outfits/dress_4": {
       "hrid": "/avatar_outfits/dress_4",
@@ -146822,7 +147046,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 101
+      "sortIndex": 102
     },
     "/avatar_outfits/dress_5": {
       "hrid": "/avatar_outfits/dress_5",
@@ -146832,7 +147056,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 102
+      "sortIndex": 103
     },
     "/avatar_outfits/dress_6": {
       "hrid": "/avatar_outfits/dress_6",
@@ -146842,7 +147066,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 103
+      "sortIndex": 104
     },
     "/avatar_outfits/dress_7": {
       "hrid": "/avatar_outfits/dress_7",
@@ -146852,7 +147076,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 104
+      "sortIndex": 105
     },
     "/avatar_outfits/dress_8": {
       "hrid": "/avatar_outfits/dress_8",
@@ -146862,7 +147086,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 105
+      "sortIndex": 106
     },
     "/avatar_outfits/dress_9": {
       "hrid": "/avatar_outfits/dress_9",
@@ -146872,7 +147096,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 106
+      "sortIndex": 107
     },
     "/avatar_outfits/gingerbread": {
       "hrid": "/avatar_outfits/gingerbread",
@@ -146882,7 +147106,7 @@
       "seasonEndMonth": 1,
       "seasonEndDay": 8,
       "cowbellCost": 2500,
-      "sortIndex": 53
+      "sortIndex": 54
     },
     "/avatar_outfits/halloween_ghost": {
       "hrid": "/avatar_outfits/halloween_ghost",
@@ -146892,7 +147116,7 @@
       "seasonEndMonth": 11,
       "seasonEndDay": 14,
       "cowbellCost": 2500,
-      "sortIndex": 48
+      "sortIndex": 49
     },
     "/avatar_outfits/halloween_suit": {
       "hrid": "/avatar_outfits/halloween_suit",
@@ -146902,7 +147126,7 @@
       "seasonEndMonth": 11,
       "seasonEndDay": 14,
       "cowbellCost": 2500,
-      "sortIndex": 49
+      "sortIndex": 50
     },
     "/avatar_outfits/koi_dress": {
       "hrid": "/avatar_outfits/koi_dress",
@@ -146912,7 +147136,7 @@
       "seasonEndMonth": 3,
       "seasonEndDay": 15,
       "cowbellCost": 2500,
-      "sortIndex": 56
+      "sortIndex": 57
     },
     "/avatar_outfits/mage_1": {
       "hrid": "/avatar_outfits/mage_1",
@@ -146922,7 +147146,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 76
+      "sortIndex": 77
     },
     "/avatar_outfits/mage_2": {
       "hrid": "/avatar_outfits/mage_2",
@@ -146932,7 +147156,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 77
+      "sortIndex": 78
     },
     "/avatar_outfits/pirate_1": {
       "hrid": "/avatar_outfits/pirate_1",
@@ -146942,7 +147166,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 110
+      "sortIndex": 111
     },
     "/avatar_outfits/pirate_2": {
       "hrid": "/avatar_outfits/pirate_2",
@@ -146952,7 +147176,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 111
+      "sortIndex": 112
     },
     "/avatar_outfits/pumpkin_dress": {
       "hrid": "/avatar_outfits/pumpkin_dress",
@@ -146962,7 +147186,7 @@
       "seasonEndMonth": 11,
       "seasonEndDay": 14,
       "cowbellCost": 2500,
-      "sortIndex": 50
+      "sortIndex": 51
     },
     "/avatar_outfits/ranger_1": {
       "hrid": "/avatar_outfits/ranger_1",
@@ -146972,7 +147196,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 78
+      "sortIndex": 79
     },
     "/avatar_outfits/ranger_2": {
       "hrid": "/avatar_outfits/ranger_2",
@@ -146982,7 +147206,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 79
+      "sortIndex": 80
     },
     "/avatar_outfits/santa_outfit": {
       "hrid": "/avatar_outfits/santa_outfit",
@@ -146992,7 +147216,17 @@
       "seasonEndMonth": 1,
       "seasonEndDay": 8,
       "cowbellCost": 2500,
-      "sortIndex": 51
+      "sortIndex": 52
+    },
+    "/avatar_outfits/siren_dress": {
+      "hrid": "/avatar_outfits/siren_dress",
+      "isSeasonal": false,
+      "seasonStartMonth": 0,
+      "seasonStartDay": 0,
+      "seasonEndMonth": 0,
+      "seasonEndDay": 0,
+      "cowbellCost": 4000,
+      "sortIndex": 113
     },
     "/avatar_outfits/spring_festival_boy": {
       "hrid": "/avatar_outfits/spring_festival_boy",
@@ -147002,7 +147236,7 @@
       "seasonEndMonth": 3,
       "seasonEndDay": 15,
       "cowbellCost": 2500,
-      "sortIndex": 55
+      "sortIndex": 56
     },
     "/avatar_outfits/spring_festival_girl": {
       "hrid": "/avatar_outfits/spring_festival_girl",
@@ -147012,7 +147246,7 @@
       "seasonEndMonth": 3,
       "seasonEndDay": 15,
       "cowbellCost": 2500,
-      "sortIndex": 54
+      "sortIndex": 55
     },
     "/avatar_outfits/suit_1": {
       "hrid": "/avatar_outfits/suit_1",
@@ -147022,7 +147256,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 90
+      "sortIndex": 91
     },
     "/avatar_outfits/suit_2": {
       "hrid": "/avatar_outfits/suit_2",
@@ -147032,7 +147266,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 91
+      "sortIndex": 92
     },
     "/avatar_outfits/suit_3": {
       "hrid": "/avatar_outfits/suit_3",
@@ -147042,7 +147276,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 92
+      "sortIndex": 93
     },
     "/avatar_outfits/suit_4": {
       "hrid": "/avatar_outfits/suit_4",
@@ -147052,7 +147286,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 93
+      "sortIndex": 94
     },
     "/avatar_outfits/suit_5": {
       "hrid": "/avatar_outfits/suit_5",
@@ -147062,7 +147296,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 94
+      "sortIndex": 95
     },
     "/avatar_outfits/suit_6": {
       "hrid": "/avatar_outfits/suit_6",
@@ -147072,7 +147306,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 95
+      "sortIndex": 96
     },
     "/avatar_outfits/suit_7": {
       "hrid": "/avatar_outfits/suit_7",
@@ -147082,7 +147316,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 96
+      "sortIndex": 97
     },
     "/avatar_outfits/suit_8": {
       "hrid": "/avatar_outfits/suit_8",
@@ -147092,7 +147326,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 4000,
-      "sortIndex": 97
+      "sortIndex": 98
     },
     "/avatar_outfits/tshirt_alchemy": {
       "hrid": "/avatar_outfits/tshirt_alchemy",
@@ -147102,7 +147336,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 73
+      "sortIndex": 74
     },
     "/avatar_outfits/tshirt_attack": {
       "hrid": "/avatar_outfits/tshirt_attack",
@@ -147112,7 +147346,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 59
+      "sortIndex": 60
     },
     "/avatar_outfits/tshirt_brewing": {
       "hrid": "/avatar_outfits/tshirt_brewing",
@@ -147122,7 +147356,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 71
+      "sortIndex": 72
     },
     "/avatar_outfits/tshirt_cheesesmithing": {
       "hrid": "/avatar_outfits/tshirt_cheesesmithing",
@@ -147132,7 +147366,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 67
+      "sortIndex": 68
     },
     "/avatar_outfits/tshirt_cooking": {
       "hrid": "/avatar_outfits/tshirt_cooking",
@@ -147142,7 +147376,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 70
+      "sortIndex": 71
     },
     "/avatar_outfits/tshirt_crafting": {
       "hrid": "/avatar_outfits/tshirt_crafting",
@@ -147152,7 +147386,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 68
+      "sortIndex": 69
     },
     "/avatar_outfits/tshirt_default": {
       "hrid": "/avatar_outfits/tshirt_default",
@@ -147162,7 +147396,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 0,
-      "sortIndex": 112
+      "sortIndex": 114
     },
     "/avatar_outfits/tshirt_defense": {
       "hrid": "/avatar_outfits/tshirt_defense",
@@ -147172,7 +147406,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 61
+      "sortIndex": 62
     },
     "/avatar_outfits/tshirt_enhancing": {
       "hrid": "/avatar_outfits/tshirt_enhancing",
@@ -147182,7 +147416,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 72
+      "sortIndex": 73
     },
     "/avatar_outfits/tshirt_foraging": {
       "hrid": "/avatar_outfits/tshirt_foraging",
@@ -147192,7 +147426,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 65
+      "sortIndex": 66
     },
     "/avatar_outfits/tshirt_intelligence": {
       "hrid": "/avatar_outfits/tshirt_intelligence",
@@ -147202,7 +147436,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 58
+      "sortIndex": 59
     },
     "/avatar_outfits/tshirt_magic": {
       "hrid": "/avatar_outfits/tshirt_magic",
@@ -147212,7 +147446,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 63
+      "sortIndex": 64
     },
     "/avatar_outfits/tshirt_melee": {
       "hrid": "/avatar_outfits/tshirt_melee",
@@ -147222,7 +147456,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 60
+      "sortIndex": 61
     },
     "/avatar_outfits/tshirt_milking": {
       "hrid": "/avatar_outfits/tshirt_milking",
@@ -147232,7 +147466,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 64
+      "sortIndex": 65
     },
     "/avatar_outfits/tshirt_ranged": {
       "hrid": "/avatar_outfits/tshirt_ranged",
@@ -147242,7 +147476,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 62
+      "sortIndex": 63
     },
     "/avatar_outfits/tshirt_stamina": {
       "hrid": "/avatar_outfits/tshirt_stamina",
@@ -147252,7 +147486,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 57
+      "sortIndex": 58
     },
     "/avatar_outfits/tshirt_tailoring": {
       "hrid": "/avatar_outfits/tshirt_tailoring",
@@ -147262,7 +147496,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 69
+      "sortIndex": 70
     },
     "/avatar_outfits/tshirt_woodcutting": {
       "hrid": "/avatar_outfits/tshirt_woodcutting",
@@ -147272,7 +147506,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 2000,
-      "sortIndex": 66
+      "sortIndex": 67
     },
     "/avatar_outfits/uniform_alchemy": {
       "hrid": "/avatar_outfits/uniform_alchemy",
@@ -147282,7 +147516,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 88
+      "sortIndex": 89
     },
     "/avatar_outfits/uniform_brewing": {
       "hrid": "/avatar_outfits/uniform_brewing",
@@ -147292,7 +147526,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 87
+      "sortIndex": 88
     },
     "/avatar_outfits/uniform_cheesesmithing": {
       "hrid": "/avatar_outfits/uniform_cheesesmithing",
@@ -147302,7 +147536,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 83
+      "sortIndex": 84
     },
     "/avatar_outfits/uniform_cooking": {
       "hrid": "/avatar_outfits/uniform_cooking",
@@ -147312,7 +147546,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 86
+      "sortIndex": 87
     },
     "/avatar_outfits/uniform_crafting": {
       "hrid": "/avatar_outfits/uniform_crafting",
@@ -147322,7 +147556,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 84
+      "sortIndex": 85
     },
     "/avatar_outfits/uniform_enhancing": {
       "hrid": "/avatar_outfits/uniform_enhancing",
@@ -147332,7 +147566,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 89
+      "sortIndex": 90
     },
     "/avatar_outfits/uniform_foraging": {
       "hrid": "/avatar_outfits/uniform_foraging",
@@ -147342,7 +147576,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 81
+      "sortIndex": 82
     },
     "/avatar_outfits/uniform_milking": {
       "hrid": "/avatar_outfits/uniform_milking",
@@ -147352,7 +147586,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 80
+      "sortIndex": 81
     },
     "/avatar_outfits/uniform_tailoring": {
       "hrid": "/avatar_outfits/uniform_tailoring",
@@ -147362,7 +147596,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 85
+      "sortIndex": 86
     },
     "/avatar_outfits/uniform_woodcutting": {
       "hrid": "/avatar_outfits/uniform_woodcutting",
@@ -147372,7 +147606,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 82
+      "sortIndex": 83
     },
     "/avatar_outfits/warrior_1": {
       "hrid": "/avatar_outfits/warrior_1",
@@ -147382,7 +147616,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 74
+      "sortIndex": 75
     },
     "/avatar_outfits/warrior_2": {
       "hrid": "/avatar_outfits/warrior_2",
@@ -147392,7 +147626,7 @@
       "seasonEndMonth": 0,
       "seasonEndDay": 0,
       "cowbellCost": 3000,
-      "sortIndex": 75
+      "sortIndex": 76
     }
   },
   "communityBuffTypeDetailMap": {
@@ -149715,7 +149949,7 @@
     },
     "/labyrinth_shop_items/seal_of_action_speed": {
       "hrid": "/labyrinth_shop_items/seal_of_action_speed",
-      "name": "Seal of Action Speed",
+      "name": "Scroll of Action Speed",
       "itemHrid": "/items/seal_of_action_speed",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149726,7 +149960,7 @@
     },
     "/labyrinth_shop_items/seal_of_attack_speed": {
       "hrid": "/labyrinth_shop_items/seal_of_attack_speed",
-      "name": "Seal of Attack Speed",
+      "name": "Scroll of Attack Speed",
       "itemHrid": "/items/seal_of_attack_speed",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149737,7 +149971,7 @@
     },
     "/labyrinth_shop_items/seal_of_cast_speed": {
       "hrid": "/labyrinth_shop_items/seal_of_cast_speed",
-      "name": "Seal of Cast Speed",
+      "name": "Scroll of Cast Speed",
       "itemHrid": "/items/seal_of_cast_speed",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149748,7 +149982,7 @@
     },
     "/labyrinth_shop_items/seal_of_combat_drop": {
       "hrid": "/labyrinth_shop_items/seal_of_combat_drop",
-      "name": "Seal of Combat Drop",
+      "name": "Scroll of Combat Drop",
       "itemHrid": "/items/seal_of_combat_drop",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149759,7 +149993,7 @@
     },
     "/labyrinth_shop_items/seal_of_critical_rate": {
       "hrid": "/labyrinth_shop_items/seal_of_critical_rate",
-      "name": "Seal of Critical Rate",
+      "name": "Scroll of Critical Rate",
       "itemHrid": "/items/seal_of_critical_rate",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149770,7 +150004,7 @@
     },
     "/labyrinth_shop_items/seal_of_damage": {
       "hrid": "/labyrinth_shop_items/seal_of_damage",
-      "name": "Seal of Damage",
+      "name": "Scroll of Damage",
       "itemHrid": "/items/seal_of_damage",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149781,7 +150015,7 @@
     },
     "/labyrinth_shop_items/seal_of_efficiency": {
       "hrid": "/labyrinth_shop_items/seal_of_efficiency",
-      "name": "Seal of Efficiency",
+      "name": "Scroll of Efficiency",
       "itemHrid": "/items/seal_of_efficiency",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149792,7 +150026,7 @@
     },
     "/labyrinth_shop_items/seal_of_gathering": {
       "hrid": "/labyrinth_shop_items/seal_of_gathering",
-      "name": "Seal of Gathering",
+      "name": "Scroll of Gathering",
       "itemHrid": "/items/seal_of_gathering",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149803,7 +150037,7 @@
     },
     "/labyrinth_shop_items/seal_of_gourmet": {
       "hrid": "/labyrinth_shop_items/seal_of_gourmet",
-      "name": "Seal of Gourmet",
+      "name": "Scroll of Gourmet",
       "itemHrid": "/items/seal_of_gourmet",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149814,7 +150048,7 @@
     },
     "/labyrinth_shop_items/seal_of_processing": {
       "hrid": "/labyrinth_shop_items/seal_of_processing",
-      "name": "Seal of Processing",
+      "name": "Scroll of Processing",
       "itemHrid": "/items/seal_of_processing",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149825,7 +150059,7 @@
     },
     "/labyrinth_shop_items/seal_of_rare_find": {
       "hrid": "/labyrinth_shop_items/seal_of_rare_find",
-      "name": "Seal of Rare Find",
+      "name": "Scroll of Rare Find",
       "itemHrid": "/items/seal_of_rare_find",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149836,7 +150070,7 @@
     },
     "/labyrinth_shop_items/seal_of_wisdom": {
       "hrid": "/labyrinth_shop_items/seal_of_wisdom",
-      "name": "Seal of Wisdom",
+      "name": "Scroll of Wisdom",
       "itemHrid": "/items/seal_of_wisdom",
       "cost": {
         "itemHrid": "/items/labyrinth_token",
@@ -149844,6 +150078,266 @@
       },
       "outputCount": 1,
       "sortIndex": 12
+    }
+  },
+  "personalBuffTypeDetailMap": {
+    "/personal_buff_types/action_speed": {
+      "hrid": "/personal_buff_types/action_speed",
+      "name": "Action Speed",
+      "usableInActionTypeMap": {
+        "/action_types/alchemy": true,
+        "/action_types/brewing": true,
+        "/action_types/cheesesmithing": true,
+        "/action_types/cooking": true,
+        "/action_types/crafting": true,
+        "/action_types/enhancing": true,
+        "/action_types/foraging": true,
+        "/action_types/milking": true,
+        "/action_types/tailoring": true,
+        "/action_types/woodcutting": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_action_speed",
+        "typeHrid": "/buff_types/action_speed",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.15,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 5
+    },
+    "/personal_buff_types/attack_speed": {
+      "hrid": "/personal_buff_types/attack_speed",
+      "name": "Attack Speed",
+      "usableInActionTypeMap": {
+        "/action_types/combat": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_attack_speed",
+        "typeHrid": "/buff_types/attack_speed",
+        "ratioBoost": 0.15,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 7
+    },
+    "/personal_buff_types/cast_speed": {
+      "hrid": "/personal_buff_types/cast_speed",
+      "name": "Cast Speed",
+      "usableInActionTypeMap": {
+        "/action_types/combat": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_cast_speed",
+        "typeHrid": "/buff_types/cast_speed",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.15,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 8
+    },
+    "/personal_buff_types/combat_drop": {
+      "hrid": "/personal_buff_types/combat_drop",
+      "name": "Combat Drop",
+      "usableInActionTypeMap": {
+        "/action_types/combat": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_combat_drop",
+        "typeHrid": "/buff_types/combat_drop_quantity",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.15,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 6
+    },
+    "/personal_buff_types/critical_rate": {
+      "hrid": "/personal_buff_types/critical_rate",
+      "name": "Critical Rate",
+      "usableInActionTypeMap": {
+        "/action_types/combat": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_critical_rate",
+        "typeHrid": "/buff_types/critical_rate",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.1,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 10
+    },
+    "/personal_buff_types/damage": {
+      "hrid": "/personal_buff_types/damage",
+      "name": "Damage",
+      "usableInActionTypeMap": {
+        "/action_types/combat": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_damage",
+        "typeHrid": "/buff_types/damage",
+        "ratioBoost": 0.08,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 9
+    },
+    "/personal_buff_types/efficiency": {
+      "hrid": "/personal_buff_types/efficiency",
+      "name": "Efficiency",
+      "usableInActionTypeMap": {
+        "/action_types/alchemy": true,
+        "/action_types/brewing": true,
+        "/action_types/cheesesmithing": true,
+        "/action_types/cooking": true,
+        "/action_types/crafting": true,
+        "/action_types/foraging": true,
+        "/action_types/milking": true,
+        "/action_types/tailoring": true,
+        "/action_types/woodcutting": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_efficiency",
+        "typeHrid": "/buff_types/efficiency",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.14,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 4
+    },
+    "/personal_buff_types/gathering": {
+      "hrid": "/personal_buff_types/gathering",
+      "name": "Gathering",
+      "usableInActionTypeMap": {
+        "/action_types/foraging": true,
+        "/action_types/milking": true,
+        "/action_types/woodcutting": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_gathering",
+        "typeHrid": "/buff_types/gathering",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.18,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 1
+    },
+    "/personal_buff_types/gourmet": {
+      "hrid": "/personal_buff_types/gourmet",
+      "name": "Gourmet",
+      "usableInActionTypeMap": {
+        "/action_types/brewing": true,
+        "/action_types/cooking": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_gourmet",
+        "typeHrid": "/buff_types/gourmet",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.1,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 2
+    },
+    "/personal_buff_types/processing": {
+      "hrid": "/personal_buff_types/processing",
+      "name": "Processing",
+      "usableInActionTypeMap": {
+        "/action_types/foraging": true,
+        "/action_types/milking": true,
+        "/action_types/woodcutting": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_processing",
+        "typeHrid": "/buff_types/processing",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.2,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 3
+    },
+    "/personal_buff_types/rare_find": {
+      "hrid": "/personal_buff_types/rare_find",
+      "name": "Rare Find",
+      "usableInActionTypeMap": {
+        "/action_types/alchemy": true,
+        "/action_types/brewing": true,
+        "/action_types/cheesesmithing": true,
+        "/action_types/combat": true,
+        "/action_types/cooking": true,
+        "/action_types/crafting": true,
+        "/action_types/enhancing": true,
+        "/action_types/foraging": true,
+        "/action_types/milking": true,
+        "/action_types/tailoring": true,
+        "/action_types/woodcutting": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_rare_find",
+        "typeHrid": "/buff_types/rare_find",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.6,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 12
+    },
+    "/personal_buff_types/wisdom": {
+      "hrid": "/personal_buff_types/wisdom",
+      "name": "Wisdom",
+      "usableInActionTypeMap": {
+        "/action_types/alchemy": true,
+        "/action_types/brewing": true,
+        "/action_types/cheesesmithing": true,
+        "/action_types/combat": true,
+        "/action_types/cooking": true,
+        "/action_types/crafting": true,
+        "/action_types/enhancing": true,
+        "/action_types/foraging": true,
+        "/action_types/milking": true,
+        "/action_types/tailoring": true,
+        "/action_types/woodcutting": true
+      },
+      "buff": {
+        "uniqueHrid": "/buff_uniques/personal_wisdom",
+        "typeHrid": "/buff_types/wisdom",
+        "ratioBoost": 0,
+        "ratioBoostLevelBonus": 0,
+        "flatBoost": 0.2,
+        "flatBoostLevelBonus": 0,
+        "startTime": "0001-01-01T00:00:00Z",
+        "duration": 1800000000000
+      },
+      "sortIndex": 11
     }
   },
   "keys": [
