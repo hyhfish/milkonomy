@@ -1,9 +1,5 @@
 name: Update Game Data
-env:
-  GITHUB_REPOSITORY: ${{ github.repository }}
 on:
-  # schedule:
-  #   - cron: "*/10 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,44 +8,36 @@ jobs:
     permissions:
       contents: write
     steps:
-      # 1. 检出 gh-pages 分支
       - name: Checkout gh-pages branch
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: gh-pages # 强制检出 gh-pages 分支
-          fetch-depth: 0 # 获取完整提交历史
+          ref: gh-pages
+          fetch-depth: 0
 
-      # 2. 配置 Git
       - name: Configure Git
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git fetch --all  # 拉取所有远程分支
+          git fetch origin main
 
-      # 3. 从 main 分支获取 fetch_game_data.py 脚本
-      - name: Fetch script from main branch
-        run: |
-          git fetch origin main:main  # 将远程 main 分支拉取到本地 main 分支
-          git checkout main -- scripts/fetch_game_data.py  # 从 main 分支提取脚本
+      - name: Copy data files from main
         shell: bash
-
-      # 4. 设置 Python 环境
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      # 5. 安装依赖
-      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install requests
+          git checkout origin/main -- public/data/data.json public/data/market.json
+          mkdir -p data
+          cp public/data/data.json data/data.json
+          cp public/data/market.json data/market.json
+          rm -rf public
 
-      # 6. 运行脚本
-      - name: Fetch and deploy data
-        run: python scripts/fetch_game_data.py
-        env:
-          # Use the built-in GITHUB_TOKEN so it matches the workflow permissions.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit and push if changed
+        shell: bash
+        run: |
+          if git diff --quiet -- data; then
+            echo "No data changes detected"
+            exit 0
+          fi
+          git add data/data.json data/market.json
+          git commit -m "Update data files from main"
+          git push origin gh-pages
