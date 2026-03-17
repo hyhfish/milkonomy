@@ -294,9 +294,8 @@ function initBuffMap() {
     for (const ac of Object.values(actionConfig)) {
       if (ac && typeof ac === "object" && !Array.isArray(ac) && ac.hrid) {
         const item = getItemDetailOf(ac.hrid)
-        item.equipmentDetail?.noncombatStats && Object.entries(item.equipmentDetail.noncombatStats).forEach(([key, value]) => {
-          const bonus = item.equipmentDetail?.noncombatEnhancementBonuses[key as NoncombatStatsProp]
-          buffs[key as NoncombatStatsProp] = (buffs[key as NoncombatStatsProp] || 0) + value + ((bonus || 0) * (enhanceMultiplier[ac.enhanceLevel || 0]))
+        getActionScopedEquipmentBuffEntries(action, item, ac.enhanceLevel || 0, enhanceMultiplier).forEach(([key, value]) => {
+          buffs[key] = (buffs[key] || 0) + value
         })
       }
     }
@@ -406,6 +405,36 @@ function getNoncombatStatsKeyByBuffType(typeHrid: string): NoncombatStatsKey | u
     return "Success"
   }
   return undefined
+}
+
+function getActionScopedEquipmentBuffEntries(
+  action: Action,
+  item: ItemDetail,
+  enhanceLevel: number,
+  enhanceMultiplier: number[]
+) {
+  const noncombatStats = item.equipmentDetail?.noncombatStats
+  if (!noncombatStats) {
+    return []
+  }
+  const noncombatEnhancementBonuses = item.equipmentDetail?.noncombatEnhancementBonuses || {}
+
+  return Object.entries(noncombatStats).filter(([key]) => {
+    const prop = key as NoncombatStatsProp
+    return isActionScopedProp(prop, action) || isGlobalNoncombatProp(prop)
+  }).map(([key, value]) => {
+    const prop = key as NoncombatStatsProp
+    const bonus = noncombatEnhancementBonuses[prop] || 0
+    return [prop, value + bonus * enhanceMultiplier[enhanceLevel]] as const
+  })
+}
+
+function isActionScopedProp(prop: NoncombatStatsProp, action: Action) {
+  return prop.startsWith(action)
+}
+
+function isGlobalNoncombatProp(prop: NoncombatStatsProp) {
+  return !ACTION_LIST.some(action => prop.startsWith(action)) && !prop.startsWith("skilling")
 }
 
 export function getBuffOf(action: Action, key: NoncombatStatsKey) {
