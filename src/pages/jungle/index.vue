@@ -72,6 +72,9 @@ function handleSearchLD() {
 }
 
 function handleDataSourceChange() {
+  if (dataSource.value.type === "junglest") {
+    ldSearchData.value.project = ""
+  }
   handleSearchLD()
 }
 
@@ -232,6 +235,8 @@ const projectFilterOptions = computed(() => [
     value: escapeRegExp(t("锻造"))
   }
 ])
+
+const isSuperJungle = computed(() => dataSource.value.type === "junglest")
 </script>
 
 <template>
@@ -270,7 +275,7 @@ const projectFilterOptions = computed(() => [
                 <el-input style="width:100px" v-model="ldSearchData.name" :placeholder="t('请输入')" clearable @input="handleSearchLD" />
               </el-form-item>
 
-              <el-form-item prop="project" :label="t('动作')">
+              <el-form-item v-if="!isSuperJungle" prop="project" :label="t('动作')">
                 <el-select style="width: 130px" v-model="ldSearchData.project" clearable @change="handleSearchLD">
                   <el-option
                     v-for="option in projectFilterOptions"
@@ -302,7 +307,7 @@ const projectFilterOptions = computed(() => [
                 <el-input-number style="width:80px" v-model="ldSearchData.maxRisk" clearable @change="handleSearchLD" :controls="false" />
               </el-form-item>
 
-              <el-form-item>
+              <el-form-item v-if="!isSuperJungle">
                 <el-checkbox v-model="ldSearchData.bestManufacture" @change="handleSearchLD">
                   {{ t('最佳制作方案') }}
                 </el-checkbox>

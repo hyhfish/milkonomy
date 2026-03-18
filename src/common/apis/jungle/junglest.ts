@@ -26,6 +26,12 @@ export async function getDataApi(params: any) {
 
   profitList = profitList.filter(item => params.maxLevel ? item.enhanceLevel <= params.maxLevel : true)
   profitList = profitList.filter(item => params.minLevel ? item.enhanceLevel >= params.minLevel : true)
+  profitList = profitList.filter(item => params.minSellPrice ? item.productListWithPrice[0].price >= params.minSellPrice * 1e6 : true)
+
+  const hasMinItemLevel = params.minItemLevel !== undefined && params.minItemLevel !== null && params.minItemLevel !== ""
+  const hasMaxItemLevel = params.maxItemLevel !== undefined && params.maxItemLevel !== null && params.maxItemLevel !== ""
+  profitList = profitList.filter(item => hasMinItemLevel ? (item.item.itemLevel >= Number(params.minItemLevel)) : true)
+  profitList = profitList.filter(item => hasMaxItemLevel ? (item.item.itemLevel <= Number(params.maxItemLevel)) : true)
 
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }

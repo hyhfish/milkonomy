@@ -11,6 +11,15 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.439",
+    date: "2026-03-19",
+    changes: [
+      "Buff 计算：工匠茶附带的 action_level 等级惩罚现在会正确计入暴饮浓度加成，避免高估工匠茶收益",
+      "Dashboard：收藏夹新增『经验 / h』显示，便于同时查看利润与经验收益",
+      "打野工具 / 超级打野工具：共用筛选项恢复生效，并补齐超级打野对售价、物品等级等筛选条件的支持"
+    ]
+  },
+  {
     version: "1.3.437",
     date: "2026-03-16",
     changes: [

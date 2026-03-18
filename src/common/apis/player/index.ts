@@ -323,7 +323,7 @@ function initBuffMap() {
         }
         // 工匠茶的等级debuff
         if (buff.typeHrid === "/buff_types/action_level") {
-          buffs[`${action}Level`] = (buffs[`${action}Level`] || 0) - buff.flatBoost
+          buffs[`${action}Level`] = (buffs[`${action}Level`] || 0) - (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
         }
         if (buff.typeHrid === "/buff_types/gourmet") {
           buffs[`${action}Gourmet`] = (buffs[`${action}Gourmet`] || 0) + (buff.flatBoost * (1 + (buffs.drinkConcentration || 0)))
