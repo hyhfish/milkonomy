@@ -35,6 +35,8 @@ const ldSearchData = useMemory("jungle-leaderboard-search-data", {
   profitRate: "",
   maxLevel: 20,
   minLevel: 1,
+  minOriginLevel: undefined,
+  maxOriginLevel: undefined,
   banEquipment: false,
   banCharm: false,
   onlySkillingEquipment: false,
@@ -291,6 +293,11 @@ const isSuperJungle = computed(() => dataSource.value.type === "junglest")
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
 
+              <el-form-item v-if="isSuperJungle" :label="t('起始等级从')">
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minOriginLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxOriginLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
+              </el-form-item>
+
               <el-form-item :label="`${t('售价')} ≥`">
                 <el-input-number style="width:80px" v-model="ldSearchData.minSellPrice" placeholder="0" clearable @change="handleSearchLD" :controls="false" />&nbsp;M
               </el-form-item>
@@ -427,7 +434,7 @@ const isSuperJungle = computed(() => dataSource.value.type === "junglest")
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column align="center" :label="t('利润率')">
+              <el-table-column prop="result.profitRate" align="center" :label="t('利润率')" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   <span :class="row.hasManualPrice ? 'manual' : ''">
                     {{ row.result.profitRateFormat }}&nbsp;
@@ -511,7 +518,7 @@ const isSuperJungle = computed(() => dataSource.value.type === "junglest")
                   </el-tooltip>
                 </template>
               </el-table-column> -->
-              <el-table-column min-width="120" :label="t('经验 / h')" align="center">
+              <el-table-column prop="result.expPH" min-width="120" :label="t('经验 / h')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
                   <div style="display: flex; justify-content: center; align-items: center; gap: 5px">
                     <div>{{ row.result.expPHFormat }}</div>

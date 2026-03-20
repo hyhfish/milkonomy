@@ -11,6 +11,16 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.440",
+    date: "2026-03-20",
+    changes: [
+      "打野工具 / 超级打野工具：新增『起始等级』范围筛选，便于按初始强化等级过滤结果",
+      "打野工具 / 超级打野工具：为『利润率』『经验 / h』补齐表格排序",
+      "打赏页面：重新开放并恢复榜单 / 上榜功能，切换新的 Google Sheets / Apps Script 数据源",
+      "打赏页面：更新维护者信息与二维码展示，支持 hyhfish 微信赞赏，并保留原作者 luyh7 的历史二维码"
+    ]
+  },
+  {
     version: "1.3.439",
     date: "2026-03-19",
     changes: [

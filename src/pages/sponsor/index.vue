@@ -1,72 +1,12 @@
 <script lang="ts" setup>
-import logoAlipay from "@@/assets/images/sponsor/alipay.jpg?url"
-import logoPaypal from "@@/assets/images/sponsor/paypal.jpg?url"
-import logoWechat from "@@/assets/images/sponsor/wechat.jpg?url"
-import { Link } from "@element-plus/icons-vue"
+import logoAlipayOrg from "@@/assets/images/sponsor/alipay_org.jpg?url"
+import logoHyhfishWechat from "@@/assets/images/sponsor/hyhfish-wechat.jpg?url"
+import logoWechatOrg from "@@/assets/images/sponsor/wechat_org.jpg?url"
 import axios from "axios"
 import { ElLoading, type FormRules } from "element-plus"
 
-// 打赏榜单（含“我要上榜”表单）暂时隐藏；后续释出时可通过环境变量开启。
-// - 默认隐藏（undefined => false）
-// - 开启：VITE_SHOW_SPONSOR_LEADERBOARD=true
-const showSponsorLeaderboard = import.meta.env.VITE_SHOW_SPONSOR_LEADERBOARD === "true"
-
-const url = "https://script.google.com/macros/s/AKfycbzA8s6SOQDoFi27VuQ9wqqjQDZuLcjGVdfH-3DIO32ayYFI29u3dxWV3Y4_Q6geT3Kr/exec"
-
-const jsonUrl = "https://opensheet.elk.sh/1JPXJfdfeCpaBnKb73idoilf9n1a-GNjiA_xYb-tJ6cI/Sheet1"
-const sponsorList = ref<Sponsor[]>([])
-const sponsorLoading = ref(false)
-
-const refForm = ref()
-const form = ref<Sponsor>({})
-const dialogVisible = ref(false)
-const dialogLoading = ref(false)
-let loadingService: any
-const rules = reactive<FormRules>({
-  nickname: [{ required: true, message: "不能为空", trigger: ["blur", "change"] }],
-  platform: [{ required: true, message: "不能为空", trigger: ["blur", "change"] }],
-  name: [{ required: true, message: "不能为空", trigger: ["blur", "change"] }],
-  amount: [{ required: true, message: "不能为空", trigger: ["blur", "change"] }]
-})
-watch(dialogLoading, (val) => {
-  if (val) {
-    loadingService = ElLoading.service({
-      lock: true,
-      target: ".dialog"
-    })
-  } else {
-    loadingService.close()
-  }
-})
-function submit() {
-  refForm.value.validate((valid: boolean) => {
-    if (valid) {
-      dialogLoading.value = true
-      fetch(url, {
-        // 解决跨域问题
-        redirect: "follow",
-        method: "POST",
-        body: JSON.stringify(form.value),
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        }
-      })
-        .then(() => {
-          ElMessage.success("提交成功，请等待作者审核")
-          dialogVisible.value = false
-          // 仅在榜单启用时刷新列表
-          showSponsorLeaderboard && loadData()
-        })
-        .catch((e) => {
-          ElMessage.error(e)
-        })
-        .finally(() => {
-          dialogLoading.value = false
-        })
-    }
-  })
-}
-showSponsorLeaderboard && loadData()
+const submitUrl = "https://script.google.com/macros/s/AKfycbxByTjiRX36ufKHQgV1aVRrIcdxjmqEZ0SAm5qkse6CZEyoZVxKW2xmvegxB3o3bGgKOg/exec"
+const listUrl = "https://opensheet.elk.sh/1s-dW5trnzg9t93VtLEAxwBTfYEiHXRRZGGaiCgKhl9k/1"
 
 interface Sponsor {
   approved?: boolean
@@ -77,12 +17,91 @@ interface Sponsor {
   date?: Date
   [key: string]: any
 }
-// 加载审核通过的数据
+
+const sponsorList = ref<Sponsor[]>([])
+const sponsorLoading = ref(false)
+const refForm = ref()
+const form = ref<Sponsor>({})
+const dialogVisible = ref(false)
+const dialogLoading = ref(false)
+let loadingService: any
+
+const rules = reactive<FormRules>({
+  nickname: [{ required: true, message: "不能为空", trigger: ["blur", "change"] }],
+  platform: [{ required: true, message: "不能为空", trigger: ["blur", "change"] }],
+  name: [{ required: true, message: "不能为空", trigger: ["blur", "change"] }],
+  amount: [{ required: true, message: "不能为空", trigger: ["blur", "change"] }]
+})
+
+const paymentCards = [
+  {
+    key: "maintainer-wechat",
+    owner: "hyhfish",
+    ownerClass: "maintainer",
+    title: "微信",
+    note: "请 hyhfish 喝杯奶茶",
+    imageUrl: logoHyhfishWechat
+  },
+  {
+    key: "author-wechat",
+    owner: "luyh7",
+    ownerClass: "author",
+    title: "微信",
+    note: "luyh7",
+    imageUrl: logoWechatOrg
+  },
+  {
+    key: "author-alipay",
+    owner: "luyh7",
+    ownerClass: "author",
+    title: "支付宝",
+    note: "luyh7",
+    imageUrl: logoAlipayOrg
+  }
+]
+
+watch(dialogLoading, (val) => {
+  if (val) {
+    loadingService = ElLoading.service({
+      lock: true,
+      target: ".dialog"
+    })
+  } else {
+    loadingService?.close()
+  }
+})
+
+function submit() {
+  refForm.value.validate((valid: boolean) => {
+    if (!valid) return
+    dialogLoading.value = true
+    fetch(submitUrl, {
+      redirect: "follow",
+      method: "POST",
+      body: JSON.stringify(form.value),
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      }
+    })
+      .then(() => {
+        ElMessage.success("提交成功，请等待审核")
+        dialogVisible.value = false
+        loadData()
+      })
+      .catch((e) => {
+        ElMessage.error(e)
+      })
+      .finally(() => {
+        dialogLoading.value = false
+      })
+  })
+}
+
 function loadData() {
   sponsorLoading.value = true
-  axios.get(jsonUrl)
+  axios.get(listUrl)
     .then(({ data }) => {
-      const keyMap: { [key: string]: string } = {
+      const keyMap: Record<string, string> = {
         姓名: "name",
         审核状态: "approved",
         昵称: "nickname",
@@ -97,20 +116,19 @@ function loadData() {
         }
         return sponsor
       }).filter((item: Sponsor) => item.approved)
-      // 相同nickname的合并，金额相加，相同金额按照出现顺序排序
+
       const map = new Map<string, Sponsor>()
       sponsorList.value.forEach((item: Sponsor) => {
         if (map.has(item.nickname!)) {
           const sponsor = map.get(item.nickname!)
           if (sponsor) {
-            console.log("sponsor.amount", sponsor.amount)
             sponsor.amount! = +sponsor.amount! + +item.amount!
           }
         } else {
           map.set(item.nickname!, item)
         }
       })
-      sponsorList.value = Array.from(map.values()).sort((a: Sponsor, b: Sponsor) => b.amount! - a.amount!)
+      sponsorList.value = Array.from(map.values()).sort((a, b) => b.amount! - a.amount!)
     })
     .catch((e) => {
       ElMessage.error(e)
@@ -119,76 +137,61 @@ function loadData() {
       sponsorLoading.value = false
     })
 }
-function onPaypal() {
-  window.open("https://paypal.me/luyh7")
-}
-const { t } = useI18n()
+
+loadData()
 </script>
 
 <template>
-  <div style="text-align: center;">
-    <div class="font-size-[14px]">
+  <div class="sponsor-page">
+    <div class="page-head">
       <h1>
-        {{ t('打赏作者') }} <span class="luyh7">luyh7</span>
+        打赏页面
       </h1>
-      <!-- 浅灰色 -->
-      <p class="color-[#999]">
-        {{ t('如果您觉得本项目对您有帮助，可以打赏作者一根辣条') }}
+      <p class="sub-title">
+        如果你觉得 Milkonomy 对你有帮助，可以通过下方方式支持后续维护。
       </p>
-      <p class="color-[#999]">
-        {{ t('#联系方式') }}
+      <p class="meta-line">
+        原作者：<span class="author">luyh7</span>
       </p>
-      <p>
-        <!-- 粉红色 -->
-        QQ: <span class="color-[#f29b1d]">470103427&nbsp;&nbsp;</span>
-        <!-- 米黄色 -->
-        Discord: <span class="color-[#f29b1d]">whisper0821</span>
+      <p class="meta-line">
+        当前维护者：<span class="maintainer">hyhfish</span> / QQ：<span class="maintainer">2978142395</span>
       </p>
-      <p />
-      <p>
-        Email: <span class="color-[#f29b1d]">
-          470103427@qq.com
-        </span>
+      <p class="meta-line">
+        请 <span class="maintainer">hyhfish</span> 喝杯奶茶
       </p>
     </div>
 
     <el-row :gutter="20">
-      <el-col v-if="showSponsorLeaderboard" :sm="24" :md="12">
+      <el-col :xs="24" :md="11">
         <el-card class="sponsor-list">
           <template #header>
-            {{ t('感谢以下玩家打赏') }}&nbsp;
-            <el-button type="primary" @click="dialogVisible = true">
-              {{ t('我要上榜') }}
-            </el-button>
+            <div class="card-head">
+              <span>感谢以下玩家打赏</span>
+              <el-button type="primary" @click="dialogVisible = true">
+                我要上榜
+              </el-button>
+            </div>
           </template>
           <el-table v-loading="sponsorLoading" :data="sponsorList">
-            <el-table-column :label="t('排名')" width="60">
+            <el-table-column label="排名" width="70">
               <template #default="{ $index }">
-                <div class="uno-flex-x-center">
-                  <div>{{ ['🥇', '🥈', '🥉'][$index] }}</div>
-                  <div v-if="$index >= 3">
-                    {{ $index + 1 }}
-                  </div>
+                <div class="rank-cell">
+                  <span>{{ ["🥇", "🥈", "🥉"][$index] || $index + 1 }}</span>
                 </div>
               </template>
             </el-table-column>
 
-            <el-table-column prop="nickname" :label="t('昵称')">
+            <el-table-column prop="nickname" label="昵称">
               <template #default="{ row }">
-                <!-- 宽度等于字体长度 -->
                 <div
-                  :class="{
-                    [row.nickname]: true,
-                  }"
-                  :style="{
-                    width: `${row.nickname.length}em`,
-                  } "
+                  :class="{ [row.nickname]: true }"
                 >
                   {{ row.nickname }}
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="amount" :label="t('金额')">
+            <el-table-column prop="platform" label="平台" width="100" />
+            <el-table-column prop="amount" label="金额" width="100">
               <template #default="{ row }">
                 <span>¥{{ row.amount }}</span>
               </template>
@@ -197,62 +200,58 @@ const { t } = useI18n()
         </el-card>
       </el-col>
 
-      <el-col :sm="24" :md="showSponsorLeaderboard ? 12 : 24">
-        <el-row :gutter="20" class="img-row">
-          <el-col :xs="24" :sm="12" :md="24" :lg="12" :xl="8">
-            <el-card>
-              <img width="80%" :src="logoWechat" alt="微信打赏">
-              <div class="img-alt">
-                {{ t('微信') }}
+      <el-col :xs="24" :md="13">
+        <el-row :gutter="16" class="img-row">
+          <el-col v-for="card in paymentCards" :key="card.key" :xs="12" :sm="12" :xl="12">
+            <el-card class="payment-card">
+              <div class="owner-line">
+                <span :class="card.ownerClass">{{ card.owner }}</span>
               </div>
-            </el-card>
-          </el-col>
-          <el-col :xs="12" :sm="12" :md="24" :lg="12" :xl="8">
-            <el-card>
-              <img width="80%" :src="logoAlipay" alt="支付宝打赏">
-              <div class="img-alt">
-                {{ t('支付宝') }}
+              <div class="placeholder-box">
+                <img v-if="card.imageUrl" class="payment-image" :src="card.imageUrl" :alt="`${card.owner}${card.title}`">
+                <div v-else class="placeholder-inner">
+                  <div class="placeholder-text">
+                    二维码待提供
+                  </div>
+                </div>
               </div>
-            </el-card>
-          </el-col>
-          <el-col :xs="24" :sm="12" :md="24" :lg="12" :xl="8">
-            <el-card style="cursor:pointer" @click="onPaypal">
-              <img width="80%" :src="logoPaypal" alt="Paypal打赏">
-              <el-link :icon="Link" underline type="primary" class="img-alt" style="display:flex">
-                PayPal
-              </el-link>
+              <div class="img-alt">
+                {{ card.title }}
+              </div>
+              <div class="img-note">
+                {{ card.note }}
+              </div>
             </el-card>
           </el-col>
         </el-row>
       </el-col>
     </el-row>
-    <div />
 
-    <el-dialog v-if="showSponsorLeaderboard" class="dialog" v-model="dialogVisible" :title="t('我要上榜')" :show-close="false">
-      <el-form :model="form" ref="refForm" class="form" :rules="rules" label-width="80px">
-        <el-form-item prop="nickname" :label="t('昵称')">
-          <el-input v-model="form.nickname" :placeholder="t('打赏者名单上显示的名字')" />
+    <el-dialog class="dialog" v-model="dialogVisible" title="我要上榜" :show-close="false">
+      <el-form ref="refForm" :model="form" class="form" :rules="rules" label-width="80px">
+        <el-form-item prop="nickname" label="昵称">
+          <el-input v-model="form.nickname" placeholder="打赏者名单上显示的名字" />
         </el-form-item>
-        <el-form-item prop="platform" :label="t('平台')">
-          <el-select v-model="form.platform" :placeholder="t('请选择')">
-            <el-option :label="t('支付宝')" value="支付宝" />
-            <el-option :label="t('微信')" value="微信" />
+        <el-form-item prop="platform" label="平台">
+          <el-select v-model="form.platform" placeholder="请选择">
+            <el-option label="支付宝" value="支付宝" />
+            <el-option label="微信" value="微信" />
             <el-option label="Paypal" value="Paypal" />
           </el-select>
         </el-form-item>
-        <el-form-item prop="name" :label="t('姓名')">
-          <el-input v-model="form.name" :placeholder="t('您支付时使用的名字')" />
+        <el-form-item prop="name" label="姓名">
+          <el-input v-model="form.name" placeholder="您支付时使用的名字" />
         </el-form-item>
-        <el-form-item prop="amount" :label="t('金额')">
+        <el-form-item prop="amount" label="金额">
           <el-input v-model="form.amount" placeholder="CNY" />
         </el-form-item>
-        <div style="margin: 10px 80px; line-height: 1.5;">
-          {{ t('提交后请等待作者审核，审核通过后会显示在打赏者名单中') }}
+        <div class="form-tip">
+          提交后请等待审核，审核通过后会显示在打赏者名单中。
         </div>
       </el-form>
 
       <template #footer>
-        <div style="text-align: center;">
+        <div class="dialog-footer">
           <el-button type="primary" @click="submit">
             提交
           </el-button>
@@ -263,32 +262,153 @@ const { t } = useI18n()
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-link__inner) {
-  display: block;
+.sponsor-page {
+  padding: 20px;
+  text-align: center;
 }
-.img-row {
-  margin: 20px !important;
-  .el-col {
-    margin-bottom: 20px;
-  }
+
+.page-head {
+  margin-bottom: 24px;
 }
-.img-alt {
-  font-size: 2vw;
-  font-weight: bold;
-  margin: 10px 0 20px 0;
+
+.page-head h1 {
+  margin: 0 0 12px;
+  font-size: 34px;
 }
+
+.sub-title,
+.tip-line {
+  color: #999;
+  line-height: 1.8;
+}
+
+.meta-line {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.author,
+.maintainer {
+  font-weight: 700;
+}
+
+.author {
+  background: linear-gradient(to right, #ff4757, #ff6b81, #ffa502, #20bf6b, #01a3d4, #5f27cd, #d252e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.maintainer {
+  background: linear-gradient(90deg, #4c6fff, #6b5cff, #8b5cf6, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .sponsor-list {
-  margin: 20px;
   text-align: left;
-  /* 确保特效昵称不被裁剪 */
   :deep(.el-table) {
     .cell {
       overflow: visible !important;
     }
   }
 }
+
+.rank-cell,
+.dialog-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.img-row {
+  margin: 0 !important;
+}
+
+.img-row .el-col {
+  margin-bottom: 16px;
+}
+
+.payment-card {
+  height: 100%;
+}
+
+.owner-line {
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.placeholder-box {
+  width: 100%;
+  max-width: 190px;
+  aspect-ratio: 1 / 1;
+  padding: 8px;
+  margin: 0 auto;
+}
+
+.placeholder-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 2px dashed #d9b88f;
+  border-radius: 14px;
+  background:
+    linear-gradient(45deg, #faf6ef 25%, transparent 25%), linear-gradient(-45deg, #faf6ef 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #faf6ef 75%), linear-gradient(-45deg, transparent 75%, #faf6ef 75%);
+  background-position:
+    0 0,
+    0 12px,
+    12px -12px,
+    -12px 0;
+  background-size: 24px 24px;
+}
+
+.payment-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.placeholder-text {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #b57a2c;
+  font-weight: 700;
+}
+
+.img-alt {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.img-note {
+  margin-top: 6px;
+  color: #999;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
 .form {
   margin: 20px;
+}
+
+.form-tip {
+  margin: 10px 80px;
+  line-height: 1.6;
+  color: #666;
 }
 
 .luyh7 {
@@ -309,12 +429,10 @@ const { t } = useI18n()
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  /* 阴影外扩，避免覆盖渐变字体本体 */
   filter: drop-shadow(1px 0 2px rgba(244, 64, 64, 0.6901960784)) drop-shadow(-1px 0 2px rgba(244, 64, 64, 0.6901960784))
     drop-shadow(0 1px 2px rgba(244, 64, 64, 0.6901960784)) drop-shadow(0 -1px 2px rgba(244, 64, 64, 0.6901960784));
 }
 
-// 霓虹色效果，从左到右紫色到蓝色到红色渐变，字体有深色边框
 .BBC233 {
   font-size: 20px;
   font-weight: bold;
@@ -323,55 +441,44 @@ const { t } = useI18n()
   -webkit-text-fill-color: transparent;
   animation: glow-animation 2s ease-in-out infinite alternate;
 }
-@keyframes glow-animation {
-  0% {
-    filter: hue-rotate(-360deg);
-  }
-  100% {
-    filter: hue-rotate(360deg);
-  }
-}
-// 浅粉色霓虹
+
 .苏叶叶 {
   font-size: 20px;
   font-weight: bold;
   background-image: -webkit-linear-gradient(left, #d48085, #fff 30%, #d48085 50%);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
-  -webkit-background-size: 200% 100%; /* 双倍宽度保证循环 */
+  -webkit-background-size: 200% 100%;
   animation: masked-animation 2s infinite linear;
 }
+
 .adudu {
   font-size: 20px;
   font-weight: bold;
   background-image: -webkit-linear-gradient(left, #f29b1d, #fff 10%, #f29b1d 20%);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
-  -webkit-background-size: 200% 100%; /* 双倍宽度保证循环 */
+  -webkit-background-size: 200% 100%;
   animation: masked-animation 3s infinite linear;
 }
 
 .raintower {
   font-size: 24px;
   font-weight: 600;
-  /* 彩虹渐变背景 */
   background-image: -webkit-linear-gradient(left, #ff4757, #ff6b81, #ffa502, #20bf6b, #01a3d4, #5f27cd, #d252e1);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
   -webkit-background-size: 50% 100%;
-  // ffd700
   -webkit-text-stroke: 0.3px rgba(255, 215, 0, 0.8);
-  // animation: masked-animation 3s infinite linear;
 }
+
 .eggyang {
   font-size: 24px;
   font-weight: 900;
   position: relative;
-  /* 确保发光效果不被裁剪 */
   padding: 15px;
   margin-bottom: 5px;
   padding-left: 0;
-  /* 霓虹金色渐变 */
   background: linear-gradient(
     45deg,
     #ffd700,
@@ -389,19 +496,14 @@ const { t } = useI18n()
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  /* 金色描边 */
   -webkit-text-stroke: 1px #ffd700;
-  /* 组合动画：背景流动 + 缩放脉冲 + 色相旋转 */
   animation:
     eggyang-gradient 3s ease-in-out infinite,
     eggyang-pulse 2s ease-in-out infinite alternate,
     eggyang-glow 4s linear infinite;
-  /* 发光阴影 */
   filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))
     drop-shadow(0 0 30px rgba(255, 215, 0, 0.4));
-  /* 防止内容被裁剪 */
   overflow: visible;
-  /* 确保有足够空间显示缩放效果 */
   transform-origin: center;
 }
 
@@ -412,16 +514,24 @@ const { t } = useI18n()
   color: transparent;
 }
 
-@keyframes masked-animation {
+@keyframes glow-animation {
   0% {
-    background-position: 100% 0; /* 从右侧开始 */
+    filter: hue-rotate(-360deg);
   }
   100% {
-    background-position: -100% 0; /* 移动到左侧 */
+    filter: hue-rotate(360deg);
   }
 }
 
-/* eggyang 专属动画关键帧 */
+@keyframes masked-animation {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
 @keyframes eggyang-gradient {
   0% {
     background-position: 0% 50%;
@@ -439,7 +549,7 @@ const { t } = useI18n()
     transform: scale(1);
   }
   100% {
-    transform: scale(1.05); /* 减少缩放幅度，避免溢出 */
+    transform: scale(1.05);
   }
 }
 
@@ -463,6 +573,16 @@ const { t } = useI18n()
   100% {
     filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))
       drop-shadow(0 0 30px rgba(255, 215, 0, 0.4)) hue-rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .sponsor-page {
+    padding: 16px;
+  }
+
+  .page-head h1 {
+    font-size: 28px;
   }
 }
 </style>

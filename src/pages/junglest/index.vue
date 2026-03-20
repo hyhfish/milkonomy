@@ -31,6 +31,8 @@ const ldSearchData = useMemory("junglest-leaderboard-search-data", {
   profitRate: "",
   maxLevel: 20,
   minLevel: 1,
+  minOriginLevel: undefined,
+  maxOriginLevel: undefined,
   banEquipment: false,
   bestManufacture: false
 })
@@ -142,6 +144,11 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
               <el-form-item :label="t('目标等级从')">
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
                 <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
+              </el-form-item>
+
+              <el-form-item :label="t('起始等级从')">
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.minOriginLevel" placeholder="1" clearable @change="handleSearchLD" controls-position="right" />&nbsp;{{ t('到') }}&nbsp;
+                <el-input-number style="width:80px" :min="1" :max="20" v-model="ldSearchData.maxOriginLevel" placeholder="20" clearable @change="handleSearchLD" controls-position="right" />
               </el-form-item>
 
               <el-form-item :label="`${t('风险')} ≤`">
@@ -298,7 +305,11 @@ const onPriceStatusChange = usePriceStatus("junglest-price-status")
                   {{ row.result.targetRateFormat }}
                 </template>
               </el-table-column>
-              <el-table-column prop="result.expPHFormat" :label="t('经验 / h')" />
+              <el-table-column prop="result.expPH" :label="t('经验 / h')" sortable="custom" :sort-orders="['descending', null]">
+                <template #default="{ row }">
+                  {{ row.result.expPHFormat }}
+                </template>
+              </el-table-column>
               <el-table-column :label="t('详情')" align="center">
                 <template #default="{ row }">
                   <el-link type="primary" :icon="Search" @click="showDetail(row)">

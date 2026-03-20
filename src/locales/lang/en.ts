@@ -91,6 +91,7 @@ export default {
   // 强化分解
   "强化分解": "Enhance Decompose",
   "目标等级从": "Target Level from",
+  "起始等级从": "Start Level from",
   "到": "to",
   "从{0}保护": "Protect from Lv.{0}",
   "强化平均耗时": "Enhance Average Time",
