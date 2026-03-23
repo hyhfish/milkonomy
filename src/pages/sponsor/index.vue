@@ -7,6 +7,17 @@ import { ElLoading, type FormRules } from "element-plus"
 
 const submitUrl = "https://script.google.com/macros/s/AKfycbxByTjiRX36ufKHQgV1aVRrIcdxjmqEZ0SAm5qkse6CZEyoZVxKW2xmvegxB3o3bGgKOg/exec"
 const listUrl = "https://opensheet.elk.sh/1s-dW5trnzg9t93VtLEAxwBTfYEiHXRRZGGaiCgKhl9k/1"
+const sponsorBadgeModules = import.meta.glob("@@/assets/images/sponsor/gifs/*.{gif,png,jpg,jpeg,webp,avif}", {
+  eager: true,
+  import: "default"
+}) as Record<string, string>
+const sponsorBadgeMap = Object.fromEntries(
+  Object.entries(sponsorBadgeModules).map(([path, url]) => {
+    const fileName = path.split("/").pop() || ""
+    const nickname = fileName.replace(/\.[^.]+$/, "")
+    return [nickname, url]
+  })
+)
 
 interface Sponsor {
   approved?: boolean
@@ -138,6 +149,10 @@ function loadData() {
     })
 }
 
+function getSponsorBadge(nickname?: string) {
+  return nickname ? sponsorBadgeMap[nickname] : undefined
+}
+
 loadData()
 </script>
 
@@ -183,14 +198,17 @@ loadData()
 
             <el-table-column prop="nickname" label="昵称">
               <template #default="{ row }">
-                <div
-                  :class="{ [row.nickname]: true }"
-                >
-                  {{ row.nickname }}
+                <div :class="{ [row.nickname]: true }" class="nickname-cell">
+                  <span>{{ row.nickname }}</span>
+                  <img
+                    v-if="getSponsorBadge(row.nickname)"
+                    class="nickname-badge"
+                    :src="getSponsorBadge(row.nickname)"
+                    :alt="`${row.nickname} badge`"
+                  >
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="platform" label="平台" width="100" />
             <el-table-column prop="amount" label="金额" width="100">
               <template #default="{ row }">
                 <span>¥{{ row.amount }}</span>
@@ -324,6 +342,19 @@ loadData()
 .dialog-footer {
   display: flex;
   justify-content: center;
+}
+
+.nickname-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nickname-badge {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .img-row {
