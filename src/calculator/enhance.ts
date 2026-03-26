@@ -26,6 +26,7 @@ export interface PhilosopherEnhanceFlowConfig {
   targetLevel: number
   protectLevel: number
   philosopherProtectLevel: number
+  useBlessedInPhilosopher?: boolean
 }
 
 export interface PhilosopherEnhanceFlowStep {
@@ -70,7 +71,8 @@ export function calculatePhilosopherEnhanceFlow(config: PhilosopherEnhanceFlowCo
   }
 
   const item = getItemDetailOf(hrid)
-  const blessed = getBuffOf("enhancing", "Blessed")
+  const blessedNormal = getBuffOf("enhancing", "Blessed")
+  const blessedPhilosopher = config.useBlessedInPhilosopher === false ? 0 : blessedNormal
   const successRateTable = getGameDataApi().enhancementLevelSuccessRateTable
   const actionCount = targetLevel
   const matrix = math.matrix(math.zeros(targetLevel, actionCount))
@@ -89,15 +91,15 @@ export function calculatePhilosopherEnhanceFlow(config: PhilosopherEnhanceFlowCo
       if (j - 1 > 0) {
         matrix.set([j - 2, j], matrix.get([j - 2, j]) - 1)
       }
-      addProducedValue(matrix, targetLevel, j + 1, j, j + 1 < targetLevel ? 1 - blessed : 1)
+      addProducedValue(matrix, targetLevel, j + 1, j, j + 1 < targetLevel ? 1 - blessedPhilosopher : 1)
       if (j + 1 < targetLevel) {
-        addProducedValue(matrix, targetLevel, j + 2, j, blessed)
+        addProducedValue(matrix, targetLevel, j + 2, j, blessedPhilosopher)
       }
       continue
     }
 
-    const levelUpRate = successRate * (1 - blessed)
-    const levelLeapRate = successRate * blessed
+    const levelUpRate = successRate * (1 - blessedNormal)
+    const levelLeapRate = successRate * blessedNormal
     const failRate = 1 - successRate
 
     addProducedValue(matrix, targetLevel, j + 1, j, levelUpRate)

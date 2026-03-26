@@ -11,6 +11,14 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.442",
+    date: "2026-03-26",
+    changes: [
+      "贤者镜计算：低级成品需求改为固定链路计件，不再与其他等级链路联动配平",
+      "贤者镜计算：新增『贤者镜触发福气』开关，仅控制贤者镜合成段是否应用福气跳级，普通强化段保持原有福气计算"
+    ]
+  },
+  {
     version: "1.3.440",
     date: "2026-03-20",
     changes: [

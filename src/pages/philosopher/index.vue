@@ -110,6 +110,7 @@ const enhancerStore = useEnhancerStore()
 const dialogVisible = ref(false)
 const search = ref("")
 const targetLevel = useMemory("philosopher-target-level", 18)
+const useBlessedInPhilosopher = useMemory("philosopher-use-blessed-in-philosopher", false)
 const hourlyRate = useMemory("philosopher-hourly-rate", 5000000)
 const taxRate = useMemory("philosopher-tax-rate", 2)
 const ignoreTax = useMemory("philosopher-ignore-tax", false)
@@ -408,6 +409,28 @@ function buildNormalRows(target: number) {
   return rows
 }
 
+function buildDeterministicPhilosopherChildMap(target: number, philosopherProtectLevel: number) {
+  const needs = new Map<number, number>()
+  needs.set(target, 1)
+
+  for (let level = target - 1; level >= philosopherProtectLevel; level--) {
+    const actions = needs.get(level + 1) || 0
+    if (actions <= 1e-10) continue
+    needs.set(level, (needs.get(level) || 0) + actions)
+    if (level - 1 > 0) {
+      needs.set(level - 1, (needs.get(level - 1) || 0) + actions)
+    }
+  }
+
+  needs.delete(target)
+  for (const level of Array.from(needs.keys())) {
+    if (level > philosopherProtectLevel || level <= 0) {
+      needs.delete(level)
+    }
+  }
+  return needs
+}
+
 function getBestPhilosopherPlan(target: number): PhilosopherPlan | null {
   const hrid = currentItem.value.hrid
   if (!hrid || target <= 1) return null
@@ -431,7 +454,8 @@ function getBestPhilosopherPlan(target: number): PhilosopherPlan | null {
         hrid,
         targetLevel: target,
         protectLevel,
-        philosopherProtectLevel
+        philosopherProtectLevel,
+        useBlessedInPhilosopher: useBlessedInPhilosopher.value
       })
       if (!flow) continue
       if (flow.protectionCount > 1e-10 && protectionCost < 0) continue
@@ -481,16 +505,7 @@ function getBestPhilosopherPlan(target: number): PhilosopherPlan | null {
         })
       }
 
-      const childMap = new Map<number, number>()
-      childMap.set(
-        philosopherProtectLevel,
-        (childMap.get(philosopherProtectLevel) || 0) + 1
-      )
-      for (const step of flow.steps) {
-        if (step.mode !== "philosopher" || step.level <= 0 || step.secondaryInputCount <= 1e-10) continue
-        const childLevel = step.level - 1
-        childMap.set(childLevel, (childMap.get(childLevel) || 0) + step.secondaryInputCount)
-      }
+      const childMap = buildDeterministicPhilosopherChildMap(target, philosopherProtectLevel)
 
       const candidate: PhilosopherPlan = {
         targetLevel: target,
@@ -1118,6 +1133,13 @@ const planChildren = computed(() => {
               </template>
             </el-table-column>
           </el-table>
+
+          <el-divider class="mt-2 mb-2" />
+
+          <div class="flex items-center justify-between">
+            <span>{{ t('贤者镜触发福气') }}</span>
+            <el-switch v-model="useBlessedInPhilosopher" />
+          </div>
         </el-card>
       </el-col>
     </el-row>

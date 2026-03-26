@@ -127,6 +127,7 @@ export default {
   "成交量": "Vol",
   "成交量(1h)": "Vol (1h)",
   "强化消耗": "Enhance Cost",
+  "贤者镜触发福气": "Blessed In Philosopher",
   "目标": "Target",
   "次数": "Actions",
   "保护": "Protects",

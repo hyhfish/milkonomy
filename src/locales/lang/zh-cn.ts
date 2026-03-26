@@ -1,4 +1,5 @@
 export default {
+  "贤者镜触发福气": "贤者镜触发福气",
   "Abyssal Essence": "地狱精华",
   "Acrobatic Hood": "杂技师兜帽",
   "Acrobatic Hood (R)": "杂技师兜帽（精）",
