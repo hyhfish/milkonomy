@@ -20,41 +20,60 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   "update:modelValue": [value: number | undefined]
+  "change": [value: number | undefined, oldValue: number | undefined]
 }>()
 
 function clamp(value: number) {
   return Math.min(props.max, Math.max(props.min, value))
 }
 
-function stepByTier(high: boolean) {
-  if (props.disabled) return
-  const base = typeof props.modelValue === "number" && Number.isFinite(props.modelValue)
-    ? props.modelValue
-    : props.fallbackBase
-  const next = priceStepOf(base, high)
-  emit("update:modelValue", clamp(next > 0 ? next : props.min))
+function emitValue(value: number | undefined, oldValue: number | undefined) {
+  emit("update:modelValue", value)
+  emit("change", value, oldValue)
 }
 
-function onChange(value: number | undefined, oldValue: number | undefined) {
+function resolveTierStep(value: number | undefined, oldValue: number | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    emit("update:modelValue", value)
-    return
+    return value
   }
 
   if (value < props.min) {
-    emit("update:modelValue", props.min)
-    return
+    return props.min
   }
 
   const isOldNumber = typeof oldValue === "number" && Number.isFinite(oldValue)
   const delta = isOldNumber ? value - oldValue : Number.NaN
 
-  if (isOldNumber && Math.abs(Math.abs(delta) - 1) < 1e-9) {
-    stepByTier(delta > 0)
+  let high: boolean | undefined
+  let base: number | undefined
+
+  if (isOldNumber && oldValue === -1 && value === 0) {
+    return 1
+  } else if (isOldNumber && Math.abs(Math.abs(delta) - 1) < 1e-9) {
+    high = delta > 0
+    base = oldValue
+  } else if (!isOldNumber && (value === -1 || value === 0 || value === 1)) {
+    if (props.fallbackBase > 0) {
+      high = value === 1
+      base = props.fallbackBase
+    } else {
+      return value === 1 ? 1 : props.min
+    }
+  } else {
+    return clamp(value)
+  }
+
+  const next = priceStepOf(base, high)
+  return clamp(next > 0 ? next : props.min)
+}
+
+function onChange(value: number | undefined, oldValue: number | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    emitValue(value, oldValue)
     return
   }
 
-  emit("update:modelValue", clamp(value))
+  emitValue(resolveTierStep(value, oldValue), oldValue)
 }
 </script>
 
