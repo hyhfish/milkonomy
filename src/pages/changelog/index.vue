@@ -11,6 +11,15 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.443",
+    date: "2026-04-07",
+    changes: [
+      "本地缓存：将 gameData 与 marketData 从 localStorage 迁移到 IndexedDB，避免大体积数据触发浏览器存储配额限制",
+      "启动加载：应用启动时会先从 IndexedDB 恢复游戏数据与市场数据缓存，再继续拉取最新市场数据",
+      "缓存兼容：首次加载时会自动将旧版 localStorage 中的游戏数据与市场数据迁移到 IndexedDB"
+    ]
+  },
+  {
     version: "1.3.442",
     date: "2026-03-26",
     changes: [

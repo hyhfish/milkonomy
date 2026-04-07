@@ -43,7 +43,7 @@ app.use(VueGtag, {
   }
 })
 
-useGameStoreOutside().tryFetchData().then(() => {
+useGameStoreOutside().hydratePersistentData().then(() => useGameStoreOutside().tryFetchData()).then(() => {
   router.isReady().then(() => {
     app.mount("#app")
   })

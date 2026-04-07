@@ -7,6 +7,7 @@ import type { WorkflowCalculator } from "@/calculator/workflow"
 import type { Action, GameData, NoncombatStatsKey } from "~/game"
 import type { Market, MarketData, MarketDataPlain, MarketItemPrice } from "~/market"
 import { defineStore } from "pinia"
+import { getIndexedDbValue, setIndexedDbValue } from "@/common/utils/cache/indexed-db"
 import locales, { getTrans } from "@/locales"
 import { pinia } from "@/pinia"
 
@@ -103,8 +104,8 @@ export const PRICE_STATUS_LIST = [
 
 export const useGameStore = defineStore("game", {
   state: () => ({
-    gameData: getGameData(),
-    marketData: getMarketData(),
+    gameData: null as GameData | null,
+    marketData: null as MarketData | null,
     leaderboardCache: {} as { [key: string]: Calculator[] },
     enhanposerCache: {} as { [time: number]: WorkflowCalculator[] },
     manualchemyCache: {} as { [time: number]: Calculator[] },
@@ -114,9 +115,24 @@ export const useGameStore = defineStore("game", {
     decomposeCache: {} as { [time: number]: DecomposeCalculator[] },
     secret: loadSecret(),
     buyStatus: loadBuyStatus(),
-    sellStatus: loadSellStatus()
+    sellStatus: loadSellStatus(),
+    persistentDataHydrated: false
   }),
   actions: {
+    async hydratePersistentData() {
+      if (this.persistentDataHydrated) {
+        return
+      }
+
+      const [gameData, marketData] = await Promise.all([
+        getGameData(),
+        getMarketData()
+      ])
+
+      this.gameData = gameData
+      this.marketData = marketData
+      this.persistentDataHydrated = true
+    },
     async tryFetchData() {
       let retryCount = 5
       while (retryCount--) {
@@ -161,7 +177,7 @@ export const useGameStore = defineStore("game", {
       if (!this.gameData) {
         this.gameData = newGameData
       }
-      setGameData(newGameData)
+      await setGameData(newGameData)
 
       // 如果缓存数据的时间戳与新数据相同，则不更新
       const sameTimestamp = this.marketData?.timestamp && this.marketData?.timestamp === newMarketData.timestamp
@@ -170,7 +186,7 @@ export const useGameStore = defineStore("game", {
         return
       }
 
-      this.marketData = updateMarketData(this.marketData, newMarketData, newGameData)
+      this.marketData = await updateMarketData(this.marketData, newMarketData, newGameData)
       this.clearAllCaches()
     },
 
@@ -298,7 +314,7 @@ function hasAvgVolFields(data: MarketData | null | undefined) {
   return false
 }
 
-function updateMarketData(oldData: MarketData | null, newData: MarketDataPlain, newGameData: GameData): MarketData {
+async function updateMarketData(oldData: MarketData | null, newData: MarketDataPlain, newGameData: GameData): Promise<MarketData> {
   const oldMarket = oldData?.marketData || {}
   const newMarket: Market = { }
 
@@ -358,25 +374,59 @@ function updateMarketData(oldData: MarketData | null, newData: MarketDataPlain, 
     timestamp: newData.timestamp,
     marketData: newMarket
   }
-  setMarketData(result)
+  await setMarketData(result)
 
   return result
 }
 
 const KEY_PREFIX = "game-"
+const GAME_DATA_KEY = `${KEY_PREFIX}game-data`
+const MARKET_DATA_KEY = `${KEY_PREFIX}market-data`
 
-function getMarketData() {
-  return JSON.parse(localStorage.getItem(`${KEY_PREFIX}market-data`) || "null") as MarketData | null
-}
-function setMarketData(value: MarketData) {
-  localStorage.setItem(`${KEY_PREFIX}market-data`, JSON.stringify(value))
+function readLegacyLocalStorageJson<T>(key: string): T | null {
+  const raw = localStorage.getItem(key)
+  if (!raw) {
+    return null
+  }
+  return JSON.parse(raw) as T
 }
 
-function getGameData() {
-  return JSON.parse(localStorage.getItem(`${KEY_PREFIX}game-data`) || "null") as GameData | null
+async function getMarketData() {
+  const cached = await getIndexedDbValue<MarketData>(MARKET_DATA_KEY)
+  if (cached) {
+    return cached
+  }
+
+  const legacy = readLegacyLocalStorageJson<MarketData>(MARKET_DATA_KEY)
+  if (legacy) {
+    await setIndexedDbValue(MARKET_DATA_KEY, legacy)
+    localStorage.removeItem(MARKET_DATA_KEY)
+  }
+  return legacy
 }
-function setGameData(value: GameData) {
-  localStorage.setItem(`${KEY_PREFIX}game-data`, JSON.stringify(value))
+
+async function setMarketData(value: MarketData) {
+  await setIndexedDbValue(MARKET_DATA_KEY, value)
+  localStorage.removeItem(MARKET_DATA_KEY)
+}
+
+async function getGameData() {
+  const cached = await getIndexedDbValue<GameData>(GAME_DATA_KEY)
+  if (cached) {
+    return cached
+  }
+
+  const legacy = readLegacyLocalStorageJson<GameData>(GAME_DATA_KEY)
+  if (legacy) {
+    await setIndexedDbValue(GAME_DATA_KEY, legacy)
+    localStorage.removeItem(GAME_DATA_KEY)
+  }
+  return legacy
+}
+
+async function setGameData(value: GameData) {
+  await setIndexedDbValue(GAME_DATA_KEY, value)
+  localStorage.removeItem(GAME_DATA_KEY)
 }
 
 function loadSecret() {
