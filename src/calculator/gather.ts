@@ -41,21 +41,30 @@ export class GatherCalculator extends Calculator {
     const gatheringBuff = getBuffOf(this.action, "Gathering")
     const processingBuff = getBuffOf(this.action, "Processing")
 
-    let list = this.actionItem.dropTable!.map(output => ({
-      hrid: output.itemHrid,
-      // 采集茶补正
-      count: (output.maxCount + output.minCount) / 2 * (1 - processingBuff) * (1 + gatheringBuff),
-      marketPrice: getPriceOf(output.itemHrid).bid
-    }))
+    const processingInfo = getProcessingProduct(this.hrid)
+    let list = this.actionItem.dropTable!.map((output) => {
+      const baseCount = (output.maxCount + output.minCount) / 2
+      // 主产物只在存在加工映射时才被加工茶吃掉
+      const effectiveProcessingBuff = processingInfo && output.itemHrid === this.hrid ? processingBuff : 0
+      return {
+        hrid: output.itemHrid,
+        // 采集茶补正
+        count: baseCount * (1 - effectiveProcessingBuff) * (1 + gatheringBuff),
+        marketPrice: getPriceOf(output.itemHrid).bid
+      }
+    })
 
-    // 加工茶
-    const processingHrid = getProcessingProduct(this.hrid)
-    if (processingHrid && processingBuff) {
-      list.push({
-        hrid: processingHrid,
-        count: processingBuff,
-        marketPrice: getPriceOf(processingHrid).bid
-      })
+    // 加工茶：被吃掉的原料按配方比例（一般 2:1）转化成加工产物
+    if (processingInfo && processingBuff) {
+      const rawDrop = this.actionItem.dropTable!.find(d => d.itemHrid === this.hrid)
+      if (rawDrop) {
+        const baseCount = (rawDrop.maxCount + rawDrop.minCount) / 2
+        list.push({
+          hrid: processingInfo.hrid,
+          count: baseCount * processingBuff * (1 + gatheringBuff) / processingInfo.inputCount,
+          marketPrice: getPriceOf(processingInfo.hrid).bid
+        })
+      }
     }
 
     list = list.concat(this.actionItem.essenceDropTable?.map(essence => ({

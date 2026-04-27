@@ -15,7 +15,11 @@ const _communityBuffTypeDetailMapCache: Record<string, CommunityBuffDetail> = {}
 const _personalBuffTypeDetailMapCache: Record<string, PersonalBuffDetail> = {}
 const _achievementTierDetailMapCache: Record<string, AchievementTierDetail> = {}
 
-let _processingProductMap: Record<string, string> = {}
+export interface ProcessingInfo {
+  hrid: string
+  inputCount: number
+}
+let _processingProductMap: Record<string, ProcessingInfo> = {}
 let _priceCache = {} as Record<string, MarketItemPrice>
 let currentBuyStatus = useGameStoreOutside().buyStatus
 let currentSellStatus = useGameStoreOutside().sellStatus
@@ -290,13 +294,22 @@ export function initProcessingProductMap() {
   _processingProductMap = {}
   game.gameData && Object.entries(game.gameData.actionDetailMap).forEach(([key, value]) => {
     if (key.match(/fabric$/) || key.match(/lumber$/) || key.match(/cheese$/)) {
-      _processingProductMap[value.inputItems[0].itemHrid] = value.outputItems[0].itemHrid
+      const input = value.inputItems[0]
+      _processingProductMap[input.itemHrid] = {
+        hrid: value.outputItems[0].itemHrid,
+        inputCount: input.count
+      }
     }
   })
-  _processingProductMap["/items/rainbow_milk"] = "/items/rainbow_cheese"
+  if (!_processingProductMap["/items/rainbow_milk"]) {
+    _processingProductMap["/items/rainbow_milk"] = {
+      hrid: "/items/rainbow_cheese",
+      inputCount: 2
+    }
+  }
 }
 
-export function getProcessingProduct(hrid: string) {
+export function getProcessingProduct(hrid: string): ProcessingInfo | undefined {
   return _processingProductMap[hrid]
 }
 
