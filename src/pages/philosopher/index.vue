@@ -443,7 +443,7 @@ function getBestPhilosopherPlan(target: number): PhilosopherPlan | null {
 
   const normalRows = buildNormalRows(target)
   if (!normalRows.length) return null
-  const bestNormalCost = Math.min(...normalRows.map(row => row.totalCostNoHourly))
+  const bestNormalCost = Math.min(...normalRows.map(row => row.totalCost))
   const speedCalc = new EnhanceCalculator({ hrid, enhanceLevel: target, protectLevel: 1 })
   const actionsPH = speedCalc.actionsPH
 
@@ -525,13 +525,13 @@ function getBestPhilosopherPlan(target: number): PhilosopherPlan | null {
           .sort((a, b) => a.targetLevel - b.targetLevel)
       }
 
-      if (!best || candidate.totalCostNoHourly < best.totalCostNoHourly) {
+      if (!best || candidate.totalCost < best.totalCost) {
         best = candidate
       }
     }
   }
 
-  if (!best || best.totalCostNoHourly >= bestNormalCost) {
+  if (!best || best.totalCost >= bestNormalCost) {
     return null
   }
   return best
@@ -615,7 +615,7 @@ function nextNodeId() {
 function buildPlanNode(target: number, multiplier: number, depth: number): PlanNode | null {
   const normalRows = buildNormalRows(target)
   if (!normalRows.length) return null
-  const bestNormal = normalRows.reduce((best, row) => row.totalCostNoHourly < best.totalCostNoHourly ? row : best, normalRows[0])
+  const bestNormal = normalRows.reduce((best, row) => row.totalCost < best.totalCost ? row : best, normalRows[0])
   const philosopherPlan = getBestPhilosopherPlan(target)
 
   if (philosopherPlan) {
