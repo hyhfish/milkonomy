@@ -173,9 +173,15 @@ export const useGameStore = defineStore("game", {
       }
       const newGameData = await response[0].json()
       const newMarketData = await response[1].json()
-      // 如果有缓存数据，则不更新gameData，防止国际化数据被覆
-      if (!this.gameData) {
+      // 仅当 gameData 版本真的变化时才更新 pinia 状态并清空衍生缓存，
+      // 避免每次轮询都触发整棵响应链；
+      // 历史上注释写的"防止国际化数据被覆"已不再成立——i18n 走静态映射，不会回写 gameData
+      const gameVersionChanged = !this.gameData
+        || this.gameData.gameVersion !== newGameData.gameVersion
+        || this.gameData.versionTimestamp !== newGameData.versionTimestamp
+      if (gameVersionChanged) {
         this.gameData = newGameData
+        this.clearAllCaches()
       }
       await setGameData(newGameData)
 
