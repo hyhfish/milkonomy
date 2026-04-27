@@ -21,6 +21,15 @@ export class WorkflowCalculator extends Calculator {
     return "WorkflowCalculator"
   }
 
+  // 子步骤链相同的 workflow 视为同一个 id，避免不同链在排行榜里因终态相同而互相覆盖
+  get id(): string {
+    const subKeys = this.configs
+      .flat()
+      .map(c => `${c.hrid}-${c.project}-${c.action}-${c.catalystRank ?? ""}`)
+      .join("|")
+    return `wf:${this.project}:${subKeys}`
+  }
+
   get catalyst() {
     return (this.calculatorList[this.calculatorList.length - 1] as any).catalyst
   }

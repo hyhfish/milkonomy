@@ -67,7 +67,7 @@ export default abstract class Calculator {
     return this._item
   }
 
-  get id(): `${string}-${string}-${Action}` {
+  get id(): string {
     return `${this.hrid}-${this.project}-${this.action}`
   }
 

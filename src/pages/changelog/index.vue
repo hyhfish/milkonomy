@@ -11,6 +11,16 @@ const appVersion = __APP_VERSION__
 // NOTE: Only user-facing feature changes are recorded here (no deploy/CI changes).
 const entries: ChangelogEntry[] = [
   {
+    version: "1.3.447",
+    date: "2026-04-27",
+    changes: [
+      "采集计算：修复加工茶产物数量错误，补回采集茶系数与配方比例（2 原料 → 1 加工品），伐木 / 挤奶 / 采集三类均生效",
+      "采集计算：加工茶的『扣减原料』效果只作用于真正存在加工配方的掉落物，多掉落动作中无关掉落（如鸡蛋、麦子）不再被错误扣减",
+      "贤者镜方案：方案对比与最佳挑选改用『总费用（含工时费/税率）』，避免工时费下贤者镜方案被错误隐藏",
+      "收藏夹：开放对多步动作的收藏，落库与重建会保存每一步的子配置；不同步数 / 不同子链的多步动作互不覆盖"
+    ]
+  },
+  {
     version: "1.3.443",
     date: "2026-04-07",
     changes: [

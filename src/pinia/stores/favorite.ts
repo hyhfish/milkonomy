@@ -1,5 +1,4 @@
 import type { CalculatorConfig } from "@/calculator"
-import type { Action } from "~/game"
 import { find } from "lodash-es"
 import { defineStore } from "pinia"
 import { pinia } from "@/pinia"
@@ -38,8 +37,10 @@ export const useFavoriteStore = defineStore("favorite", {
 })
 const LIST_KEY = "manual-list"
 export interface StorageCalculatorItem extends CalculatorConfig {
-  id: `${string}-${string}-${Action}`
+  id: string
   className?: string
+  /** WorkflowCalculator 收藏时使用，记录每一步的子配置 */
+  subConfigs?: StorageCalculatorItem[]
 }
 function loadList(): StorageCalculatorItem[] {
   try {

@@ -29,9 +29,14 @@ function calcProfit(sellTaxFactor: number) {
   const list = useFavoriteStoreOutside().list
   const profitList: Calculator[] = []
   list.filter(item => calculatorConstructable(item.className!)).forEach((item) => {
-    const instance = getCalculatorInstance(item)
-    instance.setSellTaxFactor(sellTaxFactor)
-    instance.available && profitList.push(instance.run())
+    try {
+      // workflow 的子计算器在构造时就需要正确的税率，因此通过参数透传
+      const instance = getCalculatorInstance(item, sellTaxFactor)
+      instance.setSellTaxFactor(sellTaxFactor)
+      instance.available && profitList.push(instance.run())
+    } catch (e) {
+      console.error(e)
+    }
   })
   return profitList
 }
@@ -43,11 +48,5 @@ export function addFavoriteApi(row: Calculator) {
 }
 /** 删 */
 export function deleteFavoriteApi(row: Calculator) {
-  useFavoriteStoreOutside().deleteFavorite({
-    id: row.id,
-    hrid: row.item.hrid,
-    project: row.project,
-    action: row.action,
-    catalystRank: row.catalystRank
-  })
+  useFavoriteStoreOutside().deleteFavorite(getStorageCalculatorItem(row))
 }

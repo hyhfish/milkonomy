@@ -6,7 +6,6 @@ import { usePagination } from "@@/composables/usePagination"
 import { Delete, Edit, Search, Star, StarFilled, Warning } from "@element-plus/icons-vue"
 import { ElMessageBox, type FormInstance, type Sort } from "element-plus"
 import { cloneDeep, debounce } from "lodash-es"
-import { WorkflowCalculator } from "@/calculator/workflow"
 
 import { addFavoriteApi, deleteFavoriteApi, getFavoriteDataApi } from "@/common/apis/favorite"
 import { getPriceOf } from "@/common/apis/game"
@@ -379,11 +378,8 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
 
               <el-table-column prop="favorite" :label="t('收藏')" align="center" sortable="custom" :sort-orders="['descending', null]">
                 <template #default="{ row }">
-                  <template v-if="!(row instanceof WorkflowCalculator)">
-                    <el-link v-if="!favoriteStore.hasFavorite(row)" :underline="false" type="warning" :icon="Star" @click="addFavorite(row)" style="font-size:24px" />
-                    <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="deleteFavorite(row)" style="font-size:28px" />
-                  </template>
-                  <template v-else />
+                  <el-link v-if="!favoriteStore.hasFavorite(row)" :underline="false" type="warning" :icon="Star" @click="addFavorite(row)" style="font-size:24px" />
+                  <el-link v-else :underline="false" :icon="StarFilled" type="warning" @click="deleteFavorite(row)" style="font-size:28px" />
                 </template>
               </el-table-column>
             </el-table>
