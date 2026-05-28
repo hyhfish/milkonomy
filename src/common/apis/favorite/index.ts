@@ -3,6 +3,7 @@ import type Calculator from "@/calculator"
 import { calculatorConstructable, getCalculatorInstance, getStorageCalculatorItem } from "@/calculator/utils"
 import { getEquipmentTypeOf } from "@/common/utils/game"
 import { useFavoriteStoreOutside } from "@/pinia/stores/favorite"
+import { handleVolume1hSearch } from "../utils"
 /** 查 */
 export async function getFavoriteDataApi(params: RequestData) {
   await new Promise(resolve => setTimeout(resolve, 300))
@@ -20,6 +21,7 @@ export async function getFavoriteDataApi(params: RequestData) {
   params.banEquipment && (profitList = profitList.filter(item => !item.isEquipment))
   // 排除护符（charm）
   params.banCharm && (profitList = profitList.filter(item => !item.item || getEquipmentTypeOf(item.item) !== "charm"))
+  profitList = handleVolume1hSearch(profitList, params)
   // 分页
   return { list: profitList.slice((params.currentPage - 1) * params.size, params.currentPage * params.size), total: profitList.length }
 }

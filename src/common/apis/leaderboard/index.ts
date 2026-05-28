@@ -11,7 +11,7 @@ import locales, { getTrans } from "@/locales"
 import { type StorageCalculatorItem, useFavoriteStoreOutside } from "@/pinia/stores/favorite"
 import { useGameStoreOutside } from "@/pinia/stores/game"
 import { getGameDataApi } from "../game"
-import { handlePage, handlePush, handleSearch, handleSort } from "../utils"
+import { handlePage, handlePush, handleSearch, handleSort, handleVolume1hSearch } from "../utils"
 
 const { t } = locales.global
 /** 查 */
@@ -58,6 +58,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
       return typeof itemLevel === "number" && itemLevel <= maxItemLevel
     })
   }
+  profitList = handleVolume1hSearch(profitList, params)
 
   return handlePage(handleSort(handleSearch(profitList, params), params), params)
 }

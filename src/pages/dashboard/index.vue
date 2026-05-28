@@ -36,6 +36,8 @@ const ldSearchData = useMemory("dashboard-leaderboard-search-data", {
   project: "",
   profitRate: 10,
   maxItemLevel: undefined,
+  minVolume1h: undefined,
+  maxVolume1h: undefined,
   banEquipment: true,
   banCharm: false
 })
@@ -90,6 +92,8 @@ const frSearchFormRef = ref<FormInstance | null>(null)
 const frSearchData = useMemory("dashboard-favorite-search-data", {
   name: "",
   project: "",
+  minVolume1h: undefined,
+  maxVolume1h: undefined,
   banCharm: false
 })
 
@@ -189,7 +193,7 @@ const { t } = useI18n()
 
 function formatVolume1h(row: any) {
   const hrid = row?.hrid
-  const level = row?.calculator?.enhanceLevel ?? 0
+  const level = row?.calculator?.enhanceLevel ?? row?.enhanceLevel ?? 0
   const vol = getPriceOf(hrid, level).vol ?? -1
   return vol < 0 ? "-" : Format.number(vol)
 }
@@ -262,6 +266,26 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
                   :controls="false"
                   @change="handleSearchLD"
                   style="width: 80px;"
+                />
+              </el-form-item>
+
+              <el-form-item :label="`${t('成交量(1h)')} ≥`">
+                <el-input-number
+                  v-model="ldSearchData.minVolume1h"
+                  :min="0"
+                  :controls="false"
+                  @change="handleSearchLD"
+                  style="width: 90px;"
+                />
+              </el-form-item>
+
+              <el-form-item :label="`${t('成交量(1h)')} ≤`">
+                <el-input-number
+                  v-model="ldSearchData.maxVolume1h"
+                  :min="0"
+                  :controls="false"
+                  @change="handleSearchLD"
+                  style="width: 90px;"
                 />
               </el-form-item>
 
@@ -435,6 +459,26 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
                 <el-checkbox v-model="frSearchData.banCharm" @change="handleSearchMN">
                   {{ t('排除护符') }}
                 </el-checkbox>
+              </el-form-item>
+
+              <el-form-item :label="`${t('成交量(1h)')} ≥`">
+                <el-input-number
+                  v-model="frSearchData.minVolume1h"
+                  :min="0"
+                  :controls="false"
+                  @change="handleSearchMN"
+                  style="width: 90px;"
+                />
+              </el-form-item>
+
+              <el-form-item :label="`${t('成交量(1h)')} ≤`">
+                <el-input-number
+                  v-model="frSearchData.maxVolume1h"
+                  :min="0"
+                  :controls="false"
+                  @change="handleSearchMN"
+                  style="width: 90px;"
+                />
               </el-form-item>
             </el-form>
           </template>

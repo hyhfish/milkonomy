@@ -1,5 +1,6 @@
 import type Calculator from "@/calculator"
 import { getEquipmentTypeOf } from "../utils/game"
+import { getPriceOf } from "./game"
 
 export function handleSort(profitList: Calculator[], params: any) {
   // 首先进行一次利润排序
@@ -93,4 +94,19 @@ export function handleSearch(profitList: Calculator[], params: any) {
   params.profitRate && (profitList = profitList.filter(cal => cal.result.profitRate >= params.profitRate! / 100))
   params.maxRisk && (profitList = profitList.filter(cal => cal.result.risk <= params.maxRisk))
   return profitList
+}
+
+export function handleVolume1hSearch(profitList: Calculator[], params: any) {
+  const hasMinVolume1h = params.minVolume1h !== undefined && params.minVolume1h !== null
+  const hasMaxVolume1h = params.maxVolume1h !== undefined && params.maxVolume1h !== null
+  if (!hasMinVolume1h && !hasMaxVolume1h) return profitList
+
+  const minVolume1h = hasMinVolume1h ? Number(params.minVolume1h) : undefined
+  const maxVolume1h = hasMaxVolume1h ? Number(params.maxVolume1h) : undefined
+  return profitList.filter((item) => {
+    const volume1h = getPriceOf(item.hrid, item.enhanceLevel ?? 0).vol
+    if (typeof volume1h !== "number" || volume1h < 0) return false
+    return (minVolume1h === undefined || volume1h >= minVolume1h)
+      && (maxVolume1h === undefined || volume1h <= maxVolume1h)
+  })
 }

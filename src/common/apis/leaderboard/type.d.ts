@@ -22,6 +22,8 @@ export interface RequestData {
   sort?: Sort
   actionLevel?: number
   maxItemLevel?: number
+  minVolume1h?: number
+  maxVolume1h?: number
 }
 
 export type ResponseData = ApiResponseData<{
