@@ -33,7 +33,8 @@ function cloneSubConfig(config: StorageCalculatorItem): StorageCalculatorItem {
 
 export function getCalculatorInstance(
   config: StorageCalculatorItem,
-  sellTaxFactor?: number
+  sellTaxFactor?: number,
+  crossStepBalance: boolean = false
 ): Calculator {
   const className = config.className!
   if (className === WORKFLOW_CLASS_NAME) {
@@ -42,7 +43,7 @@ export function getCalculatorInstance(
     }
     // 子配置在 WorkflowCalculator 构造里会被原地修改，传副本进去
     const subConfigs = config.subConfigs.map(cloneSubConfig)
-    return new WorkflowCalculator(subConfigs, config.project!, sellTaxFactor)
+    return new WorkflowCalculator(subConfigs, config.project!, sellTaxFactor, crossStepBalance)
   }
   const constructor = CLASS_MAP[className]
   return new constructor(config) as Calculator

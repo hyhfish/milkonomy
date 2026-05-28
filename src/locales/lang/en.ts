@@ -87,6 +87,8 @@ export default {
   "#多步动作利润举例": "For example, 7 steps to smith a holy needle, this shows the total profit of producing 1 holy needle in the whole process.",
 
   "#经验提示": "If it is a multi-step action, it shows the total experience of all actions.",
+  "多步产量修正": "Multi-step Yield Correction",
+  "#多步产量修正提示": "By default, if an item is both produced by one step and consumed by a later non-adjacent step in the workflow, the cross-step demand is bought from the market without occupying upstream work hours, causing multi-step yield to be overestimated. When enabled, work hours are re-balanced so upstream supply matches all downstream demand, giving a more realistic yield.",
 
   // 强化分解
   "强化分解": "Enhance Decompose",

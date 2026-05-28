@@ -18,6 +18,8 @@ export interface RequestData {
   banCharm?: boolean
   /** 是否计算市场卖出税率(2%)；默认 true */
   includeTax?: boolean
+  /** 多步产量修正：开启后多步工作流按跨步用料平衡重新分配工时 */
+  crossStepBalance?: boolean
   enhanposer?: boolean
   sort?: Sort
   actionLevel?: number

@@ -43,6 +43,7 @@ const ldSearchData = useMemory("dashboard-leaderboard-search-data", {
 })
 
 const includeTax = useMemory("dashboard-include-tax", true)
+const crossStepBalance = useMemory("dashboard-cross-step-balance", false)
 
 const loadingLD = ref(false)
 
@@ -52,6 +53,7 @@ const getLeaderboardData = debounce(() => {
     currentPage: paginationDataLD.currentPage,
     size: paginationDataLD.pageSize,
     includeTax: includeTax.value,
+    crossStepBalance: crossStepBalance.value,
     ...ldSearchData.value,
     sort: sortLD.value
   }).then((data) => {
@@ -80,6 +82,7 @@ watch([
   () => paginationDataLD.currentPage,
   () => paginationDataLD.pageSize,
   () => includeTax.value,
+  () => crossStepBalance.value,
   () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => useGameStore().buyStatus,
@@ -104,6 +107,7 @@ function getFavoriteData() {
     currentPage: paginationDataMN.currentPage,
     size: paginationDataMN.pageSize,
     includeTax: includeTax.value,
+    crossStepBalance: crossStepBalance.value,
     ...frSearchData.value
   }).then((data) => {
     paginationDataMN.total = data.total
@@ -128,6 +132,7 @@ watch([
   () => paginationDataMN.currentPage,
   () => paginationDataMN.pageSize,
   () => includeTax.value,
+  () => crossStepBalance.value,
   () => useGameStore().marketData,
   () => usePlayerStore().config,
   () => useGameStore().buyStatus,
@@ -217,6 +222,15 @@ const onPriceStatusChange = usePriceStatus("dashboard-price-status")
       <el-checkbox v-model="includeTax" @change="handleIncludeTaxChange">
         {{ t('计算税率') }}
       </el-checkbox>
+
+      <el-tooltip placement="top" effect="light">
+        <template #content>
+          {{ t('#多步产量修正提示') }}
+        </template>
+        <el-checkbox v-model="crossStepBalance" @change="handleIncludeTaxChange">
+          {{ t('多步产量修正') }}
+        </el-checkbox>
+      </el-tooltip>
     </div>
     <el-row :gutter="20" class="row">
       <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="16">

@@ -36,11 +36,18 @@ export class WorkflowCalculator extends Calculator {
 
   calculatorList: Arrayable<Calculator>[] = []
   configs: Arrayable<StorageCalculatorItem>[] = []
+  /**
+   * 是否启用跨步用料平衡：
+   * - false（默认）：workMultiplier 仅按相邻阶段产物-消耗匹配，跨步消耗的物料按市场补齐、不占用上游工时
+   * - true：workMultiplier 倒推时聚合所有下游阶段对同一 hrid 的消耗，使上游产能匹配全部下游需求
+   * 含数组阶段（继承→强化分支）的工作流不支持新算法，会自动回退
+   */
+  crossStepBalance: boolean = false
 
   /**
    * configs为工作流顺序排列
    */
-  constructor(configs: Arrayable<StorageCalculatorItem>[], project: string, sellTaxFactor: number = 0.98) {
+  constructor(configs: Arrayable<StorageCalculatorItem>[], project: string, sellTaxFactor: number = 0.98, crossStepBalance: boolean = false) {
     let last = configs[configs.length - 1]
     if (Array.isArray(last)) {
       last = last[0]
@@ -51,6 +58,7 @@ export class WorkflowCalculator extends Calculator {
       action: last.action
     })
     this.setSellTaxFactor(sellTaxFactor)
+    this.crossStepBalance = crossStepBalance
     this.configs = configs
 
     for (let i = configs.length - 1; i >= 0; i--) {
@@ -259,6 +267,14 @@ export class WorkflowCalculator extends Calculator {
     if (this._workMultiplier) {
       return this._workMultiplier
     }
+    // 跨步用料平衡：仅在没有数组阶段时启用，否则回退到旧算法
+    if (this.crossStepBalance && this.calculatorList.every(c => !Array.isArray(c))) {
+      const balanced = this._computeBalancedWorkMultiplier()
+      if (balanced) {
+        this._workMultiplier = balanced
+        return this._workMultiplier
+      }
+    }
     const singleMultiplier: Arrayable<number>[] = [1]
 
     const resultList = this.calculatorList.map(cal => Array.isArray(cal) ? cal.map(c => c.result) : cal.result)
@@ -306,6 +322,43 @@ export class WorkflowCalculator extends Calculator {
     const total = multiplier.flat().reduce((prev, curr) => prev + curr, 0)
     this._workMultiplier = multiplier.map(m => Array.isArray(m) ? m.map(j => j / total) : m / total)
     return this._workMultiplier
+  }
+
+  /**
+   * 跨步用料平衡版倍率计算：
+   * 以最后一步相对工时为 1，倒推时聚合 j>i 所有下游阶段对 hrid_i 的消耗，
+   * 使上游产能匹配下游全部需求，最后整体归一化到总工时 1h。
+   * 若数据缺失（找不到目标产物 / 产能为 0 / 总和为 0），返回 null 触发旧算法回退。
+   */
+  private _computeBalancedWorkMultiplier(): number[] | null {
+    const cals = this.calculatorList as Calculator[]
+    const n = cals.length
+    if (n === 0) return null
+    const resultList = cals.map(c => c.result)
+    const multipliers = Array.from({ length: n }, () => 0)
+    multipliers[n - 1] = 1
+
+    for (let i = n - 2; i >= 0; i--) {
+      const cal = cals[i]
+      const target = cal.hrid
+      const targetProduct = cal.productList.find(p => p.hrid === target)
+      if (!targetProduct) return null
+      const productionRate = targetProduct.count * (targetProduct.rate || 1) * resultList[i].gainPH
+      if (productionRate <= 0) return null
+
+      let totalConsumption = 0
+      for (let j = i + 1; j < n; j++) {
+        const matched = cals[j].ingredientList.filter(ing => ing.hrid === target)
+        if (matched.length === 0) continue
+        const consumptionCount = matched.reduce((acc, curr) => acc + curr.count, 0)
+        totalConsumption += consumptionCount * resultList[j].consumePH * multipliers[j]
+      }
+      multipliers[i] = totalConsumption / productionRate
+    }
+
+    const total = multipliers.reduce((s, v) => s + v, 0)
+    if (total <= 0) return null
+    return multipliers.map(m => m / total)
   }
 
   run() {

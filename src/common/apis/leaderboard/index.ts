@@ -18,9 +18,10 @@ const { t } = locales.global
 export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
   const includeTax = params.includeTax !== false
   const sellTaxFactor = includeTax ? 0.98 : 1
+  const crossStepBalance = params.crossStepBalance === true
 
   let profitList: Calculator[] = []
-  const cacheKey = `${useGameStoreOutside().marketData!.timestamp}-${includeTax ? "tax" : "noTax"}`
+  const cacheKey = `${useGameStoreOutside().marketData!.timestamp}-${includeTax ? "tax" : "noTax"}-${crossStepBalance ? "csb" : "noCsb"}`
   const cached = useGameStoreOutside().getLeaderboardCache(cacheKey)
   if (cached && cached.length > 0) {
     profitList = cached
@@ -30,7 +31,7 @@ export async function getLeaderboardDataApi(params: Leaderboard.RequestData) {
     let hasError = false
     try {
       profitList = calcProfit(sellTaxFactor)
-      profitList = profitList.concat(calcAllFlowProfit(sellTaxFactor))
+      profitList = profitList.concat(calcAllFlowProfit(sellTaxFactor, crossStepBalance))
     } catch (e: any) {
       hasError = true
       console.error(e)
@@ -120,7 +121,7 @@ function calcProfit(sellTaxFactor: number) {
   return profitList
 }
 
-function calcAllFlowProfit(sellTaxFactor: number) {
+function calcAllFlowProfit(sellTaxFactor: number, crossStepBalance: boolean) {
   const gameData = getGameDataApi()
   // 所有物品列表
   const list = Object.values(gameData.itemDetailMap)
@@ -148,7 +149,7 @@ function calcAllFlowProfit(sellTaxFactor: number) {
           let projectName = t("{0}步{1}", [configs.length, project])
           const otherProject = configs.find(conf => conf.project !== project)
           otherProject && (projectName += t("({0})", [otherProject?.project]))
-          handlePush(profitList, new WorkflowCalculator(configs, projectName, sellTaxFactor))
+          handlePush(profitList, new WorkflowCalculator(configs, projectName, sellTaxFactor, crossStepBalance))
         }
 
         // D4更新后，会出现多步动作中出现不同Action组合的情况
@@ -166,7 +167,7 @@ function calcAllFlowProfit(sellTaxFactor: number) {
       let projectName = t("{0}步{1}", [configs.length, project])
       const otherProject = configs.find(conf => conf.project !== project)
       otherProject && (projectName += t("({0})", [otherProject?.project]))
-      handlePush(profitList, new WorkflowCalculator(configs, projectName, sellTaxFactor))
+      handlePush(profitList, new WorkflowCalculator(configs, projectName, sellTaxFactor, crossStepBalance))
     }
   })
   return profitList
